@@ -202,3 +202,5 @@ modules.xml
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/node,code,webstorm+all
+
+build
