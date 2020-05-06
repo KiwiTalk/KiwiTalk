@@ -12,7 +12,7 @@
     "react-test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "concurrently \"cross-env BROWSER=none yarn run react-start\" \"wait-on http://localhost:3000 && electron .\"",
-    "build": "yarn run react-build && electron-builder",
+    "build": "yarn react-build && electron-builder",
     "release": "yarn react-build && electron-builder --publish=always"
   },
   "eslintConfig": {
