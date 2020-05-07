@@ -12,12 +12,10 @@ text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.2);
 `;
 
 const Title1 = styled.span`
-font-family: NanumBarunGothic,serif;
 font-weight: bold;
 `
 
 const Title2 = styled.span`
-font-family: NanumBarunGothic,serif;
 margin-left: 10px;
 `;
 

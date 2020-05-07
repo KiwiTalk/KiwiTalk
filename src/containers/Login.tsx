@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {FormEvent} from 'react';
 import styled from 'styled-components';
 import Color from '../assets/javascripts/color';
 import kiwi from '../assets/images/kiwi.svg';
@@ -20,7 +20,8 @@ bottom: -50%;
 `;
 
 const Login = () => {
-  const onSubmit = () => {
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
     //TODO
   };
 
