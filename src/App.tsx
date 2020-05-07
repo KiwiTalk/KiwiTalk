@@ -1,10 +1,11 @@
 import React from 'react';
+import Login from './containers/Login';
 import './App.css';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
-      Kiwi Talk
+      <Login/>
     </div>
   );
 }
