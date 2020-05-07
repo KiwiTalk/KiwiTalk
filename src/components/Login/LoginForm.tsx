@@ -3,6 +3,24 @@ import Color from '../../assets/javascripts/color';
 import {ReactComponent as account_circle} from '../../assets/images/account_circle.svg';
 import {ReactComponent as vpn_key} from '../../assets/images/vpn_key.svg';
 import styled from 'styled-components';
+import background from "../../assets/images/background.svg";
+import LoginTitle from './LoginTitle';
+
+const Wrapper = styled.div`
+width: 100%;
+height: 100%;
+background: url(${background}) no-repeat left top fixed;
+
+display: flex;
+flex-direction: column;
+justify-content: center;
+position: fixed;
+z-index: 1;
+
+@media screen and (max-width: 1280px) {
+background-size: 1280px 720px;
+}
+`;
 
 const StyledInput = styled.input`
 width: 100%;
@@ -71,11 +89,14 @@ const Input: React.FC<{placeholder: string, type?: string, icon: React.FunctionC
 
 const LoginForm: React.FC<{onSubmit: EventHandler<FormEvent>}> = ({onSubmit}) => {
   return (
-    <Form onSubmit={onSubmit}>
-      <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={account_circle}/>
-      <Input placeholder={'비밀번호'} type={'password'} icon={vpn_key}/>
-      <Button>로그인</Button>
-    </Form>
+    <Wrapper>
+      <LoginTitle/>
+      <Form onSubmit={onSubmit}>
+        <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={account_circle}/>
+        <Input placeholder={'비밀번호'} type={'password'} icon={vpn_key}/>
+        <Button>로그인</Button>
+      </Form>
+    </Wrapper>
   )
 };
 
