@@ -1,9 +1,11 @@
 import React, {EventHandler, FormEvent, useState} from 'react';
+import styled from 'styled-components';
+
 import Color from '../../assets/javascripts/color';
+import background from "../../assets/images/background.svg";
 import {ReactComponent as account_circle} from '../../assets/images/account_circle.svg';
 import {ReactComponent as vpn_key} from '../../assets/images/vpn_key.svg';
-import styled from 'styled-components';
-import background from "../../assets/images/background.svg";
+
 import LoginTitle from './LoginTitle';
 
 const Wrapper = styled.div`
