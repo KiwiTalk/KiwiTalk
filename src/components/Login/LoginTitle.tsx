@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const TitleWrapper = styled.div`
-margin: 0 0 50px 50px;
+margin-bottom: 50px;
 display: flex;
 flex-direction: row;
 font-size: 36px;
@@ -12,10 +12,12 @@ text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.2);
 `;
 
 const Title1 = styled.span`
+font-family: NanumSquareRound, serif;
 font-weight: bold;
 `
 
 const Title2 = styled.span`
+font-family: NanumSquareRound, serif;
 margin-left: 10px;
 `;
 

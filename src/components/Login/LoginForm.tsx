@@ -3,8 +3,6 @@ import styled from 'styled-components';
 
 import Color from '../../assets/javascripts/color';
 import background from "../../assets/images/background.svg";
-import {ReactComponent as account_circle} from '../../assets/images/account_circle.svg';
-import {ReactComponent as vpn_key} from '../../assets/images/vpn_key.svg';
 
 import LoginTitle from './LoginTitle';
 
@@ -12,15 +10,30 @@ const Wrapper = styled.div`
 width: 100%;
 height: 100%;
 background: url(${background}) no-repeat left top fixed;
-
-display: flex;
-flex-direction: column;
-justify-content: center;
 position: fixed;
 z-index: 1;
+padding: 50px 0 0 50px;
+animation: slide 3s;
 
 @media screen and (max-width: 1280px) {
 background-size: 1280px 720px;
+}
+
+@media screen and (max-width: 560px) {
+padding: 0;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+}
+
+@keyframes slide {
+from {
+background-position: -100vw -100vh;
+}
+to {
+background-position: 0 0;
+}
 }
 `;
 
@@ -73,17 +86,17 @@ background: ${Color.BUTTON_HOVER};
 
 const Form = styled.form`
 width: 300px;
-margin: 50px 0 0 50px;
+margin-bottom: 50px;
 `;
 
-const Input: React.FC<{placeholder: string, type?: string, icon: React.FunctionComponent}> = ({placeholder, type, icon}) => {
+const Input: React.FC<{placeholder: string, type?: string, icon: string}> = ({placeholder, type, icon}) => {
   const [focus, setFocus] = useState(false);
 
-  const Icon = styled(icon)`#icon {fill:${focus ? '#000000' : '#B3B3B3'};}`;
+  const Icon = styled.i`color: ${focus ? '#000000' : '#B3B3B3'};`;
 
   return (
     <InputWrapper>
-      <Icon/>
+      <Icon className={icon}/>
       <StyledInput placeholder={placeholder} type={type} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}/>
     </InputWrapper>
   );
@@ -94,8 +107,8 @@ const LoginForm: React.FC<{onSubmit: EventHandler<FormEvent>}> = ({onSubmit}) =>
     <Wrapper>
       <LoginTitle/>
       <Form onSubmit={onSubmit}>
-        <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={account_circle}/>
-        <Input placeholder={'비밀번호'} type={'password'} icon={vpn_key}/>
+        <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={'fas fa-user-circle'}/>
+        <Input placeholder={'비밀번호'} type={'password'} icon={'fas fa-key'}/>
         <Button>로그인</Button>
       </Form>
     </Wrapper>

@@ -6,7 +6,7 @@
   "authors": [
     "mocha"
   ],
-  "main": "public/electron.js",
+  "main": "public/js/electron.js",
   "homepage": "./",
   "scripts": {
     "react-start": "react-scripts start",

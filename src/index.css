@@ -11,3 +11,5 @@ body {
 }
 
 @font-face { font-family: NanumBarunGothic; src: url('./assets/fonts/NanumBarunGothic.ttf') format('truetype'); }
+@font-face { font-family: NanumSquareRound; src: url('./assets/fonts/NanumSquareRound.ttf') format('truetype'); }
+
