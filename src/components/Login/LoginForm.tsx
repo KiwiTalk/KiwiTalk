@@ -1,6 +1,7 @@
-import React, {EventHandler, FormEvent} from 'react';
-import account_circle from '../assets/images/account_circle.svg';
-import vpn_key from '../assets/images/vpn_key.svg';
+import React, {EventHandler, FormEvent, useState} from 'react';
+import Color from '../../assets/javascripts/color';
+import {ReactComponent as account_circle} from '../../assets/images/account_circle.svg';
+import {ReactComponent as vpn_key} from '../../assets/images/vpn_key.svg';
 import styled from 'styled-components';
 
 const StyledInput = styled.input`
@@ -22,10 +23,6 @@ color: rgba(0, 0, 0, 0.3);
 
 `;
 
-const Icon = styled.img`
-color: #B3B3B3;
-`
-
 const InputWrapper = styled.div`
 width: 100%;
 height: 50px;
@@ -44,10 +41,14 @@ width: 100%;
 height: 50px;
 border: none;
 margin-top: 10px;
-background: #1E1E1E;
+background: ${Color.BUTTON};
 color: #FFFFFF;
 border-radius: 10px;
 font-weight: 600;
+
+:hover {
+background: ${Color.BUTTON_HOVER};
+}
 `;
 
 const Form = styled.form`
@@ -55,12 +56,18 @@ width: 300px;
 margin: 50px 0 0 50px;
 `;
 
-const Input: React.FC<{placeholder: string, type?: string, icon?: string}> = ({placeholder, type, icon}) => (
-  <InputWrapper>
-    {icon && <Icon src={icon} alt={'icon'}/>}
-    <StyledInput placeholder={placeholder} type={type}/>
-  </InputWrapper>
-);
+const Input: React.FC<{placeholder: string, type?: string, icon: React.FunctionComponent}> = ({placeholder, type, icon}) => {
+  const [focus, setFocus] = useState(false);
+
+  const Icon = styled(icon)`#icon {fill: ${(props: { isFocus: boolean }) => props.isFocus ? '#000000' : '#B3B3B3'};}`;
+
+  return (
+    <InputWrapper>
+      {icon && <Icon isFocus={focus}/>}
+      <StyledInput placeholder={placeholder} type={type} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}/>
+    </InputWrapper>
+  );
+};
 
 const LoginForm: React.FC<{onSubmit: EventHandler<FormEvent>}> = ({onSubmit}) => {
   return (
