@@ -79,11 +79,11 @@ margin: 50px 0 0 50px;
 const Input: React.FC<{placeholder: string, type?: string, icon: React.FunctionComponent}> = ({placeholder, type, icon}) => {
   const [focus, setFocus] = useState(false);
 
-  const Icon = styled(icon)`#icon {fill: ${(props: { isFocus: boolean }) => props.isFocus ? '#000000' : '#B3B3B3'};}`;
+  const Icon = styled(icon)`#icon {fill:${focus ? '#000000' : '#B3B3B3'};}`;
 
   return (
     <InputWrapper>
-      {icon && <Icon isFocus={focus}/>}
+      <Icon/>
       <StyledInput placeholder={placeholder} type={type} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}/>
     </InputWrapper>
   );
