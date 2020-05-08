@@ -82,6 +82,10 @@ font-weight: 600;
 :hover {
 background: ${Color.BUTTON_HOVER};
 }
+
+:focus {
+outline:none;
+}
 `;
 
 const Form = styled.form`
