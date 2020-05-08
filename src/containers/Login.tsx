@@ -19,6 +19,14 @@ right: -30%;
 bottom: -50%;
 `;
 
+const VersionText = styled.span`
+position: fixed;
+left: 13px;
+bottom: 10px;
+font-size: 8px;
+z-index: 2;
+`;
+
 const Login = () => {
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -29,6 +37,7 @@ const Login = () => {
     <Wrapper>
       <LoginForm onSubmit={onSubmit}/>
       <Kiwi src={kiwi} alt={'kiwi'}/>
+      <VersionText><b>Kiwitalk</b> ver 0.0.1</VersionText>
     </Wrapper>
   )
 };
