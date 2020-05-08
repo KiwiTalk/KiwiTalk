@@ -4,7 +4,8 @@
 
 ## 백엔드
 
-- [node-kakao](https://github.com/organization/node-kakao)
+- [node-kakao](https://github.com/storycraft/node-kakao)
+- [loco.rs](https://github.com/KiwiTalk/loco.rs)
 
 ## 프론트엔드
 
