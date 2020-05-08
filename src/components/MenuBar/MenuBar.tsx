@@ -1,11 +1,6 @@
 import React, {useState} from 'react';
 
-import {
-  minimizeWindow,
-  maxUnMaxWindow,
-  isWindowMaximized,
-  closeWindow,
-} from '../../functions/menu-functions';
+import {closeWindow, isWindowMaximized, maxUnMaxWindow, minimizeWindow,} from '../../functions/menu-functions';
 import styled from 'styled-components';
 import isElectron from 'is-electron';
 import Color from '../../assets/javascripts/color';
@@ -47,34 +42,45 @@ const CloseButton = styled(Button)`
 }
 `;
 
-const MenuBar = () => {
-  const [isMaximum, setMaximum] = useState(false);
+const remote = window.require('electron').remote;
+const appWindow = remote.getCurrentWindow();
 
-  if (!isElectron()) return null;
-  return (
-    <Wrapper className={'menu-bar'}>
-      <div>
-        <Button>
-          <i className={'fas fa-bars'}/>
-        </Button>
-        <span>Kiwi Talk</span>
-      </div>
-      <div>
-        <Button onClick={() => minimizeWindow()}>
-          <i className={'fas fa-window-minimize'}/>
-        </Button>
-        <Button onClick={() => {
-          maxUnMaxWindow();
-          setMaximum(isWindowMaximized());
-        }}>
-          <i className={'fas ' + (isMaximum ? 'fa-clone' : 'fa-square')}/>
-        </Button>
-        <CloseButton onClick={() => closeWindow()}>
-          <i className={'fas fa-times'}/>
-        </CloseButton>
-      </div>
-    </Wrapper>
-  )
+const MenuBar = () => {
+    const [isMaximum, setMaximum] = useState(false);
+
+    appWindow.once('maximize', () => {
+        setMaximum(isWindowMaximized());
+    });
+    appWindow.once('unmaximize', () => {
+        setMaximum(isWindowMaximized());
+    });
+
+    if (!isElectron()) return null;
+    return (
+        <Wrapper className={'menu-bar'}>
+            <div>
+                <Button>
+                    <i className={'fas fa-bars'}/>
+                </Button>
+                <span>
+                    <b>Kiwi Talk</b>
+                </span>
+            </div>
+            <div>
+                <Button onClick={() => minimizeWindow()}>
+                    <i className={'fas fa-window-minimize'}/>
+                </Button>
+                <Button onClick={() => {
+                    maxUnMaxWindow();
+                }}>
+                    <i className={'fas ' + (isMaximum ? 'fa-clone' : 'fa-square')}/>
+                </Button>
+                <CloseButton onClick={() => closeWindow()}>
+                    <i className={'fas fa-times'}/>
+                </CloseButton>
+            </div>
+        </Wrapper>
+    )
 };
 
 export default MenuBar;
