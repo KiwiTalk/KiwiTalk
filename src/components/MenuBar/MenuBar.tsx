@@ -44,9 +44,10 @@ const CloseButton = styled(Button)`
 
 const MenuBar = () => {
     const [isMaximum, setMaximum] = useState(false);
-    registerMaxUnMaximizeEventListener(() => setMaximum(isWindowMaximized()));
 
     if (!isElectron()) return null;
+    registerMaxUnMaximizeEventListener(() => setMaximum(isWindowMaximized()));
+
     return (
         <Wrapper className={'menu-bar'}>
             <div>

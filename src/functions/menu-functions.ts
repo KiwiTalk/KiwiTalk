@@ -1,7 +1,11 @@
-const remote = window.require('electron').remote;
+let remote: any;
+
+if (window.require) {
+  remote = window.require('electron').remote;
+}
 
 export const getCurrentWindow = () => {
-  return remote.getCurrentWindow();
+  if (remote) return remote.getCurrentWindow();
 };
 
 export const minimizeWindow = (browserWindow = getCurrentWindow()) => {

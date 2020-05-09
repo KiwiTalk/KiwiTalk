@@ -12,7 +12,7 @@ height: 100%;
 background: url(${background}) no-repeat left top fixed;
 position: fixed;
 z-index: 1;
-padding: 50px 0 0 50px;
+padding: 75px 0 0 50px;
 animation: slide 3s;
 
 @media screen and (max-width: 1280px) {
