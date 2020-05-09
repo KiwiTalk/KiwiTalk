@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-import {closeWindow, isWindowMaximized, maxUnMaxWindow, minimizeWindow,} from '../../functions/menu-functions';
+import {closeWindow, isWindowMaximized, maxUnMaxWindow, minimizeWindow, registerMaxUnMaximizeEventListener} from '../../functions/menu-functions';
 import styled from 'styled-components';
 import isElectron from 'is-electron';
 import Color from '../../assets/javascripts/color';
@@ -42,18 +42,9 @@ const CloseButton = styled(Button)`
 }
 `;
 
-const remote = window.require('electron').remote;
-const appWindow = remote.getCurrentWindow();
-
 const MenuBar = () => {
     const [isMaximum, setMaximum] = useState(false);
-
-    appWindow.once('maximize', () => {
-        setMaximum(isWindowMaximized());
-    });
-    appWindow.once('unmaximize', () => {
-        setMaximum(isWindowMaximized());
-    });
+    registerMaxUnMaximizeEventListener(() => setMaximum(isWindowMaximized()));
 
     if (!isElectron()) return null;
     return (
@@ -70,10 +61,8 @@ const MenuBar = () => {
                 <Button onClick={() => minimizeWindow()}>
                     <i className={'fas fa-window-minimize'}/>
                 </Button>
-                <Button onClick={() => {
-                    maxUnMaxWindow();
-                }}>
-                    <i className={'fas ' + (isMaximum ? 'fa-clone' : 'fa-square')}/>
+                <Button onClick={() => maxUnMaxWindow()}>
+                    <i className={'far ' + (isMaximum ? 'fa-clone' : 'fa-square')}/>
                 </Button>
                 <CloseButton onClick={() => closeWindow()}>
                     <i className={'fas fa-times'}/>

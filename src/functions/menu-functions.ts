@@ -35,3 +35,8 @@ export const closeWindow = (browserWindow = getCurrentWindow()) => {
 export const isWindowMaximized = (browserWindow = getCurrentWindow()) => {
   return browserWindow.isMaximized();
 };
+
+export const registerMaxUnMaximizeEventListener = (listener: () => void, browserWindow = getCurrentWindow()) => {
+  browserWindow.once('maximize', listener);
+  browserWindow.once('unmaximize', listener);
+}
