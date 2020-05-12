@@ -1,16 +1,19 @@
 import {TalkClient, KakaoAPI} from "node-kakao";
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
+import Store from 'electron-store';
+
+const store = new Store();
 
 interface AccountData {
-  email?: string
-  password?: string
-  permanent?: boolean
+  email: string
+  password: string
+  permanent: boolean
 }
 
 export default class NodeKakaoBridge {
   static client: TalkClient
-  private static accountData: AccountData = {}
+  private static accountData: AccountData = { email: '', password: '', permanent: false }
 
   static makeDesktopName() {
     let result = '';
@@ -27,19 +30,19 @@ export default class NodeKakaoBridge {
   }
 
   static getUUID() {
-    let uuid = localStorage.getItem('uuid');
+    let uuid = store.get('uuid') as string;
     if (uuid == null) {
       uuid = this.createNewUUID();
-      localStorage.setItem('uuid', uuid);
+      store.set('uuid', uuid);
     }
     return uuid;
   }
 
   static getClientName() {
-    let clientName = localStorage.getItem('client_name');
+    let clientName = store.get('client_name') as string;
     if (clientName == null) {
       clientName = `DESKTOP-${this.makeDesktopName()}`
-      localStorage.setItem('client_name', clientName);
+      store.set('client_name', clientName);
     }
     return clientName;
   }
@@ -48,14 +51,16 @@ export default class NodeKakaoBridge {
     const clientName = this.getClientName();
     this.client = new TalkClient(clientName);
 
-    ipcMain.on('login', this.loginChannelEvent);
-    ipcMain.on('passcode', this.passcodeChannelEvent);
+    // @ts-ignore
+    ipcMain.on('login', (event, ...args) => this.loginChannelEvent(event, ...args));
+    // @ts-ignore
+    ipcMain.on('passcode', (event, ...args) => this.passcodeChannelEvent(event, ...args));
   }
 
   private static async loginChannelEvent(event: Electron.IpcMainEvent, email: string, password: string, permanent: boolean) {
     try {
       await this.client.login(email, password, this.getUUID());
-      event.sender.send('asynchronous-reply', { type: 'login', result: 'success' });
+      event.sender.send('login', { result: 'success' });
     } catch (e) {
       if (e === -100) { // 인증 필요
         KakaoAPI.requestPasscode(email, password, this.getUUID(), this.client.Name, permanent);
@@ -67,6 +72,10 @@ export default class NodeKakaoBridge {
         event.sender.send('login', { result: 'anotherdevice' });
       } else if (e === -997) {
         event.sender.send('login', { result: 'restricted' });
+      } else if (e === 12) {
+        event.sender.send('login', { result: 'wrong' });
+      } else {
+        event.sender.send('login', { result: 'error', errorCode: e });
       }
     }
   }
