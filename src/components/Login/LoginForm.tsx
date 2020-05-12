@@ -1,4 +1,4 @@
-import React, {EventHandler, FormEvent, useState} from 'react';
+import React, {EventHandler, FormEvent, useState, ChangeEvent, InputHTMLAttributes} from 'react';
 import styled from 'styled-components';
 
 import Color from '../../assets/javascripts/color';
@@ -93,26 +93,41 @@ width: 300px;
 margin-bottom: 50px;
 `;
 
-const Input: React.FC<{placeholder: string, type?: string, icon: string}> = ({placeholder, type, icon}) => {
-  const [focus, setFocus] = useState(false);
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  placeholder: string
+  icon: string
+}
 
-  const Icon = styled.i`color: ${focus ? '#000000' : '#B3B3B3'};`;
+const Input: React.FC<InputProps> = ({placeholder, icon, ...args}) => {
+  const [focus, setFocus] = useState(false);
 
   return (
     <InputWrapper>
-      <Icon className={icon}/>
-      <StyledInput placeholder={placeholder} type={type} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}/>
+      <i className={icon} style={{ color: focus ? '#000000' : '#B3B3B3' }}/>
+      <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} {...args}/>
     </InputWrapper>
   );
 };
 
-const LoginForm: React.FC<{onSubmit: EventHandler<FormEvent>}> = ({onSubmit}) => {
+const LoginForm: React.FC<{onSubmit: (email: string, password: string) => any}> = ({onSubmit}) => {
+  const [form, setForm] = useState({ email: '', password: '' });
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setForm({
+      ...form,
+      [event.target.name]: event.target.value
+    });
+  };
+  const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit(form.email, form.password);
+    setForm({ email: '', password: '' });
+  };
   return (
     <Wrapper>
       <LoginTitle/>
-      <Form onSubmit={onSubmit}>
-        <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={'fas fa-user-circle'}/>
-        <Input placeholder={'비밀번호'} type={'password'} icon={'fas fa-key'}/>
+      <Form onSubmit={onFormSubmit}>
+        <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={'fas fa-user-circle'} name={'email'} value={form.email} onChange={onChange}/>
+        <Input placeholder={'비밀번호'} type={'password'} icon={'fas fa-key'} name={'password'} value={form.password} onChange={onChange}/>
         <Button>로그인</Button>
       </Form>
     </Wrapper>
