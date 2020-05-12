@@ -9,13 +9,14 @@
   "main": "public/entry.js",
   "homepage": "./",
   "scripts": {
-    "react-start": "react-scripts start",
-    "react-build": "react-scripts build",
-    "react-test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "dev": "concurrently \"cross-env BROWSER=none yarn run react-start\" \"wait-on http://localhost:3000 && electron .\"",
-    "build": "yarn react-build && electron-builder",
-    "release": "yarn react-build && electron-builder --publish=always"
+    "start:react": "react-scripts start",
+    "build:react": "react-scripts build",
+    "test:react": "react-scripts test",
+    "eject:react": "react-scripts eject",
+    "start:electron": "electron .",
+    "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:electron",
+    "build": "yarn build:react && electron-builder",
+    "release": "yarn build:react && electron-builder --publish=always"
   },
   "eslintConfig": {
     "extends": "react-app"
