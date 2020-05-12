@@ -6,7 +6,7 @@
   "authors": [
     "mocha"
   ],
-  "main": "public/electron.js",
+  "main": "public/entry.js",
   "homepage": "./",
   "scripts": {
     "react-start": "react-scripts start",
@@ -39,24 +39,25 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
     "styled-components": "^5.1.0",
-    "typescript": "~3.8.3"
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.7.0",
     "@testing-library/react": "^10.0.4",
     "@testing-library/user-event": "^10.1.0",
+    "@types/electron": "^1.6.10",
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.5",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.5",
     "@types/styled-components": "^5.1.0",
-    "electron-is-dev": "^1.2.0",
-    "@types/electron": "^1.6.10",
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
     "electron": "^8.2.5",
     "electron-builder": "^22.6.0",
+    "electron-is-dev": "^1.2.0",
     "wait-on": "^5.0.0"
   }
 }
