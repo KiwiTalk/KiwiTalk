@@ -1,6 +1,5 @@
-import React, {EventHandler, FormEvent, useState, ChangeEvent, InputHTMLAttributes} from 'react';
+import React, {FormEvent, useState, ChangeEvent, InputHTMLAttributes} from 'react';
 import styled from 'styled-components';
-
 import Color from '../../assets/javascripts/color';
 import background from "../../assets/images/background.svg";
 

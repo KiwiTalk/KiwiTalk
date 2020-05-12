@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-
-import {closeWindow, isWindowMaximized, maxUnMaxWindow, minimizeWindow, registerMaxUnMaximizeEventListener} from '../../functions/menu-functions';
+import {closeWindow, isWindowMaximized, maxUnMaxWindow, minimizeWindow, registerMaxUnMaximizeEventListener} from '../../functions/electron';
 import styled from 'styled-components';
 import isElectron from 'is-electron';
 import Color from '../../assets/javascripts/color';
