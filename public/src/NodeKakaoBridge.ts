@@ -1,4 +1,4 @@
-import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed} from "node-kakao";
+import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed} from 'node-kakao';
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
 import Store from 'electron-store';

@@ -1,6 +1,6 @@
-import {app, BrowserWindow} from 'electron';
-import WindowManager from './src/WindowManager'
-import NodeKakaoBridge from './src/NodeKakaoBridge'
+import {app} from 'electron';
+import WindowManager from './src/WindowManager';
+import NodeKakaoBridge from './src/NodeKakaoBridge';
 
 app.whenReady().then(() => {
   WindowManager.addFirstWindow();
@@ -14,3 +14,5 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => WindowManager.addFirstWindow());
+
+app.requestSingleInstanceLock();
