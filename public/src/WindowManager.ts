@@ -1,6 +1,6 @@
 import {BrowserWindow, ipcMain, app} from "electron";
 import isDev from 'electron-is-dev';
-import * as path from 'path'
+import * as path from 'path';
 import * as URL from 'url';
 
 export default class WindowManager {
@@ -47,7 +47,7 @@ export default class WindowManager {
     })
 
     if (pushToList) this.windowList.push(newWindow);
-    
+
     return newWindow;
   }
 

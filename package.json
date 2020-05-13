@@ -34,6 +34,7 @@
     ]
   },
   "dependencies": {
+    "electron-is-dev": "^1.2.0",
     "electron-store": "^5.1.1",
     "is-electron": "^2.2.0",
     "node-kakao": "^2.0.1",
@@ -62,7 +63,6 @@
     "cross-env": "^7.0.2",
     "electron": "^8.2.5",
     "electron-builder": "^22.6.0",
-    "electron-is-dev": "^1.2.0",
     "wait-on": "^5.0.0"
   }
 }
