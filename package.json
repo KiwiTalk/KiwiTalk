@@ -52,7 +52,7 @@
     "@testing-library/user-event": "^10.1.0",
     "@types/electron": "^1.6.10",
     "@types/jest": "^25.2.1",
-    "@types/node": "^13.13.5",
+    "@types/node": "^14.0.1",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.5",
