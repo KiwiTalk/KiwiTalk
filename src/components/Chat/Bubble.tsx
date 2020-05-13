@@ -1,4 +1,4 @@
-import React, {EventHandler, FormEvent, useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import bubbleTail from '../../assets/images/bubble_tail.svg'
 

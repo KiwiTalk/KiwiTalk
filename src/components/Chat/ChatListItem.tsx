@@ -1,6 +1,5 @@
-import React, {EventHandler, FormEvent, useState} from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import BubbleTail from '../../assets/images/bubble_tail.svg'
 import ProfileImage from './ProfileImage';
 
 const Wrapper = styled.div`
