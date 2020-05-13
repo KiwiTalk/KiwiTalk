@@ -2,6 +2,7 @@ import {TalkClient, KakaoAPI} from "node-kakao";
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
 import Store from 'electron-store';
+import os from 'os';
 
 const store = new Store();
 
@@ -14,16 +15,6 @@ interface AccountData {
 export default class NodeKakaoBridge {
   static client: TalkClient
   private static accountData: AccountData = { email: '', password: '', permanent: false }
-
-  static makeDesktopName() {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < 7; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
 
   static createNewUUID() {
     return Buffer.from(v4()).toString('base64');
@@ -41,7 +32,7 @@ export default class NodeKakaoBridge {
   static getClientName() {
     let clientName = store.get('client_name') as string;
     if (clientName == null) {
-      clientName = `DESKTOP-${this.makeDesktopName()}`
+      clientName = os.hostname();
       store.set('client_name', clientName);
     }
     return clientName;
@@ -89,7 +80,7 @@ export default class NodeKakaoBridge {
         event.sender.send('passcode', { result: 'success' });
       }
     } catch (e) {
-      event.sender.send('passcode', { result: e });
+      event.sender.send('passcode', { result: 'error', error: e });
     }
   }
 }
