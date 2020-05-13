@@ -1,6 +1,7 @@
 import {BrowserWindow, ipcMain, app} from "electron";
 import isDev from 'electron-is-dev';
-import * as path from 'path';
+import * as path from 'path'
+import * as URL from 'url';
 
 export default class WindowManager {
   static windowList: BrowserWindow[] = [];
@@ -33,7 +34,12 @@ export default class WindowManager {
       newWindow.loadURL(`http://localhost:3000#${url}`);
       newWindow.webContents.openDevTools();
     } else {
-      newWindow.loadFile(path.join(app.getAppPath(), '../build/index.html') + `#${url}`);
+      newWindow.loadURL(URL.format({
+        pathname: path.join(app.getAppPath(), './build/index.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
+      newWindow.webContents.openDevTools();
     }
 
     newWindow.on('closed', () => {
