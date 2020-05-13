@@ -1,4 +1,4 @@
-import {TalkClient, KakaoAPI} from "node-kakao";
+import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed} from "node-kakao";
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
 import Store from 'electron-store';
@@ -46,6 +46,15 @@ export default class NodeKakaoBridge {
     ipcMain.on('login', (event, ...args) => this.loginChannelEvent(event, ...args));
     // @ts-ignore
     ipcMain.on('passcode', (event, ...args) => this.passcodeChannelEvent(event, ...args));
+
+    this.client.on('disconnected', (reason) => this.onDisconnected(reason));
+    this.client.on('join_channel', (joinChannel) => this.onJoinChannel(joinChannel));
+    this.client.on('left_channel', (leftChannel) => this.onLeftChannel(leftChannel));
+    this.client.on('login', (user) => this.onLogin(user));
+    this.client.on('message', (chat) => this.onMessage(chat));
+    this.client.on('message_read', (channel, reader, watermark) => this.onMessageRead(channel, reader, watermark));
+    this.client.on('user_join', (channel, user, feed) => this.onUserJoin(channel, user, feed));
+    this.client.on('user_left', (channel, user, feed) => this.onUserLeft(channel, user, feed));
   }
 
   private static async loginChannelEvent(event: Electron.IpcMainEvent, email: string, password: string, permanent: boolean) {
@@ -82,5 +91,37 @@ export default class NodeKakaoBridge {
     } catch (e) {
       event.sender.send('passcode', { result: 'error', error: e });
     }
+  }
+
+  private static async onDisconnected(reason: LocoKickoutType) {
+
+  }
+
+  private static async onJoinChannel(joinChannel: ChatChannel) {
+
+  }
+
+  private static async onLeftChannel(leftChannel: ChatChannel) {
+
+  }
+
+  private static async onLogin(user: ClientChatUser) {
+
+  }
+
+  private static async onMessage(chat: Chat) {
+
+  }
+
+  private static async onMessageRead(channel: ChatChannel, reader: ChatUser, watermark: any) {
+
+  }
+
+  private static async onUserJoin(channel: ChatChannel, user: ChatUser, feed: ChatFeed) {
+
+  }
+
+  private static async onUserLeft(channel: ChatChannel, user: ChatUser, feed: ChatFeed) {
+
   }
 }
