@@ -4,6 +4,7 @@ import './App.css';
 
 import Login from './containers/Login';
 import MenuBar from './components/MenuBar/MenuBar';
+import Chat from './containers/Chat';
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
       <HashRouter>
         <Route path={'/'} render={() => <Redirect to={'/login'}/>} exact/>
         <Route path={'/login'} component={Login} exact/>
+        <Route path={'/chat'} component={Chat} exact/>
       </HashRouter>
     </div>
   );

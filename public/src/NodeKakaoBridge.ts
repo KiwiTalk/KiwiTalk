@@ -1,8 +1,10 @@
-import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed} from "node-kakao";
+import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed, ChannelInfo} from "node-kakao";
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
 import Store from 'electron-store';
 import os from 'os';
+import WindowManager from './WindowManager'
+import Utils from './Utils'
 
 const store = new Store();
 
@@ -46,6 +48,8 @@ export default class NodeKakaoBridge {
     ipcMain.on('login', (event, ...args) => this.loginChannelEvent(event, ...args));
     // @ts-ignore
     ipcMain.on('passcode', (event, ...args) => this.passcodeChannelEvent(event, ...args));
+    // @ts-ignore
+    ipcMain.on('channel_list', (event, ...args) => this.ChannelListChannelEvent(event, ...args));
 
     this.client.on('disconnected', (reason) => this.onDisconnected(reason));
     this.client.on('join_channel', (joinChannel) => this.onJoinChannel(joinChannel));
@@ -93,6 +97,12 @@ export default class NodeKakaoBridge {
     }
   }
 
+  private static async ChannelListChannelEvent(event: Electron.IpcMainEvent) {
+    const channelList = this.client.ChannelManager.getChannelList()
+    await Promise.all(channelList.map((channel) => channel.getChannelInfo(true)));
+    event.sender.send('channel_list', Utils.toPureJS(channelList))
+  }
+
   private static async onDisconnected(reason: LocoKickoutType) {
 
   }
@@ -110,7 +120,7 @@ export default class NodeKakaoBridge {
   }
 
   private static async onMessage(chat: Chat) {
-
+    WindowManager.sendMessage('chat', Utils.toPureJS(chat))
   }
 
   private static async onMessageRead(channel: ChatChannel, reader: ChatUser, watermark: any) {
