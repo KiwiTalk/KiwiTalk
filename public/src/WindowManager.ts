@@ -48,4 +48,10 @@ export default class WindowManager {
   static removeWindow(browserWindow: BrowserWindow) {
     this.windowList.splice(this.windowList.indexOf(browserWindow), 1);
   }
+
+  static sendMessage(channel: string, ...args: any[]) {
+    this.windowList.forEach((browserWindow) => {
+      browserWindow.webContents.send(channel, ...args);
+    });
+  }
 }
