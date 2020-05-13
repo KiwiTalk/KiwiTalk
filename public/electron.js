@@ -3,4 +3,4 @@ require("ts-node").register({
     module: 'commonjs'
   }
 });
-require("./electron");
+require("./index");
