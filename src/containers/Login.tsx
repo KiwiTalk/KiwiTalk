@@ -45,7 +45,7 @@ interface LoginResponse {
 const onSubmit = (email: string, password: string) => {
   const ipcRenderer = getIpcRenderer();
   console.log(ipcRenderer)
-  ipcRenderer.on('login', (event: IpcRendererEvent, { result, errorCode }: LoginResponse) => {
+  ipcRenderer.once('login', (event: IpcRendererEvent, { result, errorCode }: LoginResponse) => {
     if (result === 'success') {
       alert('로그인 성공');
       window.location.href = '#chat';
