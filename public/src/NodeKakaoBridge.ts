@@ -2,12 +2,11 @@ import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat
 import {ChatChannel as PureChatChannel} from './NodeKakaoPureObject';
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
-import Store from 'electron-store';
 import os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
 
-const store = new Store();
+const store = new (require('electron-store'))();
 
 interface AccountData {
   email: string
@@ -103,10 +102,10 @@ export default class NodeKakaoBridge {
     const pureChannelList = Utils.toPureJS(channelList) as PureChatChannel[];
     await Promise.all(pureChannelList.map(async (pureChannel, index) => {
       if (pureChannel.channelInfo.name === '' || pureChannel.channelInfo.roomImageURL === '') {
-        const channelInfo = await channelList[index].getChannelInfo();
+        const channelInfo = await channelList[index].getChannelInfo(true);
         const userInfoListUpToFive = channelInfo.UserIdList.filter((userId, index) => index < 5).map((userId) => channelInfo.getUserInfoId(userId));
-        if (pureChannel.channelInfo.name === '') pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
-        if (pureChannel.channelInfo.roomImageURL === '') pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
+        channelInfo.Name ? pureChannel.channelInfo.name = channelInfo.Name : pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
+        channelInfo.RoomImageURL ? pureChannel.channelInfo.roomImageURL = channelInfo.RoomImageURL : pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
       }
     }));
     event.sender.send('channel_list', pureChannelList.reverse())

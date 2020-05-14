@@ -3,6 +3,7 @@ import WindowManager from './src/WindowManager';
 import NodeKakaoBridge from './src/NodeKakaoBridge';
 
 app.whenReady().then(() => {
+  WindowManager.init();
   WindowManager.addFirstWindow();
   NodeKakaoBridge.initTalkClient();
 })

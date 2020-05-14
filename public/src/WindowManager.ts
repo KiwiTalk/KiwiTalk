@@ -6,6 +6,13 @@ import * as URL from 'url';
 export default class WindowManager {
   static windowList: BrowserWindow[] = [];
 
+  static init () {
+    this.initOpenWindowChannel();
+    app.on('window-all-closed', () => {
+      app.quit();
+    })
+  }
+
   private static initOpenWindowChannel() {
     ipcMain.on('open_window', (event, url: string) => {
       this.addWindow(url);
@@ -14,7 +21,6 @@ export default class WindowManager {
 
   static addFirstWindow(url = '') {
     if (this.windowList[0] == null) {
-      this.initOpenWindowChannel();
       const newWindow = this.addWindow(url, false);
       this.windowList[0] = newWindow;
     }
