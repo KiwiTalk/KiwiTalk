@@ -105,12 +105,11 @@ export default class NodeKakaoBridge {
       if (pureChannel.channelInfo.name === '' || pureChannel.channelInfo.roomImageURL === '') {
         const channelInfo = await channelList[index].getChannelInfo();
         const userInfoListUpToFive = channelInfo.UserIdList.filter((userId, index) => index < 5).map((userId) => channelInfo.getUserInfoId(userId));
-        console.log(userInfoListUpToFive)
-        if (pureChannel.channelInfo.name === '' ) pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
+        if (pureChannel.channelInfo.name === '') pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
         if (pureChannel.channelInfo.roomImageURL === '') pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
       }
     }));
-    event.sender.send('channel_list', pureChannelList)
+    event.sender.send('channel_list', pureChannelList.reverse())
   }
 
   private static async onDisconnected(reason: LocoKickoutType) {
