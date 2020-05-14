@@ -7,8 +7,10 @@ import { IpcRendererEvent } from 'electron';
 import {getIpcRenderer} from '../functions/electron';
 
 const Wrapper = styled.div`
-  width: 100%;
-  height: 100vh;
+padding-top: 30px;
+width: 100%;
+height: 100vh;
+box-sizing: border-box;
 `;
 
 const ipcRenderer = getIpcRenderer();

@@ -39,7 +39,6 @@ export default class WindowManager {
         protocol: 'file:',
         slashes: true
       }));
-      newWindow.webContents.openDevTools();
     }
 
     newWindow.on('closed', () => {
