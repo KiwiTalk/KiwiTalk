@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {ChatChannel} from "../../../public/src/NodeKakaoPureObject";
+import { ChatChannel } from "../../../public/src/NodeKakaoPureObject";
 import ChatListItem from './ChatListItem';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 

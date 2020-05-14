@@ -1,11 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
+import { Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 import Color from '../assets/javascripts/color';
 import kiwi from '../assets/images/kiwi.svg';
 import LoginForm from '../components/Login/LoginForm';
 import { IpcRendererEvent } from 'electron'
 
-import {getIpcRenderer} from '../functions/electron';
+import { getIpcRenderer } from '../functions/electron';
 
 const Wrapper = styled.div`
 width: 100%;
@@ -42,24 +43,27 @@ interface LoginResponse {
   errorCode?: number
 }
 
-const onSubmit = (email: string, password: string) => {
-  const ipcRenderer = getIpcRenderer();
-  console.log(ipcRenderer)
-  ipcRenderer.once('login', (event: IpcRendererEvent, { result, errorCode }: LoginResponse) => {
-    if (result === 'success') {
-      alert('로그인 성공');
-      window.location.href = '#chat';
-    } else if (result === 'error') {
-      alert(`알 수 없는 에러가 발생했습니다. 에러코드: ${errorCode}`);
-    } else {
-      alert(resultText[result]);
-    }
-  })
-  ipcRenderer.send('login', email, password, true)
-};
-
 const Login = () => {
-  return (
+  const [redirect, setRedirect] = useState('');
+  const onSubmit = (email: string, password: string) => {
+    const ipcRenderer = getIpcRenderer();
+
+    ipcRenderer.once('login', (event: IpcRendererEvent, { result, errorCode }: LoginResponse) => {
+      if (result === 'success') {
+        alert('로그인 성공');
+        setRedirect('chat');
+      } else if (result === 'error') {
+        alert(`알 수 없는 에러가 발생했습니다. 에러코드: ${ errorCode }`);
+      } else if (result === 'passcode') {
+        setRedirect('verify');
+      } else {
+        alert(resultText[result]);
+      }
+    })
+    ipcRenderer.send('login', email, password, true)
+  };
+
+  return redirect ? <Redirect to={redirect}/> : (
     <Wrapper>
       <LoginForm onSubmit={onSubmit}/>
       <Kiwi src={kiwi} alt={'kiwi'}/>

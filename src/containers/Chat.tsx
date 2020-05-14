@@ -4,7 +4,7 @@ import ChatList from '../components/Chat/ChatList';
 import { ChatChannel } from '../../public/src/NodeKakaoPureObject';
 import { IpcRendererEvent } from 'electron';
 
-import {getIpcRenderer} from '../functions/electron';
+import { getIpcRenderer } from '../functions/electron';
 
 const Wrapper = styled.div`
 padding-top: 30px;

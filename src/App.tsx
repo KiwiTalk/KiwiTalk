@@ -2,8 +2,9 @@ import React from 'react';
 import {HashRouter, Redirect, Route} from 'react-router-dom';
 import './App.css';
 
-import Login from './containers/Login';
 import MenuBar from './components/MenuBar/MenuBar';
+import Login from './containers/Login';
+import VerifyCode from './containers/Verify';
 import Chat from './containers/Chat';
 
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
       <HashRouter>
         <Route path={'/'} render={() => <Redirect to={'/login'}/>} exact/>
         <Route path={'/login'} component={Login} exact/>
+        <Route path={'/verify'} component={VerifyCode} exact/>
         <Route path={'/chat'} component={Chat} exact/>
       </HashRouter>
     </div>
