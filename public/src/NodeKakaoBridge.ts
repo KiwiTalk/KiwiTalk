@@ -2,7 +2,7 @@ import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat
 import {ChatChannel as PureChatChannel} from './NodeKakaoPureObject';
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
-import os from 'os';
+import * as os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
 
