@@ -89,8 +89,12 @@ export default class NodeKakaoBridge {
       const res = await KakaoAPI.registerDevice(passcode, this.accountData.email, this.accountData.password, this.getUUID(), this.client.Name, this.accountData.permanent);
       if (res.status === -112) { // 입력불가
         event.sender.send('passcode', { result: 'unavailable' });
-      } else {
+      } else if (res.status === -112) { // 틀림
+        event.sender.send('passcode', { result: 'wrong' });
+      } else if (res.status === 0) { // 정답
         event.sender.send('passcode', { result: 'success' });
+      } else {
+        event.sender.send('passcode', { result: 'error', error: JSON.stringify(res) });
       }
     } catch (e) {
       event.sender.send('passcode', { result: 'error', error: e });

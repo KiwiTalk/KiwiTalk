@@ -51,6 +51,8 @@ const Verify = () => {
         ipcRenderer.send('login');
       } else if (result === 'unavailable') {
         alert('인증 불가. 24시간 후에 재시도하십시오.');
+      } else if (result === 'wrong') {
+        alert(`인증번호가 틀렸습니다.`);
       } else if (result === 'error') {
         alert(`알 수 없는 에러가 발생했습니다. 에러: ${ error }`);
       }
