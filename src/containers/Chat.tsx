@@ -5,8 +5,10 @@ import { ChatChannel } from '../../public/src/NodeKakaoPureObject';
 import { IpcRendererEvent } from 'electron';
 
 const Wrapper = styled.div`
+padding-top: 30px;
 width: 100%;
 height: 100vh;
+box-sizing: border-box;
 `;
 
 const {ipcRenderer} = window.require('electron');
