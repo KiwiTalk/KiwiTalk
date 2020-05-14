@@ -4,21 +4,26 @@ import ChatList from '../components/Chat/ChatList';
 import { ChatChannel } from '../../public/src/NodeKakaoPureObject';
 import { IpcRendererEvent } from 'electron';
 
+import {getIpcRenderer} from '../functions/electron';
+
 const Wrapper = styled.div`
-width: 100%;
-height: 100vh;
+  width: 100%;
+  height: 100vh;
 `;
 
-const {ipcRenderer} = window.require('electron');
+const ipcRenderer = getIpcRenderer();
 
 const Chat = () => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
+
   ipcRenderer.on('channel_list', (event: IpcRendererEvent, channelList: ChatChannel[]) => {
     setChannelList(channelList);
   });
+
   useEffect(() => {
     ipcRenderer.send('channel_list');
   }, [])
+
   return (
     <Wrapper>
       <ChatList channelList={channelList}/>

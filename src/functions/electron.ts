@@ -63,5 +63,6 @@ export const registerMaxUnMaximizeEventListener = (listener: () => void, browser
   if (browserWindow) {
     browserWindow.once('maximize', listener);
     browserWindow.once('unmaximize', listener);
+    browserWindow.once('resize', listener);
   }
 };
