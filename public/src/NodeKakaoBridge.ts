@@ -61,7 +61,7 @@ export default class NodeKakaoBridge {
     this.client.on('user_left', (channel, user, feed) => this.onUserLeft(channel, user, feed));
   }
 
-  private static async loginChannelEvent(event: Electron.IpcMainEvent, email: string, password: string, permanent: boolean) {
+  private static async loginChannelEvent(event: Electron.IpcMainEvent, email: string = this.accountData.email, password: string = this.accountData.password, permanent: boolean = this.accountData.permanent) {
     try {
       await this.client.login(email, password, this.getUUID());
       event.sender.send('login', { result: 'success' });
