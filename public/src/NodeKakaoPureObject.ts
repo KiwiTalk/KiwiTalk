@@ -1,8 +1,9 @@
 import { OpenMemberStruct, ChannelType, ChannelMetaStruct, UserInfo, OpenMemberType, TalkClient, ChatUser, ChatAttachment, MentionContentList } from "node-kakao";
 
 export interface Long {
-  max: number
-  min: number
+  low: number
+  high: number
+  unsigned: boolean
 }
 
 export interface ChannelInfo {
