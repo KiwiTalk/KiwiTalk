@@ -76,6 +76,7 @@ const Button = styled.button`
   color: #FFFFFF;
   border-radius: 10px;
   font-weight: 600;
+  user-select: none;
 
   :hover {
     background: ${Color.BUTTON_HOVER};

@@ -15,6 +15,7 @@ const Wrapper = styled.div`
 const TitleWrapper = styled.div`
   margin-bottom: 50px;
   color: #000000;
+  user-select: none;
 `;
 
 const Logo = styled.img`
@@ -66,6 +67,7 @@ const Button = styled.button`
   color: #FFFFFF;
   font-weight: 600;
   font-size: 12px;
+  user-select: none;
 
   :hover {
     background: ${Color.BUTTON_HOVER};
@@ -88,6 +90,7 @@ const PreviousLink = styled(Link)`
   color: rgba(0, 0, 0, 0.45);
   text-decoration: none;
   margin-top: 16px;
+  user-select: none;
 `;
 
 const Icon = styled.i((props: {focus: boolean}) => `

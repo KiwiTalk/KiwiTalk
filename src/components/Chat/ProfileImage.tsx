@@ -7,6 +7,7 @@ const Wrapper = styled.div`
   width: 54px;
   height: 54px;
   position: relative;
+  user-select: none;
 `;
 
 const Image = styled.img`

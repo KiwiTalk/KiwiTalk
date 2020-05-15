@@ -5,6 +5,7 @@ import logo from '../../assets/images/text_logo.svg';
 const TitleWrapper = styled.div`
   margin-bottom: 50px;
   color: #000000;
+  user-select: none;
 `;
 
 const Logo = styled.img`

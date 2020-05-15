@@ -20,6 +20,7 @@ width: 100%;
 height: 100%;
 right: -30%;
 bottom: -50%;
+user-select: none;
 `;
 
 const VersionText = styled.span`
@@ -28,6 +29,7 @@ left: 13px;
 bottom: 10px;
 font-size: 8px;
 z-index: 2;
+user-select: none;
 `;
 
 const resultText: {[key: string]: string} = {

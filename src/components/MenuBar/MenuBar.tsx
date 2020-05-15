@@ -15,6 +15,7 @@ const Wrapper = styled.div`
   z-index: 3;
   color: #FFFFFF;
   -webkit-app-region: drag;
+  user-select: none;
 
   div {
     height: 100%;
