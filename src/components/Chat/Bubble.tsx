@@ -32,16 +32,6 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
-const Date = styled.span`
-  font-family: KoPubWorldDotum;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 25px;
-  margin-left: 12px;
-  color: #808080;
-`;
-
 const Author = styled.span`
   font-family: KoPubWorldDotum;
   font-style: normal;
@@ -52,13 +42,38 @@ const Author = styled.span`
   margin-top: -4px;
 `;
 
+const HeadWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Date = styled.span`
+  font-family: KoPubWorldDotum;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 25px;
+  margin-left: 12px;
+  color: #808080;
+`;
+
+const Unread = styled.span`
+  font-family: KoPubWorldDotum;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 25px;
+  color: #37ABD0;
+`
+
 export interface BubbleProps {
-  hasTail: boolean,
-  author?: string,
-  time?: string
+  hasTail: boolean
+  author?: string
+  time: string
+  unread: number
 }
 
-const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, children}) => {
+const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, children}) => {
   return (
     <Wrapper>
       {hasTail ? <BubbleTail src={bubbleTail}/> : <FakeTail/>}
@@ -66,7 +81,10 @@ const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, children}) => {
         {author && <Author>{Author}</Author>}
         {children}
       </Content>
-      {time && <Date>{time}</Date>}
+      <HeadWrapper>
+        <Unread>{unread}</Unread>
+        <Date>{time}</Date>
+      </HeadWrapper>
     </Wrapper>
   );
 };

@@ -8,6 +8,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   background: #E8E8E8;
   flex: 1;
+  min-width: 0;
 `;
 
 interface ChatroomProps {

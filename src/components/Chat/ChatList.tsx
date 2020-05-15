@@ -6,7 +6,7 @@ import ProfileDefault from '../../assets/images/profile_default.svg'
 
 const Wrapper = styled.div`
 width: 309px;
-height: 100%;
+flex: 1;
 display: flex;
 flex-direction: column;
 background: #FFFFFF;
