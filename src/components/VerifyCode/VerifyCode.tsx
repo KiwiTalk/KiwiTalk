@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, InputHTMLAttributes } from 'react';
 import Color from '../../assets/javascripts/color';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
+import { Link } from 'react-router-dom';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -17,6 +18,11 @@ const TitleWrapper = styled.div`
 `;
 
 const Logo = styled.img`
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
 `;
 
 const StyledInput = styled.input`
@@ -70,6 +76,20 @@ const Button = styled.button`
   }
 `;
 
+const PreviousLink = styled(Link)`
+  font-family: NanumBarunGothic;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 11px;
+  width: 280px;
+  align-items: center;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.45);
+  text-decoration: none;
+  margin-top: 16px;
+`;
+
 const Icon = styled.i((props: {focus: boolean}) => `
   color: ${props.focus ? '#000000' : '#B3B3B3'};
 `)
@@ -97,16 +117,16 @@ const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({ onSubmi
       <TitleWrapper>
         <Logo src={logo} alt={'logo'}/>
       </TitleWrapper>
-      <form onSubmit={(e) => {
-        console.log(passcode);
+      <Form onSubmit={(e) => {
         onSubmit(passcode);
-        e.preventDefault()
+        e.preventDefault();
       }}>
         <Input placeholder={'인증 번호를 입력해주세요.'} icon={'fas fa-shield-alt'} value={passcode} onChange={(event: ChangeEvent<HTMLInputElement>) => {
           setPasscode(event.target.value);
         }}/>
         <Button>인증하기</Button>
-      </form>
+        <PreviousLink to='/login'>처음으로 돌아가기</PreviousLink>
+      </Form>
     </Wrapper>
   )
 };
