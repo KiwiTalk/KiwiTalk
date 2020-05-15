@@ -26,9 +26,9 @@ interface ChatroomHeaderProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   background: string
 }
 
-const ChatroomHeader: React.FC<ChatroomHeaderProps> = ({background}) => {
+const ChatroomHeader: React.FC<ChatroomHeaderProps> = ({background, style}) => {
   return (
-    <IconButton>
+    <IconButton style={style}>
       <Icon src={background} />
     </IconButton>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import ProfileMaskF7 from '../../assets/images/profile_mask_F7.svg';
 import ProfileMaskFF from '../../assets/images/profile_mask_FF.svg';
@@ -18,9 +18,14 @@ const Image = styled.img`
   width: 100%;
 `;
 
-const ProfileImage: React.FC<{src: string, focus: boolean}> = ({src, focus}) => {
+interface ProfileImageProps extends HTMLAttributes<HTMLDivElement> {
+  src: string
+  focus: boolean
+}
+
+const ProfileImage: React.FC<ProfileImageProps> = ({src, focus, style}) => {
   return (
-    <Wrapper>
+    <Wrapper style={style}>
       <Image src={src}/>
       <Image src={focus ? ProfileMaskF7 : ProfileMaskFF}/>
     </Wrapper>

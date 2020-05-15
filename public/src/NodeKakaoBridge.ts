@@ -50,6 +50,8 @@ export default class NodeKakaoBridge {
     ipcMain.on('passcode', (event, ...args) => this.passcodeChannelEvent(event, ...args));
     // @ts-ignore
     ipcMain.on('channel_list', (event, ...args) => this.ChannelListChannelEvent(event, ...args));
+    // @ts-ignore
+    ipcMain.on('client_user', (event, ...args) => this.ClientUserChannelEvent(event, ...args));
 
     this.client.on('disconnected', (reason) => this.onDisconnected(reason));
     this.client.on('join_channel', (joinChannel) => this.onJoinChannel(joinChannel));
@@ -89,7 +91,7 @@ export default class NodeKakaoBridge {
       const res = await KakaoAPI.registerDevice(passcode, this.accountData.email, this.accountData.password, this.getUUID(), this.client.Name, this.accountData.permanent);
       if (res.status === -112) { // 입력불가
         event.sender.send('passcode', { result: 'unavailable' });
-      } else if (res.status === -112) { // 틀림
+      } else if (res.status === -111) { // 틀림
         event.sender.send('passcode', { result: 'wrong' });
       } else if (res.status === 0) { // 정답
         event.sender.send('passcode', { result: 'success' });
@@ -113,6 +115,11 @@ export default class NodeKakaoBridge {
       }
     }));
     event.sender.send('channel_list', pureChannelList.reverse())
+  }
+
+  private static async ClientUserChannelEvent(event: Electron.IpcMainEvent) {
+    const clientUser = this.client.ClientUser;
+    event.sender.send('client_user', Utils.toPureJS(clientUser));
   }
 
   private static async onDisconnected(reason: LocoKickoutType) {

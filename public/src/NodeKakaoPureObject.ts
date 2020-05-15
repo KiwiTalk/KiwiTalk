@@ -1,4 +1,4 @@
-import { OpenMemberStruct, ChannelType, ChannelMetaStruct, UserInfo, OpenMemberType, TalkClient, ChatUser, ChatAttachment, MentionContentList } from "node-kakao";
+import { OpenMemberStruct, ChannelType, ChannelMetaStruct, UserInfo, OpenMemberType, TalkClient, ChatAttachment, MentionContentList } from "node-kakao";
 
 export interface Long {
   low: number
@@ -49,4 +49,40 @@ export interface Chat {
   attachmentList: ChatAttachment[];
   mentionMap: Map<string, MentionContentList>;
   sendTime: number;
+}
+
+export interface ChatUser {
+  client: TalkClient;
+  id: Long;
+  nickname: string;
+}
+
+export interface ClientChatUser extends ChatUser {
+  mainOpenToken: number;
+  mainUserInfo: ClientUserInfo;
+}
+
+export interface ClientUserInfo {
+  clientAccessData: {
+    Status: number,
+    CountryISO: string,
+    CountryCode: string,
+    AccountId: number,
+    LogonServerTime: number,
+    AccessToken: string,
+    RefreshToken: string,
+    TokenType: string,
+    AutoLoginEmail: string,
+    DisplayAccountId: string,
+    StoryURL: string,
+    MainDevice: string,
+    MainDeviceAppVersion: string
+  };
+  settings: { 
+    ProfileImageURL: string,
+    FullProfileImageURL: string,
+    OriginalProfileImageURL: string,
+    BackgroundImageURL: string,
+    OriginalBackgroundImageURL: string
+  }
 }
