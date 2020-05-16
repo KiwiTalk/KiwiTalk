@@ -1,11 +1,11 @@
-import { TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed } from 'node-kakao';
-import { ChatChannel as PureChatChannel, Chat as PureChat } from '../../src/models/NodeKakaoPureObject';
-import { v4 } from 'uuid';
-import { ipcMain } from 'electron';
+import {Chat, ChatChannel, ChatFeed, ChatUser, ClientChatUser, KakaoAPI, LocoKickoutType, TalkClient} from 'node-kakao';
+import {Chat as PureChat, ChatChannel as PureChatChannel} from '../../src/models/NodeKakaoPureObject';
+import {v4} from 'uuid';
+import {ipcMain} from 'electron';
 import * as os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
-import { AccountSettings } from '../../src/models/NodeKakaoExtraObject'
+import {AccountSettings} from '../../src/models/NodeKakaoExtraObject'
 
 const store = new (require('electron-store'))();
 
@@ -69,20 +69,37 @@ export default class NodeKakaoBridge {
       await this.client.login(email, password, this.getUUID());
       event.sender.send('login', { result: 'success' });
     } catch (e) {
-      if (e === -100) { // 인증 필요
-        KakaoAPI.requestPasscode(email, password, this.getUUID(), this.client.Name, permanent);
-        this.accountData.email = email;
-        this.accountData.password = password;
-        this.accountData.permanent = permanent;
-        event.sender.send('login', { result: 'passcode' });
-      } else if (e === -101) {
-        event.sender.send('login', { result: 'anotherdevice' });
-      } else if (e === -997) {
-        event.sender.send('login', { result: 'restricted' });
-      } else if (e === 12) {
-        event.sender.send('login', { result: 'wrong' });
-      } else {
-        event.sender.send('login', { result: 'error', errorCode: e });
+      switch (e) {
+        case -100: // 인증 필요
+          KakaoAPI.requestPasscode(email, password, this.getUUID(), this.client.Name, permanent);
+          this.accountData.email = email;
+          this.accountData.password = password;
+          this.accountData.permanent = permanent;
+          event.sender.send('login', {
+            result: 'passcode'
+          });
+          break;
+        case -101:
+          event.sender.send('login', {
+            result: 'anotherdevice'
+          });
+          break;
+        case -997:
+          event.sender.send('login', {
+            result: 'restricted'
+          });
+          break;
+        case 12:
+          event.sender.send('login', {
+            result: 'wrong'
+          });
+          break;
+        default:
+          event.sender.send('login', {
+            result: 'error',
+            errorCode: e
+          });
+          break;
       }
     }
   }
@@ -90,17 +107,34 @@ export default class NodeKakaoBridge {
   private static async passcodeChannelEvent (event: Electron.IpcMainEvent, passcode: string) {
     try {
       const res = JSON.parse(await KakaoAPI.registerDevice(passcode, this.accountData.email, this.accountData.password, this.getUUID(), this.client.Name, this.accountData.permanent));
-      if (res.status === -112) { // 입력불가
-        event.sender.send('passcode', { result: 'unavailable' });
-      } else if (res.status === -111) { // 틀림
-        event.sender.send('passcode', { result: 'wrong' });
-      } else if (res.status === 0) { // 정답
-        event.sender.send('passcode', { result: 'success' });
-      } else {
-        event.sender.send('passcode', { result: 'error', error: JSON.stringify(res) });
+      switch (res.status) {
+        case -112: // 입력불가
+          event.sender.send('passcode', {
+            result: 'unavailable'
+          });
+          break;
+        case -111: // 틀림
+          event.sender.send('passcode', {
+            result: 'wrong'
+          });
+          break;
+        case 0: // 정답
+          event.sender.send('passcode', {
+            result: 'success'
+          });
+          break;
+        default:
+          event.sender.send('passcode', {
+            result: 'error',
+            error: JSON.stringify(res)
+          });
+          break;
       }
     } catch (e) {
-      event.sender.send('passcode', { result: 'error', error: e });
+      event.sender.send('passcode', {
+        result: 'error',
+        error: e
+      });
     }
   }
 
@@ -111,8 +145,12 @@ export default class NodeKakaoBridge {
       if (pureChannel.channelInfo.name === '' || pureChannel.channelInfo.roomImageURL === '') {
         const channelInfo = await channelList[index].getChannelInfo();
         const userInfoListUpToFive = channelInfo.UserIdList.filter((userId, index) => index < 5).map((userId) => channelInfo.getUserInfoId(userId));
-        channelInfo.Name ? pureChannel.channelInfo.name = channelInfo.Name : pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
-        channelInfo.RoomImageURL ? pureChannel.channelInfo.roomImageURL = channelInfo.RoomImageURL : pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
+        channelInfo.Name ? pureChannel.channelInfo.name = channelInfo.Name : pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => {
+          return userInfo != null ? userInfo.User.Nickname : "";
+        }).join(', ');
+        channelInfo.RoomImageURL ? pureChannel.channelInfo.roomImageURL = channelInfo.RoomImageURL : pureChannel.channelInfo.roomImageURL = ((userInfoList) => {
+          return userInfoList != null ? userInfoList.ProfileImageURL : "";
+        })(userInfoListUpToFive[0]);
         pureChannel.channelInfo.userInfoMap = {};
         channelInfo.UserIdList.forEach((id) => {
           pureChannel.channelInfo.userInfoMap[id.low.toString()] = Utils.toPureJS(channelInfo.getUserInfoId(id));
