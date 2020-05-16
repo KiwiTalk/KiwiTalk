@@ -110,11 +110,8 @@ export default class NodeKakaoBridge {
     await Promise.all(pureChannelList.map(async (pureChannel, index) => {
       if (pureChannel.channelInfo.name === '' || pureChannel.channelInfo.roomImageURL === '') {
         const channelInfo = await channelList[index].getChannelInfo();
-        console.log(channelInfo.Name)
         const userInfoListUpToFive = channelInfo.UserIdList.filter((userId, index) => index < 5).map((userId) => channelInfo.getUserInfoId(userId));
-        console.log(channelInfo.Name)
         channelInfo.Name ? pureChannel.channelInfo.name = channelInfo.Name : pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
-        console.log(channelInfo.Name)
         channelInfo.RoomImageURL ? pureChannel.channelInfo.roomImageURL = channelInfo.RoomImageURL : pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
       }
     }));
