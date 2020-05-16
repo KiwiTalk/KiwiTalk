@@ -37,24 +37,24 @@ const Content = styled.div`
 `;
 
 const FloatingBar = styled.div`
+  background: ${color.GREY_900};
   position: absolute;
   display: flex;
-  bottom: 14px;
-  left: 48px;
-  right: 47px;
-`
+  bottom: 0px;
+  left: 0px;
 
-const FloatingIcons = styled.div`
-  display: flex;
-  margin-right: 6px;
-  background: ${color.GREY_800};
-  padding: 20px 24px;
+  width: 100%;
+  height: 89px;
+
 `
 
 const FloatingInputContainer = styled.div`
   display: flex;
   flex: 1;
   background: ${color.GREY_800};
+  border-radius: 9999px;
+  
+  margin: 20px;
 `
 
 const FloatingInput = styled.input`
@@ -66,6 +66,7 @@ const FloatingInput = styled.input`
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
+  outline: none;
 `;
 
 interface ChatroomProps {
@@ -125,6 +126,9 @@ const Chatroom: React.FC<ChatroomProps> = ({ channel, chatList }) => {
   }
 
   const sendMessage = () => {
+    if (!channel.id) return;
+    if (text.length <= 0) return;
+
     const ipcRenderer = getIpcRenderer();
 
     ipcRenderer.send('message', channel.id, text);
@@ -138,13 +142,11 @@ const Chatroom: React.FC<ChatroomProps> = ({ channel, chatList }) => {
       <ChatroomHeader title={channel.channelInfo.name} />
       <Contents channel={channel} chatList={chatList} />
       <FloatingBar>
-        <FloatingIcons>
-          <IconButton background={IconAttachment} style={{ width: '24px', height: '24px', marginRight: '24px' }} />
-          <IconButton background={IconEmoji} style={{ width: '24px', height: '24px' }} />
-        </FloatingIcons>
         <FloatingInputContainer>
+          <IconButton background={IconAttachment} style={{ width: '24px', height: '24px', marginLeft: '18px', marginRight: '12px', marginTop: '13.5px' }} />
+          <IconButton background={IconEmoji} style={{ width: '24px', height: '24px', marginTop: '13.5px' }} />
           <FloatingInput value={text} onChange={onChange} onKeyPress={onKeyPress} />
-          <IconButton onClick={event => sendMessage()} background={IconSend} style={{ width: '24px', height: '24px', position: 'absolute', top: '20px', right: '20px' }} />
+          <IconButton onClick={event => sendMessage()} background={IconSend} style={{ width: '24px', height: '24px', position: 'absolute', top: '33.5px', right: '38px' }} />
         </FloatingInputContainer>
       </FloatingBar>
     </Wrapper>
