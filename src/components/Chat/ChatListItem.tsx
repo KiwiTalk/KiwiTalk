@@ -21,6 +21,7 @@ const Text = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 17px;
+  flex: 1;
 `;
 
 const Username = styled.span`
@@ -43,7 +44,10 @@ const LastChat = styled.span`
   font-size: 12px;
   line-height: 18px;
   color: ${color.GREY_400};
-  word-break: keep-all;
+  width: 188px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {

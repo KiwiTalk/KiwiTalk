@@ -12,6 +12,7 @@ const Wrapper = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
 `;
 
 interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
