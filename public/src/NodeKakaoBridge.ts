@@ -1,11 +1,11 @@
-import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed, ChannelInfo, ChannelType} from 'node-kakao';
-import {ChatChannel as PureChatChannel} from './NodeKakaoPureObject';
-import {v4} from 'uuid';
-import {ipcMain} from 'electron';
+import { TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed, ChannelInfo, ChannelType } from 'node-kakao';
+import { ChatChannel as PureChatChannel } from './NodeKakaoPureObject';
+import { v4 } from 'uuid';
+import { ipcMain } from 'electron';
 import * as os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
-import {AccountSettings} from './NodeKakaoExtraObject'
+import { AccountSettings } from './NodeKakaoExtraObject'
 
 const store = new (require('electron-store'))();
 
@@ -19,11 +19,11 @@ export default class NodeKakaoBridge {
   static client: TalkClient
   private static accountData: AccountData = { email: '', password: '', permanent: false }
 
-  static createNewUUID() {
+  static createNewUUID () {
     return Buffer.from(v4()).toString('base64');
   }
 
-  static getUUID() {
+  static getUUID () {
     let uuid = store.get('uuid') as string;
     if (uuid == null) {
       uuid = this.createNewUUID();
@@ -32,7 +32,7 @@ export default class NodeKakaoBridge {
     return uuid;
   }
 
-  static getClientName() {
+  static getClientName () {
     let clientName = store.get('client_name') as string;
     if (clientName == null) {
       clientName = os.hostname();
@@ -41,7 +41,7 @@ export default class NodeKakaoBridge {
     return clientName;
   }
 
-  static initTalkClient() {
+  static initTalkClient () {
     const clientName = this.getClientName();
     this.client = new TalkClient(clientName);
 
@@ -64,7 +64,7 @@ export default class NodeKakaoBridge {
     this.client.on('user_left', (channel, user, feed) => this.onUserLeft(channel, user, feed));
   }
 
-  private static async loginChannelEvent(event: Electron.IpcMainEvent, email: string = this.accountData.email, password: string = this.accountData.password, permanent: boolean = this.accountData.permanent) {
+  private static async loginChannelEvent (event: Electron.IpcMainEvent, email: string = this.accountData.email, password: string = this.accountData.password, permanent: boolean = this.accountData.permanent) {
     try {
       await this.client.login(email, password, this.getUUID());
       event.sender.send('login', { result: 'success' });
@@ -87,9 +87,9 @@ export default class NodeKakaoBridge {
     }
   }
 
-  private static async passcodeChannelEvent(event: Electron.IpcMainEvent, passcode: string) {
+  private static async passcodeChannelEvent (event: Electron.IpcMainEvent, passcode: string) {
     try {
-      const res = await KakaoAPI.registerDevice(passcode, this.accountData.email, this.accountData.password, this.getUUID(), this.client.Name, this.accountData.permanent);
+      const res = JSON.parse(await KakaoAPI.registerDevice(passcode, this.accountData.email, this.accountData.password, this.getUUID(), this.client.Name, this.accountData.permanent));
       if (res.status === -112) { // 입력불가
         event.sender.send('passcode', { result: 'unavailable' });
       } else if (res.status === -111) { // 틀림
@@ -104,7 +104,7 @@ export default class NodeKakaoBridge {
     }
   }
 
-  private static async ChannelListChannelEvent(event: Electron.IpcMainEvent) {
+  private static async ChannelListChannelEvent (event: Electron.IpcMainEvent) {
     const channelList = this.client.ChannelManager.getChannelList()
     const pureChannelList = Utils.toPureJS(channelList) as PureChatChannel[];
     await Promise.all(pureChannelList.map(async (pureChannel, index) => {
@@ -118,42 +118,42 @@ export default class NodeKakaoBridge {
     event.sender.send('channel_list', pureChannelList.reverse())
   }
 
-  private static async AccountSettingsChannelEvent(event: Electron.IpcMainEvent) {
+  private static async AccountSettingsChannelEvent (event: Electron.IpcMainEvent) {
     //@ts-ignore
     const accessToken: string = this.client.ClientUser.MainUserInfo.clientAccessData.AccessToken;
     const accountSettings = JSON.parse(await KakaoAPI.requestAccountSettings(accessToken, this.getUUID())) as AccountSettings;
     event.sender.send('account_settings', accountSettings);
   }
 
-  private static async onDisconnected(reason: LocoKickoutType) {
+  private static async onDisconnected (reason: LocoKickoutType) {
 
   }
 
-  private static async onJoinChannel(joinChannel: ChatChannel) {
+  private static async onJoinChannel (joinChannel: ChatChannel) {
 
   }
 
-  private static async onLeftChannel(leftChannel: ChatChannel) {
+  private static async onLeftChannel (leftChannel: ChatChannel) {
 
   }
 
-  private static async onLogin(user: ClientChatUser) {
+  private static async onLogin (user: ClientChatUser) {
 
   }
 
-  private static async onMessage(chat: Chat) {
+  private static async onMessage (chat: Chat) {
     WindowManager.sendMessage('chat', Utils.toPureJS(chat))
   }
 
-  private static async onMessageRead(channel: ChatChannel, reader: ChatUser, watermark: any) {
+  private static async onMessageRead (channel: ChatChannel, reader: ChatUser, watermark: any) {
 
   }
 
-  private static async onUserJoin(channel: ChatChannel, user: ChatUser, feed: ChatFeed) {
+  private static async onUserJoin (channel: ChatChannel, user: ChatUser, feed: ChatFeed) {
 
   }
 
-  private static async onUserLeft(channel: ChatChannel, user: ChatUser, feed: ChatFeed) {
+  private static async onUserLeft (channel: ChatChannel, user: ChatUser, feed: ChatFeed) {
 
   }
 }
