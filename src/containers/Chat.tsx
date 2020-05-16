@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import ChatList from '../components/Chat/ChatList';
-import { ChatChannel, ClientChatUser } from '../../public/src/NodeKakaoPureObject';
+import { ChatChannel, Chat as ChatObject } from '../../public/src/NodeKakaoPureObject';
 import { AccountSettings } from '../../public/src/NodeKakaoExtraObject';
 import { IpcRendererEvent } from 'electron';
 
@@ -25,6 +24,7 @@ const Chat = () => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(0);
   const [accountSettings, setAccountSettings] = useState<AccountSettings>();
+  const [chatList, setChatList] = useState<ChatObject[]>([]);
 
   useEffect(() => {
     ipcRenderer.on('channel_list', (event: IpcRendererEvent, channelList: ChatChannel[]) => {
@@ -37,14 +37,18 @@ const Chat = () => {
       setAccountSettings(accountSettings);
     })
 
+    ipcRenderer.on('chat', (event: IpcRendererEvent, chat: ChatObject) => {
+      setChatList([...chatList, chat]);
+    })
+
     ipcRenderer.send('channel_list');
   }, [])
 
   return (
     <Wrapper>
       <SideBar />
-      <SidePanel channelList={channelList} accountSettings={accountSettings}/>
-      {channelList[selectedChannel] ? <Chatroom channel={channelList[selectedChannel]} /> : null}
+      <SidePanel channelList={channelList} accountSettings={accountSettings} onChange={(selectedChannel) => setSelectedChannel(selectedChannel)}/>
+      {channelList[selectedChannel] ? <Chatroom channel={channelList[selectedChannel]} chatList={chatList} /> : null}
     </Wrapper>
   );
 };
