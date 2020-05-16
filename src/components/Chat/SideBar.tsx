@@ -5,13 +5,14 @@ import IconChats from '../../assets/images/icon_chats.svg';
 import IconProfilesDisabled from '../../assets/images/icon_profiles_disabled.svg';
 import IconChatsDisabled from '../../assets/images/icon_chats_disabled.svg';
 import IconButton from './IconButton';
+import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`
   width: 64px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #F0F0F0;
+  background: ${color.GREY_750};
   padding: 16px;
   box-sizing: border-box;
 `;

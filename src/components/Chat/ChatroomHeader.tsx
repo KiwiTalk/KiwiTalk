@@ -6,11 +6,12 @@ import IconMenu from '../../assets/images/icon_menu.svg';
 import IconNotificationDisabled from '../../assets/images/icon_notification_disabled.svg';
 import IconNotification from '../../assets/images/icon_notification.svg';
 import IconSearch from '../../assets/images/icon_search.svg';
+import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  background: #FFFFFF;
+  background: ${color.GREY_900};
 `;
 
 const Title = styled.span`
@@ -19,7 +20,7 @@ const Title = styled.span`
   font-weight: 500;
   font-size: 24px;
   line-height: 37px;
-  color: #000000;
+  color: ${color.GREY_100};
   padding: 16px 32px;
   flex: 1;
   overflow: hidden;

@@ -4,6 +4,7 @@ import IconSearch from '../../assets/images/icon_search.svg';
 import IconNewChat from '../../assets/images/icon_new_chat.svg';
 import IconButton from './IconButton';
 import ProfileImage from './ProfileImage';
+import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -11,14 +12,14 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #FFFFFF;
+  background: ${color.GREY_900};
 `;
 
 const SearchInputWrapper = styled.div`
   width: 217px;
   height: 41px;
   position: relative;
-  background: #F7F7F7;
+  background: ${color.GREY_800};
   border-radius: 5px;
   margin-left: 24px;
   margin-right: 24px;

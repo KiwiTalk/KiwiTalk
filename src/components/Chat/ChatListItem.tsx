@@ -1,6 +1,7 @@
 import React, { useState, HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import ProfileImage from './ProfileImage';
+import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -27,7 +28,7 @@ const Username = styled.span`
   font-weight: 500;
   font-size: 16px;
   line-height: 25px;
-  color: #000000;
+  color: ${color.GREY_100};
   width: 188px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -40,7 +41,7 @@ const LastChat = styled.span`
   font-weight: 500;
   font-size: 12px;
   line-height: 18px;
-  color: #808080;
+  color: ${color.GREY_400};
   word-break: keep-all;
 `;
 

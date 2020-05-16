@@ -6,6 +6,7 @@ import IconButton from './IconButton';
 import { ClientChatUser } from '../../../public/src/NodeKakaoPureObject';
 import ProfileImage from './ProfileImage';
 import { AccountSettings } from '../../../public/src/NodeKakaoExtraObject';
+import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -13,7 +14,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #F7F7F7;
+  background: ${color.GREY_800};
 `;
 
 const UserInfoWrapper = styled.div`
@@ -28,7 +29,7 @@ const Username = styled.span`
   font-weight: bold;
   font-size: 14px;
   line-height: 20px;
-  color: #000000;
+  color: ${color.GREY_100};
 `;
 
 const UserEmail = styled.span`
@@ -37,7 +38,7 @@ const UserEmail = styled.span`
   font-weight: 500;
   font-size: 10px;
   line-height: 10px;
-  color: #808080;
+  color: ${color.GREY_400};
 `;
 
 interface ProfileProps {
