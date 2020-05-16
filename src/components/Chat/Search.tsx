@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import IconSearch from '../../assets/images/icon_search.svg';
 import IconNewChat from '../../assets/images/icon_new_chat.svg';
@@ -41,14 +41,24 @@ const Icon = styled.img`
 `
 
 interface SearchProps {
-
+  onChange?: (text: string) => any
+  onSearch?: (text: string) => any
 }
 
-const Search: React.FC<SearchProps> = ({}) => {
+const Search: React.FC<SearchProps> = ({ onChange, onSearch }) => {
+  const [search, setSearch] = useState('');
   return (
     <Wrapper>
       <SearchInputWrapper>
-        <SearchInput />
+        <SearchInput value={search} onChange={(e) => {
+          setSearch(e.target.value);
+          if (onChange) onChange(search);
+        }} onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (onSearch) onSearch(search);
+          }
+        }} />
         <Icon src={IconSearch}/>
       </SearchInputWrapper>
       <IconButton background={IconNewChat} style={{ width: '28px', height: '28px' }}/>

@@ -78,7 +78,7 @@ export interface ClientUserInfo {
     MainDevice: string,
     MainDeviceAppVersion: string
   };
-  settings: { 
+  settings: {
     ProfileImageURL: string,
     FullProfileImageURL: string,
     OriginalProfileImageURL: string,
