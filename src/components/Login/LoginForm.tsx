@@ -1,39 +1,21 @@
 import React, {FormEvent, useState, ChangeEvent, InputHTMLAttributes} from 'react';
 import styled from 'styled-components';
 import Color from '../../assets/javascripts/color';
-import background from "../../assets/images/background.svg";
 
 import LoginTitle from './LoginTitle';
 
 const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  background: url(${background}) no-repeat left top fixed;
-  position: fixed;
-  z-index: 1;
-  padding: 75px 0 0 50px;
-  animation: slide 3s;
+padding: 50px 0 0 50px;
 
-  @media screen and (max-width: 1280px) {
-    background-size: 1280px 720px;
-  }
-
-  @media screen and (max-width: 560px) {
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  @keyframes slide {
-    from {
-      background-position: -100vw -100vh;
-    }
-    to {
-    background-position: 0 0;
-    }
-  }
+@media screen and (max-width: 560px) {
+  width: 100vw;
+  height: calc(100vh - 30px);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 `;
 
 const StyledInput = styled.input`

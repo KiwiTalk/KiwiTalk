@@ -22,12 +22,24 @@ interface ChatListProps {
   channelList: ChatChannel[]
   onChange?: (index: number) => any;
 }
+function extractRoomImage (channelInfo: ChatChannel['channelInfo']) {
+  let imageUrl = channelInfo.roomImageURL || ProfileDefault
 
-const ChatList: React.FC<ChatListProps> = ({channelList, onChange}) => {
+  channelInfo.chatmetaList.forEach((meta: any) => {
+    if (meta.Type === 4) {
+      const content = JSON.parse(meta.Content)
+      imageUrl = content.imageUrl
+    }
+  })
+
+  return imageUrl
+}
+
+const ChatList: React.FC<ChatListProps> = ({ channelList, onChange }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   return (
     <Wrapper>
-      {channelList.map((channel, index) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={channel.channelInfo.roomImageURL || ProfileDefault} username={channel.channelInfo.name} selected={selectedIndex === index} onClick={() => {
+      {channelList.map((channel, index) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={extractRoomImage(channel.channelInfo)} username={channel.channelInfo.name} selected={selectedIndex === index} onClick={() => {
         setSelectedIndex(index);
         onChange && onChange(index);
       }}/>)}

@@ -1,5 +1,11 @@
 import React, {useState} from 'react';
-import {closeWindow, isWindowMaximized, maxUnMaxWindow, minimizeWindow, registerMaxUnMaximizeEventListener} from '../../functions/electron';
+import {
+  closeWindow,
+  getCurrentWindow,
+  isWindowMaximized,
+  maxUnMaxWindow,
+  minimizeWindow,
+} from '../../functions/electron';
 import styled from 'styled-components';
 import isElectron from 'is-electron';
 import Color from '../../assets/javascripts/color';
@@ -12,7 +18,8 @@ const Wrapper = styled.div`
   height: 30px;
   background: ${Color.THEME1};
   position: fixed;
-  z-index: 3;
+  top: 0;
+  left: 0;
   color: #FFFFFF;
   -webkit-app-region: drag;
   user-select: none;
@@ -46,7 +53,10 @@ const MenuBar = () => {
   const [isMaximum, setMaximum] = useState(false);
 
   if (!isElectron()) return null;
-  registerMaxUnMaximizeEventListener(() => setMaximum(isWindowMaximized()));
+  const window = getCurrentWindow();
+  const listener = () => setMaximum(isWindowMaximized());
+  window.once('maximize', listener);
+  window.once('unmaximize', listener);
 
   return (
     <Wrapper className={'menu-bar'}>
