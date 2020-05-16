@@ -64,5 +64,18 @@
     "electron": "^8.2.5",
     "electron-builder": "^22.6.0",
     "wait-on": "^5.0.0"
+  },
+  "build": {
+    "appId": "io.github.kiwitalk",
+    "win": {
+      "target": [{
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }],
+      "icon": "public/img/android-chrome-512x512.png"
+    }
   }
 }
