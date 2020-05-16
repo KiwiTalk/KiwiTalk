@@ -8,6 +8,7 @@ import { IpcRendererEvent } from 'electron';
 import { getIpcRenderer } from '../functions/electron';
 import Chatroom from '../components/Chat/Chatroom';
 import SidePanel from '../components/Chat/SidePanel';
+import SideBar from '../components/Chat/SideBar';
 
 const Wrapper = styled.div`
 padding-top: 30px;
@@ -41,6 +42,7 @@ const Chat = () => {
 
   return (
     <Wrapper>
+      <SideBar />
       <SidePanel channelList={channelList} accountSettings={accountSettings}/>
       {channelList[selectedChannel] ? <Chatroom channel={channelList[selectedChannel]} /> : null}
     </Wrapper>
