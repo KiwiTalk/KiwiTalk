@@ -49,12 +49,13 @@ interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {
   profileImageSrc: string
   username: string
   lastChat: string
+  selected: boolean
 }
 
-const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, lastChat, ...args}) => {
+const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, lastChat, selected, ...args}) => {
   const [hover, setHover] = useState(false);
   return (
-    <Wrapper style={hover ? { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
+    <Wrapper style={hover || selected ? { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
       <Content>
         <ProfileImage src={profileImageSrc} focus={hover} />
         <Text>

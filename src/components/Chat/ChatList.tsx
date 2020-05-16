@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ChatChannel } from "../../../public/src/NodeKakaoPureObject";
 import ChatListItem from './ChatListItem';
@@ -18,10 +18,19 @@ overflow-y: scroll;
 }
 `;
 
-const ChatList: React.FC<{channelList: ChatChannel[]}> = ({channelList}) => {
+interface ChatListProps {
+  channelList: ChatChannel[]
+  onChange?: (index: number) => any;
+}
+
+const ChatList: React.FC<ChatListProps> = ({channelList, onChange}) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
   return (
     <Wrapper>
-      {channelList.map((channel) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={channel.channelInfo.roomImageURL || ProfileDefault} username={channel.channelInfo.name} />)}
+      {channelList.map((channel, index) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={channel.channelInfo.roomImageURL || ProfileDefault} username={channel.channelInfo.name} selected={selectedIndex === index} onClick={() => {
+        setSelectedIndex(index);
+        onChange && onChange(index);
+      }}/>)}
     </Wrapper>
   );
 };
