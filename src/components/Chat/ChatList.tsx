@@ -17,10 +17,23 @@ overflow-y: scroll;
 }
 `;
 
-const ChatList: React.FC<{channelList: ChatChannel[]}> = ({channelList}) => {
+function extractRoomImage (channelInfo: ChatChannel['channelInfo']) {
+  let imageUrl = channelInfo.roomImageURL || ProfileDefault
+
+  channelInfo.chatmetaList.forEach((meta: any) => {
+    if (meta.Type === 4) {
+      const content = JSON.parse(meta.Content)
+      imageUrl = content.imageUrl
+    }
+  })
+
+  return imageUrl
+}
+
+const ChatList: React.FC<{ channelList: ChatChannel[] }> = ({ channelList }) => {
   return (
     <Wrapper>
-      {channelList.map((channel) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={channel.channelInfo.roomImageURL || ProfileDefault} username={channel.channelInfo.name} />)}
+      {channelList.map((channel) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={extractRoomImage(channel.channelInfo)} username={channel.channelInfo.name} />)}
     </Wrapper>
   );
 };
