@@ -68,30 +68,45 @@ interface ChatroomProps {
   chatList: Chat[]
 }
 
+const Contents: React.FC<ChatroomProps> = ({channel, chatList}) => {
+  let bubbles: JSX.Element[] = [];
+
+  return (
+    <Content>{
+      chatList.filter((chat) => chat.type === ChatType.Text && chat.channel.id.low === channel.id.low).map((chat, index, arr) => {
+        const isMine = chat.sender == undefined;
+        let willSenderChange = arr.length - 1 === index;
+
+        if (isMine) willSenderChange = willSenderChange || arr[index + 1].sender !== undefined;
+        else willSenderChange = willSenderChange || arr[index + 1].sender?.id.low !== chat.sender.id.low;
+
+        const sendDate = new Date(chat.sendTime)
+
+        bubbles.push(<Bubble key={chat.messageId}
+                             hasTail={ willSenderChange }
+                             unread={ 1 }
+                             author={ chat.sender?.nickname }
+                             isMine={isMine}
+                             time={ `${ sendDate.getHours() }:${ sendDate.getMinutes() }` }>{ chat.text }</Bubble>);
+
+
+        if (willSenderChange) {
+          const chatItem = <ChatItem profileImageSrc={channel.channelInfo.userInfoMap[chat.sender?.id.low]?.profileImageURL}
+                                     key={chat.messageId}>{bubbles}</ChatItem>
+          bubbles = []
+          return chatItem;
+        }
+      })
+    }
+    </Content>
+  );
+};
+
 const Chatroom: React.FC<ChatroomProps> = ({channel, chatList}) => {
-  const getContent = () => {
-    let bubbles: JSX.Element[] = [];
-    return chatList.filter((chat) => chat.type === ChatType.Text && chat.channel.id.low === channel.id.low).map((chat, index, arr) => {
-      const willSenderChange = arr.length - 1 === index || arr[index + 1].sender.id.low !== chat.sender.id.low;
-      const sendDate = new Date(chat.sendTime)
-      bubbles.push(<Bubble hasTail={willSenderChange} unread={1} author={chat.sender.nickname} time={`${sendDate.getHours()}:${sendDate.getMinutes()}`}>
-        {chat.text}
-      </Bubble>);
-      if (willSenderChange) {
-        const chatItem = <ChatItem profileImageSrc={channel.channelInfo.userInfoMap[chat.sender.id.low].profileImageURL}>
-          {bubbles}
-        </ChatItem>
-        bubbles = []
-        return chatItem;
-      }
-    });
-  }
   return (
     <Wrapper>
       <ChatroomHeader title={channel.channelInfo.name} />
-      <Content>
-        {getContent()}
-      </Content>
+      <Contents channel={channel} chatList={chatList}/>
       <FloatingBar>
         <FloatingIcons>
           <IconButton background={IconAttachment} style={{ width: '24px', height: '24px', marginRight: '24px'}} />

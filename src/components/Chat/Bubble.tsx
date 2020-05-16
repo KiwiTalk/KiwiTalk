@@ -12,12 +12,13 @@ const FakeTail = styled.div`
   height: 100%;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div((props: {isMine: boolean}) => `
   display: flex;
   flex-direction: row;
   align-items: flex-end;
   margin-top: 7px;
-`;
+  justify-content: ${props.isMine ? 'flex-end' : 'flex-start'};
+`);
 
 const Content = styled.div`
   background: ${color.GREY_900};
@@ -73,18 +74,21 @@ export interface BubbleProps {
   author?: string
   time: string
   unread: number
+  isMine: boolean
 }
 
-const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, children}) => {
+const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children}) => {
+  console.log('a');
   return (
-    <Wrapper>
-      {hasTail ? <BubbleTail src={bubbleTail}/> : <FakeTail/>}
+    <Wrapper isMine={isMine}>
+      {hasTail && !isMine ? <BubbleTail src={bubbleTail}/> : <FakeTail/>}
       <Content>
         {author && <Author>{author}</Author>}
         {children}
       </Content>
+      {hasTail && isMine ? <BubbleTail style={{transform: 'scaleX(-1)'}} src={bubbleTail}/> : <FakeTail/>}
       <HeadWrapper>
-        <Unread>{unread.toString()}</Unread>
+        <Unread>{unread}</Unread>
         <Date>{time}</Date>
       </HeadWrapper>
     </Wrapper>

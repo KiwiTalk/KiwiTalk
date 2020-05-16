@@ -16,13 +16,13 @@ const Content = styled.div`
 `;
 
 interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
-  profileImageSrc: string
+  profileImageSrc?: string
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({profileImageSrc, children, ...args}) => {
   return (
     <Wrapper {...args}>
-      <ProfileImage src={profileImageSrc} focus={true} style={{marginRight: '15px'}} />
+      {profileImageSrc && <ProfileImage src={profileImageSrc} focus={true} style={{marginRight: '15px'}} />}
       <Content>
         {children}
       </Content>
