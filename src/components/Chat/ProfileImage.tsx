@@ -23,9 +23,9 @@ interface ProfileImageProps extends HTMLAttributes<HTMLDivElement> {
   focus: boolean
 }
 
-const ProfileImage: React.FC<ProfileImageProps> = ({src, focus, style}) => {
+const ProfileImage: React.FC<ProfileImageProps> = ({src, focus, ...args}) => {
   return (
-    <Wrapper style={style}>
+    <Wrapper {...args}>
       <Image src={src}/>
       <Image src={focus ? ProfileMaskF7 : ProfileMaskFF}/>
     </Wrapper>
