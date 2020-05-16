@@ -5,6 +5,7 @@ import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './IconButton';
 import { ClientChatUser } from '../../../public/src/NodeKakaoPureObject';
 import ProfileImage from './ProfileImage';
+import { AccountSettings } from '../../../public/src/NodeKakaoExtraObject';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -40,11 +41,11 @@ const UserEmail = styled.span`
 `;
 
 interface ProfileProps {
-  clientUser?: ClientChatUser
+  accountSettings?: AccountSettings
 }
 
-const Profile: React.FC<ProfileProps> = ({clientUser}) => {
-  if (!clientUser) {
+const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
+  if (!accountSettings) {
     return (
       <Wrapper>
         <IconButton background={IconSettings} style={{ width: '24px', height: '24px' }}/>
@@ -53,10 +54,10 @@ const Profile: React.FC<ProfileProps> = ({clientUser}) => {
   }
   return (
     <Wrapper>
-      <ProfileImage src={clientUser.mainUserInfo.settings.ProfileImageURL || ProfileDefault} style={{ width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px' }} focus={true} />
+      <ProfileImage src={accountSettings.profileImageUrl || ProfileDefault} style={{ width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px' }} focus={true} />
       <UserInfoWrapper>
-        <Username>{clientUser.nickname}</Username>
-        <UserEmail>{clientUser.mainUserInfo.clientAccessData.DisplayAccountId}</UserEmail>
+        <Username>{accountSettings.nickName}</Username>
+        <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
       </UserInfoWrapper>
       <IconButton background={IconSettings} style={{ width: '24px', height: '24px', marginRight: '32px' }}/>
     </Wrapper>

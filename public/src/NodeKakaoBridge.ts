@@ -1,10 +1,11 @@
-import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed, ChannelInfo} from 'node-kakao';
+import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed, ChannelInfo, ChannelType} from 'node-kakao';
 import {ChatChannel as PureChatChannel} from './NodeKakaoPureObject';
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
 import * as os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
+import {AccountSettings} from './NodeKakaoExtraObject'
 
 const store = new (require('electron-store'))();
 
@@ -51,7 +52,7 @@ export default class NodeKakaoBridge {
     // @ts-ignore
     ipcMain.on('channel_list', (event, ...args) => this.ChannelListChannelEvent(event, ...args));
     // @ts-ignore
-    ipcMain.on('client_user', (event, ...args) => this.ClientUserChannelEvent(event, ...args));
+    ipcMain.on('account_settings', (event, ...args) => this.AccountSettingsChannelEvent(event, ...args));
 
     this.client.on('disconnected', (reason) => this.onDisconnected(reason));
     this.client.on('join_channel', (joinChannel) => this.onJoinChannel(joinChannel));
@@ -108,18 +109,23 @@ export default class NodeKakaoBridge {
     const pureChannelList = Utils.toPureJS(channelList) as PureChatChannel[];
     await Promise.all(pureChannelList.map(async (pureChannel, index) => {
       if (pureChannel.channelInfo.name === '' || pureChannel.channelInfo.roomImageURL === '') {
-        const channelInfo = await channelList[index].getChannelInfo(true);
+        const channelInfo = await channelList[index].getChannelInfo();
+        console.log(channelInfo.Name)
         const userInfoListUpToFive = channelInfo.UserIdList.filter((userId, index) => index < 5).map((userId) => channelInfo.getUserInfoId(userId));
+        console.log(channelInfo.Name)
         channelInfo.Name ? pureChannel.channelInfo.name = channelInfo.Name : pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
+        console.log(channelInfo.Name)
         channelInfo.RoomImageURL ? pureChannel.channelInfo.roomImageURL = channelInfo.RoomImageURL : pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
       }
     }));
     event.sender.send('channel_list', pureChannelList.reverse())
   }
 
-  private static async ClientUserChannelEvent(event: Electron.IpcMainEvent) {
-    const clientUser = this.client.ClientUser;
-    event.sender.send('client_user', Utils.toPureJS(clientUser));
+  private static async AccountSettingsChannelEvent(event: Electron.IpcMainEvent) {
+    //@ts-ignore
+    const accessToken: string = this.client.ClientUser.MainUserInfo.clientAccessData.AccessToken;
+    const accountSettings = JSON.parse(await KakaoAPI.requestAccountSettings(accessToken, this.getUUID())) as AccountSettings;
+    event.sender.send('account_settings', accountSettings);
   }
 
   private static async onDisconnected(reason: LocoKickoutType) {

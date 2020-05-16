@@ -4,6 +4,7 @@ import Search from './Search';
 import ChatList from './ChatList';
 import { ChatChannel, ClientChatUser } from '../../../public/src/NodeKakaoPureObject';
 import Profile from './Profile';
+import { AccountSettings } from '../../../public/src/NodeKakaoExtraObject';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -14,15 +15,15 @@ const Wrapper = styled.div`
 
 interface SidePanelProps {
   channelList: ChatChannel[]
-  clientUser?: ClientChatUser
+  accountSettings?: AccountSettings
 }
 
-const SidePanel: React.FC<SidePanelProps> = ({channelList, clientUser}) => {
+const SidePanel: React.FC<SidePanelProps> = ({channelList, accountSettings}) => {
   return (
     <Wrapper>
       <Search />
       <ChatList channelList={channelList}/>
-      <Profile clientUser={clientUser}/>
+      <Profile accountSettings={accountSettings}/>
     </Wrapper>
   );
 };
