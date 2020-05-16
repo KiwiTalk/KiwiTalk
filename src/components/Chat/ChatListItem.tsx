@@ -58,7 +58,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, l
   return (
     <Wrapper style={hover || selected ? { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
       <Content>
-        <ProfileImage src={profileImageSrc} focus={hover} />
+        <ProfileImage src={profileImageSrc} focus={hover || selected} />
         <Text>
           <Username>{username}</Username>
           <LastChat>{lastChat || '\u200b'}</LastChat>

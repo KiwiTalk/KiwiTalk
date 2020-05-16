@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { ChatChannel, Chat as ChatObject } from '../../public/src/NodeKakaoPureObject';
-import { AccountSettings } from '../../public/src/NodeKakaoExtraObject';
+import { ChatChannel, Chat as ChatObject } from '../models/NodeKakaoPureObject';
+import { AccountSettings } from '../models/NodeKakaoExtraObject';
 import { IpcRendererEvent } from 'electron';
 
 import { getIpcRenderer } from '../functions/electron';
@@ -38,11 +38,13 @@ const Chat = () => {
     })
 
     ipcRenderer.on('chat', (event: IpcRendererEvent, chat: ChatObject) => {
-      setChatList([...chatList, chat]);
+      setChatList((prev) => [...prev, chat]);
     })
 
     ipcRenderer.send('channel_list');
   }, [])
+  console.log(chatList)
+  console.log(selectedChannel)
 
   return (
     <Wrapper>

@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './IconButton';
-import { ClientChatUser } from '../../../public/src/NodeKakaoPureObject';
 import ProfileImage from './ProfileImage';
-import { AccountSettings } from '../../../public/src/NodeKakaoExtraObject';
+import { AccountSettings } from '../../models/NodeKakaoExtraObject';
 import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`

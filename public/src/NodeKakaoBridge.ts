@@ -1,11 +1,11 @@
 import {TalkClient, KakaoAPI, LocoKickoutType, ChatChannel, ClientChatUser, Chat, ChatUser, ChatFeed, ChannelInfo, ChannelType} from 'node-kakao';
-import {ChatChannel as PureChatChannel} from './NodeKakaoPureObject';
+import {ChatChannel as PureChatChannel, Chat as PureChat} from '../../src/models/NodeKakaoPureObject';
 import {v4} from 'uuid';
 import {ipcMain} from 'electron';
 import * as os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
-import {AccountSettings} from './NodeKakaoExtraObject'
+import {AccountSettings} from '../../src/models/NodeKakaoExtraObject'
 
 const store = new (require('electron-store'))();
 
@@ -113,6 +113,10 @@ export default class NodeKakaoBridge {
         const userInfoListUpToFive = channelInfo.UserIdList.filter((userId, index) => index < 5).map((userId) => channelInfo.getUserInfoId(userId));
         channelInfo.Name ? pureChannel.channelInfo.name = channelInfo.Name : pureChannel.channelInfo.name = userInfoListUpToFive.map((userInfo) => userInfo.User.Nickname).join(', ');
         channelInfo.RoomImageURL ? pureChannel.channelInfo.roomImageURL = channelInfo.RoomImageURL : pureChannel.channelInfo.roomImageURL = userInfoListUpToFive[0].ProfileImageURL;
+        pureChannel.channelInfo.userInfoMap = {};
+        channelInfo.UserIdList.forEach((id) => {
+          pureChannel.channelInfo.userInfoMap[id.low.toString()] = Utils.toPureJS(channelInfo.getUserInfoId(id));
+        })
       }
     }));
     event.sender.send('channel_list', pureChannelList.reverse())
@@ -142,7 +146,9 @@ export default class NodeKakaoBridge {
   }
 
   private static async onMessage(chat: Chat) {
-    WindowManager.sendMessage('chat', Utils.toPureJS(chat))
+    const pureChat: PureChat = Utils.toPureJS(chat);
+    pureChat.type = chat.Type;
+    WindowManager.sendMessage('chat', pureChat)
   }
 
   private static async onMessageRead(channel: ChatChannel, reader: ChatUser, watermark: any) {

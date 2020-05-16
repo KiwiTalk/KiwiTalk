@@ -1,4 +1,4 @@
-import { OpenMemberStruct, ChannelType, ChannelMetaStruct, UserInfo, OpenMemberType, TalkClient, ChatAttachment, MentionContentList } from "node-kakao";
+import { OpenMemberStruct, ChannelType, ChannelMetaStruct, OpenMemberType, TalkClient, ChatAttachment, MentionContentList } from "node-kakao";
 
 export interface Long {
   low: number
@@ -16,7 +16,7 @@ export interface ChannelInfo {
   isFavorite: boolean;
   isDirectChan: boolean;
   chatmetaList: ChannelMetaStruct[];
-  userInfoMap: Map<string, UserInfo>;
+  userInfoMap: {[id: string]: UserInfo};
   clientUserInfo: UserInfo;
 }
 
@@ -49,6 +49,41 @@ export interface Chat {
   attachmentList: ChatAttachment[];
   mentionMap: Map<string, MentionContentList>;
   sendTime: number;
+  type: ChatType
+}
+
+export enum ChatType {
+  Unknown = -1,
+  Feed = 0,
+  Text = 1,
+  Photo = 2,
+  Video = 3,
+  Contact = 4,
+  Audio = 5,
+  DitemEmoticon = 6,
+  DitemGift = 7,
+  DitemImg = 8,
+  KakaoLinkV1 = 9,
+  Avatar = 11,
+  Sticker = 12,
+  Schedule = 13,
+  Vote = 14,
+  Lottery = 15,
+  Map = 16,
+  Profile = 17,
+  File = 18,
+  StickerAni = 20,
+  Nudge = 21,
+  Actioncon = 22,
+  Search = 23,
+  Reply = 26,
+  MultiPhoto = 27,
+  Mvoip = 51,
+  Custom = 71,
+  PlusFriend = 81,
+  PlusFriendViral = 83,
+  Template = 90,
+  ApiTemplate = 91
 }
 
 export interface ChatUser {
@@ -60,6 +95,26 @@ export interface ChatUser {
 export interface ClientChatUser extends ChatUser {
   mainOpenToken: number;
   mainUserInfo: ClientUserInfo;
+}
+
+export interface UserInfo {
+  user: ChatUser;
+  accountId: number;
+  profileImageURL: string;
+  fullProfileImageURL: string;
+  originalProfileImageURL: string;
+  openProfileToken?: number;
+  profileLinkId?: Long;
+  lastInfoCache: number;
+  userType: UserType;
+}
+
+export enum UserType {
+  Undefined = -999999,
+  NotFriend = -100,
+  Deactivated = 9,
+  Friend = 100,
+  OpenProfile = 1000
 }
 
 export interface ClientUserInfo {

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import IconSearch from '../../assets/images/icon_search.svg';
 import IconNewChat from '../../assets/images/icon_new_chat.svg';
 import IconButton from './IconButton';
-import ProfileImage from './ProfileImage';
 import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`

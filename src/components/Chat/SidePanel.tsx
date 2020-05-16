@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import Search from './Search';
 import ChatList from './ChatList';
-import { ChatChannel, ClientChatUser } from '../../../public/src/NodeKakaoPureObject';
+import { ChatChannel, ClientChatUser } from '../../models/NodeKakaoPureObject';
 import Profile from './Profile';
-import { AccountSettings } from '../../../public/src/NodeKakaoExtraObject';
+import { AccountSettings } from '../../models/NodeKakaoExtraObject';
 
 const Wrapper = styled.div`
   width: 309px;

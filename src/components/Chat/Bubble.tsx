@@ -64,6 +64,7 @@ const Unread = styled.span`
   font-weight: 500;
   font-size: 16px;
   line-height: 25px;
+  margin-left: 12px;
   color: ${color.BLUE_400};
 `
 
@@ -79,11 +80,11 @@ const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, children}
     <Wrapper>
       {hasTail ? <BubbleTail src={bubbleTail}/> : <FakeTail/>}
       <Content>
-        {author && <Author>{Author}</Author>}
+        {author && <Author>{author}</Author>}
         {children}
       </Content>
       <HeadWrapper>
-        <Unread>{unread}</Unread>
+        <Unread>{unread.toString()}</Unread>
         <Date>{time}</Date>
       </HeadWrapper>
     </Wrapper>
