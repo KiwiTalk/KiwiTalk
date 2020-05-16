@@ -8,6 +8,7 @@ const Wrapper = styled.div`
   height: 89px;
   padding: 14px 25px;
   box-sizing: border-box;
+  cursor: pointer;
 `;
 
 const Content = styled.div`
