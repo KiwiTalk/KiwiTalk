@@ -1,11 +1,11 @@
-import {Chat, ChatChannel, ChatFeed, ChatUser, ClientChatUser, KakaoAPI, LocoKickoutType, TalkClient} from 'node-kakao';
-import {Chat as PureChat, ChatChannel as PureChatChannel} from '../../src/models/NodeKakaoPureObject';
-import {v4} from 'uuid';
-import {ipcMain} from 'electron';
+import { Chat, ChatChannel, ChatFeed, ChatUser, ClientChatUser, KakaoAPI, LocoKickoutType, TalkClient } from 'node-kakao';
+import { Chat as PureChat, ChatChannel as PureChatChannel } from '../../src/models/NodeKakaoPureObject';
+import { v4 } from 'uuid';
+import { ipcMain } from 'electron';
 import * as os from 'os';
 import WindowManager from './WindowManager'
 import Utils from './Utils'
-import {AccountSettings} from '../../src/models/NodeKakaoExtraObject'
+import { AccountSettings } from '../../src/models/NodeKakaoExtraObject'
 
 const store = new (require('electron-store'))();
 
@@ -53,6 +53,8 @@ export default class NodeKakaoBridge {
     ipcMain.on('channel_list', (event, ...args) => this.ChannelListChannelEvent(event, ...args));
     // @ts-ignore
     ipcMain.on('account_settings', (event, ...args) => this.AccountSettingsChannelEvent(event, ...args));
+    // @ts-ignore
+    ipcMain.on('message', (event, ...args) => this.messageChannelEvent(event, ...args));
 
     this.client.on('disconnected', (reason) => this.onDisconnected(reason));
     this.client.on('join_channel', (joinChannel) => this.onJoinChannel(joinChannel));
@@ -165,6 +167,22 @@ export default class NodeKakaoBridge {
     const accessToken: string = this.client.ClientUser.MainUserInfo.clientAccessData.AccessToken;
     const accountSettings = JSON.parse(await KakaoAPI.requestAccountSettings(accessToken, this.getUUID())) as AccountSettings;
     event.sender.send('account_settings', accountSettings);
+  }
+
+  private static async messageChannelEvent (event: Electron.IpcMainEvent, channelId: { high: Number, low: Number }, message: string) { // 추후 바꿔야함
+    const channelList: ChatChannel[] = this.client.ChannelManager.getChannelList();
+
+    let target: ChatChannel = null
+    for await (const channel of channelList) {
+      if (channel.Id.low === channelId.low) {
+        target = channel
+
+        break
+      }
+    }
+
+    const chat = await target.sendText(message)
+    this.onMessage(chat)
   }
 
   private static async onDisconnected (reason: LocoKickoutType) {

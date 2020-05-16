@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, ChangeEvent, MouseEvent, KeyboardEvent } from 'react';
 import styled from 'styled-components';
 import ChatroomHeader from './ChatroomHeader';
 import { ChatChannel, Chat, ChatType } from '../../models/NodeKakaoPureObject';
@@ -10,6 +10,11 @@ import IconSend from '../../assets/images/icon_send.svg';
 import Bubble from './Bubble';
 import ChatItem from './ChatItem';
 import { ChatUser } from 'node-kakao';
+import { IpcRendererEvent } from 'electron';
+
+import { getIpcRenderer } from '../../functions/electron';
+
+const ipcRenderer = getIpcRenderer();
 
 const Wrapper = styled.div`
   position: relative;
@@ -68,7 +73,7 @@ interface ChatroomProps {
   chatList: Chat[]
 }
 
-const Contents: React.FC<ChatroomProps> = ({channel, chatList}) => {
+const Contents: React.FC<ChatroomProps> = ({ channel, chatList }) => {
   let bubbles: JSX.Element[] = [];
 
   return (
@@ -83,16 +88,16 @@ const Contents: React.FC<ChatroomProps> = ({channel, chatList}) => {
         const sendDate = new Date(chat.sendTime)
 
         bubbles.push(<Bubble key={chat.messageId}
-                             hasTail={ willSenderChange }
-                             unread={ 1 }
-                             author={ chat.sender?.nickname }
-                             isMine={isMine}
-                             time={ `${ sendDate.getHours() }:${ sendDate.getMinutes() }` }>{ chat.text }</Bubble>);
+          hasTail={willSenderChange}
+          unread={1}
+          author={chat.sender?.nickname}
+          isMine={isMine}
+          time={`${sendDate.getHours()}:${sendDate.getMinutes()}`}>{chat.text}</Bubble>);
 
 
         if (willSenderChange) {
           const chatItem = <ChatItem profileImageSrc={channel.channelInfo.userInfoMap[chat.sender?.id.low]?.profileImageURL}
-                                     key={chat.messageId}>{bubbles}</ChatItem>
+            key={chat.messageId}>{bubbles}</ChatItem>
           bubbles = []
           return chatItem;
         }
@@ -102,19 +107,44 @@ const Contents: React.FC<ChatroomProps> = ({channel, chatList}) => {
   );
 };
 
-const Chatroom: React.FC<ChatroomProps> = ({channel, chatList}) => {
+const Chatroom: React.FC<ChatroomProps> = ({ channel, chatList }) => {
+  let [text, setText] = useState('')
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    text = event.target.value;
+    setText(text);
+  }
+
+  const onKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    console.log(event.key)
+    switch (event.key) {
+      case 'Enter':
+        sendMessage();
+        break;
+    }
+  }
+
+  const sendMessage = () => {
+    const ipcRenderer = getIpcRenderer();
+
+    ipcRenderer.send('message', channel.id, text);
+
+    text = '';
+    setText(text);
+  }
+
   return (
     <Wrapper>
       <ChatroomHeader title={channel.channelInfo.name} />
-      <Contents channel={channel} chatList={chatList}/>
+      <Contents channel={channel} chatList={chatList} />
       <FloatingBar>
         <FloatingIcons>
-          <IconButton background={IconAttachment} style={{ width: '24px', height: '24px', marginRight: '24px'}} />
-          <IconButton background={IconEmoji} style={{ width: '24px', height: '24px'}} />
+          <IconButton background={IconAttachment} style={{ width: '24px', height: '24px', marginRight: '24px' }} />
+          <IconButton background={IconEmoji} style={{ width: '24px', height: '24px' }} />
         </FloatingIcons>
         <FloatingInputContainer>
-          <FloatingInput />
-          <IconButton background={IconSend} style={{ width: '24px', height: '24px', position: 'absolute', top: '20px', right: '20px' }} />
+          <FloatingInput value={text} onChange={onChange} onKeyPress={onKeyPress} />
+          <IconButton onClick={event => sendMessage()} background={IconSend} style={{ width: '24px', height: '24px', position: 'absolute', top: '20px', right: '20px' }} />
         </FloatingInputContainer>
       </FloatingBar>
     </Wrapper>
