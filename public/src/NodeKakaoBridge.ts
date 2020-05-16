@@ -145,15 +145,10 @@ export default class NodeKakaoBridge {
 
   }
 
-<<<<<<< HEAD
-  private static async onMessage(chat: Chat) {
+  private static async onMessage (chat: Chat) {
     const pureChat: PureChat = Utils.toPureJS(chat);
     pureChat.type = chat.Type;
     WindowManager.sendMessage('chat', pureChat)
-=======
-  private static async onMessage (chat: Chat) {
-    WindowManager.sendMessage('chat', Utils.toPureJS(chat))
->>>>>>> cf1df1dcaf64d34cd6233b12393b432bfde01739
   }
 
   private static async onMessageRead (channel: ChatChannel, reader: ChatUser, watermark: any) {
