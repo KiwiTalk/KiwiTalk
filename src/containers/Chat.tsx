@@ -25,17 +25,17 @@ const Chat = () => {
   const [selectedChannel, setSelectedChannel] = useState(0);
   const [accountSettings, setAccountSettings] = useState<AccountSettings>();
 
-  ipcRenderer.on('channel_list', (event: IpcRendererEvent, channelList: ChatChannel[]) => {
-    setChannelList(channelList);
-    ipcRenderer.send('account_settings');
-  });
-
-  ipcRenderer.on('account_settings', (event: IpcRendererEvent, accountSettings: AccountSettings) => {
-    console.log(accountSettings)
-    setAccountSettings(accountSettings);
-  })
-
   useEffect(() => {
+    ipcRenderer.on('channel_list', (event: IpcRendererEvent, channelList: ChatChannel[]) => {
+      setChannelList(channelList);
+      ipcRenderer.send('account_settings');
+    });
+  
+    ipcRenderer.on('account_settings', (event: IpcRendererEvent, accountSettings: AccountSettings) => {
+      console.log(accountSettings)
+      setAccountSettings(accountSettings);
+    })
+
     ipcRenderer.send('channel_list');
   }, [])
 
