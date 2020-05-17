@@ -1,10 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import bubbleTail from '../../assets/images/bubble_tail.svg'
+import bubbleTailMine from '../../assets/images/bubble_tail_mine.svg'
 import color from '../../assets/javascripts/color';
 
 const BubbleTail = styled.img`
   margin-bottom: 5px;
+  width: 16px;
 `;
 
 const FakeTail = styled.div`
@@ -14,14 +16,14 @@ const FakeTail = styled.div`
 
 const Wrapper = styled.div((props: {isMine: boolean}) => `
   display: flex;
-  flex-direction: row;
+  flex-direction: ${props.isMine ? 'row-reverse' : 'row'};
   align-items: flex-end;
   margin-top: 7px;
-  justify-content: ${props.isMine ? 'flex-end' : 'flex-start'};
+  justify-content: 'flex-start';
 `);
 
-const Content = styled.div`
-  background: ${color.GREY_900};
+const Content = styled.div((props: {isMine: boolean}) => `
+  background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
   border-radius: 5px;
   padding: 9px 47px 9px 18px;
   font-family: KoPubWorldDotum;
@@ -32,7 +34,7 @@ const Content = styled.div`
   color: ${color.GREY_100};
   display: flex;
   flex-direction: column;
-`;
+`);
 
 const Author = styled.span`
   font-family: KoPubWorldDotum;
@@ -55,7 +57,7 @@ const Date = styled.span`
   font-weight: 500;
   font-size: 16px;
   line-height: 25px;
-  margin-left: 12px;
+  margin: 0px 12px;
   color: ${color.GREY_400};
 `;
 
@@ -64,8 +66,8 @@ const Unread = styled.span`
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
-  line-height: 25px;
-  margin-left: 12px;
+  line-height: 11px;
+  margin: 0px 12px;
   color: ${color.BLUE_400};
 `
 
@@ -78,15 +80,13 @@ export interface BubbleProps {
 }
 
 const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children}) => {
-  console.log('a');
   return (
     <Wrapper isMine={isMine}>
-      {hasTail && !isMine ? <BubbleTail src={bubbleTail}/> : <FakeTail/>}
-      <Content>
+      {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
+      <Content isMine={isMine}>
         {author && <Author>{author}</Author>}
         {children}
       </Content>
-      {hasTail && isMine ? <BubbleTail style={{transform: 'scaleX(-1)'}} src={bubbleTail}/> : <FakeTail/>}
       <HeadWrapper>
         <Unread>{unread}</Unread>
         <Date>{time}</Date>
