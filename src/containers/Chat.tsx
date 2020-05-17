@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
-import { ChatChannel, Chat as ChatObject } from '../models/NodeKakaoPureObject';
-import { AccountSettings } from '../models/NodeKakaoExtraObject';
-import { IpcRendererEvent } from 'electron';
-
-import { getIpcRenderer } from '../functions/electron';
+import {v4} from 'uuid';
 import Chatroom from '../components/Chat/Chatroom';
 import SidePanel from '../components/Chat/SidePanel';
 import SideBar from '../components/Chat/SideBar';
+import {Chat as ChatObject, ChatChannel, TalkClient} from "node-kakao/dist";
+import {AccountSettings} from "../models/NodeKakaoExtraObject";
+import os from "os";
 
 const Wrapper = styled.div`
 padding-top: 30px;
@@ -18,7 +17,34 @@ display: flex;
 flex-direction: row;
 `;
 
-const ipcRenderer = getIpcRenderer();
+const remote = window.require('electron').remote;
+
+const store = new (remote.require('electron-store'))();
+
+const createNewUUID = (): string => {
+  return Buffer.from(v4()).toString('base64');
+}
+
+const getUUID = (): string => {
+  let uuid = store.get('uuid') as string;
+  if (uuid == null) {
+    uuid = createNewUUID();
+    store.set('uuid', uuid);
+  }
+  return uuid;
+}
+
+const getClientName = (): string => {
+  let clientName = store.get('client_name') as string;
+  if (clientName == null) {
+    clientName = remote.require("os").hostname();
+    store.set('client_name', clientName);
+  }
+  return clientName;
+}
+
+const nodeKakao = remote.require("node-kakao");
+const talkClient: TalkClient = new nodeKakao.TalkClient(getClientName());
 
 const Chat = () => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
@@ -27,21 +53,15 @@ const Chat = () => {
   const [chatList, setChatList] = useState<ChatObject[]>([]);
 
   useEffect(() => {
-    ipcRenderer.on('channel_list', (event: IpcRendererEvent, channelList: ChatChannel[]) => {
-      setChannelList(channelList);
-      ipcRenderer.send('account_settings');
-    });
-  
-    ipcRenderer.on('account_settings', (event: IpcRendererEvent, accountSettings: AccountSettings) => {
-      console.log(accountSettings)
-      setAccountSettings(accountSettings);
-    })
+    setChannelList(talkClient.ChannelManager.getChannelList());
 
-    ipcRenderer.on('chat', (event: IpcRendererEvent, chat: ChatObject) => {
+    const accessToken: string = talkClient.ClientUser.MainUserInfo["clientAccessData"].AccessToken;
+    const accountSettings = JSON.parse(nodeKakao.KakaoAPI.requestAccountSettings(accessToken, getUUID())) as AccountSettings;
+    setAccountSettings(accountSettings);
+
+    talkClient.on('message', (chat: ChatObject) => {
       setChatList((prev) => [...prev, chat]);
     })
-
-    ipcRenderer.send('channel_list');
   }, [])
   console.log(chatList)
   console.log(selectedChannel)

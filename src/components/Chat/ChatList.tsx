@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
-import { ChatChannel } from "../../models/NodeKakaoPureObject";
 import ChatListItem from './ChatListItem';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import color from '../../assets/javascripts/color';
+import {ChatChannel} from "node-kakao/dist";
 
 const Wrapper = styled.div`
 width: 309px;
@@ -38,12 +38,33 @@ function extractRoomImage (channelInfo: ChatChannel['channelInfo']) {
 const ChatList: React.FC<ChatListProps> = ({ channelList, onChange }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   return (
-    <Wrapper>
-      {channelList.map((channel, index) => <ChatListItem key={channel.id.low} lastChat={channel.lastChat ? channel.lastChat.text : ''} profileImageSrc={extractRoomImage(channel.channelInfo)} username={channel.channelInfo.name} selected={selectedIndex === index} onClick={() => {
-        setSelectedIndex(index);
-        onChange && onChange(index);
-      }}/>)}
-    </Wrapper>
+      <Wrapper>
+        {
+          channelList.map((channel, index) => <ChatListItem
+              key={
+                channel.Id.low
+              }
+              lastChat={
+                channel.LastChat ? channel.LastChat.Text : ''
+              }
+              profileImageSrc={
+                extractRoomImage(channel["channelInfo"])
+              }
+              username={
+                channel["channelInfo"].Name
+              }
+              selected={
+                selectedIndex === index
+              }
+              onClick={
+                () => {
+                  setSelectedIndex(index);
+                  onChange && onChange(index);
+                }
+              }
+          />)
+        }
+      </Wrapper>
   );
 };
 

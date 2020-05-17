@@ -1,7 +1,6 @@
-import React, { useState, ChangeEvent, MouseEvent, KeyboardEvent } from 'react';
+import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import styled from 'styled-components';
 import ChatroomHeader from './ChatroomHeader';
-import { ChatChannel, Chat, ChatType } from '../../models/NodeKakaoPureObject';
 import IconButton from './IconButton';
 import color from '../../assets/javascripts/color';
 import IconAttachment from '../../assets/images/icon_attachment.svg';
@@ -9,10 +8,9 @@ import IconEmoji from '../../assets/images/icon_emoji.svg';
 import IconSend from '../../assets/images/icon_send.svg';
 import Bubble from './Bubble';
 import ChatItem from './ChatItem';
-import { ChatUser } from 'node-kakao';
-import { IpcRendererEvent } from 'electron';
 
-import { getIpcRenderer } from '../../functions/electron';
+import {getIpcRenderer} from '../../functions/electron';
+import {Chat, ChatChannel, ChatType} from "node-kakao/dist";
 
 const ipcRenderer = getIpcRenderer();
 
@@ -80,27 +78,28 @@ const Contents: React.FC<ChatroomProps> = ({ channel, chatList }) => {
 
   return (
     <Content>{
-      chatList.filter((chat) => chat.type === ChatType.Text && chat.channel.id.low === channel.id.low).map((chat, index, arr) => {
-        const isMine = chat.sender == undefined;
+      chatList.filter((chat) => chat.Type === ChatType.Text && chat.Channel.Id.low === channel.Id.low).map((chat, index, arr) => {
+        const isMine = chat.Sender == undefined;
         let willSenderChange = arr.length - 1 === index;
 
-        if (isMine) willSenderChange = willSenderChange || arr[index + 1].sender !== undefined;
-        else willSenderChange = willSenderChange || arr[index + 1].sender?.id.low !== chat.sender.id.low;
+        if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
+        else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender.Id.low;
 
-        const sendDate = new Date(chat.sendTime)
+        const sendDate = new Date(chat.SendTime)
 
-        bubbles.push(<Bubble key={chat.messageId}
-          hasTail={willSenderChange}
-          unread={1}
-          author={nextWithAuthor ? chat.sender?.nickname : ''}
-          isMine={isMine}
-          time={`${sendDate.getHours()}:${sendDate.getMinutes()}`}>{chat.text}</Bubble>);
+        bubbles.push(<Bubble key={chat.MessageId}
+                             hasTail={willSenderChange}
+                             unread={1}
+                             author={nextWithAuthor ? chat.Sender?.Nickname : ''}
+                             isMine={isMine}
+                             time={`${sendDate.getHours()}:${sendDate.getMinutes()}`}>{chat.Text}</Bubble>);
         
         nextWithAuthor = false;
 
         if (willSenderChange) {
-          const chatItem = <ChatItem profileImageSrc={channel.channelInfo.userInfoMap[chat.sender?.id.low]?.profileImageURL}
-            key={chat.messageId}>{bubbles}</ChatItem>
+          const chatItem = <ChatItem
+              profileImageSrc={channel["channelInfo"].userInfoMap[chat.Sender?.Id.low]?.profileImageURL}
+              key={chat.MessageId}>{bubbles}</ChatItem>
           bubbles = []
           nextWithAuthor = true;
           return chatItem;
@@ -129,12 +128,12 @@ const Chatroom: React.FC<ChatroomProps> = ({ channel, chatList }) => {
   }
 
   const sendMessage = () => {
-    if (!channel.id) return;
+    if (!channel.Id) return;
     if (text.length <= 0) return;
 
     const ipcRenderer = getIpcRenderer();
 
-    ipcRenderer.send('message', channel.id, text);
+    ipcRenderer.send('message', channel.Id, text);
 
     text = '';
     setText(text);
@@ -142,14 +141,21 @@ const Chatroom: React.FC<ChatroomProps> = ({ channel, chatList }) => {
 
   return (
     <Wrapper>
-      <ChatroomHeader title={channel.channelInfo.name} />
-      <Contents channel={channel} chatList={chatList} />
+      <ChatroomHeader title={channel["channelInfo"].name}/>
+      <Contents channel={channel} chatList={chatList}/>
       <FloatingBar>
         <FloatingInputContainer>
-          <IconButton background={IconAttachment} style={{ width: '24px', height: '24px', marginLeft: '18px', marginRight: '12px', marginTop: '13.5px' }} />
-          <IconButton background={IconEmoji} style={{ width: '24px', height: '24px', marginTop: '13.5px' }} />
-          <FloatingInput value={text} onChange={onChange} onKeyPress={onKeyPress} />
-          <IconButton onClick={event => sendMessage()} background={IconSend} style={{ width: '24px', height: '24px', position: 'absolute', top: '33.5px', right: '38px' }} />
+          <IconButton background={IconAttachment} style={{
+            width: '24px',
+            height: '24px',
+            marginLeft: '18px',
+            marginRight: '12px',
+            marginTop: '13.5px'
+          }}/>
+          <IconButton background={IconEmoji} style={{width: '24px', height: '24px', marginTop: '13.5px'}}/>
+          <FloatingInput value={text} onChange={onChange} onKeyPress={onKeyPress}/>
+          <IconButton onClick={event => sendMessage()} background={IconSend}
+                      style={{width: '24px', height: '24px', position: 'absolute', top: '33.5px', right: '38px'}}/>
         </FloatingInputContainer>
       </FloatingBar>
     </Wrapper>
