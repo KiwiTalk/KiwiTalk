@@ -76,6 +76,7 @@ interface ChatroomProps {
 
 const Contents: React.FC<ChatroomProps> = ({ channel, chatList }) => {
   let bubbles: JSX.Element[] = [];
+  let nextWithAuthor = true
 
   return (
     <Content>{
@@ -91,15 +92,17 @@ const Contents: React.FC<ChatroomProps> = ({ channel, chatList }) => {
         bubbles.push(<Bubble key={chat.messageId}
           hasTail={willSenderChange}
           unread={1}
-          author={chat.sender?.nickname}
+          author={nextWithAuthor ? chat.sender?.nickname : ''}
           isMine={isMine}
           time={`${sendDate.getHours()}:${sendDate.getMinutes()}`}>{chat.text}</Bubble>);
-
+        
+        nextWithAuthor = false;
 
         if (willSenderChange) {
           const chatItem = <ChatItem profileImageSrc={channel.channelInfo.userInfoMap[chat.sender?.id.low]?.profileImageURL}
             key={chat.messageId}>{bubbles}</ChatItem>
           bubbles = []
+          nextWithAuthor = true;
           return chatItem;
         }
       })
