@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, InputHTMLAttributes } from 'react';
-import Color from '../../assets/javascripts/color';
+import Color from '../../assets/colors/theme';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
 import { Link } from 'react-router-dom';

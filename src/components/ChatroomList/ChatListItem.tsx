@@ -1,7 +1,7 @@
 import React, { useState, HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import ProfileImage, { ProfileImageBackgroundColor } from '../UiComponent/ProfileImage';
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   width: 309px;

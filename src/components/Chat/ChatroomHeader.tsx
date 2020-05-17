@@ -6,7 +6,7 @@ import IconMenu from '../../assets/images/icon_menu.svg';
 import IconNotificationDisabled from '../../assets/images/icon_notification_disabled.svg';
 import IconNotification from '../../assets/images/icon_notification.svg';
 import IconSearch from '../../assets/images/icon_search.svg';
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   display: flex;

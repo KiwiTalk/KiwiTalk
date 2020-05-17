@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import bubbleTail from '../../assets/images/bubble_tail.svg'
 import bubbleTailMine from '../../assets/images/bubble_tail_mine.svg'
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 
 const BubbleTail = styled.img`
   margin-bottom: 5px;

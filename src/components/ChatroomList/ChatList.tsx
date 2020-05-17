@@ -2,7 +2,7 @@ import React, {EventHandler, MouseEventHandler, useEffect, useState} from 'react
 import styled from 'styled-components';
 import ChatListItem from './ChatListItem';
 import ProfileDefault from '../../assets/images/profile_default.svg'
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 import {ChatChannel, ChannelInfo, ChannelMetaStruct, ChannelMetaType, UserInfo} from "node-kakao/dist";
 
 const Wrapper = styled.div`

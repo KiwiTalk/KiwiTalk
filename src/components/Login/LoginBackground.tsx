@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Color from '../../assets/javascripts/color';
+import ThemeColor from '../../assets/colors/theme';
 import background from '../../assets/images/background.svg';
 import kiwi from '../../assets/images/kiwi.svg';
 
@@ -13,7 +13,7 @@ z-index: -1;
 width: 100vw;
 height: 100vh;
 position: fixed;
-background: linear-gradient(128.19deg, ${Color.THEME1} 30.01%, ${Color.THEME2} 47.2%);
+background: linear-gradient(128.19deg, ${ThemeColor.BACKGROUND1} 30.01%, ${ThemeColor.BACKGROUND2} 47.2%);
 `;
 
 const Background2 = styled.div`
