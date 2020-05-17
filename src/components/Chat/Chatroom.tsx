@@ -76,11 +76,11 @@ const Contents: React.FC<ChatroomProps> = ({ channel, chatList }) => {
   return (
     <Content>{
       chatList.filter((chat) => chat.Type === ChatType.Text && chat.Channel.Id.low === channel.Id.low).map((chat, index, arr) => {
-        const isMine = chat.Sender == undefined;
+        const isMine = (chat.Sender == undefined) || chat.Sender.isClientUser();
         let willSenderChange = arr.length - 1 === index;
 
         if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
-        else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender.Id.low;
+        else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender?.Id.low;
 
         const sendDate = new Date(chat.SendTime)
 
