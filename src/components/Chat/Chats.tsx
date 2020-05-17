@@ -9,7 +9,7 @@ import Bubble from '../UiComponent/Bubble';
 
 import PhotoChat from './PhotoChat';
 
-import { Chat, ChatChannel, ChatType, PhotoAttachment } from 'node-kakao/dist';
+import { Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat } from 'node-kakao/dist';
 import SearchChat from './SearchChat';
 
 const Content = styled.div`
@@ -71,6 +71,9 @@ const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
                     })
                   }
                 </div>
+                break;
+              case ChatType.Reply:
+                console.log(chat as ReplyChat);
                 break;
               default:
                 content = <div>

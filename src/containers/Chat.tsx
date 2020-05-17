@@ -10,7 +10,7 @@ import ChatroomHeader from '../components/Chat/ChatroomHeader';
 import Chatroom from '../components/Chat/Chatroom';
 
 const Wrapper = styled.div`
-padding-top: 30px;
+padding-top: 20px;
 width: 100%;
 height: 100vh;
 box-sizing: border-box;

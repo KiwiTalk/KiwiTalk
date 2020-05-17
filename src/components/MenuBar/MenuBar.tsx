@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   closeWindow,
   getCurrentWindow,
@@ -10,13 +10,19 @@ import styled from 'styled-components';
 import isElectron from 'is-electron';
 import ThemeColor from '../../assets/colors/theme';
 
+import iconLogo from '../../assets/images/logo_text_small.svg';
+
+import iconMinimize from '../../assets/images/icon_minimize.svg';
+import iconMaximize from '../../assets/images/icon_maximize.svg';
+import iconClose from '../../assets/images/icon_close.svg';
+
 const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100vw;
-  height: 30px;
-  background: ${ThemeColor.BACKGROUND1};
+  height: 20px;
+  background: ${ThemeColor.GREY_900};
   position: fixed;
   top: 0;
   left: 0;
@@ -31,7 +37,7 @@ const Wrapper = styled.div`
 
 const Button = styled.button`
   height: 100%;
-  padding: 0 15px;
+  padding: 0 8px;
   border: none;
   background: transparent;
   color: white;
@@ -41,6 +47,8 @@ const Button = styled.button`
   :hover {
     background: rgba(0, 0, 0, 0.1);
   }
+
+  transition: all 0.25s;
 `;
 
 const CloseButton = styled(Button)`
@@ -62,21 +70,18 @@ const MenuBar = () => {
     <Wrapper className={'menu-bar'}>
       <div>
         <Button>
-          <i className={'fas fa-bars'}/>
+          <img src={iconLogo} />
         </Button>
-        <span>
-          <b>Kiwi Talk</b>
-        </span>
       </div>
       <div>
         <Button onClick={() => minimizeWindow()}>
-          <i className={'fas fa-window-minimize'}/>
+          <img src={iconMinimize} />
         </Button>
         <Button onClick={() => maxUnMaxWindow()}>
-          <i className={'far ' + (isMaximum ? 'fa-clone' : 'fa-square')}/>
+          <img src={iconMaximize} />
         </Button>
         <CloseButton onClick={() => closeWindow()}>
-          <i className={'fas fa-times'}/>
+          <img src={iconClose} />
         </CloseButton>
       </div>
     </Wrapper>
