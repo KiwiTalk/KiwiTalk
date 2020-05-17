@@ -8,9 +8,10 @@ import ChatItem from './ChatItem';
 import Bubble from '../UiComponent/Bubble';
 
 import PhotoChat from './PhotoChat';
-
-import { Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat } from 'node-kakao/dist';
 import SearchChat from './SearchChat';
+import ReplyChat from './ReplyChat';
+
+import { Chat, ChatChannel, ChatType, PhotoAttachment } from 'node-kakao/dist';
 
 const Content = styled.div`
 display: flex;
@@ -73,7 +74,19 @@ const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
                 </div>
                 break;
               case ChatType.Reply:
-                console.log(chat as ReplyChat);
+                chat = chat as ReplyChat;
+                let prevChat = null;
+
+                for (const c of chatList) {
+                  if (c.LogId.low === chat.PrevLogId.low) {
+                    prevChat = c;
+                    break;
+                  }
+                }
+
+                if (prevChat != null) {
+                  content = <ReplyChat prevChat={prevChat} me={chat}></ReplyChat>
+                }
                 break;
               default:
                 content = <div>

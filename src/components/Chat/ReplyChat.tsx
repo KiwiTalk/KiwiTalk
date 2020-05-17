@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Chat } from 'node-kakao/dist';
+
+import ThemeColor from '../../assets/colors/theme';
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -15,13 +19,15 @@ const ReplyTarget = styled.div`
 `
 
 interface ReplyChatProps {
-  target: any, // Chat
+  me: Chat,
+  prevChat: Chat, // Chat
 }
 
 export const ReplyChat: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
   return (
     <Wrapper>
-      <ReplyTarget>{chat.target.text}</ReplyTarget>
+      <ReplyTarget>{chat.prevChat.Text}</ReplyTarget>
+      <a>{chat.me.Text}</a>
     </Wrapper>
   );
 };
