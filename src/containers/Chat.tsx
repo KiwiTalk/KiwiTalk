@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {v4} from 'uuid';
+import * as request from 'request-promise';
 import Chatroom from '../components/Chat/Chatroom';
 import SidePanel from '../components/Chat/SidePanel';
 import SideBar from '../components/Chat/SideBar';
 import {Chat as ChatObject, ChatChannel, TalkClient} from "node-kakao/dist";
 import {AccountSettings} from "../models/NodeKakaoExtraObject";
-import os from "os";
 
 const Wrapper = styled.div`
 padding-top: 30px;
@@ -19,50 +18,35 @@ flex-direction: row;
 
 const remote = window.require('electron').remote;
 
-const store = new (remote.require('electron-store'))();
+const store = remote.getGlobal('store');
 
-const createNewUUID = (): string => {
-  return Buffer.from(v4()).toString('base64');
-}
-
-const getUUID = (): string => {
-  let uuid = store.get('uuid') as string;
-  if (uuid == null) {
-    uuid = createNewUUID();
-    store.set('uuid', uuid);
-  }
-  return uuid;
-}
-
-const getClientName = (): string => {
-  let clientName = store.get('client_name') as string;
-  if (clientName == null) {
-    clientName = remote.require("os").hostname();
-    store.set('client_name', clientName);
-  }
-  return clientName;
-}
-
-const nodeKakao = remote.require("node-kakao");
-const talkClient: TalkClient = new nodeKakao.TalkClient(getClientName());
+const kakaoApi = remote.require('node-kakao').KakaoAPI;
+const talkClient: TalkClient = remote.getGlobal('talkClient');
 
 const Chat = () => {
-  const [channelList, setChannelList] = useState<ChatChannel[]>([]);
-  const [selectedChannel, setSelectedChannel] = useState(0);
-  const [accountSettings, setAccountSettings] = useState<AccountSettings>();
-  const [chatList, setChatList] = useState<ChatObject[]>([]);
+    const [channelList, setChannelList] = useState<ChatChannel[]>([]);
+    const [selectedChannel, setSelectedChannel] = useState(0);
+    const [accountSettings, setAccountSettings] = useState<AccountSettings>();
+    const [chatList, setChatList] = useState<ChatObject[]>([]);
 
-  useEffect(() => {
-    setChannelList(talkClient.ChannelManager.getChannelList());
+    useEffect(() => {
+        setChannelList(talkClient.ChannelManager.getChannelList());
 
-    const accessToken: string = talkClient.ClientUser.MainUserInfo["clientAccessData"].AccessToken;
-    const accountSettings = JSON.parse(nodeKakao.KakaoAPI.requestAccountSettings(accessToken, getUUID())) as AccountSettings;
-    setAccountSettings(accountSettings);
+        const accessToken: string = talkClient.ClientUser.MainUserInfo["clientAccessData"].AccessToken;
+        const accountObject: request.RequestPromise = kakaoApi.requestAccountSettings(accessToken, remote.getGlobal('getUUID')());
+        accountObject
+            .then(result => {
+                const accountSettings = JSON.parse(result) as AccountSettings;
+                setAccountSettings(accountSettings);
+            })
+            .catch(error => {
+                alert("오류가 발생했습니다.\n" + error);
+            });
 
-    talkClient.on('message', (chat: ChatObject) => {
-      setChatList((prev) => [...prev, chat]);
-    })
-  }, [])
+        talkClient.on('message', (chat: ChatObject) => {
+            setChatList((prev) => [...prev, chat]);
+        })
+    }, [])
   console.log(chatList)
   console.log(selectedChannel)
 
