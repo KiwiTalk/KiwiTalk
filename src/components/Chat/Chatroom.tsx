@@ -28,7 +28,7 @@ const Wrapper = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 46px 27px 90px 42px;
+  padding: 46px 27px 96px 42px;
   overflow-y: scroll;
   ::-webkit-scrollbar {
     width: 3px;
