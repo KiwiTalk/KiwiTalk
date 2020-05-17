@@ -1,31 +1,35 @@
-import React, { useState, HTMLAttributes } from 'react';
+import React, { HTMLAttributes } from 'react';
 import styled from 'styled-components';
-import ProfileImage, { ProfileImageBackgroundColor } from './ProfileImage';
-import color from '../../assets/javascripts/color';
+import ProfileImage, { ProfileImageBackgroundColor } from '../UiComponent/ProfileImage';
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+display: flex;
+flex-direction: row;
+align-items: flex-end;
 `;
 
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+const Contents = styled.div`
+display: flex;
+flex-direction: column;
+flex: 1;
 `;
 
-interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
+const StyledProfileImage = styled(ProfileImage)`
+margin-right: 15px;
+`;
+
+export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
   profileImageSrc?: string
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({profileImageSrc, children, ...args}) => {
+const ChatItem: React.FC<ChatItemProps> = ({ profileImageSrc, children, ...args }) => {
   return (
-    <Wrapper {...args}>
-      {profileImageSrc && <ProfileImage src={profileImageSrc} backgroundColor={ProfileImageBackgroundColor.BACKGROUND} style={{marginRight: '15px'}} />}
-      <Content>
-        {children}
-      </Content>
+    <Wrapper { ...args }>
+      { profileImageSrc && <StyledProfileImage src={ profileImageSrc }
+                                               backgroundColor={ ProfileImageBackgroundColor.BACKGROUND }/> }
+      <Contents>
+        { children }
+      </Contents>
     </Wrapper>
   );
 };

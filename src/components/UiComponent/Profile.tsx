@@ -5,7 +5,7 @@ import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './IconButton';
 import ProfileImage, { ProfileImageBackgroundColor } from './ProfileImage';
 import { AccountSettings } from '../../models/NodeKakaoExtraObject';
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   width: 309px;

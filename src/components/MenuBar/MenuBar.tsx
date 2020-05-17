@@ -8,7 +8,7 @@ import {
 } from '../../functions/electron';
 import styled from 'styled-components';
 import isElectron from 'is-electron';
-import Color from '../../assets/javascripts/color';
+import ThemeColor from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100vw;
   height: 30px;
-  background: ${Color.THEME1};
+  background: ${ThemeColor.BACKGROUND1};
   position: fixed;
   top: 0;
   left: 0;
