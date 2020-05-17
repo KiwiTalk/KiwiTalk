@@ -4,6 +4,7 @@ import {Redirect} from 'react-router-dom';
 import LoginBackground from '../components/Login/LoginBackground';
 import LoginForm from '../components/Login/LoginForm';
 import {TalkClient} from "node-kakao/dist";
+import ElectronStore from "electron-store";
 
 const resultText: { [key: string]: string } = {
   success: '로그인 성공',
@@ -20,6 +21,7 @@ interface LoginResponse {
 
 const remote = window.require('electron').remote;
 const talkClient: TalkClient = remote.getGlobal('talkClient');
+const store: ElectronStore = remote.getGlobal('store');
 
 const Login = () => {
   const [redirect, setRedirect] = useState('');
@@ -33,6 +35,8 @@ const Login = () => {
         .catch(reason => {
           switch (reason) {
             case -998: // 인증이 필요
+              store.set('email', email);
+              store.set('password', password);
               setRedirect('verify');
               break;
             default:

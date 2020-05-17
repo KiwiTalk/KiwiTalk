@@ -9,10 +9,7 @@ import IconSend from '../../assets/images/icon_send.svg';
 import Bubble from './Bubble';
 import ChatItem from './ChatItem';
 
-import {getIpcRenderer} from '../../functions/electron';
 import {Chat, ChatChannel, ChatType} from "node-kakao/dist";
-
-const ipcRenderer = getIpcRenderer();
 
 const Wrapper = styled.div`
   position: relative;
@@ -131,12 +128,14 @@ const Chatroom: React.FC<ChatroomProps> = ({ channel, chatList }) => {
     if (!channel.Id) return;
     if (text.length <= 0) return;
 
-    const ipcRenderer = getIpcRenderer();
-
-    ipcRenderer.send('message', channel.Id, text);
-
-    text = '';
-    setText(text);
+    channel.sendText(text)
+        .then(result => {
+          text = '';
+          setText(text);
+        })
+        .catch(error => {
+          alert('메시지 발송 중 오류 발생');
+        });
   }
 
   return (

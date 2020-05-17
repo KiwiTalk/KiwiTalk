@@ -18,8 +18,6 @@ flex-direction: row;
 
 const remote = window.require('electron').remote;
 
-const store = remote.getGlobal('store');
-
 const kakaoApi = remote.require('node-kakao').KakaoAPI;
 const talkClient: TalkClient = remote.getGlobal('talkClient');
 
