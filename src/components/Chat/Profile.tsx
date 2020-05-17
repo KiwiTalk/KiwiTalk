@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './IconButton';
-import ProfileImage from './ProfileImage';
+import ProfileImage, { ProfileImageBackgroundColor } from './ProfileImage';
 import { AccountSettings } from '../../models/NodeKakaoExtraObject';
 import color from '../../assets/javascripts/color';
 
@@ -54,7 +54,7 @@ const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
   }
   return (
     <Wrapper>
-      <ProfileImage src={accountSettings.profileImageUrl || ProfileDefault} style={{ width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px' }} focus={true} />
+      <ProfileImage src={accountSettings.profileImageUrl || ProfileDefault} style={{ width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px' }} backgroundColor={ProfileImageBackgroundColor.GRAY_800} />
       <UserInfoWrapper>
         <Username>{accountSettings.nickName}</Username>
         <UserEmail>{accountSettings.accountDisplayId}</UserEmail>

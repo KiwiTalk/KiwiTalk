@@ -1,6 +1,6 @@
 import React, { useState, HTMLAttributes } from 'react';
 import styled from 'styled-components';
-import ProfileImage from './ProfileImage';
+import ProfileImage, { ProfileImageBackgroundColor } from './ProfileImage';
 import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`
@@ -62,7 +62,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, l
   return (
     <Wrapper style={hover || selected ? { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
       <Content>
-        <ProfileImage src={profileImageSrc} focus={hover || selected} />
+        <ProfileImage src={profileImageSrc} backgroundColor={hover || selected ? ProfileImageBackgroundColor.GRAY_800 : ProfileImageBackgroundColor.GRAY_900} />
         <Text>
           <Username>{username}</Username>
           <LastChat>{lastChat || '\u200b'}</LastChat>

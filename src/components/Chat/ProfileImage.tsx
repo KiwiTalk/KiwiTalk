@@ -2,6 +2,7 @@ import React, { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import ProfileMaskF7 from '../../assets/images/profile_mask_F7.svg';
 import ProfileMaskFF from '../../assets/images/profile_mask_FF.svg';
+import ProfileMaskBackground from '../../assets/images/profile_mask_background.svg';
 
 const Wrapper = styled.div`
   width: 54px;
@@ -18,16 +19,33 @@ const Image = styled.img`
   width: 100%;
 `;
 
-interface ProfileImageProps extends HTMLAttributes<HTMLDivElement> {
-  src: string
-  focus: boolean
+export enum ProfileImageBackgroundColor {
+  GRAY_900 = 0,
+  GRAY_800 = 1,
+  BACKGROUND = 2
 }
 
-const ProfileImage: React.FC<ProfileImageProps> = ({src, focus, ...args}) => {
+interface ProfileImageProps extends HTMLAttributes<HTMLDivElement> {
+  src: string
+  backgroundColor: ProfileImageBackgroundColor
+}
+
+const getBackground = (backgroundColor: ProfileImageBackgroundColor) => {
+  switch(backgroundColor) {
+    case ProfileImageBackgroundColor.GRAY_900:
+      return ProfileMaskFF;
+    case ProfileImageBackgroundColor.GRAY_800:
+      return ProfileMaskF7;
+    case ProfileImageBackgroundColor.BACKGROUND:
+      return ProfileMaskBackground;
+  }
+}
+
+const ProfileImage: React.FC<ProfileImageProps> = ({src, backgroundColor, ...args}) => {
   return (
     <Wrapper {...args}>
       <Image src={src}/>
-      <Image src={focus ? ProfileMaskF7 : ProfileMaskFF}/>
+      <Image src={getBackground(backgroundColor)}/>
     </Wrapper>
   );
 };
