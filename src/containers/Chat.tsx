@@ -30,6 +30,10 @@ const Chat = () => {
   const [chatList, setChatList] = useState<ChatObject[]>([]);
   const [inputText, setInputText] = useState('');
 
+  const messageHook = (chat: ChatObject) => {
+    setChatList((prev) => [...prev, chat]);
+  }
+
   useEffect(() => {
     setChannelList(talkClient.ChannelManager.getChannelList());
 
@@ -44,9 +48,7 @@ const Chat = () => {
         alert("오류가 발생했습니다.\n" + error);
       });
 
-    talkClient.on('message', (chat: ChatObject) => {
-      setChatList((prev) => [...prev, chat]);
-    })
+    talkClient.on('message', messageHook);
   }, [])
   console.log(chatList)
   console.log(selectedChannel)
@@ -64,6 +66,8 @@ const Chat = () => {
     channel.sendText(inputText)
       .then(result => {
         setInputText('');
+
+        messageHook(result);
       })
       .catch(error => {
         alert('메시지 발송 중 오류 발생');
@@ -72,12 +76,12 @@ const Chat = () => {
 
   return (
     <Wrapper>
-      <SideBar/>
-      <SidePanel channelList={ channelList } accountSettings={ accountSettings }
-                 onChange={ (selectedChannel) => setSelectedChannel(selectedChannel) }/>
-      { channelList[selectedChannel] ?
-        <Chatroom channel={ channelList[selectedChannel] } chatList={ chatList } onInputChange={ onChange }
-                  onSubmit={ onSubmit } inputValue={ inputText }/> : null }
+      <SideBar />
+      <SidePanel channelList={channelList} accountSettings={accountSettings}
+        onChange={(selectedChannel) => setSelectedChannel(selectedChannel)} />
+      {channelList[selectedChannel] ?
+        <Chatroom channel={channelList[selectedChannel]} chatList={chatList} onInputChange={onChange}
+          onSubmit={onSubmit} inputValue={inputText} /> : null}
     </Wrapper>
   );
 };
