@@ -1,18 +1,12 @@
 import isElectron from 'is-electron';
 
 let electron;
-let ipcRenderer: any;
 let remote: any;
 
 if (isElectron()) {
   electron = window.require('electron');
   remote = electron.remote;
-  ipcRenderer = electron.ipcRenderer;
 }
-
-export const getIpcRenderer = () => {
-  return ipcRenderer;
-};
 
 export const getCurrentWindow = () => {
   if (isElectron()) return remote.getCurrentWindow();

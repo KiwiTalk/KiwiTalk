@@ -1,12 +1,12 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import styled from 'styled-components';
 import ChatroomHeader from './ChatroomHeader';
-import IconButton from './IconButton';
+import IconButton from '../UiComponent/IconButton';
 import color from '../../assets/javascripts/color';
 import IconAttachment from '../../assets/images/icon_attachment.svg';
 import IconEmoji from '../../assets/images/icon_emoji.svg';
 import IconSend from '../../assets/images/icon_send.svg';
-import Bubble from './Bubble';
+import Bubble from '../UiComponent/Bubble';
 import ChatItem from './ChatItem';
 
 import {Chat, ChatChannel, ChatType} from "node-kakao/dist";

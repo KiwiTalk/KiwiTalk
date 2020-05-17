@@ -2,8 +2,8 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import * as request from 'request-promise';
 import Chatroom from '../components/Chat/Chatroom';
-import SidePanel from '../components/Chat/SidePanel';
-import SideBar from '../components/Chat/SideBar';
+import SidePanel from '../components/Sidebar/SidePanel';
+import SideBar from '../components/Sidebar/SideBar';
 import {Chat as ChatObject, ChatChannel, TalkClient} from "node-kakao/dist";
 import {AccountSettings} from "../models/NodeKakaoExtraObject";
 

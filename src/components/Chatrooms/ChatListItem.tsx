@@ -1,6 +1,6 @@
 import React, { useState, HTMLAttributes } from 'react';
 import styled from 'styled-components';
-import ProfileImage, { ProfileImageBackgroundColor } from './ProfileImage';
+import ProfileImage, { ProfileImageBackgroundColor } from '../UiComponent/ProfileImage';
 import color from '../../assets/javascripts/color';
 
 const Wrapper = styled.div`

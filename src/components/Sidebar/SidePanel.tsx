@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import Search from './Search';
-import ChatList from './ChatList';
-import Profile from './Profile';
+import Search from '../UiComponent/Search';
+import ChatList from '../Chatrooms/ChatList';
+import Profile from '../UiComponent/Profile';
 import {AccountSettings} from '../../models/NodeKakaoExtraObject';
 import {ChatChannel} from "node-kakao/dist";
 
