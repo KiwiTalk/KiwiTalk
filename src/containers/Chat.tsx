@@ -77,11 +77,19 @@ const Chat = () => {
   return (
     <Wrapper>
       <SideBar />
-      <SidePanel channelList={channelList} accountSettings={accountSettings}
+      <SidePanel
+        channelList={channelList}
+        accountSettings={accountSettings}
         onChange={(selectedChannel) => setSelectedChannel(selectedChannel)} />
-      {channelList[selectedChannel] ?
-        <Chatroom channel={channelList[selectedChannel]} chatList={chatList} onInputChange={onChange}
-          onSubmit={onSubmit} inputValue={inputText} /> : null}
+      {
+      channelList[selectedChannel]
+        ? <Chatroom
+            channel={channelList[selectedChannel]}
+            chatList={chatList.filter((chat) => chat.Channel.Id.low === channelList[selectedChannel].Id.low)}
+            onInputChange={onChange}
+            onSubmit={onSubmit} inputValue={inputText} />
+        : null
+      }
     </Wrapper>
   );
 };

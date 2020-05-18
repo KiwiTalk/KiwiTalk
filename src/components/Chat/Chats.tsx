@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { createRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
@@ -76,6 +76,8 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
       }
     case ChatType.Map:
       console.log(chat);
+      return <a>{chat.AttachmentList}</a>
+      break;
     default:
       return <div>
         <h5>{chat.Type}</h5>
@@ -84,57 +86,65 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
   }
 }
 
-const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
-  let bubbles: JSX.Element[] = [];
-  let nextWithAuthor = true
+class Chats extends React.Component<ChatsProps> {
+  private bubbles: JSX.Element[] = [];
+  private nextWithAuthor = true;
 
-  const refScrollEnd = useRef() as any;
-  const scrollEnd = () => {
-    refScrollEnd.current.scrollIntoView({ behavior: "smooth" })
+  private refScrollEnd = createRef() as any;
+
+  shouldComponentUpdate(nextProps: ChatsProps, nextState: any) {
+    console.log(this.props.channel.Id.low, nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.low)
+    return this.props.chatList.length !== nextProps.chatList.length
+      && this.props.channel.Id.low === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.low;
   }
 
-  useEffect(scrollEnd, [scrollEnd]);
+  componentDidUpdate () {
+    this.refScrollEnd.current.scrollIntoView({ behavior: "smooth" });
+  }
 
-  return (
-    <Content>
-      {
-        chatList
-          .filter((chat) => chat.Channel.Id.low === channel.Id.low)
-          .map((chat, index, arr) => {
-            const isMine = (chat.Sender == undefined) || chat.Sender.isClientUser();
-            let willSenderChange = arr.length - 1 === index;
+  render () {
+    console.log('call render');
 
-            if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
-            else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender?.Id.low;
-
-            const sendDate = new Date(chat.SendTime * 1000);
-            let content: JSX.Element = convertContent(chat, chatList);
-
-            bubbles.push(<Bubble
-              key={chat.MessageId}
-              hasTail={willSenderChange}
-              unread={1}
-              author={nextWithAuthor ? chat.Sender?.Nickname : ''}
-              isMine={isMine}
-              time={sendDate}>
-              {content}
-            </Bubble>);
-
-            nextWithAuthor = false;
-
-            if (willSenderChange) {
-              const chatItem = <ChatItem
-                profileImageSrc={channel["channelInfo"].userInfoMap[chat.Sender?.Id.low]?.profileImageURL}
-                key={chat.MessageId}>{bubbles}</ChatItem>;
-              bubbles = [];
-              nextWithAuthor = true;
-              return chatItem;
-            }
-          })
-      }
-      <div ref={refScrollEnd} />
-    </Content>
-  );
+    return (
+      <Content>
+        {
+          this.props.chatList
+            .map((chat, index, arr) => {
+              const isMine = (chat.Sender == undefined) || chat.Sender.isClientUser();
+              let willSenderChange = arr.length - 1 === index;
+  
+              if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
+              else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender?.Id.low;
+  
+              const sendDate = new Date(chat.SendTime * 1000);
+              let content: JSX.Element = convertContent(chat, this.props.chatList);
+  
+              this.bubbles.push(<Bubble
+                key={chat.MessageId}
+                hasTail={willSenderChange}
+                unread={1}
+                author={this.nextWithAuthor ? chat.Sender?.Nickname : ''}
+                isMine={isMine}
+                time={sendDate}>
+                {content}
+              </Bubble>);
+  
+              this.nextWithAuthor = false;
+  
+              if (willSenderChange) {
+                const chatItem = <ChatItem
+                  profileImageSrc={this.props.channel["channelInfo"].userInfoMap[chat.Sender?.Id.low]?.profileImageURL}
+                  key={chat.MessageId}>{this.bubbles}</ChatItem>;
+                this.bubbles = [];
+                this.nextWithAuthor = true;
+                return chatItem;
+              }
+            })
+        }
+        <div ref={this.refScrollEnd}></div>
+      </Content>
+    );
+  }
 };
 
 export default Chats;
