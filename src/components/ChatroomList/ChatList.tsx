@@ -55,7 +55,7 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
         selected={selected}
         onClick={onClick} />)
     });
-  }, [channel, onClick, selected])
+  }, [])
 
   return (
     <React.Fragment>

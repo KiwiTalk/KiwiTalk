@@ -71,8 +71,11 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
 
       if (prevChat != null) {
         return <ReplyChat prevChat={prevChat} me={chat}></ReplyChat>
+      } else {
+        return <a>{chat.Text}</a>
       }
-    // eslint-disable-next-line no-fallthrough
+    case ChatType.Feed:
+      console.log(chat);
     default:
       return <div>
         <h5>{chat.Type}</h5>
