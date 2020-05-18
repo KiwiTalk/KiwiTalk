@@ -74,9 +74,18 @@ const Unread = styled.span`
 export interface BubbleProps {
   hasTail: boolean
   author?: string
-  time: string
+  time: Date
   unread: number
   isMine: boolean
+}
+
+const convertTime = (time: Date, use24format = true) => {
+  const hour = time.getHours();
+  const minute = time.getMinutes();
+
+  let hourStr = use24format ? hour.toString() : hour < 13 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour - 12}`;
+
+  return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
 }
 
 const Bubble: React.FC<BubbleProps> = ({ hasTail, author, time, unread, isMine, children }) => {
@@ -89,7 +98,7 @@ const Bubble: React.FC<BubbleProps> = ({ hasTail, author, time, unread, isMine, 
       </Content>
       <HeadWrapper>
         <Unread>{unread}</Unread>
-        <Date>{time}</Date>
+        <Date>{convertTime(time, false)}</Date>
       </HeadWrapper>
     </Wrapper>
   );

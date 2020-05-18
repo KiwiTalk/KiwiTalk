@@ -74,7 +74,7 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
       } else {
         return <a>{chat.Text}</a>
       }
-    case ChatType.Feed:
+    case ChatType.Map:
       console.log(chat);
     default:
       return <div>
@@ -107,7 +107,7 @@ const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
             if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
             else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender?.Id.low;
 
-            const sendDate = new Date(chat.SendTime);
+            const sendDate = new Date(chat.SendTime * 1000);
             let content: JSX.Element = convertContent(chat, chatList);
 
             bubbles.push(<Bubble
@@ -116,7 +116,7 @@ const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
               unread={1}
               author={nextWithAuthor ? chat.Sender?.Nickname : ''}
               isMine={isMine}
-              time={`${sendDate.getHours()}:${sendDate.getMinutes()}`}>
+              time={sendDate}>
               {content}
             </Bubble>);
 
