@@ -40,18 +40,18 @@ const Chat = () => {
     const accessToken: string = talkClient.ClientUser.MainUserInfo["clientAccessData"].AccessToken;
     const accountObject: request.RequestPromise = kakaoApi.requestAccountSettings(accessToken, remote.getGlobal('getUUID')());
     accountObject
-      .then(result => {
+      .then((result: any) => {
         const accountSettings = JSON.parse(result) as AccountSettings;
         setAccountSettings(accountSettings);
       })
-      .catch(error => {
+      .catch((error: any) => {
         alert("오류가 발생했습니다.\n" + error);
       });
 
     talkClient.on('message', messageHook);
   }, [])
-  console.log(chatList)
-  console.log(selectedChannel)
+  // console.log(chatList)
+  // console.log(selectedChannel)
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputText(event.target.value);

@@ -14,7 +14,7 @@ const FakeTail = styled.div`
   height: 100%;
 `;
 
-const Wrapper = styled.div((props: {isMine: boolean}) => `
+const Wrapper = styled.div((props: { isMine: boolean }) => `
   display: flex;
   flex-direction: ${props.isMine ? 'row-reverse' : 'row'};
   align-items: flex-end;
@@ -22,7 +22,7 @@ const Wrapper = styled.div((props: {isMine: boolean}) => `
   justify-content: 'flex-start';
 `);
 
-const Content = styled.div((props: {isMine: boolean}) => `
+const Content = styled.div((props: { isMine: boolean }) => `
   background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
   border-radius: 5px;
   padding: 9px 47px 9px 18px;
@@ -79,10 +79,10 @@ export interface BubbleProps {
   isMine: boolean
 }
 
-const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children}) => {
+const Bubble: React.FC<BubbleProps> = ({ hasTail, author, time, unread, isMine, children }) => {
   return (
     <Wrapper isMine={isMine}>
-      {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
+      {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail} /> : <FakeTail />}
       <Content isMine={isMine}>
         {author && <Author>{author}</Author>}
         {children}

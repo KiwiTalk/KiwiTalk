@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
@@ -29,9 +29,68 @@ export interface ChatsProps {
   chatList: Chat[]
 }
 
+const convertContent = (chat: Chat, chatList: Chat[]) => {
+  switch (chat.Type) {
+    case ChatType.Text:
+      // eslint-disable-next-line jsx-a11y/anchor-is-valid
+      return <a>{chat.Text}</a>
+    case ChatType.Photo: case ChatType.MultiPhoto:
+      return <div>
+        {
+          chat.AttachmentList.map((attachment: any) => {
+            attachment = attachment as PhotoAttachment;
+
+            return <PhotoChat
+              width={attachment.Width}
+              height={attachment.Height}
+              url={attachment.ImageURL}
+              ratio={chat.Type === ChatType.MultiPhoto ? 1 : -1}
+              limit={chat.Type === ChatType.MultiPhoto ? [200, 200] : [300, 500]}></PhotoChat>
+          })
+        }
+      </div>
+    case ChatType.Search:
+      return <div>
+        {
+          chat.AttachmentList.map((attachment: any) => {
+            const { Question, ContentType, ContentList } = attachment;
+
+            return <SearchChat question={Question} type={ContentType} list={ContentList}></SearchChat>
+          })
+        }
+      </div>
+    case ChatType.Reply:
+      let prevChat = null;
+
+      for (const c of chatList) {
+        if (c.LogId.low === chat.PrevLogId.low) {
+          prevChat = c;
+          break;
+        }
+      }
+
+      if (prevChat != null) {
+        return <ReplyChat prevChat={prevChat} me={chat}></ReplyChat>
+      }
+    // eslint-disable-next-line no-fallthrough
+    default:
+      return <div>
+        <h5>{chat.Type}</h5>
+        <a>{chat.Text}</a>
+      </div>
+  }
+}
+
 const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
   let bubbles: JSX.Element[] = [];
   let nextWithAuthor = true
+
+  const refScrollEnd = useRef() as any;
+  const scrollEnd = () => {
+    refScrollEnd.current.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(scrollEnd, [scrollEnd]);
 
   return (
     <Content>
@@ -46,55 +105,7 @@ const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
             else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender?.Id.low;
 
             const sendDate = new Date(chat.SendTime);
-            let content: JSX.Element = <a>{chat.Text}</a>
-
-            switch (chat.Type) {
-              case ChatType.Text:
-                break;
-              case ChatType.Photo: case ChatType.MultiPhoto: // MultiPhoto는 임시
-                content = <div>
-                  {
-                    chat.AttachmentList.map((attachment: any) => {
-                      attachment = attachment as PhotoAttachment;
-
-                      return <PhotoChat width={attachment.Width} height={attachment.Height} url={attachment.ImageURL}></PhotoChat>
-                    })
-                  }
-                </div>
-                break;
-              case ChatType.Search:
-                content = <div>
-                  {
-                    chat.AttachmentList.map((attachment: any) => {
-                      const { Question, ContentType, ContentList } = attachment;
-
-                      return <SearchChat question={Question} type={ContentType} list={ContentList}></SearchChat>
-                    })
-                  }
-                </div>
-                break;
-              case ChatType.Reply:
-                chat = chat as ReplyChat;
-                let prevChat = null;
-
-                for (const c of chatList) {
-                  if (c.LogId.low === chat.PrevLogId.low) {
-                    prevChat = c;
-                    break;
-                  }
-                }
-
-                if (prevChat != null) {
-                  content = <ReplyChat prevChat={prevChat} me={chat}></ReplyChat>
-                }
-                break;
-              default:
-                content = <div>
-                  <h5>{chat.Type}</h5>
-                  <a>{chat.Text}</a>
-                </div>
-                break;
-            }
+            let content: JSX.Element = convertContent(chat, chatList);
 
             bubbles.push(<Bubble
               key={chat.MessageId}
@@ -118,6 +129,7 @@ const Chats: React.FC<ChatsProps> = ({ channel, chatList }) => {
             }
           })
       }
+      <div ref={refScrollEnd} />
     </Content>
   );
 };
