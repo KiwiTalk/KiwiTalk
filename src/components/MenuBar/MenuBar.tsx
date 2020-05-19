@@ -1,13 +1,5 @@
-import React, { useState } from 'react';
-import {
-  closeWindow,
-  getCurrentWindow,
-  isWindowMaximized,
-  maxUnMaxWindow,
-  minimizeWindow,
-} from '../../functions/electron';
+import React, {useState} from 'react';
 import styled from 'styled-components';
-import isElectron from 'is-electron';
 import ThemeColor from '../../assets/colors/theme';
 
 import iconLogo from '../../assets/images/logo_text_small.svg';
@@ -60,29 +52,28 @@ const CloseButton = styled(Button)`
 const MenuBar = () => {
   const [isMaximum, setMaximum] = useState(false);
 
-  if (!isElectron()) return null;
-  const window = getCurrentWindow();
-  const listener = () => setMaximum(isWindowMaximized());
-  window.once('maximize', listener);
-  window.once('unmaximize', listener);
+  const gui = require('nw.gui');
+  const window = gui.Window.get();
+  window.once('maximize', () => setMaximum(true));
+  window.once('restore', () => setMaximum(false));
 
   return (
-    <Wrapper className={'menu-bar'}>
-      <div>
-        <Button>
-          <img src={iconLogo} />
-        </Button>
-      </div>
-      <div>
-        <Button onClick={() => minimizeWindow()}>
-          <img src={iconMinimize} />
-        </Button>
-        <Button onClick={() => maxUnMaxWindow()}>
-          <img src={iconMaximize} />
-        </Button>
-        <CloseButton onClick={() => closeWindow()}>
-          <img src={iconClose} />
-        </CloseButton>
+      <Wrapper className={'menu-bar'}>
+        <div>
+          <Button>
+            <img src={iconLogo}/>
+          </Button>
+        </div>
+        <div>
+          <Button onClick={() => window.minimize()}>
+            <img src={iconMinimize}/>
+          </Button>
+          <Button onClick={() => window.restore()}>
+            <img src={iconMaximize}/>
+          </Button>
+          <CloseButton onClick={() => window.close()}>
+            <img src={iconClose}/>
+          </CloseButton>
       </div>
     </Wrapper>
   )

@@ -1,55 +1,44 @@
-import {app} from 'electron';
-import WindowManager from './src/WindowManager';
-import {v4} from "uuid";
+import localforage from 'localforage';
+import {v4} from 'uuid';
 
 // @ts-ignore
-global.nodeKakao = require('node-kakao');
-// @ts-ignore
-global.store = new (require('electron-store'))();
-// @ts-ignore
-global.getClientName = (): string => {
-  // @ts-ignore
-  let clientName = global.store.get('client_name') as string;
-  if (clientName == null) {
-    clientName = require('os').hostname();
-    // @ts-ignore
-    global.store.set('client_name', clientName);
+global.getClientName = async (): Promise<string> => {
+  try {
+    return await localforage.getItem('client_name');
+  } catch (e) {
+    let clientName = require('os').hostname();
+    localforage.setItem('client_name', clientName)
+        .catch((error) => {
+          console.log(error);
+        });
+    return clientName;
   }
-  return clientName;
 }
 // @ts-ignore
 global.createNewUUID = (): string => {
   return Buffer.from(v4()).toString('base64');
 }
 // @ts-ignore
-global.getUUID = (): string => {
-  // @ts-ignore
-  let uuid = global.store.get('uuid') as string;
-  if (uuid == null) {
+global.getUUID = async (): Promise<string> => {
+  try {
+    return await localforage.getItem('uuid');
+  } catch (e) {
     // @ts-ignore
-    uuid = global.createNewUUID();
-    // @ts-ignore
-    global.store.set('uuid', uuid);
+    let uuid = global.createNewUUID();
+    localforage.setItem('uuid', uuid)
+        .catch((error) => {
+          console.log(error);
+        });
+    return uuid;
   }
-  return uuid;
 }
 
 // @ts-ignore
-global.talkClient = new global.nodeKakao.TalkClient(global.getClientName());
-// @ts-ignore
-console.log(global.talkClient);
+global.talkClient = new require('node-kakao').TalkClient(global.getClientName());
 
-app.whenReady().then(() => {
-  WindowManager.init();
-  WindowManager.addFirstWindow();
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+nw.Window.open('index.html', {}, (win) => {
+  if (win) {
+    win.width = 800;
+    win.height = 600;
   }
 });
-
-app.on('activate', () => WindowManager.addFirstWindow());
-
-app.requestSingleInstanceLock();
