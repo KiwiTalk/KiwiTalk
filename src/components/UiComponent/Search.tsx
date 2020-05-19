@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import IconSearch from '../../assets/images/icon_search.svg';
 import IconNewChat from '../../assets/images/icon_new_chat.svg';
 import IconButton from './IconButton';
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   width: 309px;
