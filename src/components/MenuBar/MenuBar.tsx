@@ -52,10 +52,11 @@ const CloseButton = styled(Button)`
 const MenuBar = () => {
   const [isMaximum, setMaximum] = useState(false);
 
-  const gui = require('nw.gui');
-  const window = gui.Window.get();
-  window.once('maximize', () => setMaximum(true));
-  window.once('restore', () => setMaximum(false));
+  // @ts-ignore
+  const gui = global.window.nwDispatcher.requireNwGui();
+  const win = gui.Window.get();
+  win.once('maximize', () => setMaximum(true));
+  win.once('restore', () => setMaximum(false));
 
   return (
       <Wrapper className={'menu-bar'}>
@@ -65,13 +66,13 @@ const MenuBar = () => {
           </Button>
         </div>
         <div>
-          <Button onClick={() => window.minimize()}>
+          <Button onClick={() => win.minimize()}>
             <img src={iconMinimize}/>
           </Button>
-          <Button onClick={() => window.restore()}>
+          <Button onClick={() => win.restore()}>
             <img src={iconMaximize}/>
           </Button>
-          <CloseButton onClick={() => window.close()}>
+          <CloseButton onClick={() => win.close()}>
             <img src={iconClose}/>
           </CloseButton>
       </div>

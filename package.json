@@ -4,9 +4,12 @@
   "private": true,
   "description": "open kiwi talk",
   "authors": [
-    "mocha"
+    "mocha",
+    "JellyBrick",
+    "Scripter36",
+    "SuYong"
   ],
-  "main": "public/nw.js",
+  "main": "public/entry.js",
   "window": {
     "frame": false,
     "toolbar": false
@@ -17,7 +20,7 @@
     "build:react": "react-scripts build",
     "test:react": "react-scripts test",
     "eject:react": "react-scripts eject",
-    "start:nw": "nw",
+    "start:nw": "nw .",
     "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:nw\"",
     "build": "yarn build:react && nwbuild ."
   },
@@ -39,7 +42,6 @@
   "dependencies": {
     "localforage": "^1.7.3",
     "node-kakao": "^2.0.1",
-    "nw": "^0.45.6",
     "nwjs": "^1.4.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -55,10 +57,10 @@
     "@testing-library/jest-dom": "^5.7.0",
     "@testing-library/react": "^10.0.4",
     "@testing-library/user-event": "^10.1.0",
-    "@types/nw.js": "^0.13.9",
-    "@types/nw.gui": "^0.0.20",
     "@types/jest": "^25.2.1",
     "@types/node": "^14.0.1",
+    "@types/nw.gui": "^0.0.20",
+    "@types/nw.js": "^0.13.9",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.5",
@@ -67,7 +69,7 @@
     "@types/uuid": "^7.0.3",
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
-    "nw": "^0.45.6",
+    "nw": "^0.45.6-sdk",
     "nw-builder": "^3.5.7",
     "wait-on": "^5.0.0"
   },
