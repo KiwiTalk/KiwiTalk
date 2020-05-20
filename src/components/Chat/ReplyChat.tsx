@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import {Chat} from 'node-kakao/src';
+import {Chat} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   display: flex;

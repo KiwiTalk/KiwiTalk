@@ -2,7 +2,7 @@ import React, {ChangeEvent, EventHandler, FormEvent} from 'react';
 import styled from 'styled-components';
 import ChatroomColor from '../../assets/colors/chatroom';
 import ChatroomHeader from './ChatroomHeader';
-import {Chat, ChatChannel} from 'node-kakao/src';
+import {Chat, ChatChannel} from 'node-kakao/dist';
 import Chats from './Chats';
 import ChatInput from './ChatInput';
 
