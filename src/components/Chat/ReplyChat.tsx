@@ -1,9 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Chat } from 'node-kakao/dist';
-
-import ThemeColor from '../../assets/colors/theme';
+import {Chat} from 'node-kakao/src';
 
 const Wrapper = styled.div`
   display: flex;

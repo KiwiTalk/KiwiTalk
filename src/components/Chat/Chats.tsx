@@ -1,8 +1,7 @@
-import React, { createRef, useEffect } from 'react';
+import React, {createRef} from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
-import ChatroomColor from '../../assets/colors/chatroom';
 
 import ChatItem from './ChatItem';
 import Bubble from '../UiComponent/Bubble';
@@ -11,7 +10,7 @@ import PhotoChat from './PhotoChat';
 import SearchChat from './SearchChat';
 import ReplyChat from './ReplyChat';
 
-import { Chat, ChatChannel, ChatType, PhotoAttachment } from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType, PhotoAttachment} from 'node-kakao/src';
 
 const Content = styled.div`
 display: flex;
@@ -63,7 +62,7 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
       let prevChat = null;
 
       for (const c of chatList) {
-        if (c.LogId.low === chat.PrevLogId.low) {
+        if (c.LogId.getLowBits() === chat.PrevLogId.getLowBits()) {
           prevChat = c;
           break;
         }
@@ -93,9 +92,9 @@ class Chats extends React.Component<ChatsProps> {
   private refScrollEnd = createRef() as any;
 
   shouldComponentUpdate(nextProps: ChatsProps, nextState: any) {
-    console.log(this.props.channel.Id.low, nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.low)
+    console.log(this.props.channel.Id.getLowBits(), nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.getLowBits())
     return this.props.chatList.length !== nextProps.chatList.length
-      && this.props.channel.Id.low === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.low;
+        && this.props.channel.Id.getLowBits() === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.getLowBits();
   }
 
   componentDidUpdate () {
@@ -112,9 +111,9 @@ class Chats extends React.Component<ChatsProps> {
             .map((chat, index, arr) => {
               const isMine = (chat.Sender == undefined) || chat.Sender.isClientUser();
               let willSenderChange = arr.length - 1 === index;
-  
+
               if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
-              else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.low !== chat.Sender?.Id.low;
+              else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.getLowBits() !== chat.Sender?.Id.getLowBits();
   
               const sendDate = new Date(chat.SendTime * 1000);
               let content: JSX.Element = convertContent(chat, this.props.chatList);
@@ -133,8 +132,8 @@ class Chats extends React.Component<ChatsProps> {
   
               if (willSenderChange) {
                 const chatItem = <ChatItem
-                  profileImageSrc={this.props.channel["channelInfo"].userInfoMap[chat.Sender?.Id.low]?.profileImageURL}
-                  key={chat.MessageId}>{this.bubbles}</ChatItem>;
+                    profileImageSrc={this.props.channel['channelInfo'].getUserInfo(chat.Sender)?.ProfileImageURL}
+                    key={chat.MessageId}>{this.bubbles}</ChatItem>;
                 this.bubbles = [];
                 this.nextWithAuthor = true;
                 return chatItem;
@@ -145,6 +144,6 @@ class Chats extends React.Component<ChatsProps> {
       </Content>
     );
   }
-};
+}
 
 export default Chats;

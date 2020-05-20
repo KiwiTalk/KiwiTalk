@@ -1,10 +1,8 @@
 import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import * as request from 'request-promise';
 import SidePanel from '../components/Sidebar/SidePanel';
 import SideBar from '../components/Sidebar/SideBar';
-import {Chat as ChatObject, ChatChannel, TalkClient} from "node-kakao/dist";
-import {AccountSettings} from "../models/NodeKakaoExtraObject";
+import {Chat as ChatObject, ChatChannel, ClientSettingsStruct, TalkClient} from 'node-kakao/src';
 import Chatroom from '../components/Chat/Chatroom';
 
 const Wrapper = styled.div`
@@ -16,14 +14,13 @@ display: flex;
 flex-direction: row;
 `;
 
-const nodeKakao = require('node-kakao');
 // @ts-ignore
 const talkClient: TalkClient = global.talkClient;
 
 const Chat = () => {
     const [channelList, setChannelList] = useState<ChatChannel[]>([]);
     const [selectedChannel, setSelectedChannel] = useState(0);
-    const [accountSettings, setAccountSettings] = useState<AccountSettings>();
+    const [accountSettings, setAccountSettings] = useState<ClientSettingsStruct>();
     const [chatList, setChatList] = useState<ChatObject[]>([]);
     const [inputText, setInputText] = useState('');
 
@@ -33,23 +30,15 @@ const Chat = () => {
 
   useEffect(() => {
       setChannelList(talkClient.ChannelManager.getChannelList());
-
-      const accessToken: string = talkClient.ClientUser.MainUserInfo["clientAccessData"].AccessToken;
-      // @ts-ignore
-      global.getUUID()
-          .then((uuid: string) => {
-              const accountObject: request.RequestPromise = nodeKakao.KakaoAPI.requestAccountSettings(accessToken, uuid);
-              accountObject
-                  .then((result: any) => {
-                      const accountSettings = JSON.parse(result) as AccountSettings;
-                      setAccountSettings(accountSettings);
-                  })
-                  .catch((error: any) => {
-                      alert("오류가 발생했습니다.\n" + error);
-                  });
-
-              talkClient.on('message', messageHook);
+      talkClient.ApiClient.requestMoreSettings()
+          .then((result: ClientSettingsStruct) => {
+              setAccountSettings(result);
+          })
+          .catch((error: any) => {
+              alert("오류가 발생했습니다.\n" + error);
           });
+
+      talkClient.on('message', messageHook);
   }, [])
   // console.log(chatList)
   // console.log(selectedChannel)
@@ -85,10 +74,10 @@ const Chat = () => {
       {
       channelList[selectedChannel]
         ? <Chatroom
-            channel={channelList[selectedChannel]}
-            chatList={chatList.filter((chat) => chat.Channel.Id.low === channelList[selectedChannel].Id.low)}
-            onInputChange={onChange}
-            onSubmit={onSubmit} inputValue={inputText} />
+              channel={channelList[selectedChannel]}
+              chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
+              onInputChange={onChange}
+              onSubmit={onSubmit} inputValue={inputText}/>
         : null
       }
     </Wrapper>

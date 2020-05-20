@@ -1,9 +1,9 @@
-import React, { EventHandler, MouseEventHandler, useEffect, useState } from 'react';
+import React, {MouseEventHandler, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import ChatListItem from './ChatListItem';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import color from '../../assets/colors/theme';
-import { ChatChannel, ChannelInfo, ChannelMetaStruct, ChannelMetaType, UserInfo } from "node-kakao/dist";
+import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao/src';
 
 const Wrapper = styled.div`
 width: 309px;
@@ -48,12 +48,12 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
       const userInfoList = ch.UserIdList.map((id) => ch.getUserInfoId(id)).filter((v, i) => i < 5 && v != null) as UserInfo[];
       const name = ch.Name ? ch.Name : userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
       setComp(<ChatListItem
-        key={channel.Id.low}
-        lastChat={channel.LastChat ? channel.LastChat.Text : ''}
-        profileImageSrc={extractRoomImage(ch, userInfoList)}
-        username={name}
-        selected={selected}
-        onClick={onClick} />)
+          key={channel.Id.getLowBits()}
+          lastChat={channel.LastChat ? channel.LastChat.Text : ''}
+          profileImageSrc={extractRoomImage(ch, userInfoList)}
+          username={name}
+          selected={selected}
+          onClick={onClick}/>)
     });
   }, [selected])
 

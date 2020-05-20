@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './IconButton';
-import ProfileImage, { ProfileImageBackgroundColor } from './ProfileImage';
-import { AccountSettings } from '../../models/NodeKakaoExtraObject';
+import ProfileImage, {ProfileImageBackgroundColor} from './ProfileImage';
 import color from '../../assets/colors/theme';
+import {ClientSettingsStruct} from 'node-kakao/src';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -41,7 +41,7 @@ const UserEmail = styled.span`
 `;
 
 interface ProfileProps {
-  accountSettings?: AccountSettings
+    accountSettings?: ClientSettingsStruct
 }
 
 const Profile: React.FC<ProfileProps> = ({accountSettings}) => {

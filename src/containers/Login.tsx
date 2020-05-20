@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 
 import LoginBackground from '../components/Login/LoginBackground';
 import LoginForm from '../components/Login/LoginForm';
-import {TalkClient} from "node-kakao/dist";
+import {TalkClient} from 'node-kakao/src';
 
 const resultText: { [key: string]: string } = {
   success: '로그인 성공',

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import VerifyCode from "../components/VerifyCode/VerifyCode";
 import styled from 'styled-components';
 import {Redirect} from 'react-router-dom';
-import {ClientChatUser, TalkClient} from "node-kakao/dist";
+import {ClientChatUser, KakaoAPI, TalkClient} from 'node-kakao/src';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -30,7 +30,6 @@ interface PasscodeResponse {
 
 // @ts-ignore
 const talkClient: TalkClient = global.talkClient;
-const nodeKakao = require('node-kakao');
 
 const Verify = () => {
     const [redirect, setRedirect] = useState('');
@@ -47,7 +46,7 @@ const Verify = () => {
                 global.getClientName()
                     .then((clientName: string) => {
                         // @ts-ignore
-                        nodeKakao.KakaoAPI.registerDevice(passcode, global.email, global.password, uuid, clientName)
+                        KakaoAPI.registerDevice(passcode, global.email, global.password, uuid, clientName)
                             .then(() => {
                                 alert('인증 성공');
                                 talkClient.emit('login');
