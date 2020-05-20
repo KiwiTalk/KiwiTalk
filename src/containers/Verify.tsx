@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import VerifyCode from "../components/VerifyCode/VerifyCode";
 import styled from 'styled-components';
 import {Redirect} from 'react-router-dom';
-import {ClientChatUser, KakaoAPI, TalkClient} from 'node-kakao/src';
+import {ClientChatUser, KakaoAPI, TalkClient} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   width: 100%;

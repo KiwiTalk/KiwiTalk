@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ChatListItem from './ChatListItem';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import color from '../../assets/colors/theme';
-import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao/src';
+import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
 width: 309px;

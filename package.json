@@ -23,8 +23,7 @@
     "eject:react": "react-scripts eject",
     "start:nw": "nw .",
     "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:nw\"",
-    "build": "yarn build:react && nwbuild .",
-    "postinstall": "cd ./node_modules/node-kakao && ../.bin/tsc"
+    "build": "yarn build:react && nwbuild ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -43,7 +42,6 @@
   },
   "dependencies": {
     "localforage": "^1.7.3",
-    "node-kakao": "github:storycraft/node-kakao#dev",
     "nwjs": "^1.4.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

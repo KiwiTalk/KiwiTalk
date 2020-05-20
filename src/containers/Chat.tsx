@@ -2,7 +2,7 @@ import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/Sidebar/SidePanel';
 import SideBar from '../components/Sidebar/SideBar';
-import {Chat as ChatObject, ChatChannel, ClientSettingsStruct, TalkClient} from 'node-kakao/src';
+import {Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient} from 'node-kakao/dist';
 import Chatroom from '../components/Chat/Chatroom';
 
 const Wrapper = styled.div`
@@ -20,7 +20,7 @@ const talkClient: TalkClient = global.talkClient;
 const Chat = () => {
     const [channelList, setChannelList] = useState<ChatChannel[]>([]);
     const [selectedChannel, setSelectedChannel] = useState(0);
-    const [accountSettings, setAccountSettings] = useState<ClientSettingsStruct>();
+    const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
     const [chatList, setChatList] = useState<ChatObject[]>([]);
     const [inputText, setInputText] = useState('');
 
@@ -31,7 +31,7 @@ const Chat = () => {
   useEffect(() => {
       setChannelList(talkClient.ChannelManager.getChannelList());
       talkClient.ApiClient.requestMoreSettings()
-          .then((result: ClientSettingsStruct) => {
+          .then((result: MoreSettingsStruct) => {
               setAccountSettings(result);
           })
           .catch((error: any) => {

@@ -10,7 +10,7 @@ import PhotoChat from './PhotoChat';
 import SearchChat from './SearchChat';
 import ReplyChat from './ReplyChat';
 
-import {Chat, ChatChannel, ChatType, PhotoAttachment} from 'node-kakao/src';
+import {Chat, ChatChannel, ChatType, PhotoAttachment} from 'node-kakao/dist';
 
 const Content = styled.div`
 display: flex;

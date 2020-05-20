@@ -5,7 +5,7 @@ import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './IconButton';
 import ProfileImage, {ProfileImageBackgroundColor} from './ProfileImage';
 import color from '../../assets/colors/theme';
-import {ClientSettingsStruct} from 'node-kakao/src';
+import {MoreSettingsStruct} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -41,7 +41,7 @@ const UserEmail = styled.span`
 `;
 
 interface ProfileProps {
-    accountSettings?: ClientSettingsStruct
+    accountSettings?: MoreSettingsStruct
 }
 
 const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
@@ -54,11 +54,13 @@ const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
   }
   return (
     <Wrapper>
-      <ProfileImage src={accountSettings.profileImageUrl || ProfileDefault} style={{ width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px' }} backgroundColor={ProfileImageBackgroundColor.GRAY_800} />
-      <UserInfoWrapper>
-        <Username>{accountSettings.nickName}</Username>
-        <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
-      </UserInfoWrapper>
+        <ProfileImage src={accountSettings.profileImageURL?.toString() || ProfileDefault}
+                      style={{width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px'}}
+                      backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
+        <UserInfoWrapper>
+            <Username>{accountSettings.nickName}</Username>
+            <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
+        </UserInfoWrapper>
       <IconButton background={IconSettings} style={{ width: '24px', height: '24px', marginRight: '32px' }}/>
     </Wrapper>
   );

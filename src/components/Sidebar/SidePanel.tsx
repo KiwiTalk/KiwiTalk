@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Search from '../UiComponent/Search';
 import ChatList from '../ChatroomList/ChatList';
 import Profile from '../UiComponent/Profile';
-import {ChatChannel, ClientSettingsStruct} from 'node-kakao/src';
+import {ChatChannel, MoreSettingsStruct} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 
 interface SidePanelProps {
     channelList: ChatChannel[]
-    accountSettings?: ClientSettingsStruct
+    accountSettings?: MoreSettingsStruct
     onChange?: (index: number) => any;
 }
 
