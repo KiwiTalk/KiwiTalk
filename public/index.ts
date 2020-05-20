@@ -40,7 +40,7 @@ global.getUUID = async (): Promise<string> => {
 // @ts-ignore
 global.talkClient = new (require('node-kakao/dist').TalkClient)(global.getClientName());
 
-nw.Window.open('localhost:3000', {}, (win) => {
+nw.Window.open('localhost:3000', { frame: false }, (win) => {
     if (win) {
         win.width = 800;
         win.height = 600;

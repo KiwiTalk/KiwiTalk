@@ -67,7 +67,7 @@ const MenuBar = () => {
           <Button onClick={() => win.minimize()}>
             <img src={iconMinimize}/>
           </Button>
-          <Button onClick={() => win.restore()}>
+          <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
             <img src={iconMaximize}/>
           </Button>
           <CloseButton onClick={() => win.close()}>
