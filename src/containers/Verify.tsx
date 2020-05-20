@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import VerifyCode from "../components/VerifyCode/VerifyCode";
 import styled from 'styled-components';
-import {Redirect} from 'react-router-dom';
-import {ClientChatUser, KakaoAPI, TalkClient} from 'node-kakao/src';
+import { Redirect } from 'react-router-dom';
+import { ClientChatUser, KakaoAPI, TalkClient } from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -11,11 +11,11 @@ const Wrapper = styled.div`
 `;
 
 const resultText: { [key: string]: string } = {
-  success: '로그인 성공',
-  passcode: '인증번호 필요',
-  anotherdevice: '다른 기기에서 이미 로그인됨',
-  restricted: '제한된 계정입니다.',
-  wrong: '아이디 또는 비밀번호가 올바르지 않습니다.',
+    success: '로그인 성공',
+    passcode: '인증번호 필요',
+    anotherdevice: '다른 기기에서 이미 로그인됨',
+    restricted: '제한된 계정입니다.',
+    wrong: '아이디 또는 비밀번호가 올바르지 않습니다.',
 };
 
 interface LoginResponse {
@@ -29,7 +29,7 @@ interface PasscodeResponse {
 }
 
 // @ts-ignore
-const talkClient: TalkClient = global.talkClient;
+const talkClient: TalkClient = nw.global.talkClient;
 
 const Verify = () => {
     const [redirect, setRedirect] = useState('');
@@ -38,15 +38,14 @@ const Verify = () => {
             alert(user.Nickname + ' 로그인 성공');
             setRedirect('chat');
         });
-
         // @ts-ignore
-        global.getUUID()
+        nw.global.getUUID()
             .then((uuid: string) => {
                 // @ts-ignore
-                global.getClientName()
+                nw.global.getClientName()
                     .then((clientName: string) => {
                         // @ts-ignore
-                        KakaoAPI.registerDevice(passcode, global.email, global.password, uuid, clientName)
+                        KakaoAPI.registerDevice(passcode, nw.global.email, nw.global.password, uuid, clientName, true)
                             .then(() => {
                                 alert('인증 성공');
                                 talkClient.emit('login');
@@ -68,11 +67,24 @@ const Verify = () => {
             });
     };
 
-  return redirect ? <Redirect to={redirect}/> :  (
-    <Wrapper>
-      <VerifyCode onSubmit={onSubmit}/>
-    </Wrapper>
-  )
+    useEffect(() => {
+        // @ts-ignore
+        nw.global.getUUID()
+            .then((uuid: string) => {
+                // @ts-ignore
+                nw.global.getClientName()
+                    .then((clientName: string) => {
+                        // @ts-ignore
+                        KakaoAPI.requestPasscode(nw.global.email, nw.global.password, uuid, clientName, true)
+                    });
+            });
+    }, [])
+
+    return redirect ? <Redirect to={redirect} /> : (
+        <Wrapper>
+            <VerifyCode onSubmit={onSubmit} />
+        </Wrapper>
+    )
 };
 
 export default Verify;

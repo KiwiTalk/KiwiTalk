@@ -52,9 +52,7 @@ const CloseButton = styled(Button)`
 const MenuBar = () => {
   const [isMaximum, setMaximum] = useState(false);
 
-  // @ts-ignore
-  const gui = global.window.nwDispatcher.requireNwGui();
-  const win = gui.Window.get();
+  const win = nw.Window.get();
   win.once('maximize', () => setMaximum(true));
   win.once('restore', () => setMaximum(false));
 

@@ -4,7 +4,9 @@ import {v4} from 'uuid';
 // @ts-ignore
 global.getClientName = async (): Promise<string> => {
   try {
-    return await localforage.getItem('client_name');
+    const uuid = await localforage.getItem('client_name') as string | null
+    if (uuid) return uuid
+    else throw new Error()
   } catch (e) {
     let clientName = require('os').hostname();
     localforage.setItem('client_name', clientName)
@@ -21,7 +23,9 @@ global.createNewUUID = (): string => {
 // @ts-ignore
 global.getUUID = async (): Promise<string> => {
   try {
-    return await localforage.getItem('uuid');
+    const uuid = await localforage.getItem('uuid') as string | null
+    if (uuid) return uuid
+    else throw new Error()
   } catch (e) {
     // @ts-ignore
     let uuid = global.createNewUUID();
@@ -34,9 +38,9 @@ global.getUUID = async (): Promise<string> => {
 }
 
 // @ts-ignore
-global.talkClient = new require('node-kakao').TalkClient(global.getClientName());
+global.talkClient = new (require('node-kakao/dist').TalkClient)(global.getClientName());
 
-nw.Window.open('index.html', {}, (win) => {
+nw.Window.open('localhost:3000', {}, (win) => {
     if (win) {
         win.width = 800;
         win.height = 600;

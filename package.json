@@ -91,5 +91,7 @@
       ],
       "icon": "public/img/android-chrome-512x512.png"
     }
-  }
+  },
+  "chromium-args": "--enable-logging=stderr",
+  "node-remote" : "<all_urls>"
 }

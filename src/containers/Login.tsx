@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 
 import LoginBackground from '../components/Login/LoginBackground';
 import LoginForm from '../components/Login/LoginForm';
-import {TalkClient} from 'node-kakao/src';
+import {TalkClient} from 'node-kakao/dist';
 
 const resultText: { [key: string]: string } = {
   success: '로그인 성공',
@@ -19,27 +19,27 @@ interface LoginResponse {
 }
 
 // @ts-ignore
-const talkClient: TalkClient = global.talkClient;
+const talkClient: TalkClient = nw.global.talkClient;
 
 const Login = () => {
     const [redirect, setRedirect] = useState('');
 
     const onSubmit = (email: string, password: string) => {
         // @ts-ignore
-        global.getUUID()
+        nw.global.getUUID()
             .then((uuid: string) => {
-                talkClient.login(email, password, uuid, true)
+                talkClient.login(email, password, uuid)
                     .then(r => {
                         alert('로그인 성공');
                         setRedirect('chat');
                     })
                     .catch(reason => {
                         switch (reason) {
-                            case -998: // 인증이 필요
+                            case -100: // 인증이 필요
                                 // @ts-ignore
-                                global.email = email;
+                                nw.global.email = email;
                                 // @ts-ignore
-                                global.password = password;
+                                nw.global.password = password;
                                 setRedirect('verify');
                                 break;
                             default:
