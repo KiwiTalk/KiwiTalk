@@ -91,5 +91,6 @@
     }
   },
   "chromium-args": "--enable-logging=stderr",
-  "node-remote" : "<all_urls>"
+  "node-remote" : "<all_urls>",
+  "user-agent": "KT/3.1.1 Wd/10.0 ko"
 }
