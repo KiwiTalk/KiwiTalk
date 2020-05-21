@@ -19,14 +19,15 @@ margin-right: 15px;
 `;
 
 export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
-    profileImageSrc?: string
+    isMine: boolean;
+    profileImageSrc?: string;
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({profileImageSrc, children, ...args}) => {
+const ChatItem: React.FC<ChatItemProps> = ({isMine, profileImageSrc, children, ...args}) => {
     return (
         <Wrapper {...args}>
-            {profileImageSrc && <StyledProfileImage src={profileImageSrc}
-                                                    backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
+            {(!isMine && profileImageSrc) && <StyledProfileImage src={profileImageSrc}
+                                                                 backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
             <Contents>
                 {children}
             </Contents>

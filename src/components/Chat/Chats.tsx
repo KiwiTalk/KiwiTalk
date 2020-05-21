@@ -133,6 +133,7 @@ class Chats extends React.Component<ChatsProps> {
 
                             if (willSenderChange) {
                                 const chatItem = <ChatItem
+                                    isMine={isMine}
                                     profileImageSrc={this.props.channel['channelInfo'].getUserInfo(chat.Sender)?.ProfileImageURL}
                                     key={chat.MessageId}>{this.bubbles}</ChatItem>;
                                 this.bubbles = [];
@@ -141,7 +142,7 @@ class Chats extends React.Component<ChatsProps> {
                             }
                         })
                 }
-                <div ref={this.refScrollEnd}></div>
+                <div ref={this.refScrollEnd}/>
             </Content>
         );
     }
