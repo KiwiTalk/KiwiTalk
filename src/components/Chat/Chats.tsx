@@ -9,8 +9,9 @@ import Bubble from '../UiComponent/Bubble';
 import PhotoChat from './PhotoChat';
 import SearchChat from './SearchChat';
 import ReplyChat from './ReplyChat';
+import MapChat from './MapChat';
 
-import {Chat, ChatChannel, ChatType, PhotoAttachment} from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat as ReplyChatObject} from 'node-kakao/dist';
 
 const Content = styled.div`
 display: flex;
@@ -61,7 +62,7 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
             </div>
         case ChatType.Reply:
             let prevChat = null;
-
+            const a = chat as ReplyChatObject
             for (const c of chatList) {
                 if (c.LogId.getLowBits() === chat.PrevLogId.getLowBits()) {
                     prevChat = c;
@@ -75,9 +76,15 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
                 return <a>{chat.Text}</a>
             }
         case ChatType.Map:
-            console.log(chat);
-            return <a>{chat.AttachmentList}</a>
-            break;
+            return <div>
+                {
+                    chat.AttachmentList.map((attachment: any) => {
+                        const { Name, Lat, Lng } = attachment
+                        console.log(attachment)
+                        return <MapChat name={Name} url={''} latitude={Lat} longitude={Lng}></MapChat>
+                    })
+                }
+            </div>
         default:
             return <div>
                 <h5>{chat.Type}</h5>
