@@ -1,5 +1,6 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
+import ProfileDefault from '../../assets/images/profile_default.svg'
 import ProfileImage, {ProfileImageBackgroundColor} from '../UiComponent/ProfileImage';
 
 const Wrapper = styled.div`
@@ -24,10 +25,14 @@ export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({isMine, profileImageSrc, children, ...args}) => {
+    if (!profileImageSrc) {
+        profileImageSrc = ProfileDefault;
+    }
+
     return (
         <Wrapper {...args}>
-            {(!isMine && profileImageSrc) && <StyledProfileImage src={profileImageSrc}
-                                                                 backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
+            {!isMine && <StyledProfileImage src={profileImageSrc}
+                                            backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
             <Contents>
                 {children}
             </Contents>
