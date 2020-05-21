@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import SidePanel from '../components/Sidebar/SidePanel';
 import SideBar from '../components/Sidebar/SideBar';
 import {Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient} from 'node-kakao/dist';
-import Chatroom from '../components/Chat/Chatroom';
+import ChatRoom from '../components/Chat/ChatRoom';
 
 const Wrapper = styled.div`
 padding-top: 20px;
@@ -72,13 +72,13 @@ const Chat = () => {
         accountSettings={accountSettings}
         onChange={(selectedChannel) => setSelectedChannel(selectedChannel)} />
       {
-      channelList[selectedChannel]
-        ? <Chatroom
-              channel={channelList[selectedChannel]}
-              chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
-              onInputChange={onChange}
-              onSubmit={onSubmit} inputValue={inputText}/>
-        : null
+          channelList[selectedChannel]
+              ? <ChatRoom
+                  channel={channelList[selectedChannel]}
+                  chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
+                  onInputChange={onChange}
+                  onSubmit={onSubmit} inputValue={inputText}/>
+              : null
       }
     </Wrapper>
   );

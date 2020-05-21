@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import IconButton from '../UiComponent/IconButton';
 import IconExternal from '../../assets/images/icon_external.svg';
 import IconMenu from '../../assets/images/icon_menu.svg';
-import IconNotificationDisabled from '../../assets/images/icon_notification_disabled.svg';
 import IconNotification from '../../assets/images/icon_notification.svg';
 import IconSearch from '../../assets/images/icon_search.svg';
 import color from '../../assets/colors/theme';
@@ -43,18 +42,18 @@ interface ChatroomHeaderProps {
   title: string
 }
 
-const ChatroomHeader: React.FC<ChatroomHeaderProps> = ({title}) => {
-  return (
-    <Wrapper>
-      <Title>{title}</Title>
-      <IconButtonWrapper>
-        <IconButton background={IconNotification}/>
-        <IconButton background={IconSearch}/>
-        <IconButton background={IconExternal}/>
-        <IconButton background={IconMenu}/>
-      </IconButtonWrapper>
-    </Wrapper>
+const ChatRoomHeader: React.FC<ChatroomHeaderProps> = ({title}) => {
+    return (
+        <Wrapper>
+            <Title>{title}</Title>
+            <IconButtonWrapper>
+                <IconButton background={IconNotification}/>
+                <IconButton background={IconSearch}/>
+                <IconButton background={IconExternal}/>
+                <IconButton background={IconMenu}/>
+            </IconButtonWrapper>
+        </Wrapper>
   );
 };
 
-export default ChatroomHeader;
+export default ChatRoomHeader;
