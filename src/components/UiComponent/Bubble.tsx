@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import bubbleTail from '../../assets/images/bubble_tail.svg'
 import bubbleTailMine from '../../assets/images/bubble_tail_mine.svg'
-import color from '../../assets/javascripts/color';
+import color from '../../assets/colors/theme';
 
 const BubbleTail = styled.img`
   margin-bottom: 5px;
@@ -14,7 +14,7 @@ const FakeTail = styled.div`
   height: 100%;
 `;
 
-const Wrapper = styled.div((props: {isMine: boolean}) => `
+const Wrapper = styled.div((props: { isMine: boolean }) => `
   display: flex;
   flex-direction: ${props.isMine ? 'row-reverse' : 'row'};
   align-items: flex-end;
@@ -22,7 +22,7 @@ const Wrapper = styled.div((props: {isMine: boolean}) => `
   justify-content: 'flex-start';
 `);
 
-const Content = styled.div((props: {isMine: boolean}) => `
+const Content = styled.div((props: { isMine: boolean }) => `
   background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
   border-radius: 5px;
   padding: 9px 47px 9px 18px;
@@ -74,22 +74,31 @@ const Unread = styled.span`
 export interface BubbleProps {
   hasTail: boolean
   author?: string
-  time: string
+  time: Date
   unread: number
   isMine: boolean
 }
 
-const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children}) => {
+const convertTime = (time: Date, use24format = true) => {
+  const hour = time.getHours();
+  const minute = time.getMinutes();
+
+  let hourStr = use24format ? hour.toString() : hour < 12 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour === 12 ? hour : hour - 12}`;
+
+  return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
+}
+
+const Bubble: React.FC<BubbleProps> = ({ hasTail, author, time, unread, isMine, children }) => {
   return (
     <Wrapper isMine={isMine}>
-      {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
+      {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail} /> : <FakeTail />}
       <Content isMine={isMine}>
         {author && <Author>{author}</Author>}
         {children}
       </Content>
       <HeadWrapper>
         <Unread>{unread}</Unread>
-        <Date>{time}</Date>
+        <Date>{convertTime(time, false)}</Date>
       </HeadWrapper>
     </Wrapper>
   );

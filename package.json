@@ -4,19 +4,26 @@
   "private": true,
   "description": "open kiwi talk",
   "authors": [
-    "mocha"
+    "mocha",
+    "JellyBrick",
+    "Scripter36",
+    "SuYong",
+    "nnnlog"
   ],
-  "main": "public/electron.js",
+  "main": "public/entry.js",
+  "window": {
+    "frame": false,
+    "toolbar": false
+  },
   "homepage": "./",
   "scripts": {
     "start:react": "react-scripts start",
     "build:react": "react-scripts build",
     "test:react": "react-scripts test",
     "eject:react": "react-scripts eject",
-    "start:electron": "electron .",
-    "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:electron\"",
-    "build": "yarn build:react && electron-builder",
-    "release": "yarn build:react && electron-builder --publish=always"
+    "start:nw": "nw .",
+    "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:nw\"",
+    "build": "yarn build:react && nwbuild ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -34,14 +41,13 @@
     ]
   },
   "dependencies": {
-    "electron-is-dev": "^1.2.0",
-    "electron-store": "^5.1.1",
-    "is-electron": "^2.2.0",
-    "node-kakao": "^2.0.1",
+    "localforage": "^1.7.3",
+    "nwjs": "^1.4.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "request-promise": "^4.2.5",
     "styled-components": "^5.1.0",
     "ts-node": "^8.10.1",
     "typescript": "^3.8.3",
@@ -51,31 +57,40 @@
     "@testing-library/jest-dom": "^5.7.0",
     "@testing-library/react": "^10.0.4",
     "@testing-library/user-event": "^10.1.0",
-    "@types/electron": "^1.6.10",
+    "@types/bson": "^4.0.2",
     "@types/jest": "^25.2.1",
     "@types/node": "^14.0.1",
+    "@types/node-forge": "^0.9.3",
+    "@types/nw.gui": "^0.0.20",
+    "@types/nw.js": "^0.13.9",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
     "@types/react-router-dom": "^5.1.5",
+    "@types/request-promise": "^4.1.46",
     "@types/styled-components": "^5.1.0",
     "@types/uuid": "^7.0.3",
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
-    "electron": "^8.2.5",
-    "electron-builder": "^22.6.0",
+    "nw": "^0.45.6",
+    "nw-builder": "^3.5.7",
     "wait-on": "^5.0.0"
   },
   "build": {
     "appId": "io.github.kiwitalk",
     "win": {
-      "target": [{
-        "target": "nsis",
-        "arch": [
-          "x64",
-          "ia32"
-        ]
-      }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
       "icon": "public/img/android-chrome-512x512.png"
     }
-  }
+  },
+  "chromium-args": "--enable-logging=stderr",
+  "node-remote": "<all_urls>",
+  "user-agent": "KT/3.1.1 Wd/10.0 ko"
 }

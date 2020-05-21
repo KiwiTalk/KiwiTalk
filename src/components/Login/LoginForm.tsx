@@ -1,6 +1,6 @@
 import React, {FormEvent, useState, ChangeEvent, InputHTMLAttributes} from 'react';
 import styled from 'styled-components';
-import Color from '../../assets/javascripts/color';
+import Color from '../../assets/colors/theme';
 
 import LoginTitle from './LoginTitle';
 

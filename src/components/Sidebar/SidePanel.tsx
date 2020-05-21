@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import Search from './Search';
-import ChatList from './ChatList';
-import { ChatChannel, ClientChatUser } from '../../models/NodeKakaoPureObject';
-import Profile from './Profile';
-import { AccountSettings } from '../../models/NodeKakaoExtraObject';
+import Search from '../UiComponent/Search';
+import ChatList from '../ChatroomList/ChatList';
+import Profile from '../UiComponent/Profile';
+import {ChatChannel, MoreSettingsStruct} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -14,9 +13,9 @@ const Wrapper = styled.div`
 `;
 
 interface SidePanelProps {
-  channelList: ChatChannel[]
-  accountSettings?: AccountSettings
-  onChange?: (index: number) => any;
+    channelList: ChatChannel[]
+    accountSettings?: MoreSettingsStruct
+    onChange?: (index: number) => any;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({channelList, accountSettings, onChange}) => {

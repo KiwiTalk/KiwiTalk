@@ -1,22 +1,20 @@
 import React, {useState} from 'react';
-import {
-  closeWindow,
-  getCurrentWindow,
-  isWindowMaximized,
-  maxUnMaxWindow,
-  minimizeWindow,
-} from '../../functions/electron';
 import styled from 'styled-components';
-import isElectron from 'is-electron';
-import Color from '../../assets/javascripts/color';
+import ThemeColor from '../../assets/colors/theme';
+
+import iconLogo from '../../assets/images/logo_text_small.svg';
+
+import iconMinimize from '../../assets/images/icon_minimize.svg';
+import iconMaximize from '../../assets/images/icon_maximize.svg';
+import iconClose from '../../assets/images/icon_close.svg';
 
 const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100vw;
-  height: 30px;
-  background: ${Color.THEME1};
+  height: 20px;
+  background: ${ThemeColor.GREY_900};
   position: fixed;
   top: 0;
   left: 0;
@@ -31,7 +29,7 @@ const Wrapper = styled.div`
 
 const Button = styled.button`
   height: 100%;
-  padding: 0 15px;
+  padding: 0 8px;
   border: none;
   background: transparent;
   color: white;
@@ -41,6 +39,8 @@ const Button = styled.button`
   :hover {
     background: rgba(0, 0, 0, 0.1);
   }
+
+  transition: all 0.25s;
 `;
 
 const CloseButton = styled(Button)`
@@ -52,32 +52,27 @@ const CloseButton = styled(Button)`
 const MenuBar = () => {
   const [isMaximum, setMaximum] = useState(false);
 
-  if (!isElectron()) return null;
-  const window = getCurrentWindow();
-  const listener = () => setMaximum(isWindowMaximized());
-  window.once('maximize', listener);
-  window.once('unmaximize', listener);
+  const win = nw.Window.get();
+  win.once('maximize', () => setMaximum(true));
+  win.once('restore', () => setMaximum(false));
 
   return (
-    <Wrapper className={'menu-bar'}>
-      <div>
-        <Button>
-          <i className={'fas fa-bars'}/>
-        </Button>
-        <span>
-          <b>Kiwi Talk</b>
-        </span>
-      </div>
-      <div>
-        <Button onClick={() => minimizeWindow()}>
-          <i className={'fas fa-window-minimize'}/>
-        </Button>
-        <Button onClick={() => maxUnMaxWindow()}>
-          <i className={'far ' + (isMaximum ? 'fa-clone' : 'fa-square')}/>
-        </Button>
-        <CloseButton onClick={() => closeWindow()}>
-          <i className={'fas fa-times'}/>
-        </CloseButton>
+      <Wrapper className={'menu-bar'}>
+        <div>
+          <Button>
+            <img src={iconLogo}/>
+          </Button>
+        </div>
+        <div>
+          <Button onClick={() => win.minimize()}>
+            <img src={iconMinimize}/>
+          </Button>
+          <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
+            <img src={iconMaximize}/>
+          </Button>
+          <CloseButton onClick={() => win.close()}>
+            <img src={iconClose}/>
+          </CloseButton>
       </div>
     </Wrapper>
   )

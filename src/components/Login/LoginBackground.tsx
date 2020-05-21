@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import Color from '../../assets/javascripts/color';
+import ThemeColor from '../../assets/colors/theme';
 import background from '../../assets/images/background.svg';
 import kiwi from '../../assets/images/kiwi.svg';
 
 const Wrapper = styled.div`
-margin-top: 30px;
+margin-top: 20px;
 `
 
 const Background1 = styled.div`
@@ -13,7 +13,7 @@ z-index: -1;
 width: 100vw;
 height: 100vh;
 position: fixed;
-background: linear-gradient(128.19deg, ${Color.THEME1} 30.01%, ${Color.THEME2} 47.2%);
+background: linear-gradient(128.19deg, ${ThemeColor.BACKGROUND1} 30.01%, ${ThemeColor.BACKGROUND2} 47.2%);
 `;
 
 const Background2 = styled.div`
@@ -55,12 +55,12 @@ bottom: 10px;
 font-size: 8px;
 `;
 
-const LoginBackground: React.FC = ({children}) => {
+const LoginBackground: React.FC = ({ children }) => {
   return (
     <Wrapper>
-      <Background1/>
-      <Background2/>
-      <Kiwi src={kiwi}/>
+      <Background1 />
+      <Background2 />
+      <Kiwi src={kiwi} />
       {children}
       <VersionText><b>Kiwitalk</b> ver 0.0.1</VersionText>
     </Wrapper>

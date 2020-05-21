@@ -4,7 +4,7 @@
 
 ## 백엔드
 
-- [node-kakao](https://github.com/storycraft/node-kakao)
+- [node-kakao](https://github.com/storycraft/node-kakao) (`npm(yarn) link` 필요)
 - [loco.rs](https://github.com/KiwiTalk/loco.rs)
 
 ## 프론트엔드

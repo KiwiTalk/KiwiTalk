@@ -4,8 +4,8 @@ import IconProfiles from '../../assets/images/icon_profiles.svg';
 import IconChats from '../../assets/images/icon_chats.svg';
 import IconProfilesDisabled from '../../assets/images/icon_profiles_disabled.svg';
 import IconChatsDisabled from '../../assets/images/icon_chats_disabled.svg';
-import IconButton from './IconButton';
-import color from '../../assets/javascripts/color';
+import IconButton from '../UiComponent/IconButton';
+import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   width: 64px;
