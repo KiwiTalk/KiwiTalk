@@ -93,7 +93,7 @@ const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, c
         <Wrapper isMine={isMine}>
             {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
             <Content isMine={isMine}>
-                {author && <Author>{author}</Author>}
+                {(!isMine && author) && <Author>{author}</Author>}
                 {children}
             </Content>
             <HeadWrapper>

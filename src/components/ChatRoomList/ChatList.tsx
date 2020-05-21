@@ -1,9 +1,9 @@
 import React, {MouseEventHandler, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import ChatListItem from './ChatListItem';
 import ProfileDefault from '../../assets/images/profile_default.svg'
 import color from '../../assets/colors/theme';
 import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao/dist';
+import ChatListItem from './ChatListItem';
 
 const Wrapper = styled.div`
 width: 309px;
