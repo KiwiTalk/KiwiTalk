@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Search from '../UiComponent/Search';
-import ChatList from '../ChatroomList/ChatList';
+import ChatList from '../ChatRoomList/ChatList';
 import Profile from '../UiComponent/Profile';
 import {ChatChannel, MoreSettingsStruct} from 'node-kakao/dist';
 
