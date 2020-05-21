@@ -15,7 +15,7 @@ flex-direction: row;
 `;
 
 // @ts-ignore
-const talkClient: TalkClient = global.talkClient;
+const talkClient: TalkClient = nw.global.talkClient;
 
 const Chat = () => {
     const [channelList, setChannelList] = useState<ChatChannel[]>([]);

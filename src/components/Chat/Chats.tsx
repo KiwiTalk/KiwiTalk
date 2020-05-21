@@ -109,7 +109,7 @@ class Chats extends React.Component<ChatsProps> {
         {
           this.props.chatList
             .map((chat, index, arr) => {
-              const isMine = (chat.Sender == undefined) || chat.Sender.isClientUser();
+              const isMine = (chat.Sender === undefined) || chat.Sender.isClientUser();
               let willSenderChange = arr.length - 1 === index;
 
               if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;

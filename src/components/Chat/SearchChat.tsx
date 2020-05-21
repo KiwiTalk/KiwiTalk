@@ -71,7 +71,7 @@ export const SearchChat: React.FC<SearchChatProps> = (chat: SearchChatProps) => 
         chat.list.map((data) => <SearchItemContainer>
           {
             (() => {
-              if (data.Text == undefined) {
+              if (data.Text === undefined) {
                 return null
               } else {
                 return <SearchItemTextContainer>
@@ -84,12 +84,12 @@ export const SearchChat: React.FC<SearchChatProps> = (chat: SearchChatProps) => 
 
           {
             (() => {
-              if (data.Image == undefined) {
+              if (data.Image === undefined) {
                 return null
               } else {
                 const [w, h] = resize(data.Image.ImageWidth, data.Image.ImageHeight);
                 console.log(w, h)
-                return <SearchItemImage src={data.Image.ImageURL} style={{ width: w, height: h }}></SearchItemImage>
+                return <SearchItemImage src={data.Image.ImageURL} style={{width: w, height: h}}></SearchItemImage>
               }
             })()
           }
