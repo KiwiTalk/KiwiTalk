@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import IconProfiles from '../../assets/images/icon_profiles.svg';
 import IconChats from '../../assets/images/icon_chats.svg';
@@ -18,29 +18,31 @@ const Wrapper = styled.div`
 `;
 
 export enum SideBarChangeType {
-  PROFILES = 0,
-  CHATS = 1
+    PROFILES = 0,
+    CHATS = 1
 }
 
 interface SideBarProps {
-  onChange?: (type: SideBarChangeType) => any;
+    onChange?: (type: SideBarChangeType) => any;
 }
 
 const SideBar: React.FC<SideBarProps> = ({onChange}) => {
-  const [type, setType] = useState<SideBarChangeType>(0);
-  return (
-    <Wrapper>
-      <IconButton onClick={() => {
-        setType(SideBarChangeType.PROFILES);
-        console.log('profile click')
-        onChange && onChange(SideBarChangeType.PROFILES);
-      }} background={type === SideBarChangeType.PROFILES ? IconProfiles : IconProfilesDisabled} style={{ width: '32px', height: '32px', marginBottom: '32px' }}/>
-      <IconButton onClick={() => {
-        setType(SideBarChangeType.CHATS);
-        onChange && onChange(SideBarChangeType.CHATS);
-      }} background={type === SideBarChangeType.CHATS ? IconChats : IconChatsDisabled} style={{ width: '32px', height: '32px'}} />
-    </Wrapper>
-  );
+    const [type, setType] = useState<SideBarChangeType>(0);
+    return (
+        <Wrapper>
+            <IconButton onClick={() => {
+                setType(SideBarChangeType.PROFILES);
+                console.log('profile click')
+                onChange && onChange(SideBarChangeType.PROFILES);
+            }} background={type === SideBarChangeType.PROFILES ? IconProfiles : IconProfilesDisabled}
+                        style={{width: '32px', height: '32px', marginBottom: '32px'}}/>
+            <IconButton onClick={() => {
+                setType(SideBarChangeType.CHATS);
+                onChange && onChange(SideBarChangeType.CHATS);
+            }} background={type === SideBarChangeType.CHATS ? IconChats : IconChatsDisabled}
+                        style={{width: '32px', height: '32px'}}/>
+        </Wrapper>
+    );
 };
 
 export default SideBar;

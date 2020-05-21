@@ -55,16 +55,16 @@ bottom: 10px;
 font-size: 8px;
 `;
 
-const LoginBackground: React.FC = ({ children }) => {
-  return (
-    <Wrapper>
-      <Background1 />
-      <Background2 />
-      <Kiwi src={kiwi} />
-      {children}
-      <VersionText><b>Kiwitalk</b> ver 0.0.1</VersionText>
-    </Wrapper>
-  )
+const LoginBackground: React.FC = ({children}) => {
+    return (
+        <Wrapper>
+            <Background1/>
+            <Background2/>
+            <Kiwi src={kiwi}/>
+            {children}
+            <VersionText><b>Kiwitalk</b> ver 0.0.1</VersionText>
+        </Wrapper>
+    )
 };
 
 export default LoginBackground;

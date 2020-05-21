@@ -72,36 +72,36 @@ const Unread = styled.span`
 `
 
 export interface BubbleProps {
-  hasTail: boolean
-  author?: string
-  time: Date
-  unread: number
-  isMine: boolean
+    hasTail: boolean
+    author?: string
+    time: Date
+    unread: number
+    isMine: boolean
 }
 
 const convertTime = (time: Date, use24format = true) => {
-  const hour = time.getHours();
-  const minute = time.getMinutes();
+    const hour = time.getHours();
+    const minute = time.getMinutes();
 
-  let hourStr = use24format ? hour.toString() : hour < 12 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour === 12 ? hour : hour - 12}`;
+    let hourStr = use24format ? hour.toString() : hour < 12 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour === 12 ? hour : hour - 12}`;
 
-  return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
+    return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
 }
 
-const Bubble: React.FC<BubbleProps> = ({ hasTail, author, time, unread, isMine, children }) => {
-  return (
-    <Wrapper isMine={isMine}>
-      {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail} /> : <FakeTail />}
-      <Content isMine={isMine}>
-        {author && <Author>{author}</Author>}
-        {children}
-      </Content>
-      <HeadWrapper>
-        <Unread>{unread}</Unread>
-        <Date>{convertTime(time, false)}</Date>
-      </HeadWrapper>
-    </Wrapper>
-  );
+const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children}) => {
+    return (
+        <Wrapper isMine={isMine}>
+            {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
+            <Content isMine={isMine}>
+                {author && <Author>{author}</Author>}
+                {children}
+            </Content>
+            <HeadWrapper>
+                <Unread>{unread}</Unread>
+                <Date>{convertTime(time, false)}</Date>
+            </HeadWrapper>
+        </Wrapper>
+    );
 };
 
 export default Bubble;

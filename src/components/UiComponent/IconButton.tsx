@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes } from 'react';
+import React, {ButtonHTMLAttributes} from 'react';
 import styled from 'styled-components';
 
 const IconButton = styled.button`
@@ -23,15 +23,15 @@ const Icon = styled.img`
 `;
 
 interface ChatroomHeaderProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  background: string
+    background: string
 }
 
 const ChatroomHeader: React.FC<ChatroomHeaderProps> = ({background, style, ...args}) => {
-  return (
-    <IconButton style={style} {...args}>
-      <Icon src={background} />
-    </IconButton>
-  );
+    return (
+        <IconButton style={style} {...args}>
+            <Icon src={background}/>
+        </IconButton>
+    );
 };
 
 export default ChatroomHeader;

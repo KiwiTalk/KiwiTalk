@@ -16,11 +16,11 @@ min-width: 0;
 `;
 
 export interface ChatroomProps {
-  channel: ChatChannel
-  chatList: Chat[]
-  onInputChange: EventHandler<ChangeEvent<HTMLInputElement>>
-  onSubmit: EventHandler<FormEvent>
-  inputValue: string
+    channel: ChatChannel
+    chatList: Chat[]
+    onInputChange: EventHandler<ChangeEvent<HTMLInputElement>>
+    onSubmit: EventHandler<FormEvent>
+    inputValue: string
 }
 
 const ChatRoom: React.FC<ChatroomProps> = ({channel, chatList, onInputChange, onSubmit, inputValue}) => {

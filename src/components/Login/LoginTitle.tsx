@@ -12,11 +12,11 @@ const Logo = styled.img`
 `;
 
 const LoginTitle = () => {
-  return (
-    <TitleWrapper>
-      <Logo src={logo} alt={'logo'}/>
-    </TitleWrapper>
-  )
+    return (
+        <TitleWrapper>
+            <Logo src={logo} alt={'logo'}/>
+        </TitleWrapper>
+    )
 };
 
 export default LoginTitle;

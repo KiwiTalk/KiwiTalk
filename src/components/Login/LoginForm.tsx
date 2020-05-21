@@ -1,4 +1,4 @@
-import React, {FormEvent, useState, ChangeEvent, InputHTMLAttributes} from 'react';
+import React, {ChangeEvent, FormEvent, InputHTMLAttributes, useState} from 'react';
 import styled from 'styled-components';
 import Color from '../../assets/colors/theme';
 
@@ -74,52 +74,55 @@ const Form = styled.form`
   margin-bottom: 50px;
 `;
 
-const Icon = styled.i((props: {focus: boolean}) => `
+const Icon = styled.i((props: { focus: boolean }) => `
   color: ${props.focus ? '#000000' : '#B3B3B3'};
 `)
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  placeholder: string
-  icon: string
+    placeholder: string
+    icon: string
 }
 
 const Input: React.FC<InputProps> = ({placeholder, icon, ...args}) => {
-  const [focus, setFocus] = useState(false);
+    const [focus, setFocus] = useState(false);
 
-  return (
-    <InputWrapper>
-      <Icon className={icon} focus={focus}/>
-      <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} {...args}/>
-    </InputWrapper>
-  );
+    return (
+        <InputWrapper>
+            <Icon className={icon} focus={focus}/>
+            <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
+                         onBlur={() => setFocus(false)} {...args}/>
+        </InputWrapper>
+    );
 };
 
 export type LoginHandler = (email: string, password: string) => any;
 
-const LoginForm: React.FC<{onSubmit: LoginHandler}> = ({onSubmit}) => {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setForm({
-      ...form,
-      [event.target.name]: event.target.value
-    });
-  };
-  const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    onSubmit(form.email, form.password);
-    setForm({ email: '', password: '' });
-  };
+const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
+    const [form, setForm] = useState({email: '', password: ''});
+    const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setForm({
+            ...form,
+            [event.target.name]: event.target.value
+        });
+    };
+    const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        onSubmit(form.email, form.password);
+        setForm({email: '', password: ''});
+    };
 
-  return (
-    <Wrapper>
-      <LoginTitle/>
-      <Form onSubmit={onFormSubmit}>
-        <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={'fas fa-user-circle'} name={'email'} value={form.email} onChange={onChange}/>
-        <Input placeholder={'비밀번호'} type={'password'} icon={'fas fa-key'} name={'password'} value={form.password} onChange={onChange}/>
-        <Button>로그인</Button>
-      </Form>
-    </Wrapper>
-  )
+    return (
+        <Wrapper>
+            <LoginTitle/>
+            <Form onSubmit={onFormSubmit}>
+                <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={'fas fa-user-circle'} name={'email'} value={form.email}
+                       onChange={onChange}/>
+                <Input placeholder={'비밀번호'} type={'password'} icon={'fas fa-key'} name={'password'}
+                       value={form.password} onChange={onChange}/>
+                <Button>로그인</Button>
+            </Form>
+        </Wrapper>
+    )
 };
 
 export default LoginForm;

@@ -19,13 +19,13 @@ interface SidePanelProps {
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({channelList, accountSettings, onChange}) => {
-  return (
-    <Wrapper>
-      <Search />
-      <ChatList channelList={channelList} onChange={onChange}/>
-      <Profile accountSettings={accountSettings}/>
-    </Wrapper>
-  );
+    return (
+        <Wrapper>
+            <Search/>
+            <ChatList channelList={channelList} onChange={onChange}/>
+            <Profile accountSettings={accountSettings}/>
+        </Wrapper>
+    );
 };
 
 export default SidePanel;

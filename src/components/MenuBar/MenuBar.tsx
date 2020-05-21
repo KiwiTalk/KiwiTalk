@@ -50,32 +50,32 @@ const CloseButton = styled(Button)`
 `;
 
 const MenuBar = () => {
-  const [isMaximum, setMaximum] = useState(false);
+    const [isMaximum, setMaximum] = useState(false);
 
-  const win = nw.Window.get();
-  win.once('maximize', () => setMaximum(true));
-  win.once('restore', () => setMaximum(false));
+    const win = nw.Window.get();
+    win.once('maximize', () => setMaximum(true));
+    win.once('restore', () => setMaximum(false));
 
-  return (
-      <Wrapper className={'menu-bar'}>
-        <div>
-          <Button>
-            <img src={iconLogo}/>
-          </Button>
-        </div>
-        <div>
-          <Button onClick={() => win.minimize()}>
-            <img src={iconMinimize}/>
-          </Button>
-          <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
-            <img src={iconMaximize}/>
-          </Button>
-          <CloseButton onClick={() => win.close()}>
-            <img src={iconClose}/>
-          </CloseButton>
-      </div>
-    </Wrapper>
-  )
+    return (
+        <Wrapper className={'menu-bar'}>
+            <div>
+                <Button>
+                    <img src={iconLogo}/>
+                </Button>
+            </div>
+            <div>
+                <Button onClick={() => win.minimize()}>
+                    <img src={iconMinimize}/>
+                </Button>
+                <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
+                    <img src={iconMaximize}/>
+                </Button>
+                <CloseButton onClick={() => win.close()}>
+                    <img src={iconClose}/>
+                </CloseButton>
+            </div>
+        </Wrapper>
+    )
 };
 
 export default MenuBar;

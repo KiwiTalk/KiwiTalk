@@ -1,8 +1,8 @@
-import React, { useState, ChangeEvent, InputHTMLAttributes } from 'react';
+import React, {ChangeEvent, InputHTMLAttributes, useState} from 'react';
 import Color from '../../assets/colors/theme';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -93,45 +93,47 @@ const PreviousLink = styled(Link)`
   user-select: none;
 `;
 
-const Icon = styled.i((props: {focus: boolean}) => `
+const Icon = styled.i((props: { focus: boolean }) => `
   color: ${props.focus ? '#000000' : '#B3B3B3'};
 `)
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  placeholder: string
-  icon: string
+    placeholder: string
+    icon: string
 }
 
 const Input: React.FC<InputProps> = ({placeholder, icon, ...args}) => {
-  const [focus, setFocus] = useState(false);
+    const [focus, setFocus] = useState(false);
 
-  return (
-    <InputWrapper>
-      <Icon className={icon} focus={focus}/>
-      <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} {...args}/>
-    </InputWrapper>
-  );
+    return (
+        <InputWrapper>
+            <Icon className={icon} focus={focus}/>
+            <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
+                         onBlur={() => setFocus(false)} {...args}/>
+        </InputWrapper>
+    );
 };
 
-const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({ onSubmit }) => {
-  const [passcode, setPasscode] = useState('');
-  return (
-    <Wrapper>
-      <TitleWrapper>
-        <Logo src={logo} alt={'logo'}/>
-      </TitleWrapper>
-      <Form onSubmit={(e) => {
-        onSubmit(passcode);
-        e.preventDefault();
-      }}>
-        <Input placeholder={'인증 번호를 입력해주세요.'} icon={'fas fa-shield-alt'} value={passcode} onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          setPasscode(event.target.value);
-        }}/>
-        <Button>인증하기</Button>
-        <PreviousLink to='/login'>처음으로 돌아가기</PreviousLink>
-      </Form>
-    </Wrapper>
-  )
+const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({onSubmit}) => {
+    const [passcode, setPasscode] = useState('');
+    return (
+        <Wrapper>
+            <TitleWrapper>
+                <Logo src={logo} alt={'logo'}/>
+            </TitleWrapper>
+            <Form onSubmit={(e) => {
+                onSubmit(passcode);
+                e.preventDefault();
+            }}>
+                <Input placeholder={'인증 번호를 입력해주세요.'} icon={'fas fa-shield-alt'} value={passcode}
+                       onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                           setPasscode(event.target.value);
+                       }}/>
+                <Button>인증하기</Button>
+                <PreviousLink to='/login'>처음으로 돌아가기</PreviousLink>
+            </Form>
+        </Wrapper>
+    )
 };
 
 export default VerifyCode;

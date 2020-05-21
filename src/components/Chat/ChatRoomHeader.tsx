@@ -39,7 +39,7 @@ const IconButtonWrapper = styled.div`
 `;
 
 interface ChatroomHeaderProps {
-  title: string
+    title: string
 }
 
 const ChatRoomHeader: React.FC<ChatroomHeaderProps> = ({title}) => {
@@ -53,7 +53,7 @@ const ChatRoomHeader: React.FC<ChatroomHeaderProps> = ({title}) => {
                 <IconButton background={IconMenu}/>
             </IconButtonWrapper>
         </Wrapper>
-  );
+    );
 };
 
 export default ChatRoomHeader;

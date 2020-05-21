@@ -17,17 +17,17 @@ const ReplyTarget = styled.div`
 `
 
 interface ReplyChatProps {
-  me: Chat,
-  prevChat: Chat, // Chat
+    me: Chat,
+    prevChat: Chat, // Chat
 }
 
 export const ReplyChat: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
-  return (
-    <Wrapper>
-      <ReplyTarget>{chat.prevChat.Text}</ReplyTarget>
-      <a>{chat.me.Text}</a>
-    </Wrapper>
-  );
+    return (
+        <Wrapper>
+            <ReplyTarget>{chat.prevChat.Text}</ReplyTarget>
+            <a>{chat.me.Text}</a>
+        </Wrapper>
+    );
 };
 
 export default ReplyChat;

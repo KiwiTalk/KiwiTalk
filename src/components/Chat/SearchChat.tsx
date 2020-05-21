@@ -49,54 +49,55 @@ const SearchItemImage = styled.img`
 `
 
 interface SearchChatProps {
-  question: string,
-  type: string,
-  list: any[],
+    question: string,
+    type: string,
+    list: any[],
 }
 
 const resize = (width: number, height: number) => {
-  const ratio = width / height
+    const ratio = width / height
 
-  height = Math.min(74, height);
-  width = ratio * height;
+    height = Math.min(74, height);
+    width = ratio * height;
 
-  return [width, height]
+    return [width, height]
 }
 
 export const SearchChat: React.FC<SearchChatProps> = (chat: SearchChatProps) => {
-  return (
-    <Wrapper>
-      <Header>#{chat.question}</Header>
-      {
-        chat.list.map((data) => <SearchItemContainer>
-          {
-            (() => {
-              if (data.Text === undefined) {
-                return null
-              } else {
-                return <SearchItemTextContainer>
-                  <SearchItemHead>{data.Text.Text}</SearchItemHead>
-                  <SearchItemInfo>{data.InfoText}</SearchItemInfo>
-                </SearchItemTextContainer>
-              }
-            })()
-          }
+    return (
+        <Wrapper>
+            <Header>#{chat.question}</Header>
+            {
+                chat.list.map((data) => <SearchItemContainer>
+                    {
+                        (() => {
+                            if (data.Text === undefined) {
+                                return null
+                            } else {
+                                return <SearchItemTextContainer>
+                                    <SearchItemHead>{data.Text.Text}</SearchItemHead>
+                                    <SearchItemInfo>{data.InfoText}</SearchItemInfo>
+                                </SearchItemTextContainer>
+                            }
+                        })()
+                    }
 
-          {
-            (() => {
-              if (data.Image === undefined) {
-                return null
-              } else {
-                const [w, h] = resize(data.Image.ImageWidth, data.Image.ImageHeight);
-                console.log(w, h)
-                return <SearchItemImage src={data.Image.ImageURL} style={{width: w, height: h}}></SearchItemImage>
-              }
-            })()
-          }
-        </SearchItemContainer>)
-      }
-    </Wrapper >
-  );
+                    {
+                        (() => {
+                            if (data.Image === undefined) {
+                                return null
+                            } else {
+                                const [w, h] = resize(data.Image.ImageWidth, data.Image.ImageHeight);
+                                console.log(w, h)
+                                return <SearchItemImage src={data.Image.ImageURL}
+                                                        style={{width: w, height: h}}></SearchItemImage>
+                            }
+                        })()
+                    }
+                </SearchItemContainer>)
+            }
+        </Wrapper>
+    );
 };
 
 export default SearchChat;

@@ -1,15 +1,22 @@
 :root {
-  --font: NanumBarunGothic;
+    --font: NanumBarunGothic;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font), serif;
-  font-style: normal;
-  font-weight: normal;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font), serif;
+    font-style: normal;
+    font-weight: normal;
 }
 
-@font-face { font-family: NanumBarunGothic; src: url('./assets/fonts/NanumBarunGothic.ttf') format('truetype'); }
-@font-face { font-family: NanumSquareRound; src: url('./assets/fonts/NanumSquareRound.ttf') format('truetype'); }
+@font-face {
+    font-family: NanumBarunGothic;
+    src: url('./assets/fonts/NanumBarunGothic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: NanumSquareRound;
+    src: url('./assets/fonts/NanumSquareRound.ttf') format('truetype');
+}
 

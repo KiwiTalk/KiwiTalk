@@ -26,62 +26,62 @@ const Chat = () => {
 
     const messageHook = (chat: ChatObject) => {
         setChatList((prev) => [...prev, chat]);
-  }
+    }
 
-  useEffect(() => {
-      setChannelList(talkClient.ChannelManager.getChannelList());
-      talkClient.ApiClient.requestMoreSettings()
-          .then((result: MoreSettingsStruct) => {
-              setAccountSettings(result);
-          })
-          .catch((error: any) => {
-              alert("오류가 발생했습니다.\n" + error);
-          });
+    useEffect(() => {
+        setChannelList(talkClient.ChannelManager.getChannelList());
+        talkClient.ApiClient.requestMoreSettings()
+            .then((result: MoreSettingsStruct) => {
+                setAccountSettings(result);
+            })
+            .catch((error: any) => {
+                alert("오류가 발생했습니다.\n" + error);
+            });
 
-      talkClient.on('message', messageHook);
-  }, [])
-  // console.log(chatList)
-  // console.log(selectedChannel)
+        talkClient.on('message', messageHook);
+    }, [])
+    // console.log(chatList)
+    // console.log(selectedChannel)
 
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputText(event.target.value);
-  }
+    const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setInputText(event.target.value);
+    }
 
-  const onSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    const channel = channelList[selectedChannel];
-    if (!channel?.Id) return;
-    if (inputText.length <= 0) return;
+    const onSubmit = (event: FormEvent) => {
+        event.preventDefault();
+        const channel = channelList[selectedChannel];
+        if (!channel?.Id) return;
+        if (inputText.length <= 0) return;
 
-    channel.sendText(inputText)
-      .then(result => {
-        setInputText('');
+        channel.sendText(inputText)
+            .then(result => {
+                setInputText('');
 
-        messageHook(result);
-      })
-      .catch(error => {
-        alert('메시지 발송 중 오류 발생');
-      });
-  }
+                messageHook(result);
+            })
+            .catch(error => {
+                alert('메시지 발송 중 오류 발생');
+            });
+    }
 
-  return (
-    <Wrapper>
-      <SideBar />
-      <SidePanel
-        channelList={channelList}
-        accountSettings={accountSettings}
-        onChange={(selectedChannel) => setSelectedChannel(selectedChannel)} />
-      {
-          channelList[selectedChannel]
-              ? <ChatRoom
-                  channel={channelList[selectedChannel]}
-                  chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
-                  onInputChange={onChange}
-                  onSubmit={onSubmit} inputValue={inputText}/>
-              : null
-      }
-    </Wrapper>
-  );
+    return (
+        <Wrapper>
+            <SideBar/>
+            <SidePanel
+                channelList={channelList}
+                accountSettings={accountSettings}
+                onChange={(selectedChannel) => setSelectedChannel(selectedChannel)}/>
+            {
+                channelList[selectedChannel]
+                    ? <ChatRoom
+                        channel={channelList[selectedChannel]}
+                        chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
+                        onInputChange={onChange}
+                        onSubmit={onSubmit} inputValue={inputText}/>
+                    : null
+            }
+        </Wrapper>
+    );
 };
 
 export default Chat;

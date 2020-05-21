@@ -1,6 +1,6 @@
-import React, { useState, HTMLAttributes } from 'react';
+import React, {HTMLAttributes, useState} from 'react';
 import styled from 'styled-components';
-import ProfileImage, { ProfileImageBackgroundColor } from '../UiComponent/ProfileImage';
+import ProfileImage, {ProfileImageBackgroundColor} from '../UiComponent/ProfileImage';
 import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
@@ -51,25 +51,27 @@ const LastChat = styled.span`
 `;
 
 interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {
-  profileImageSrc: string
-  username: string
-  lastChat: string
-  selected: boolean
+    profileImageSrc: string
+    username: string
+    lastChat: string
+    selected: boolean
 }
 
 const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, lastChat, selected, ...args}) => {
-  const [hover, setHover] = useState(false);
-  return (
-    <Wrapper style={hover || selected ? { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
-      <Content>
-        <ProfileImage src={profileImageSrc} backgroundColor={hover || selected ? ProfileImageBackgroundColor.GRAY_800 : ProfileImageBackgroundColor.GRAY_900} />
-        <Text>
-          <Username>{username}</Username>
-          <LastChat>{lastChat || '\u200b'}</LastChat>
-        </Text>
-      </Content>
-    </Wrapper>
-  );
+    const [hover, setHover] = useState(false);
+    return (
+        <Wrapper style={hover || selected ? {backgroundColor: '#F7F7F7'} : {backgroundColor: '#FFFFFF'}}
+                 onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
+            <Content>
+                <ProfileImage src={profileImageSrc}
+                              backgroundColor={hover || selected ? ProfileImageBackgroundColor.GRAY_800 : ProfileImageBackgroundColor.GRAY_900}/>
+                <Text>
+                    <Username>{username}</Username>
+                    <LastChat>{lastChat || '\u200b'}</LastChat>
+                </Text>
+            </Content>
+        </Wrapper>
+    );
 };
 
 export default ChatListItem;

@@ -73,9 +73,9 @@ const Verify = () => {
             });
     }, [])
 
-    return redirect ? <Redirect to={redirect} /> : (
+    return redirect ? <Redirect to={redirect}/> : (
         <Wrapper>
-            <VerifyCode onSubmit={onSubmit} />
+            <VerifyCode onSubmit={onSubmit}/>
         </Wrapper>
     )
 };

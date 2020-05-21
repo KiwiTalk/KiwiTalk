@@ -78,11 +78,11 @@ const Login = () => {
             });
     };
 
-  return redirect ? <Redirect to={redirect}/> : (
-    <LoginBackground>
-      <LoginForm onSubmit={onSubmit}/>
-    </LoginBackground>
-  )
+    return redirect ? <Redirect to={redirect}/> : (
+        <LoginBackground>
+            <LoginForm onSubmit={onSubmit}/>
+        </LoginBackground>
+    )
 };
 
 export default Login;

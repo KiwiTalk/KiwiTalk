@@ -45,25 +45,25 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
-  if (!accountSettings) {
+    if (!accountSettings) {
+        return (
+            <Wrapper>
+                <IconButton background={IconSettings} style={{width: '24px', height: '24px'}}/>
+            </Wrapper>
+        );
+    }
     return (
-      <Wrapper>
-        <IconButton background={IconSettings} style={{ width: '24px', height: '24px' }}/>
-      </Wrapper>
+        <Wrapper>
+            <ProfileImage src={accountSettings.profileImageURL?.toString() || ProfileDefault}
+                          style={{width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px'}}
+                          backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
+            <UserInfoWrapper>
+                <Username>{accountSettings.nickName}</Username>
+                <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
+            </UserInfoWrapper>
+            <IconButton background={IconSettings} style={{width: '24px', height: '24px', marginRight: '32px'}}/>
+        </Wrapper>
     );
-  }
-  return (
-    <Wrapper>
-        <ProfileImage src={accountSettings.profileImageURL?.toString() || ProfileDefault}
-                      style={{width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px'}}
-                      backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
-        <UserInfoWrapper>
-            <Username>{accountSettings.nickName}</Username>
-            <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
-        </UserInfoWrapper>
-      <IconButton background={IconSettings} style={{ width: '24px', height: '24px', marginRight: '32px' }}/>
-    </Wrapper>
-  );
 };
 
 export default Profile;
