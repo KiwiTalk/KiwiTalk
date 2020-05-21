@@ -1,5 +1,5 @@
-enum ChatroomColor {
+enum ChatRoomColor {
   BACKGROUND = '#E8E8E8',
 }
 
-export default ChatroomColor;
+export default ChatRoomColor;

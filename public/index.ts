@@ -29,12 +29,30 @@ global.getUUID = async (): Promise<string> => {
 // @ts-ignore
 global.talkClient = new TalkClient(os.hostname());
 
-nw.Window.open('localhost:3000', {
-  frame: false,
-  width: 800,
-  height: 600,
-  show_in_taskbar: true,
-  title: 'KiwiTalk'
-}, (win) => {
-  win?.showDevTools()
-});
+switch (os.platform()) {
+  case 'win32':
+  case 'darwin':
+  case 'cygwin':
+    nw.Window.open('localhost:3000', {
+      frame: false,
+      width: 800,
+      height: 600,
+      show_in_taskbar: true,
+      title: 'KiwiTalk'
+    }, (win) => {
+      win?.showDevTools()
+    });
+    break;
+  default:
+    nw.Window.open('localhost:3000', {
+      frame: true,
+      width: 800,
+      height: 600,
+      show_in_taskbar: true,
+      title: 'KiwiTalk'
+    }, (win) => {
+      win?.showDevTools()
+    });
+    break;
+}
+

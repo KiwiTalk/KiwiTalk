@@ -1,6 +1,6 @@
 import React, {ChangeEvent, EventHandler, FormEvent} from 'react';
 import styled from 'styled-components';
-import ChatroomColor from '../../assets/colors/chatroom';
+import ChatRoomColor from '../../assets/colors/chatroom';
 import ChatRoomHeader from './ChatRoomHeader';
 import {Chat, ChatChannel} from 'node-kakao/dist';
 import Chats from './Chats';
@@ -10,7 +10,7 @@ const Wrapper = styled.div`
 position: relative;
 display: flex;
 flex-direction: column;
-background: ${ ChatroomColor.BACKGROUND };
+background: ${ChatRoomColor.BACKGROUND};
 flex: 1;
 min-width: 0;
 `;
