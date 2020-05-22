@@ -1,8 +1,8 @@
-import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/Sidebar/SidePanel';
 import SideBar from '../components/Sidebar/SideBar';
-import {Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient} from 'node-kakao/dist';
+import { Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient, PhotoAttachment, AttachmentTemplate } from 'node-kakao/dist';
 import ChatRoom from '../components/Chat/ChatRoom';
 
 const Wrapper = styled.div`
@@ -16,6 +16,9 @@ flex-direction: row;
 
 // @ts-ignore
 const talkClient: TalkClient = nw.global.talkClient;
+
+// @ts-ignore
+const sendImage = nw.global.send;
 
 const Chat = () => {
     const [channelList, setChannelList] = useState<ChatChannel[]>([]);
@@ -53,31 +56,42 @@ const Chat = () => {
         if (!channel?.Id) return;
         if (inputText.length <= 0) return;
 
-        channel.sendText(inputText)
-            .then(result => {
-                setInputText('');
+        if (inputText[0] === '/') {
+            const cmd = inputText.split(/\s/g);
 
-                messageHook(result);
-            })
-            .catch(error => {
-                alert('메시지 발송 중 오류 발생');
-            });
+            switch (cmd[0]) {
+                case '/photo':
+                    console.log(cmd)
+                    sendImage(cmd[1], channel)
+                    break;
+            }
+        } else {
+            channel.sendText(inputText)
+                .then(result => {
+                    setInputText('');
+
+                    messageHook(result);
+                })
+                .catch((error: any) => {
+                    alert(`메시지 발송 중 오류 발생 ${error}`);
+                });
+        }
     }
 
     return (
         <Wrapper>
-            <SideBar/>
+            <SideBar />
             <SidePanel
                 channelList={channelList}
                 accountSettings={accountSettings}
-                onChange={(selectedChannel) => setSelectedChannel(selectedChannel)}/>
+                onChange={(selectedChannel) => setSelectedChannel(selectedChannel)} />
             {
                 channelList[selectedChannel]
                     ? <ChatRoom
                         channel={channelList[selectedChannel]}
                         chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
                         onInputChange={onChange}
-                        onSubmit={onSubmit} inputValue={inputText}/>
+                        onSubmit={onSubmit} inputValue={inputText} />
                     : null
             }
         </Wrapper>
