@@ -2,7 +2,7 @@ import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/Sidebar/SidePanel';
 import SideBar from '../components/Sidebar/SideBar';
-import { Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient, PhotoAttachment, AttachmentTemplate } from 'node-kakao/dist';
+import { Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient, PhotoAttachment, AttachmentTemplate, ChatType } from 'node-kakao/dist';
 import ChatRoom from '../components/Chat/ChatRoom';
 
 const Wrapper = styled.div`
@@ -18,7 +18,7 @@ flex-direction: row;
 const talkClient: TalkClient = nw.global.talkClient;
 
 // @ts-ignore
-const sendImage = nw.global.send;
+const makeTemplate = nw.global.makeTemplate;
 
 const Chat = () => {
     const [channelList, setChannelList] = useState<ChatChannel[]>([]);
@@ -58,11 +58,49 @@ const Chat = () => {
 
         if (inputText[0] === '/') {
             const cmd = inputText.split(/\s/g);
-
+            
             switch (cmd[0]) {
                 case '/photo':
-                    console.log(cmd)
-                    sendImage(cmd[1], channel)
+                    makeTemplate(ChatType.Photo, cmd[1])
+                        .then((template: any) => {
+                            channel.sendTemplate(template)
+                            .then(result => {
+                                setInputText('');
+            
+                                messageHook(result);
+                            })
+                            .catch((error: any) => {
+                                alert(`메시지 발송 중 오류 발생 ${error}`);
+                            });
+                        })
+                    break;
+                case '/video':
+                    makeTemplate(ChatType.Video, cmd[1])
+                        .then((template: any) => {
+                            channel.sendTemplate(template)
+                            .then(result => {
+                                setInputText('');
+            
+                                messageHook(result);
+                            })
+                            .catch((error: any) => {
+                                alert(`메시지 발송 중 오류 발생 ${error}`);
+                            });
+                        })
+                    break;
+                case '/file':
+                    makeTemplate(ChatType.File, cmd[1])
+                        .then((template: any) => {
+                            channel.sendTemplate(template)
+                            .then(result => {
+                                setInputText('');
+            
+                                messageHook(result);
+                            })
+                            .catch((error: any) => {
+                                alert(`메시지 발송 중 오류 발생 ${error}`);
+                            });
+                        })
                     break;
             }
         } else {
