@@ -20,7 +20,6 @@ const SearchItemContainer = styled.div`
   padding: 8px;
   border-radius: 8px;
   width: 280px;
-  max-height: 90px;
 
   display: flex;
 `
@@ -41,6 +40,9 @@ const SearchItemHead = styled.div`
 const SearchItemInfo = styled.div`
   color: #808080;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 `
 const SearchItemImage = styled.img`

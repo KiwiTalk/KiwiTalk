@@ -2,7 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  display: inline-block
+  display: block
+`;
+
+const Image = styled.img`
+  display: block;
 `;
 
 interface PhotoChatProps {
@@ -29,16 +33,10 @@ const resize = (width: number, height: number, customRatio: number = -1, limit =
 }
 
 export const PhotoChat: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
+    const [w, h] = resize(data.width, data.height, data.ratio, data.limit)
     return (
         <Wrapper>
-            {
-                (() => {
-                    const [w, h] = resize(data.width, data.height, data.ratio, data.limit)
-
-                    // eslint-disable-next-line jsx-a11y/alt-text
-                    return <img src={data.url} style={{width: w + 'px', height: h + 'px'}}/>
-                })()
-            }
+            <Image src={data.url} style={{width: w + 'px', height: h + 'px'}}/>
         </Wrapper>
     );
 };

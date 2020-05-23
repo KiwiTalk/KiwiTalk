@@ -25,6 +25,18 @@ overflow-y: scroll;
 }
 `;
 
+const ChatTypeWithTail = [
+    ChatType.Text,
+    ChatType.Search,
+    ChatType.Reply
+]
+
+const ChatTypeWithPadding = [
+    ChatType.Text,
+    ChatType.Search,
+    ChatType.Reply
+]
+
 export interface ChatsProps {
     channel: ChatChannel
     chatList: Chat[]
@@ -33,8 +45,7 @@ export interface ChatsProps {
 const convertContent = (chat: Chat, chatList: Chat[]) => {
     switch (chat.Type) {
         case ChatType.Text:
-            // eslint-disable-next-line jsx-a11y/anchor-is-valid
-            return <a>{chat.Text}</a>
+            return <span>{chat.Text}</span>
         case ChatType.Photo:
         case ChatType.MultiPhoto:
             return <div>
@@ -141,11 +152,12 @@ class Chats extends React.Component<ChatsProps> {
                             
                             this.bubbles.push(<Bubble
                                 key={chat.LogId.toString()}
-                                hasTail={willSenderChange}
+                                hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
                                 unread={1}
                                 author={this.nextWithAuthor ? chat.Sender?.Nickname : ''}
                                 isMine={isMine}
-                                time={sendDate}>
+                                time={sendDate}
+                                hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
                                 {content}
                             </Bubble>);
 

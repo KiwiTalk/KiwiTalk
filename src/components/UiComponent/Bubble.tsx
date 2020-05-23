@@ -22,10 +22,10 @@ const Wrapper = styled.div((props: { isMine: boolean }) => `
   justify-content: 'flex-start';
 `);
 
-const Content = styled.div((props: { isMine: boolean }) => `
+const Content = styled.div((props: { isMine: boolean, hasPadding: boolean, hasAuthor: boolean }) => `
   background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
+  ${props.hasPadding ? `padding: ${props.hasAuthor ? '0' : props.hasPadding ? '7' : '0'}px 47px ${props.hasAuthor ? '5' : '9'}px 18px;` : ''}
   border-radius: 5px;
-  padding: 9px 47px 9px 18px;
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: 500;
@@ -34,17 +34,19 @@ const Content = styled.div((props: { isMine: boolean }) => `
   color: ${color.GREY_100};
   display: flex;
   flex-direction: column;
+  border-radius: 5px;
+  overflow: hidden;
 `);
 
-const Author = styled.span`
+const Author = styled.span((props: { hasPadding: boolean }) => `
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: bold;
   font-size: 11px;
   line-height: 17px;
   color: ${color.BLUE_300};
-  margin-top: -4px;
-`;
+  padding: 5px ${props.hasPadding ? '0' : '47'}px ${props.hasPadding ? '1' : '5'}px ${props.hasPadding ? '0' : '18'}px;
+`);
 
 const HeadWrapper = styled.div`
   display: flex;
@@ -77,6 +79,7 @@ export interface BubbleProps {
     time: Date
     unread: number
     isMine: boolean
+    hasPadding: boolean
 }
 
 const convertTime = (time: Date, use24format = true) => {
@@ -88,12 +91,13 @@ const convertTime = (time: Date, use24format = true) => {
     return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
 }
 
-const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children}) => {
+const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children, hasPadding}) => {
+    const hasAuthor = !!(!isMine && author)
     return (
         <Wrapper isMine={isMine}>
             {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
-            <Content isMine={isMine}>
-                {(!isMine && author) && <Author>{author}</Author>}
+            <Content isMine={isMine} hasAuthor={hasAuthor} hasPadding={hasPadding}>
+                {hasAuthor ? <Author hasPadding={hasPadding}>{author}</Author> : hasPadding}
                 {children}
             </Content>
             <HeadWrapper>
