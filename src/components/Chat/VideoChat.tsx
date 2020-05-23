@@ -5,12 +5,11 @@ const Wrapper = styled.div`
   display: inline-block
 `;
 
-interface PhotoChatProps {
+interface VideoChatProps {
     width: number,
     height: number,
     url: string,
-    ratio: number,
-    limit: number[],
+    duration: number,
 }
 
 const resize = (width: number, height: number, customRatio: number = -1, limit = [300, 500]) => {
@@ -24,23 +23,24 @@ const resize = (width: number, height: number, customRatio: number = -1, limit =
         h = Math.min(limit[1], height)
         w = ratio * h
     }
-
+    
     return [w, h]
 }
 
-export const PhotoChat: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
+export const VideoChat: React.FC<VideoChatProps> = (data: VideoChatProps) => {
     return (
         <Wrapper>
-            {
-                (() => {
-                    const [w, h] = resize(data.width, data.height, data.ratio, data.limit)
+          {
+            (()  => {
+              const [w, h] = resize(data.width, data.height)
 
-                    // eslint-disable-next-line jsx-a11y/alt-text
-                    return <img src={data.url} style={{width: w + 'px', height: h + 'px'}}/>
-                })()
-            }
+              return <video style={{width: w + 'px', height: h + 'px'}}>
+                <source src={data.url}></source>
+              </video>
+            })()
+          }
         </Wrapper>
     );
 };
 
-export default PhotoChat;
+export default VideoChat;

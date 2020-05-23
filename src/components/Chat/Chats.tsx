@@ -10,8 +10,9 @@ import PhotoChat from './PhotoChat';
 import SearchChat from './SearchChat';
 import ReplyChat from './ReplyChat';
 import MapChat from './MapChat';
+import VideoChat from './VideoChat';
 
-import {Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat as ReplyChatObject} from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat as ReplyChatObject, VideoAttachment} from 'node-kakao/dist';
 
 const Content = styled.div`
 display: flex;
@@ -50,6 +51,17 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
                     })
                 }
             </div>
+        case ChatType.Video:
+            const list = chat.AttachmentList.map((attachment: any) => {
+                attachment = attachment as VideoAttachment;
+                console.log(attachment);
+                return <VideoChat
+                    url={attachment.VideoURL}
+                    width={attachment.Width}
+                    height={attachment.Height}
+                    duration={attachment.Duration} />
+            })
+        return <div>{list}</div>
         case ChatType.Search:
             return <div>
                 {
@@ -104,9 +116,7 @@ class Chats extends React.Component<ChatsProps> {
             && this.props.channel.Id.toString() === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.toString();
     }
 
-    componentDidUpdate() {/*
-        const element = this.refScrollEnd.current
-        element.scrollTop = element.scrollHeight*/
+    componentDidUpdate() {
         this.refScrollEnd.current.scrollIntoView({
             behavior: 'smooth'
         })
