@@ -48,7 +48,7 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
             const userInfoList = ch.UserIdList.map((id) => ch.getUserInfoId(id)).filter((v, i) => i < 5 && v != null) as UserInfo[];
             const name = ch.Name ? ch.Name : userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
             setComp(<ChatListItem
-                key={channel.Id.getLowBits()}
+                key={channel.Id.toString()}
                 lastChat={channel.LastChat ? channel.LastChat.Text : ''}
                 profileImageSrc={extractRoomImage(ch, userInfoList)}
                 username={name}

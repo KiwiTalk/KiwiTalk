@@ -17,14 +17,14 @@ const resize = (width: number, height: number, customRatio: number = -1, limit =
     const ratio = customRatio <= 0 ? width / height : customRatio;
     let [w, h] = [width, height];
 
-    w = Math.min(limit[0], width)
-    h = 1 / ratio * w
-
-    if (height > limit[1]) {
+    if (ratio > 1) {
+        w = Math.min(limit[0], width)
+        h = 1 / ratio * w
+    } else {
         h = Math.min(limit[1], height)
         w = ratio * h
     }
-    console.log(ratio, w, h)
+    
     return [w, h]
 }
 

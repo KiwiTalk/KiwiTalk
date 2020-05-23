@@ -155,7 +155,7 @@ const Chat = () => {
                 channelList[selectedChannel]
                     ? <ChatRoom
                         channel={channelList[selectedChannel]}
-                        chatList={chatList.filter((chat) => chat.Channel.Id.getLowBits() === channelList[selectedChannel].Id.getLowBits())}
+                        chatList={chatList.filter((chat) => chat.Channel.Id.toString() === channelList[selectedChannel].Id.toString())}
                         onInputChange={onChange}
                         onSubmit={onSubmit} inputValue={inputText} />
                     : null

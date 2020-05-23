@@ -64,7 +64,7 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
             let prevChat = null;
             const a = chat as ReplyChatObject
             for (const c of chatList) {
-                if (c.LogId.getLowBits() === chat.PrevLogId.getLowBits()) {
+                if (c.LogId.toString() === chat.PrevLogId.toString()) {
                     prevChat = c;
                     break;
                 }
@@ -100,13 +100,16 @@ class Chats extends React.Component<ChatsProps> {
     private refScrollEnd = createRef() as any;
 
     shouldComponentUpdate(nextProps: ChatsProps, nextState: any) {
-        console.log(this.props.channel.Id.getLowBits(), nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.getLowBits())
         return this.props.chatList.length !== nextProps.chatList.length
-            && this.props.channel.Id.getLowBits() === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.getLowBits();
+            && this.props.channel.Id.toString() === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.toString();
     }
 
-    componentDidUpdate() {
-        this.refScrollEnd.current.scrollIntoView(true);
+    componentDidUpdate() {/*
+        const element = this.refScrollEnd.current
+        element.scrollTop = element.scrollHeight*/
+        this.refScrollEnd.current.scrollIntoView({
+            behavior: 'smooth'
+        })
     }
 
     render() {
@@ -121,14 +124,13 @@ class Chats extends React.Component<ChatsProps> {
                             let willSenderChange = arr.length - 1 === index;
 
                             if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
-                            else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.getLowBits() !== chat.Sender?.Id.getLowBits();
+                            else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
 
                             const sendDate = new Date(chat.SendTime * 1000);
                             let content: JSX.Element = convertContent(chat, this.props.chatList);
                             
-                            console.log(chat.MessageId)
                             this.bubbles.push(<Bubble
-                                key={chat.MessageId}
+                                key={chat.LogId.toString()}
                                 hasTail={willSenderChange}
                                 unread={1}
                                 author={this.nextWithAuthor ? chat.Sender?.Nickname : ''}
@@ -143,14 +145,14 @@ class Chats extends React.Component<ChatsProps> {
                                 const chatItem = <ChatItem
                                     isMine={isMine}
                                     profileImageSrc={this.props.channel['channelInfo'].getUserInfo(chat.Sender)?.ProfileImageURL}
-                                    key={chat.MessageId}>{this.bubbles}</ChatItem>;
+                                    key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
                                 this.bubbles = [];
                                 this.nextWithAuthor = true;
                                 return chatItem;
                             }
                         })
                 }
-                <div ref={this.refScrollEnd}/>
+                <div ref={this.refScrollEnd} />
             </Content>
         );
     }
