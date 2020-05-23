@@ -106,7 +106,7 @@ class Chats extends React.Component<ChatsProps> {
     }
 
     componentDidUpdate() {
-        this.refScrollEnd.current.scrollIntoView({behavior: "smooth"});
+        this.refScrollEnd.current.scrollIntoView(true);
     }
 
     render() {
@@ -125,7 +125,8 @@ class Chats extends React.Component<ChatsProps> {
 
                             const sendDate = new Date(chat.SendTime * 1000);
                             let content: JSX.Element = convertContent(chat, this.props.chatList);
-
+                            
+                            console.log(chat.MessageId)
                             this.bubbles.push(<Bubble
                                 key={chat.MessageId}
                                 hasTail={willSenderChange}
