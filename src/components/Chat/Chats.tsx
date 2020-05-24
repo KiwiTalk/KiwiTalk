@@ -18,7 +18,7 @@ import {Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat as ReplyChatObje
 const Content = styled.div`
 display: flex;
 flex-direction: column;
-padding: -8px 19px -1px 42px;
+padding: 0px 19px 0px 42px;
 margin: 8px 8px 97px 0px;
 overflow-y: scroll;
 ::-webkit-scrollbar {
@@ -149,9 +149,9 @@ class Chats extends React.Component<ChatsProps> {
                     this.props.chatList
                         .map((chat, index, arr) => {
                             const isMine = (chat.Sender === undefined) || chat.Sender.isClientUser();
-                            let willSenderChange = arr.length - 1 === index;
+                            let willSenderChange = arr.length - 1 === index; // 맨 마지막 index면 당연히 바뀜
 
-                            if (isMine) willSenderChange = willSenderChange || arr[index + 1].Sender !== undefined;
+                            if (isMine) willSenderChange = willSenderChange || (arr[index + 1].Sender !== undefined && !arr[index + 1].Sender.isClientUser()); 
                             else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
 
                             const sendDate = new Date(chat.SendTime * 1000);
