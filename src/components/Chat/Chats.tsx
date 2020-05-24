@@ -2,6 +2,7 @@ import React, {createRef} from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
+import ChatRoomColor from '../../assets/colors/chatroom';
 
 import ChatItem from './ChatItem';
 import Bubble from '../UiComponent/Bubble';
@@ -17,11 +18,17 @@ import {Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat as ReplyChatObje
 const Content = styled.div`
 display: flex;
 flex-direction: column;
-padding: 46px 27px 96px 42px;
+padding: -8px 19px -1px 42px;
+margin: 8px 8px 97px 0px;
 overflow-y: scroll;
 ::-webkit-scrollbar {
-  width: 3px;
+  width: 6px;
+  border-radius: 3px;
+  background: ${ThemeColor.GREY_700};
+}
+::-webkit-scrollbar-thumb {
   background: ${ThemeColor.GREY_400};
+  border-radius: 3px;
 }
 `;
 
