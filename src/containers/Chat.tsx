@@ -6,6 +6,7 @@ import { Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient, PhotoA
 import {PacketSyncMessageReq, PacketSyncMessageRes} from "node-kakao/dist/packet/packet-sync-message";
 import ChatRoom from '../components/Chat/ChatRoom';
 import {Long} from "bson";
+import EmptyChatRoom from '../components/Chat/EmptyChatRoom';
 
 const Wrapper = styled.div`
 padding-top: 20px;
@@ -26,7 +27,7 @@ let records: boolean[] = [];
 
 const Chat = () => {
     const [channelList, setChannelList] = useState<ChatChannel[]>([]);
-    const [selectedChannel, setSelectedChannel] = useState(0);
+    const [selectedChannel, setSelectedChannel] = useState(-1);
     const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
     const [chatList, setChatList] = useState<ChatObject[]>([]);
     const [inputText, setInputText] = useState('');
@@ -158,7 +159,7 @@ const Chat = () => {
                         chatList={chatList.filter((chat) => chat.Channel.Id.toString() === channelList[selectedChannel].Id.toString())}
                         onInputChange={onChange}
                         onSubmit={onSubmit} inputValue={inputText} />
-                    : null
+                    : <EmptyChatRoom />
             }
         </Wrapper>
     );

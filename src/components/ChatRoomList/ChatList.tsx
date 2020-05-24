@@ -65,7 +65,7 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
 };
 
 const ChatList: React.FC<ChatListProps> = ({channelList, onChange}) => {
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
     return (
         <Wrapper>
