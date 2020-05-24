@@ -1,6 +1,6 @@
 import localforage from 'localforage';
 import { v4 } from 'uuid';
-import { TalkClient, PhotoAttachment, AttachmentTemplate, ChatType, VideoAttachment, FileAttachment } from 'node-kakao/dist';
+import { TalkClient, PhotoAttachment, AttachmentTemplate, ChatType, VideoAttachment, FileAttachment, LoginTokenStruct } from 'node-kakao/dist';
 import * as os from 'os';
 import fs from 'fs';
 import path from 'path';
@@ -25,6 +25,90 @@ global.getUUID = async (): Promise<string> => {
                 console.log(error);
             });
         return uuid;
+    }
+}
+
+// @ts-ignore
+global.getEmail = async (): Promise<string> => {
+    try {
+        const email = await localforage.getItem('email') as string | null;
+        if (email)
+            return email;
+        else
+            return ''
+    } catch (e) {
+        return ''
+    }
+}
+
+// @ts-ignore
+global.setEmail = async (email: string) => {
+    await localforage.setItem('email', email)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// @ts-ignore
+global.isAutoLogin = async (): Promise<boolean> => {
+    try {
+        const autoLogin = await localforage.getItem('autoLogin') as boolean | null;
+        if (autoLogin)
+            return autoLogin;
+        else
+            return false
+    } catch (e) {
+        return false
+    }
+}
+
+// @ts-ignore
+global.setAutoLogin = async (autoLogin: boolean) => {
+    await localforage.setItem('autoLogin', autoLogin)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// @ts-ignore
+global.setAutoLoginEmail = async (autoLoginEmail: string) => {
+    await localforage.setItem('autoLoginEmail', autoLoginEmail)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// @ts-ignore
+global.getAutoLoginEmail = async (): Promise<string> => {
+    try {
+        const autoLoginEmail = await localforage.getItem('autoLoginEmail') as string | null;
+        if (autoLoginEmail)
+            return autoLoginEmail;
+        else
+            return ''
+    } catch (e) {
+        return ''
+    }
+}
+
+// @ts-ignore
+global.setAutoLoginToken = async (autoLoginToken: LoginTokenStruct) => {
+    await localforage.setItem('autoLoginToken', autoLoginToken)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// @ts-ignore
+global.getAutoLoginToken = async (): Promise<LoginTokenStruct | null> => {
+    try {
+        const autoLoginToken = await localforage.getItem('autoLoginToken') as LoginTokenStruct | null;
+        if (autoLoginToken)
+            return autoLoginToken;
+        else
+            return null
+    } catch (e) {
+        return null
     }
 }
 

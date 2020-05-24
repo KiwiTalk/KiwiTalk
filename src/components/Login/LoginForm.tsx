@@ -1,8 +1,15 @@
-import React, {ChangeEvent, FormEvent, InputHTMLAttributes, useState} from 'react';
+import React, {ChangeEvent, FormEvent, InputHTMLAttributes, useState, HTMLAttributes, useEffect} from 'react';
 import styled from 'styled-components';
 import Color from '../../assets/colors/theme';
 
 import LoginTitle from './LoginTitle';
+import ThemeColor from '../../assets/colors/theme';
+
+import AccountCircle from '../../assets/images/account_circle.svg'
+import AccountCircleDisabled from '../../assets/images/account_circle_disabled.svg'
+import VPNKey from '../../assets/images/vpn_key.svg'
+import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg'
+import RoundCheckbox from '../../assets/images/round_checkbox.svg'
 
 const Wrapper = styled.div`
 padding: 50px 0 0 50px;
@@ -53,7 +60,7 @@ const Button = styled.button`
   width: 100%;
   height: 50px;
   border: none;
-  margin-top: 10px;
+  margin-top: 4px;
   background: ${Color.BUTTON};
   color: #FFFFFF;
   border-radius: 10px;
@@ -74,31 +81,92 @@ const Form = styled.form`
   margin-bottom: 50px;
 `;
 
-const Icon = styled.i((props: { focus: boolean }) => `
-  color: ${props.focus ? '#000000' : '#B3B3B3'};
-`)
+const Icon = styled.img`
+  width: 20px;
+  height: 20px;
+`
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     placeholder: string
     icon: string
+    disabledIcon: string
 }
 
-const Input: React.FC<InputProps> = ({placeholder, icon, ...args}) => {
+const Input: React.FC<InputProps> = ({placeholder, icon, disabledIcon, ...args}) => {
     const [focus, setFocus] = useState(false);
 
     return (
         <InputWrapper>
-            <Icon className={icon} focus={focus}/>
+            <Icon src={focus ? icon : disabledIcon}/>
             <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
                          onBlur={() => setFocus(false)} {...args}/>
         </InputWrapper>
     );
 };
 
-export type LoginHandler = (email: string, password: string) => any;
+const CheckboxContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  cursor: pointer;
+  font-size: 22px;
+  user-select: none;
+`;
+
+const CheckboxUnchecked = styled.div`
+  padding-left: 16px;
+  padding-top: 16px;
+  border-radius: 2px;
+  border: 1px ${ThemeColor.GREY_100} solid;
+  margin-right: 6px;
+`;
+
+const CheckboxChecked = styled.img`
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+`;
+
+const CheckboxLabel = styled.span`
+  font-family: NanumBarunGothic;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 18px;
+  color: ${ThemeColor.GREY_100};
+`;
+
+interface CheckboxProps extends HTMLAttributes<HTMLDivElement> {
+  label: string
+  checked: boolean
+}
+
+
+const Checkbox: React.FC<CheckboxProps> = ({label, checked, ...args}) => {
+  return (
+      <CheckboxContainer {...args}>
+        {checked ? <CheckboxChecked src={RoundCheckbox} /> : <CheckboxUnchecked />}
+        <CheckboxLabel>{label}</CheckboxLabel>
+      </CheckboxContainer>
+  );
+};
+
+export type LoginHandler = (email: string, password: string, saveEmail: boolean, autoLogin: boolean) => any;
 
 const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
-    const [form, setForm] = useState({email: '', password: ''});
+    const [form, setForm] = useState({ email: '', password: '', saveEmail: false, autoLogin: false });
+
+    useEffect(() => {
+      (async () => {
+        //@ts-ignore
+        const autoLogin = await nw.global.isAutoLogin();
+        //@ts-ignore
+        const email = await nw.global.getEmail();
+        const saveEmail = !!email;
+        setForm({ email, autoLogin, saveEmail, password: '' });
+      })()
+    }, [])
+
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
         setForm({
             ...form,
@@ -107,19 +175,21 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
     };
     const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onSubmit(form.email, form.password);
-        setForm({email: '', password: ''});
+        onSubmit(form.email, form.password, form.saveEmail, form.autoLogin);
+        setForm({ email: '', password: '', saveEmail: false, autoLogin: false });
     };
 
     return (
         <Wrapper>
             <LoginTitle/>
             <Form onSubmit={onFormSubmit}>
-                <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={'fas fa-user-circle'} name={'email'} value={form.email}
+                <Input placeholder={'카카오계정 (이메일 또는 전화번호)'} icon={AccountCircle} disabledIcon={AccountCircleDisabled} name={'email'} value={form.email}
                        onChange={onChange}/>
-                <Input placeholder={'비밀번호'} type={'password'} icon={'fas fa-key'} name={'password'}
+                <Input placeholder={'비밀번호'} type={'password'} icon={VPNKey} disabledIcon={VPNKeyDisabled} name={'password'}
                        value={form.password} onChange={onChange}/>
                 <Button>로그인</Button>
+                <Checkbox checked={form.saveEmail} label={'아이디 저장'} onClick={() => setForm({...form, saveEmail: !form.saveEmail})} style={{ marginTop: '10px' }} />
+                <Checkbox checked={form.autoLogin} label={'실행 시 자동 로그인'} onClick={() => setForm({...form, autoLogin: !form.autoLogin})} style={{ marginTop: '10px' }} />
             </Form>
         </Wrapper>
     )

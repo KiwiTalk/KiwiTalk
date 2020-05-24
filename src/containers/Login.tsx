@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Redirect} from 'react-router-dom';
 
 import LoginBackground from '../components/Login/LoginBackground';
 import LoginForm from '../components/Login/LoginForm';
-import {TalkClient} from 'node-kakao/dist';
+import {TalkClient, LoginTokenStruct} from 'node-kakao/dist';
 
 // @ts-ignore
 const talkClient: TalkClient = nw.global.talkClient;
@@ -34,49 +34,94 @@ errorReason[500] = "Internal Error";
 const Login = () => {
     const [redirect, setRedirect] = useState('');
 
-    const onSubmit = (email: string, password: string, force: boolean = false) => {
+    const onSubmit = async (email: string, password: string, saveEmail: boolean, autoLogin: boolean, force: boolean = false) => {
+        if (saveEmail) {
+            // @ts-ignore
+            await nw.global.setEmail(email);
+        } else {
+            // @ts-ignore
+            await nw.global.setEmail('');
+        }
         // @ts-ignore
-        nw.global.getUUID()
-            .then((uuid: string) => {
-                talkClient.login(email, password, uuid, force)
-                    .then(r => {
-                        alert('로그인 성공');
-                        setRedirect('chat');
-                    })
-                    .catch(reason => {
-                        switch (reason) {
-                            case -100: // 인증이 필요
-                                // @ts-ignore
-                                nw.global.email = email;
-                                // @ts-ignore
-                                nw.global.password = password;
-                                setRedirect('verify');
-                                break;
-                            case -101:
-                                let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
-                                if (result) {
-                                    onSubmit(email, password, true);
-                                }
-                                break;
-                            case 12:
-                                let cause = reason.message;
-                                if (cause) {
-                                    alert(cause);
-                                } else {
-                                    alert('오류가 발생했습니다. 오류 코드: -12');
-                                }
-                                break;
-                            default:
-                                if (errorReason[reason] !== undefined) {
-                                    alert(errorReason[reason]);
-                                } else {
-                                    alert(`알 수 없는 오류가 발생했습니다. 오류 코드: ${reason}`);
-                                }
-                                break;
-                        }
-                    });
-            });
+        await nw.global.setAutoLogin(autoLogin);
+        // @ts-ignore
+        const uuid = await nw.global.getUUID();
+        try {
+            await talkClient.login(email, password, uuid, force)
+            if (autoLogin) {
+                // @ts-ignore
+                await nw.global.setAutoLoginEmail(talkClient.getLatestAccessData().autoLoginEmail)
+                // @ts-ignore
+                await nw.global.setAutoLoginToken(await talkClient.ApiClient.requestLoginToken());
+            }
+            alert('로그인 성공');
+            setRedirect('chat');
+        } catch (reason) {
+            switch (reason) {
+                case -100: // 인증이 필요
+                    // @ts-ignore
+                    nw.global.email = email;
+                    // @ts-ignore
+                    nw.global.password = password;
+                    setRedirect('verify');
+                    break;
+                case -101:
+                    let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
+                    if (result) {
+                        onSubmit(email, password, saveEmail, autoLogin, true);
+                    }
+                    break;
+                case 12:
+                    let cause = reason.message;
+                    if (cause) {
+                        alert(cause);
+                    } else {
+                        alert('오류가 발생했습니다. 오류 코드: -12');
+                    }
+                    break;
+                default:
+                    if (errorReason[reason] !== undefined) {
+                        alert(errorReason[reason]);
+                    } else {
+                        alert(`알 수 없는 오류가 발생했습니다. 오류 코드: ${reason}`);
+                    }
+                    break;
+            }
+        }
     };
+
+    useEffect(() => {
+        (async () => {
+            //@ts-ignore
+            const autoLogin = await nw.global.isAutoLogin();
+            if (autoLogin) {
+                try {
+                    //@ts-ignore
+                    const loginToken = await nw.global.getAutoLoginToken() as LoginTokenStruct;
+                    //@ts-ignore
+                    const autoLoginEmail = await nw.global.getAutoLoginEmail();
+                    // @ts-ignore
+                    const uuid = await nw.global.getUUID();
+                    console.log(loginToken, autoLoginEmail, uuid)
+                    try {
+                        await talkClient.login(autoLoginEmail, loginToken.token, uuid)
+                    } catch (reason) {
+                        if (reason === -101) {
+                            let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
+                            if (result) {
+                                talkClient.login(autoLoginEmail, loginToken.token, uuid, true);
+                            }
+                        }
+                        else throw reason;
+                    }
+                    alert('자동로그인 했습니다.');
+                    setRedirect('chat');
+                } catch (e) {
+                    alert('자동로그인에 실패했습니다: ' + e);
+                }
+            }
+        })()
+    }, [])
 
     return redirect ? <Redirect to={redirect}/> : (
         <LoginBackground>
