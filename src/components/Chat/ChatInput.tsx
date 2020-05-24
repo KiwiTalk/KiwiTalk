@@ -62,9 +62,10 @@ const ChatInput: React.FC<ChatInputProps> = ({onChange, onSubmit, value}) => {
                     height: '24px',
                     marginLeft: '18px',
                     marginRight: '12px',
-                    marginTop: '13.5px'
+                    marginTop: '13.5px',
+                    flexShrink: 0
                 }}/>
-                <IconButton background={IconEmoji} style={{width: '24px', height: '24px', marginTop: '13.5px'}}/>
+                <IconButton background={IconEmoji} style={{width: '24px', height: '24px', marginTop: '13.5px', flexShrink: 0}}/>
                 <Input onChange={onChange} value={value}/>
                 <SendButton type={'submit'} background={IconSend}/>
             </InputWrapper>
