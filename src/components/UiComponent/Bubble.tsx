@@ -63,15 +63,16 @@ const Date = styled.span`
   color: ${color.GREY_400};
 `;
 
-const Unread = styled.span`
+const Unread = styled.span((props: { isMine: boolean }) => `
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
   line-height: 11px;
   margin: 0px 12px;
+  text-align: ${props.isMine ? 'right' : 'left'};
   color: ${color.BLUE_400};
-`
+`);
 
 export interface BubbleProps {
     hasTail: boolean
@@ -101,7 +102,7 @@ const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, c
                 {children}
             </Content>
             <HeadWrapper>
-                <Unread>{unread}</Unread>
+                <Unread isMine={isMine}>{unread}</Unread>
                 <Date>{convertTime(time, false)}</Date>
             </HeadWrapper>
         </Wrapper>
