@@ -2,14 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  display: block
+  display: block;
+  overflow: hidden;
 `;
 
 const Image = styled.img`
   display: block;
 `;
 
-interface PhotoChatProps {
+export interface PhotoChatProps {
     width: number,
     height: number,
     url: string,
@@ -18,6 +19,7 @@ interface PhotoChatProps {
 }
 
 const resize = (width: number, height: number, customRatio: number = -1, limit = [300, 500]) => {
+    console.log(width, height)
     const ratio = customRatio <= 0 ? width / height : customRatio;
     let [w, h] = [width, height];
 
@@ -28,15 +30,15 @@ const resize = (width: number, height: number, customRatio: number = -1, limit =
         h = Math.min(limit[1], height)
         w = ratio * h
     }
-
+    
     return [w, h]
 }
 
 export const PhotoChat: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
     const [w, h] = resize(data.width, data.height, data.ratio, data.limit)
     return (
-        <Wrapper>
-            <Image src={data.url} style={{width: w + 'px', height: h + 'px'}}/>
+        <Wrapper style={{ width: w + 'px', height: h + 'px' }}>
+            <Image src={data.url} style={data.width / data.height < 1 ? { width: '100%', height: 'auto' } : { width: 'auto', height: '100%' }} />
         </Wrapper>
     );
 };

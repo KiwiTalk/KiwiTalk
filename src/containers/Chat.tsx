@@ -87,7 +87,6 @@ const Chat = () => {
 
         if (inputText[0] === '/') {
             const cmd = inputText.split(/\s/g);
-
             switch (cmd[0]) {
                 case '/photo':
                     makeTemplate(ChatType.Photo, cmd[1])

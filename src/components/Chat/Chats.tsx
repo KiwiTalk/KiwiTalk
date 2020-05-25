@@ -7,7 +7,8 @@ import ChatRoomColor from '../../assets/colors/chatroom';
 import ChatItem from './ChatItem';
 import Bubble from '../UiComponent/Bubble';
 
-import PhotoChat from './PhotoChat';
+import PhotoChat, { PhotoChatProps } from './PhotoChat';
+import MultiPhotoChat from './MultiPhotoChat';
 import SearchChat from './SearchChat';
 import ReplyChat from './ReplyChat';
 import MapChat from './MapChat';
@@ -54,7 +55,6 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
         case ChatType.Text:
             return <span>{chat.Text}</span>
         case ChatType.Photo:
-        case ChatType.MultiPhoto:
             return <div>
                 {
                     chat.AttachmentList.map((attachment: any) => {
@@ -64,9 +64,28 @@ const convertContent = (chat: Chat, chatList: Chat[]) => {
                             width={attachment.Width}
                             height={attachment.Height}
                             url={attachment.ImageURL}
-                            ratio={chat.Type === ChatType.MultiPhoto ? 1 : -1}
-                            limit={chat.Type === ChatType.MultiPhoto ? [200, 200] : [300, 500]}></PhotoChat>
+                            ratio={-1}
+                            limit={[300, 500]}></PhotoChat>
                     })
+                }
+            </div>
+        case ChatType.MultiPhoto:
+            return <div>
+                {
+                    (() => {
+                        const datas = chat.AttachmentList.map((attachment: any) => {
+                            attachment = attachment as PhotoAttachment;
+    
+                            return {
+                                width: attachment.Width,
+                                height: attachment.Height,
+                                url: attachment.ImageURL,
+                                ratio: -1,
+                                limit: [200, 200]
+                            } as PhotoChatProps
+                        })
+                        return <MultiPhotoChat datas={datas} />
+                    })()
                 }
             </div>
         case ChatType.Video:
