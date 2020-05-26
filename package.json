@@ -12,7 +12,6 @@
   ],
   "main": "public/entry.js",
   "window": {
-    "frame": false,
     "toolbar": false
   },
   "homepage": "./",
