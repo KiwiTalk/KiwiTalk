@@ -16,6 +16,7 @@ flex-direction: column;
 padding: 0px 19px 0px 42px;
 margin: 8px 8px 97px 0px;
 overflow-y: scroll;
+z-index: 1;
 ::-webkit-scrollbar {
   width: 6px;
   border-radius: 3px;

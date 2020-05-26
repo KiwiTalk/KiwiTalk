@@ -1,19 +1,9 @@
-import React, {ChangeEvent, EventHandler, FormEvent, useEffect, useState} from 'react';
-import styled from 'styled-components';
-import ChatRoomColor from '../../assets/colors/chatroom';
+import React, { ChangeEvent, EventHandler, FormEvent, useEffect, useState } from 'react';
 import ChatRoomHeader from './ChatRoomHeader';
-import {Chat, ChatChannel, ChannelInfo, UserInfo} from 'node-kakao/dist';
+import { Chat, ChatChannel, ChannelInfo, UserInfo } from 'node-kakao/dist';
 import Chats from './Chats';
 import ChatInput from './ChatInput';
-
-const Wrapper = styled.div`
-position: relative;
-display: flex;
-flex-direction: column;
-background: ${ChatRoomColor.BACKGROUND};
-flex: 1;
-min-width: 0;
-`;
+import ChatRoomBackground from './ChatRoomBackground';
 
 export interface ChatroomProps {
     channel: ChatChannel
@@ -23,7 +13,7 @@ export interface ChatroomProps {
     inputValue: string
 }
 
-const ChatRoom: React.FC<ChatroomProps> = ({channel, chatList, onInputChange, onSubmit, inputValue}) => {
+const ChatRoom: React.FC<ChatroomProps> = ({ channel, chatList, onInputChange, onSubmit, inputValue }) => {
     const [title, setTitle] = useState('')
     useEffect(() => {
         channel.getChannelInfo().then((ch: ChannelInfo) => {
@@ -33,11 +23,11 @@ const ChatRoom: React.FC<ChatroomProps> = ({channel, chatList, onInputChange, on
         });
     }, [channel])
     return (
-        <Wrapper>
-            <ChatRoomHeader title={title}/>
-            <Chats channel={channel} chatList={chatList}/>
-            <ChatInput onChange={onInputChange} onSubmit={onSubmit} value={inputValue}/>
-        </Wrapper>
+        <ChatRoomBackground>
+            <ChatRoomHeader title={title} />
+            <Chats channel={channel} chatList={chatList} />
+            <ChatInput onChange={onInputChange} onSubmit={onSubmit} value={inputValue} />
+        </ChatRoomBackground>
     )
 };
 

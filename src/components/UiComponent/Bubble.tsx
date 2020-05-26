@@ -36,6 +36,8 @@ const Content = styled.div((props: { isMine: boolean, hasPadding: boolean, hasAu
   flex-direction: column;
   border-radius: 5px;
   overflow: hidden;
+
+  max-width: 70%;
 `);
 
 const Author = styled.span((props: { hasPadding: boolean }) => `

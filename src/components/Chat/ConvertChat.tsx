@@ -1,3 +1,5 @@
+import React from "react";
+
 import { Chat, ChatType, PhotoAttachment, VideoAttachment, ReplyAttachment, ReplyChat as ReplyChatObject } from "node-kakao";
 
 import PhotoChat, { PhotoChatProps } from './PhotoChat';
@@ -6,10 +8,14 @@ import SearchChat from './SearchChat';
 import ReplyChat from './ReplyChat';
 import MapChat from './MapChat';
 import VideoChat from './VideoChat';
-import React from "react";
+import LongChat from './LongChat';
 
 export function toText (chat: Chat) {
     return <span>{chat.Text}</span>
+}
+
+export function toLongText (chat: Chat) {
+    return <LongChat chat={chat}></LongChat>
 }
 
 export function toPhoto (chat: Chat, options = { ratio: -1, limit: [300, 500]}) {
@@ -100,7 +106,8 @@ export function toMap(chat: Chat) {
 export function convertContent (chat: Chat, chatList: Chat[]) {
     switch (chat.Type) {
         case ChatType.Text:
-            return toText(chat);
+            if (chat.Text.length > 500) return toLongText(chat);
+            else return toText(chat);
         case ChatType.Photo:
             return toPhoto(chat);
         case ChatType.MultiPhoto:
