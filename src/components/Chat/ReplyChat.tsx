@@ -7,13 +7,13 @@ import { toPhoto } from './ConvertChat';
 
 import color from '../../assets/colors/theme';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div((props: { isMine: boolean }) => `
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-`;
+  align-items: ${props.isMine ? 'flex-end' : 'flex-start'};
+`);
 
-const ReplyTarget = styled.div`
+const ReplyTarget = styled.div((props: { isMine: boolean }) => `
   background-color: rgba(0, 0, 0, 0.1);
   width: auto;
   max-width: 100%;
@@ -22,8 +22,8 @@ const ReplyTarget = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-`
+  align-items: ${props.isMine ? 'flex-end' : 'flex-start'};
+`)
 
 const Author = styled.span((props: { isMine: boolean }) => `
   font-family: KoPubWorldDotum;
@@ -32,6 +32,7 @@ const Author = styled.span((props: { isMine: boolean }) => `
   font-size: 11px;
   line-height: 17px;
   color: ${props.isMine ? '#000000' : color.BLUE_300};
+  margin-bottom: 4px;
 `);
 
 interface ReplyChatProps {
@@ -46,15 +47,18 @@ export const ReplyChat: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
     case ChatType.Photo: case ChatType.MultiPhoto:
       content = toPhoto(chat.prevChat, {
         ratio: 1,
-        limit: [100, 100]
+        limit: [50, 50]
       });
       break;
   }
 
+  const isMine = chat.me.Sender.Id.toString() === chat.prevChat.Sender.Id.toString()
+  const isMyChat = chat.me.Sender.Id.toString() === chat.me.Channel.Client.ClientUser.Id.toString();
+
   return (
-    <Wrapper>
-      <ReplyTarget>
-        <Author isMine={chat.me.Sender.Id.toString() === chat.prevChat.Sender.Id.toString()}>{`${chat.prevChat.Sender.Nickname}에게 답장`}</Author>
+    <Wrapper isMine={isMyChat}>
+      <ReplyTarget isMine={isMyChat}>
+        <Author isMine={isMine}>{`${chat.prevChat.Sender.Nickname}에게 답장`}</Author>
         {content}
       </ReplyTarget>
       <span>{chat.me.Text}</span>
