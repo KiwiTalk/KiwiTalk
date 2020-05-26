@@ -24,7 +24,7 @@ const Wrapper = styled.div((props: { isMine: boolean }) => `
 
 const Content = styled.div((props: { isMine: boolean, hasPadding: boolean, hasAuthor: boolean }) => `
   background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
-  ${props.hasPadding ? `padding: ${props.hasAuthor ? '0' : props.hasPadding ? '7' : '0'}px 47px ${props.hasAuthor ? '5' : '9'}px 18px;` : ''}
+  ${props.hasPadding ? `padding: 8px 8px 8px 8px;` : ''}
   border-radius: 5px;
   font-family: KoPubWorldDotum;
   font-style: normal;
@@ -45,7 +45,7 @@ const Author = styled.span((props: { hasPadding: boolean }) => `
   font-size: 11px;
   line-height: 17px;
   color: ${color.BLUE_300};
-  padding: 5px ${props.hasPadding ? '0' : '47'}px ${props.hasPadding ? '1' : '5'}px ${props.hasPadding ? '0' : '18'}px;
+  padding: 0px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px;
 `);
 
 const HeadWrapper = styled.div`

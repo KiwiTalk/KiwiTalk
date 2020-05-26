@@ -2,19 +2,13 @@ import React, {createRef} from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
-import ChatRoomColor from '../../assets/colors/chatroom';
 
 import ChatItem from './ChatItem';
 import Bubble from '../UiComponent/Bubble';
 
-import PhotoChat, { PhotoChatProps } from './PhotoChat';
-import MultiPhotoChat from './MultiPhotoChat';
-import SearchChat from './SearchChat';
-import ReplyChat from './ReplyChat';
-import MapChat from './MapChat';
-import VideoChat from './VideoChat';
+import { Chat, ChatChannel, ChatType } from 'node-kakao/dist';
 
-import {Chat, ChatChannel, ChatType, PhotoAttachment, ReplyChat as ReplyChatObject, VideoAttachment} from 'node-kakao/dist';
+import convertChat from './ConvertChat';
 
 const Content = styled.div`
 display: flex;
@@ -50,98 +44,6 @@ export interface ChatsProps {
     chatList: Chat[]
 }
 
-const convertContent = (chat: Chat, chatList: Chat[]) => {
-    switch (chat.Type) {
-        case ChatType.Text:
-            return <span>{chat.Text}</span>
-        case ChatType.Photo:
-            return <div>
-                {
-                    chat.AttachmentList.map((attachment: any) => {
-                        attachment = attachment as PhotoAttachment;
-
-                        return <PhotoChat
-                            width={attachment.Width}
-                            height={attachment.Height}
-                            url={attachment.ImageURL}
-                            ratio={-1}
-                            limit={[300, 500]}></PhotoChat>
-                    })
-                }
-            </div>
-        case ChatType.MultiPhoto:
-            return <div>
-                {
-                    (() => {
-                        const datas = chat.AttachmentList.map((attachment: any) => {
-                            attachment = attachment as PhotoAttachment;
-    
-                            return {
-                                width: attachment.Width,
-                                height: attachment.Height,
-                                url: attachment.ImageURL,
-                                ratio: -1,
-                                limit: [200, 200]
-                            } as PhotoChatProps
-                        })
-                        return <MultiPhotoChat datas={datas} />
-                    })()
-                }
-            </div>
-        case ChatType.Video:
-            const list = chat.AttachmentList.map((attachment: any) => {
-                attachment = attachment as VideoAttachment;
-                console.log(attachment);
-                return <VideoChat
-                    url={attachment.VideoURL}
-                    width={attachment.Width}
-                    height={attachment.Height}
-                    duration={attachment.Duration} />
-            })
-        return <div>{list}</div>
-        case ChatType.Search:
-            return <div>
-                {
-                    chat.AttachmentList.map((attachment: any) => {
-                        const {Question, ContentType, ContentList} = attachment;
-
-                        return <SearchChat question={Question} type={ContentType} list={ContentList}></SearchChat>
-                    })
-                }
-            </div>
-        case ChatType.Reply:
-            let prevChat = null;
-            const a = chat as ReplyChatObject
-            for (const c of chatList) {
-                if (c.LogId.toString() === chat.PrevLogId.toString()) {
-                    prevChat = c;
-                    break;
-                }
-            }
-
-            if (prevChat != null) {
-                return <ReplyChat prevChat={prevChat} me={chat}></ReplyChat>
-            } else {
-                return <a>{chat.Text}</a>
-            }
-        case ChatType.Map:
-            return <div>
-                {
-                    chat.AttachmentList.map((attachment: any) => {
-                        const { Name, Lat, Lng } = attachment
-                        console.log(attachment)
-                        return <MapChat name={Name} url={''} latitude={Lat} longitude={Lng}></MapChat>
-                    })
-                }
-            </div>
-        default:
-            return <div>
-                <h5>{chat.Type}</h5>
-                <a>{chat.Text}</a>
-            </div>
-    }
-}
-
 class Chats extends React.Component<ChatsProps> {
     private bubbles: JSX.Element[] = [];
     private nextWithAuthor = true;
@@ -160,8 +62,6 @@ class Chats extends React.Component<ChatsProps> {
     }
 
     render() {
-        console.log('call render');
-
         return (
             <Content>
                 {
@@ -174,7 +74,7 @@ class Chats extends React.Component<ChatsProps> {
                             else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
 
                             const sendDate = new Date(chat.SendTime * 1000);
-                            let content: JSX.Element = convertContent(chat, this.props.chatList);
+                            let content: JSX.Element = convertChat(chat, this.props.chatList);
                             
                             this.bubbles.push(<Bubble
                                 key={chat.LogId.toString()}

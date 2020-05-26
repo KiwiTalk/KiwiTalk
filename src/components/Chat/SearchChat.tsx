@@ -15,7 +15,7 @@ const Header = styled.div`
 `
 
 const SearchItemContainer = styled.div`
-  background-color: #F6F6F6;
+  background-color: rgba(0, 0, 0, 0.1);
   margin: 8px;
   padding: 8px;
   border-radius: 8px;
