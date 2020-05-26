@@ -1,12 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Redirect} from 'react-router-dom';
 
 import LoginBackground from '../components/Login/LoginBackground';
 import LoginForm from '../components/Login/LoginForm';
-import {TalkClient, LoginTokenStruct} from 'node-kakao/dist';
+import {LoginTokenStruct, TalkClient} from 'node-kakao/dist';
 
-// @ts-ignore
-const talkClient: TalkClient = nw.global.talkClient;
+const talkClient: TalkClient = (nw as any).global.talkClient;
 
 const errorReason: string[] = [];
 errorReason[-9797] = "서버 점검 중";
@@ -92,16 +91,12 @@ const Login = () => {
 
     useEffect(() => {
         (async () => {
-            //@ts-ignore
-            const autoLogin = await nw.global.isAutoLogin();
+            const autoLogin = await (nw as any).global.isAutoLogin();
             if (autoLogin) {
                 try {
-                    //@ts-ignore
-                    const loginToken = await nw.global.getAutoLoginToken() as LoginTokenStruct;
-                    //@ts-ignore
-                    const autoLoginEmail = await nw.global.getAutoLoginEmail();
-                    // @ts-ignore
-                    const uuid = await nw.global.getUUID();
+                    const loginToken = await (nw as any).global.getAutoLoginToken() as LoginTokenStruct;
+                    const autoLoginEmail = await (nw as any).global.getAutoLoginEmail();
+                    const uuid = await (nw as any).global.getUUID();
                     console.log(loginToken, autoLoginEmail, uuid)
                     try {
                         await talkClient.login(autoLoginEmail, loginToken.token, uuid)

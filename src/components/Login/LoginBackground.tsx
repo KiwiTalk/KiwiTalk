@@ -4,17 +4,16 @@ import ThemeColor from '../../assets/colors/theme';
 import background from '../../assets/images/background.svg';
 import kiwi from '../../assets/images/kiwi.svg';
 
-const Wrapper = (() => {
-    // @ts-ignore
-    switch (nw.process.platform) {
+const Wrapper = styled.div`margin-top: ${(() => {
+    switch ((nw as any).process.platform) {
         case 'darwin':
         case 'cygwin':
         case 'win32':
-            return styled.div`margin-top: 20px;`;
+            return 20;
         default:
-            return styled.div``;
+            return 0;
     }
-})();
+})()}px`
 
 
 const Background1 = styled.div`

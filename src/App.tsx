@@ -11,8 +11,7 @@ const App = () => {
     return (
         <div className="App">
             {(() => {
-                // @ts-ignore
-                switch (nw.process.platform) {
+                switch ((nw as any).process.platform) {
                     case 'darwin':
                     case 'cygwin':
                     case 'win32':

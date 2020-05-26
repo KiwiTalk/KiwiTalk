@@ -111,12 +111,10 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
 
     useEffect(() => {
       (async () => {
-        //@ts-ignore
-        const autoLogin = await nw.global.isAutoLogin();
-        //@ts-ignore
-        const email = await nw.global.getEmail();
-        const saveEmail = !!email;
-        setForm({ email, autoLogin, saveEmail, password: '' });
+          const autoLogin = await (nw as any).global.isAutoLogin();
+          const email = await (nw as any).global.getEmail();
+          const saveEmail = !!email;
+          setForm({email, autoLogin, saveEmail, password: ''});
       })()
     }, [])
 

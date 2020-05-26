@@ -29,8 +29,7 @@ interface PasscodeResponse {
     error?: string
 }
 
-// @ts-ignore
-const talkClient: TalkClient = nw.global.talkClient;
+const talkClient: TalkClient = (nw as any).global.talkClient;
 
 const Verify = () => {
     const [redirect, setRedirect] = useState('');
@@ -39,11 +38,9 @@ const Verify = () => {
             alert('로그인 성공');
             setRedirect('chat');
         });
-        // @ts-ignore
-        nw.global.getUUID()
+        (nw as any).global.getUUID()
             .then((uuid: string) => {
-                // @ts-ignore
-                KakaoAPI.registerDevice(passcode, nw.global.email, nw.global.password, uuid, os.hostname(), true)
+                KakaoAPI.registerDevice(passcode, (nw as any).global.email, (nw as any).global.password, uuid, os.hostname(), true)
                     .then(() => {
                         alert('인증 성공');
                         talkClient.emit('login');
@@ -65,11 +62,9 @@ const Verify = () => {
     };
 
     useEffect(() => {
-        // @ts-ignore
-        nw.global.getUUID()
+        (nw as any).global.getUUID()
             .then((uuid: string) => {
-                // @ts-ignore
-                KakaoAPI.requestPasscode(nw.global.email, nw.global.password, uuid, os.hostname(), true)
+                KakaoAPI.requestPasscode((nw as any).global.email, (nw as any).global.password, uuid, os.hostname(), true)
             });
     }, [])
 

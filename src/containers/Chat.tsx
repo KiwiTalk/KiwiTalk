@@ -15,36 +15,27 @@ import ChatRoom from '../components/Chat/ChatRoom/ChatRoom';
 import {Long} from "bson";
 import EmptyChatRoom from '../components/Chat/ChatRoom/EmptyChatRoom';
 
-const Wrapper = (() => {
-    // @ts-ignore
-    switch (nw.process.platform) {
+const Wrapper = styled.div`
+width: 100%;
+height: 100vh;
+box-sizing: border-box;
+display: flex;
+flex-direction: row;
+padding-top: ${(() => {
+    switch ((nw as any).process.platform) {
         case 'darwin':
         case 'cygwin':
         case 'win32':
-            return styled.div`
-            padding-top: 20px;
-            width: 100%;
-            height: 100vh;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: row;
-            `;
+            return 20;
         default:
-            return styled.div`
-            width: 100%;
-            height: 100vh;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: row;
-            `;
+            return 0;
     }
-})();
+})()}px;
+`;
 
-// @ts-ignore
-const talkClient: TalkClient = nw.global.talkClient;
+const talkClient: TalkClient = (nw as any).global.talkClient;
 
-// @ts-ignore
-const makeTemplate = nw.global.makeTemplate;
+const makeTemplate = (nw as any).global.makeTemplate;
 
 let records: boolean[] = [];
 
