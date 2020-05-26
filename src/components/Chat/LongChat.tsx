@@ -36,6 +36,10 @@ export const LongChat: React.FC<LongChatProps> = (props: { chat: Chat }) => {
             content.current.innerText = props.chat.Text.substring(0, 500) + '...';
             button.current.innerText = '펼쳐보기';
         }
+        
+        content.current.scrollIntoView({
+            behavior: 'smooth'
+        })
     }
 
     return (
