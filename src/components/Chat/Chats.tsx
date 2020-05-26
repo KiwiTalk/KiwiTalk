@@ -13,8 +13,8 @@ import convertChat from './ConvertChat';
 const Content = styled.div`
 display: flex;
 flex-direction: column;
-padding: 0px 19px 0px 42px;
-margin: 8px 8px 97px 0px;
+padding: 0px 19px 8px 42px;
+margin: 8px 8px 89px 0px;
 overflow-y: scroll;
 z-index: 1;
 ::-webkit-scrollbar {

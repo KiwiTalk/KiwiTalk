@@ -47,7 +47,7 @@ const Author = styled.span((props: { hasPadding: boolean }) => `
   font-size: 11px;
   line-height: 17px;
   color: ${color.BLUE_300};
-  padding: 0px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px;
+  padding: ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px;
 `);
 
 const HeadWrapper = styled.div`

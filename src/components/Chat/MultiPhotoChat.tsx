@@ -13,36 +13,57 @@ interface MultiPhotoChatProps {
     datas: PhotoChatProps[]
 }
 
-function fitData (length: number) {
-    switch(length) {
-        case 1: case 2: case 3:
-            return [length, 1]
-        case 4:
-            return [2, 2]
-        default:
-            return [3, Math.ceil(length / 3)]
+function fitData (length: number, index: number) {
+    let model = {
+        gridArea: '1 / 1 / span 1 / span 1'
     }
+
+    switch (length % 3) {
+        case 0:
+            model.gridArea = `${Math.ceil((index + 1) / 3)} / ${(index % 3) * 2 + 1} / span 1 / span 2`;
+            break;
+        case 1:
+            if (index <= 1 || length - 2 <= index) {
+                model.gridArea = `${index <= 1 ? 1 : 1 + Math.ceil((length - 2) / 3)} / ${(index === 0 || index === length - 1) ? 1 : 4} / span 1 / span 3`;
+            } else {
+                index += 1
+                model.gridArea = `${Math.ceil((index + 1) / 3)} / ${(index % 3) * 2 + 1} / span 1 / span 2`;
+            }
+            break;
+        case 2:
+            if (index <= 1) {
+                model.gridArea = `1 / ${index === 0 ? 1 : 4} / span 1 / span 3`;
+            } else {
+                index += 1
+                model.gridArea = `${Math.ceil((index + 1) / 3)} / ${(index % 3) * 2 + 1} / span 1 / span 2`;
+            }
+            break;
+    }
+
+    return model;
 }
 
 export const MultiPhotoChat: React.FC<MultiPhotoChatProps> = ({ datas }) => {
-    const [columns, rows] = fitData(datas.length)
-
     const style = {
-        gridTemplateColumns: `repeat(${columns}, 1fr)`,
-        gridTemplateRows: `repeat(${rows}, 1fr)`,
+        width: 'auto',
     }
 
-    return ( // 이거 grid 장인님께서 적당히 맞춰주세요
+    return (
         <Wrapper style={style}>
             {
-                datas.map((data: PhotoChatProps) => {
-                    return <div style={{ display: 'grid-item' }}>
+                datas.map((data: PhotoChatProps, i: number) => {
+                    const isTwo = ((datas.length % 3 === 1) && (i <= 1 || datas.length - 2 <= i)) || ((datas.length % 3 === 2) && (i <= 1))
+                    
+                    return <div style={{
+                        display: 'grid-item',
+                        ...fitData(datas.length, i),
+                    }}>
                         <PhotoChat
                             width={data.width}
                             height={data.height}
                             url={data.url}
-                            ratio={1}
-                            limit={[200, 200]} />
+                            ratio={isTwo ? 1.5 : 1}
+                            limit={isTwo ? [300, 200] : [200, 200]} />
                     </div>
                 })
             }
