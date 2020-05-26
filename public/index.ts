@@ -1,10 +1,19 @@
 import localforage from 'localforage';
-import { v4 } from 'uuid';
-import { TalkClient, PhotoAttachment, AttachmentTemplate, ChatType, VideoAttachment, FileAttachment, LoginTokenStruct } from 'node-kakao/dist';
+import {v4} from 'uuid';
+import {
+    AttachmentTemplate,
+    ChatType,
+    FileAttachment,
+    LoginTokenStruct,
+    PhotoAttachment,
+    TalkClient,
+    VideoAttachment
+} from 'node-kakao/dist';
 import * as os from 'os';
 import fs from 'fs';
 import path from 'path';
-import sizeOf from 'image-size';
+
+const sizeOf = require('image-size');
 
 // @ts-ignore
 global.createNewUUID = (): string => {
