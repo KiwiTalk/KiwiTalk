@@ -3,26 +3,26 @@ import styled from 'styled-components';
 import Color from '../../assets/colors/theme';
 
 import LoginTitle from './LoginTitle';
-import ThemeColor from '../../assets/colors/theme';
 
 import AccountCircle from '../../assets/images/account_circle.svg'
 import AccountCircleDisabled from '../../assets/images/account_circle_disabled.svg'
 import VPNKey from '../../assets/images/vpn_key.svg'
 import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg'
-import RoundCheckbox from '../../assets/images/round_checkbox.svg'
+
+import CheckBox from '../UiComponent/CheckBox';
 
 const Wrapper = styled.div`
-padding: 50px 0 0 50px;
+  padding: 50px 0 0 50px;
 
-@media screen and (max-width: 560px) {
-  width: 100vw;
-  height: calc(100vh - 30px);
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+  @media screen and (max-width: 560px) {
+    width: 100vw;
+    height: calc(100vh - 30px);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 `;
 
 const StyledInput = styled.input`
@@ -104,53 +104,6 @@ const Input: React.FC<InputProps> = ({placeholder, icon, disabledIcon, ...args})
     );
 };
 
-const CheckboxContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  position: relative;
-  cursor: pointer;
-  font-size: 22px;
-  user-select: none;
-`;
-
-const CheckboxUnchecked = styled.div`
-  padding-left: 16px;
-  padding-top: 16px;
-  border-radius: 2px;
-  border: 1px ${ThemeColor.GREY_100} solid;
-  margin-right: 6px;
-`;
-
-const CheckboxChecked = styled.img`
-  width: 18px;
-  height: 18px;
-  margin-right: 6px;
-`;
-
-const CheckboxLabel = styled.span`
-  font-family: NanumBarunGothic;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 12px;
-  line-height: 18px;
-  color: ${ThemeColor.GREY_100};
-`;
-
-interface CheckboxProps extends HTMLAttributes<HTMLDivElement> {
-  label: string
-  checked: boolean
-}
-
-
-const Checkbox: React.FC<CheckboxProps> = ({label, checked, ...args}) => {
-  return (
-      <CheckboxContainer {...args}>
-        {checked ? <CheckboxChecked src={RoundCheckbox} /> : <CheckboxUnchecked />}
-        <CheckboxLabel>{label}</CheckboxLabel>
-      </CheckboxContainer>
-  );
-};
-
 export type LoginHandler = (email: string, password: string, saveEmail: boolean, autoLogin: boolean) => any;
 
 const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
@@ -188,8 +141,8 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
                 <Input placeholder={'비밀번호'} type={'password'} icon={VPNKey} disabledIcon={VPNKeyDisabled} name={'password'}
                        value={form.password} onChange={onChange}/>
                 <Button>로그인</Button>
-                <Checkbox checked={form.saveEmail} label={'아이디 저장'} onClick={() => setForm({...form, saveEmail: !form.saveEmail})} style={{ marginTop: '10px' }} />
-                <Checkbox checked={form.autoLogin} label={'실행 시 자동 로그인'} onClick={() => setForm({...form, autoLogin: !form.autoLogin})} style={{ marginTop: '10px' }} />
+                <CheckBox checked={form.saveEmail} label={'아이디 저장'} onClick={() => setForm({...form, saveEmail: !form.saveEmail})} style={{ marginTop: '10px' }} />
+                <CheckBox checked={form.autoLogin} label={'실행 시 자동 로그인'} onClick={() => setForm({...form, autoLogin: !form.autoLogin})} style={{ marginTop: '10px' }} />
             </Form>
         </Wrapper>
     )

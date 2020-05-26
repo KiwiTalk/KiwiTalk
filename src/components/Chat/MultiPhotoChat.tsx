@@ -16,7 +16,7 @@ interface MultiPhotoChatProps {
 function fitData (length: number) {
     switch(length) {
         case 1: case 2: case 3:
-            return [3, 1]
+            return [length, 1]
         case 4:
             return [2, 2]
         default:
