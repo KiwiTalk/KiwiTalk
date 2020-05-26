@@ -34,13 +34,16 @@ const resize = (width: number, height: number, customRatio: number = -1, limit =
     return [w, h]
 }
 
-export const PhotoChat: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
+export const Photo: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
     const [w, h] = resize(data.width, data.height, data.ratio, data.limit)
     return (
-        <Wrapper style={{ width: w + 'px', height: h + 'px' }}>
-            <Image src={data.url} style={data.width / data.height < 1 ? { width: '100%', height: 'auto' } : { width: 'auto', height: '100%' }} />
+        <Wrapper style={{width: w + 'px', height: h + 'px'}}>
+            <Image src={data.url} style={data.width / data.height < 1 ? {width: '100%', height: 'auto'} : {
+                width: 'auto',
+                height: '100%'
+            }}/>
         </Wrapper>
     );
 };
 
-export default PhotoChat;
+export default Photo;

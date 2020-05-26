@@ -24,7 +24,7 @@ interface MapChatProps {
     latitude: string,
 }
 
-export const MapChat: React.FC<MapChatProps> = (data: any) => {
+export const Location: React.FC<MapChatProps> = (data: any) => {
     return (
         <Wrapper>
             <MapItemImage src={data.url}></MapItemImage>
@@ -33,4 +33,4 @@ export const MapChat: React.FC<MapChatProps> = (data: any) => {
     );
 };
 
-export default MapChat;
+export default Location;

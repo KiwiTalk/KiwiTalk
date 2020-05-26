@@ -1,7 +1,7 @@
 import React, {HTMLAttributes, useState} from 'react';
 import styled from 'styled-components';
-import ProfileImage, {ProfileImageBackgroundColor} from '../UiComponent/ProfileImage';
-import color from '../../assets/colors/theme';
+import ProfileImage, {ProfileImageBackgroundColor} from '../../../Etc/ProfileImage';
+import color from '../../../../assets/colors/theme';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -57,7 +57,7 @@ interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {
     selected: boolean
 }
 
-const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, lastChat, selected, ...args}) => {
+const ChatRoomListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, lastChat, selected, ...args}) => {
     const [hover, setHover] = useState(false);
     return (
         <Wrapper style={hover || selected ? {backgroundColor: '#F7F7F7'} : {backgroundColor: '#FFFFFF'}}
@@ -74,4 +74,4 @@ const ChatListItem: React.FC<ChatListItemProps> = ({profileImageSrc, username, l
     );
 };
 
-export default ChatListItem;
+export default ChatRoomListItem;

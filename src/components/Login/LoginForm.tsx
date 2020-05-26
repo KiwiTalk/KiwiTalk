@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, InputHTMLAttributes, useState, HTMLAttributes, useEffect} from 'react';
+import React, {ChangeEvent, FormEvent, InputHTMLAttributes, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import Color from '../../assets/colors/theme';
 
@@ -9,7 +9,7 @@ import AccountCircleDisabled from '../../assets/images/account_circle_disabled.s
 import VPNKey from '../../assets/images/vpn_key.svg'
 import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg'
 
-import CheckBox from '../UiComponent/CheckBox';
+import CheckBox from '../Etc/CheckBox';
 
 const Wrapper = styled.div`
   padding: 50px 0 0 50px;

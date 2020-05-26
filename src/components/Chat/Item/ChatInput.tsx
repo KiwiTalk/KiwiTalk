@@ -1,12 +1,12 @@
 import React, {ChangeEvent, EventHandler, FormEvent} from 'react';
 import styled from 'styled-components';
 
-import IconAttachment from '../../assets/images/icon_attachment.svg';
-import IconEmoji from '../../assets/images/icon_emoji.svg';
-import IconSend from '../../assets/images/icon_send.svg';
-import ThemeColor from '../../assets/colors/theme';
+import IconAttachment from '../../../assets/images/icon_attachment.svg';
+import IconEmoji from '../../../assets/images/icon_emoji.svg';
+import IconSend from '../../../assets/images/icon_send.svg';
+import ThemeColor from '../../../assets/colors/theme';
 
-import IconButton from '../UiComponent/IconButton';
+import IconButton from '../../Etc/IconButton';
 
 
 const Form = styled.form`

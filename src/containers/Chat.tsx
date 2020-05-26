@@ -1,12 +1,19 @@
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/Sidebar/SidePanel';
 import SideBar from '../components/Sidebar/SideBar';
-import { Chat as ChatObject, ChatChannel, MoreSettingsStruct, TalkClient, PhotoAttachment, AttachmentTemplate, ChatType, ChatlogStruct } from 'node-kakao/dist';
+import {
+    Chat as ChatObject,
+    ChatChannel,
+    ChatlogStruct,
+    ChatType,
+    MoreSettingsStruct,
+    TalkClient
+} from 'node-kakao/dist';
 import {PacketSyncMessageReq, PacketSyncMessageRes} from "node-kakao/dist/packet/packet-sync-message";
-import ChatRoom from '../components/Chat/ChatRoom';
+import ChatRoom from '../components/Chat/ChatRoom/ChatRoom';
 import {Long} from "bson";
-import EmptyChatRoom from '../components/Chat/EmptyChatRoom';
+import EmptyChatRoom from '../components/Chat/ChatRoom/EmptyChatRoom';
 
 const Wrapper = styled.div`
 padding-top: 20px;

@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import bubbleTail from '../../assets/images/bubble_tail.svg'
-import bubbleTailMine from '../../assets/images/bubble_tail_mine.svg'
-import color from '../../assets/colors/theme';
+import bubbleTail from '../../../assets/images/bubble_tail.svg'
+import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg'
+import color from '../../../assets/colors/theme';
 
 const BubbleTail = styled.img`
   margin-bottom: 5px;
@@ -94,7 +94,7 @@ const convertTime = (time: Date, use24format = true) => {
     return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
 }
 
-const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children, hasPadding}) => {
+const ChatBubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children, hasPadding}) => {
     const hasAuthor = !!(!isMine && author)
     return (
         <Wrapper isMine={isMine}>
@@ -111,4 +111,4 @@ const Bubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, c
     );
 };
 
-export default Bubble;
+export default ChatBubble;

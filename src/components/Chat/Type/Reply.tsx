@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Chat, ChatType } from 'node-kakao/dist';
+import {Chat, ChatType} from 'node-kakao/dist';
 
-import { toPhoto } from './ConvertChat';
+import {toPhoto} from '../Utils/ChatConverter';
 
-import color from '../../assets/colors/theme';
+import color from '../../../assets/colors/theme';
 
 const Wrapper = styled.div((props: { isMine: boolean }) => `
   display: flex;
@@ -40,11 +40,12 @@ interface ReplyChatProps {
   prevChat: Chat, // Chat
 }
 
-export const ReplyChat: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
+export const Reply: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
   let content = <span>{chat.prevChat.Text}</span>
 
   switch (chat.prevChat.Type) {
-    case ChatType.Photo: case ChatType.MultiPhoto:
+    case ChatType.Photo:
+    case ChatType.MultiPhoto:
       content = toPhoto(chat.prevChat, {
         ratio: 1,
         limit: [50, 50]
@@ -66,4 +67,4 @@ export const ReplyChat: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
   );
 };
 
-export default ReplyChat;
+export default Reply;

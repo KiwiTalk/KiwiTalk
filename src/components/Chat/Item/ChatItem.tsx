@@ -1,7 +1,7 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
-import ProfileDefault from '../../assets/images/profile_default.svg'
-import ProfileImage, {ProfileImageBackgroundColor} from '../UiComponent/ProfileImage';
+import ProfileDefault from '../../../assets/images/profile_default.svg'
+import ProfileImage, {ProfileImageBackgroundColor} from '../../Etc/ProfileImage';
 
 const Wrapper = styled.div`
 display: flex;

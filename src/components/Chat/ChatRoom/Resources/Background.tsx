@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import kiwi from '../../assets/images/kiwi.svg';
-import ChatRoomColor from '../../assets/colors/chatroom';
+import kiwi from '../../../../assets/images/kiwi.svg';
+import ChatRoomColor from '../../../../assets/colors/chatroom';
 
 const Wrapper = styled.div`
   position: relative;
@@ -23,7 +23,7 @@ mix-blend-mode: overlay;
 opacity: 0.5;
 `;
 
-const ChatRoomBackground: React.FC = ({ children }) => {
+const Background: React.FC = ({children}) => {
     return (
         <Wrapper>
             <Kiwi src={kiwi}/>
@@ -32,4 +32,4 @@ const ChatRoomBackground: React.FC = ({ children }) => {
     )
 };
 
-export default ChatRoomBackground;
+export default Background;

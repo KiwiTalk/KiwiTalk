@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import IconButton from '../UiComponent/IconButton';
-import IconExternal from '../../assets/images/icon_external.svg';
-import IconMenu from '../../assets/images/icon_menu.svg';
-import IconNotification from '../../assets/images/icon_notification.svg';
-import IconSearch from '../../assets/images/icon_search.svg';
-import color from '../../assets/colors/theme';
+import IconButton from '../../../Etc/IconButton';
+import IconExternal from '../../../../assets/images/icon_external.svg';
+import IconMenu from '../../../../assets/images/icon_menu.svg';
+import IconNotification from '../../../../assets/images/icon_notification.svg';
+import IconSearch from '../../../../assets/images/icon_search.svg';
+import color from '../../../../assets/colors/theme';
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,7 +42,7 @@ interface ChatroomHeaderProps {
     title: string
 }
 
-const ChatRoomHeader: React.FC<ChatroomHeaderProps> = ({title}) => {
+const Header: React.FC<ChatroomHeaderProps> = ({title}) => {
     return (
         <Wrapper>
             <Title>{title}</Title>
@@ -56,4 +56,4 @@ const ChatRoomHeader: React.FC<ChatroomHeaderProps> = ({title}) => {
     );
 };
 
-export default ChatRoomHeader;
+export default Header;

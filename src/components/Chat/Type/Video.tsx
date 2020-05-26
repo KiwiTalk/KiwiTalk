@@ -27,20 +27,20 @@ const resize = (width: number, height: number, customRatio: number = -1, limit =
     return [w, h]
 }
 
-export const VideoChat: React.FC<VideoChatProps> = (data: VideoChatProps) => {
+export const Video: React.FC<VideoChatProps> = (data: VideoChatProps) => {
     return (
         <Wrapper>
-          {
-            (()  => {
-              const [w, h] = resize(data.width, data.height)
+            {
+                (() => {
+                    const [w, h] = resize(data.width, data.height)
 
-              return <video style={{width: w + 'px', height: h + 'px'}}>
-                <source src={data.url}></source>
-              </video>
-            })()
+                    return <video style={{width: w + 'px', height: h + 'px'}}>
+                        <source src={data.url}></source>
+                    </video>
+                })()
           }
         </Wrapper>
     );
 };
 
-export default VideoChat;
+export default Video;

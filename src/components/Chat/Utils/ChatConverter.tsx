@@ -1,33 +1,40 @@
 import React from "react";
 
-import { Chat, ChatType, PhotoAttachment, VideoAttachment, ReplyAttachment, ReplyChat as ReplyChatObject } from "node-kakao";
+import {
+    Chat,
+    ChatType,
+    PhotoAttachment,
+    ReplyAttachment,
+    ReplyChat as ReplyChatObject,
+    VideoAttachment
+} from "node-kakao";
 
-import PhotoChat, { PhotoChatProps } from './PhotoChat';
-import MultiPhotoChat from './MultiPhotoChat';
-import SearchChat from './SearchChat';
-import ReplyChat from './ReplyChat';
-import MapChat from './MapChat';
-import VideoChat from './VideoChat';
-import LongChat from './LongChat';
+import Photo, {PhotoChatProps} from '../Type/Photo';
+import MultiPhoto from '../Type/MultiPhoto';
+import SearchChat from '../Type/SearchChat';
+import Reply from '../Type/Reply';
+import Location from '../Type/Location';
+import Video from '../Type/Video';
+import LongText from '../Type/LongText';
 
-export function toText (chat: Chat) {
+export function toText(chat: Chat) {
     return <span>{chat.Text}</span>
 }
 
-export function toLongText (chat: Chat) {
-    return <LongChat chat={chat}></LongChat>
+export function toLongText(chat: Chat) {
+    return <LongText chat={chat}></LongText>
 }
 
-export function toPhoto (chat: Chat, options = { ratio: -1, limit: [300, 500]}) {
+export function toPhoto(chat: Chat, options = {ratio: -1, limit: [300, 500]}) {
     const list = chat.AttachmentList.map((attachment: any) => {
         attachment = attachment as PhotoAttachment;
 
-        return <PhotoChat
+        return <Photo
             width={attachment.Width}
             height={attachment.Height}
             url={attachment.ImageURL}
             ratio={options.ratio}
-            limit={options.limit}></PhotoChat>
+            limit={options.limit}></Photo>
     })
 
     return <div style={{ display: 'flex' }}>{list}</div>
@@ -46,18 +53,18 @@ export function toPhotos (chat: Chat) {
         } as PhotoChatProps
     })
 
-    return <MultiPhotoChat datas={datas} />
+    return <MultiPhoto datas={datas}/>
 }
 
 export function toVideo (chat: Chat) {
     const list = chat.AttachmentList.map((attachment: any) => {
         attachment = attachment as VideoAttachment;
-        
-        return <VideoChat
+
+        return <Video
             url={attachment.VideoURL}
             width={attachment.Width}
             height={attachment.Height}
-            duration={attachment.Duration} />
+            duration={attachment.Duration}/>
     })
 
     return <div>{list}</div>
@@ -87,7 +94,7 @@ export function toReply(chat: Chat, chatList: Chat[]) {
     }
 
     if (prevChat != null) {
-        return <ReplyChat prevChat={prevChat} me={chat}></ReplyChat>
+        return <Reply prevChat={prevChat} me={chat}></Reply>
     } else {
         return <span>{chat.Text}</span>
     }
@@ -96,8 +103,8 @@ export function toReply(chat: Chat, chatList: Chat[]) {
 export function toMap(chat: Chat) {
     const list = chat.AttachmentList.map((attachment: any) => {
         const { Name, Lat, Lng } = attachment
-        
-        return <MapChat name={Name} url={''} latitude={Lat} longitude={Lng}></MapChat>
+
+        return <Location name={Name} url={''} latitude={Lat} longitude={Lng}></Location>
     })
 
     return <div>{list}</div>

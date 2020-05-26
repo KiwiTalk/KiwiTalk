@@ -1,9 +1,9 @@
 import React, {MouseEventHandler, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import ProfileDefault from '../../assets/images/profile_default.svg'
-import color from '../../assets/colors/theme';
+import ProfileDefault from '../../../../assets/images/profile_default.svg'
+import color from '../../../../assets/colors/theme';
 import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao/dist';
-import ChatListItem from './ChatListItem';
+import ChatRoomListItem from './ChatRoomListItem';
 
 const Wrapper = styled.div`
 width: 309px;
@@ -47,7 +47,7 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
         channel.getChannelInfo().then((ch: ChannelInfo) => {
             const userInfoList = ch.UserIdList.map((id) => ch.getUserInfoId(id)).filter((v, i) => i < 5 && v != null) as UserInfo[];
             const name = ch.Name ? ch.Name : userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
-            setComp(<ChatListItem
+            setComp(<ChatRoomListItem
                 key={channel.Id.toString()}
                 lastChat={channel.LastChat ? channel.LastChat.Text : ''}
                 profileImageSrc={extractRoomImage(ch, userInfoList)}
@@ -64,7 +64,7 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
     );
 };
 
-const ChatList: React.FC<ChatListProps> = ({channelList, onChange}) => {
+const ChatRoomList: React.FC<ChatListProps> = ({channelList, onChange}) => {
     const [selectedIndex, setSelectedIndex] = useState(-1);
 
     return (
@@ -78,4 +78,4 @@ const ChatList: React.FC<ChatListProps> = ({channelList, onChange}) => {
     );
 };
 
-export default ChatList;
+export default ChatRoomList;

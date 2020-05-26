@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import PhotoChat, { PhotoChatProps } from './PhotoChat';
+import Photo, {PhotoChatProps} from './Photo';
 
 const Wrapper = styled.div`
   display: grid;
@@ -43,7 +43,7 @@ function fitData (length: number, index: number) {
     return model;
 }
 
-export const MultiPhotoChat: React.FC<MultiPhotoChatProps> = ({ datas }) => {
+export const MultiPhoto: React.FC<MultiPhotoChatProps> = ({datas}) => {
     const style = {
         width: 'auto',
     }
@@ -58,12 +58,12 @@ export const MultiPhotoChat: React.FC<MultiPhotoChatProps> = ({ datas }) => {
                         display: 'grid-item',
                         ...fitData(datas.length, i),
                     }}>
-                        <PhotoChat
+                        <Photo
                             width={data.width}
                             height={data.height}
                             url={data.url}
                             ratio={isTwo ? 1.5 : 1}
-                            limit={isTwo ? [300, 200] : [200, 200]} />
+                            limit={isTwo ? [300, 200] : [200, 200]}/>
                     </div>
                 })
             }
@@ -71,4 +71,4 @@ export const MultiPhotoChat: React.FC<MultiPhotoChatProps> = ({ datas }) => {
     );
 };
 
-export default MultiPhotoChat;
+export default MultiPhoto;

@@ -3,12 +3,12 @@ import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
 
-import ChatItem from './ChatItem';
-import Bubble from '../UiComponent/Bubble';
+import ChatItem from './Item/ChatItem';
+import ChatBubble from './Item/ChatBubble';
 
-import { Chat, ChatChannel, ChatType } from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType} from 'node-kakao/dist';
 
-import convertChat from './ConvertChat';
+import convertChat from './Utils/ChatConverter';
 
 const Content = styled.div`
 display: flex;
@@ -76,8 +76,8 @@ class Chats extends React.Component<ChatsProps> {
 
                             const sendDate = new Date(chat.SendTime * 1000);
                             let content: JSX.Element = convertChat(chat, this.props.chatList);
-                            
-                            this.bubbles.push(<Bubble
+
+                            this.bubbles.push(<ChatBubble
                                 key={chat.LogId.toString()}
                                 hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
                                 unread={1}
@@ -86,7 +86,7 @@ class Chats extends React.Component<ChatsProps> {
                                 time={sendDate}
                                 hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
                                 {content}
-                            </Bubble>);
+                            </ChatBubble>);
 
                             this.nextWithAuthor = false;
 

@@ -1,7 +1,7 @@
-import React, { createRef } from 'react';
+import React, {createRef} from 'react';
 import styled from 'styled-components';
 
-import { Chat, ChatType } from 'node-kakao/dist';
+import {Chat} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,7 +21,7 @@ interface LongChatProps {
     chat: Chat
 }
 
-export const LongChat: React.FC<LongChatProps> = (props: { chat: Chat }) => {
+export const LongText: React.FC<LongChatProps> = (props: { chat: Chat }) => {
     const content = createRef() as any;
     const button = createRef() as any;
 
@@ -50,4 +50,4 @@ export const LongChat: React.FC<LongChatProps> = (props: { chat: Chat }) => {
     );
 };
 
-export default LongChat;
+export default LongText;

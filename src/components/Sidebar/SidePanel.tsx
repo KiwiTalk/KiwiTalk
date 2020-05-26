@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import Search from '../UiComponent/Search';
-import ChatList from '../ChatRoomList/ChatList';
-import Profile from '../UiComponent/Profile';
+import Search from '../Etc/Search';
+import ChatRoomList from '../Chat/ChatRoom/List/ChatRoomList';
+import Profile from '../Etc/Profile';
 import {ChatChannel, MoreSettingsStruct} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
@@ -22,7 +22,7 @@ const SidePanel: React.FC<SidePanelProps> = ({channelList, accountSettings, onCh
     return (
         <Wrapper>
             <Search/>
-            <ChatList channelList={channelList} onChange={onChange}/>
+            <ChatRoomList channelList={channelList} onChange={onChange}/>
             <Profile accountSettings={accountSettings}/>
         </Wrapper>
     );

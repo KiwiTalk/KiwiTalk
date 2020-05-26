@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import ChatRoomColor from '../../assets/colors/chatroom';
+import ChatRoomColor from '../../../assets/colors/chatroom';
 
-import kiwi from '../../assets/images/kiwi.svg';
+import kiwi from '../../../assets/images/kiwi.svg';
 
 const Wrapper = styled.div`
   position: relative;
