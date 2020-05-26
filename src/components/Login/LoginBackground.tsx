@@ -4,9 +4,18 @@ import ThemeColor from '../../assets/colors/theme';
 import background from '../../assets/images/background.svg';
 import kiwi from '../../assets/images/kiwi.svg';
 
-const Wrapper = styled.div`
-margin-top: 20px;
-`
+const Wrapper = (() => {
+    // @ts-ignore
+    switch (nw.process.platform) {
+        case 'darwin':
+        case 'cygwin':
+        case 'win32':
+            return styled.div`margin-top: 20px;`;
+        default:
+            return styled.div``;
+    }
+})();
+
 
 const Background1 = styled.div`
 z-index: -1;

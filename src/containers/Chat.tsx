@@ -15,14 +15,30 @@ import ChatRoom from '../components/Chat/ChatRoom/ChatRoom';
 import {Long} from "bson";
 import EmptyChatRoom from '../components/Chat/ChatRoom/EmptyChatRoom';
 
-const Wrapper = styled.div`
-padding-top: 20px;
-width: 100%;
-height: 100vh;
-box-sizing: border-box;
-display: flex;
-flex-direction: row;
-`;
+const Wrapper = (() => {
+    // @ts-ignore
+    switch (nw.process.platform) {
+        case 'darwin':
+        case 'cygwin':
+        case 'win32':
+            return styled.div`
+            padding-top: 20px;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            `;
+        default:
+            return styled.div`
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            `;
+    }
+})();
 
 // @ts-ignore
 const talkClient: TalkClient = nw.global.talkClient;
