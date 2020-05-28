@@ -99,12 +99,12 @@ const Login = () => {
                     const uuid = await (nw as any).global.getUUID();
                     console.log(loginToken, autoLoginEmail, uuid)
                     try {
-                        await talkClient.login(autoLoginEmail, loginToken.token, uuid)
+                        await talkClient.loginToken(autoLoginEmail, loginToken.token, uuid)
                     } catch (reason) {
                         if (reason === -101) {
                             let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
                             if (result) {
-                                talkClient.login(autoLoginEmail, loginToken.token, uuid, true);
+                                talkClient.loginToken(autoLoginEmail, loginToken.token, uuid, true);
                             }
                         }
                         else throw reason;
