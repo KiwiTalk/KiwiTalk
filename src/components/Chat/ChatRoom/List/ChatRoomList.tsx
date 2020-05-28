@@ -1,8 +1,8 @@
-import React, {MouseEventHandler, useEffect, useState} from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ProfileDefault from '../../../../assets/images/profile_default.svg'
 import color from '../../../../assets/colors/theme';
-import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao/dist';
+import { ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo } from 'node-kakao/dist';
 import ChatRoomListItem from './ChatRoomListItem';
 
 const Wrapper = styled.div`
@@ -23,13 +23,15 @@ interface ChatListProps {
     onChange?: (index: number) => any;
 }
 
-function extractRoomImage(channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
+function extractRoomImage (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
     let imageUrl = channelInfo.RoomImageURL || ProfileDefault
 
+    console.log(channelInfo)
+
     channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-        if (meta.Type === ChannelMetaType.PROFILE) {
+        if (meta.type === ChannelMetaType.PROFILE) {
             // @ts-ignore
-            const content = JSON.parse(meta.Content)
+            const content = JSON.parse(meta.content)
             imageUrl = content.imageUrl
         }
     })
@@ -41,20 +43,41 @@ function extractRoomImage(channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
     return imageUrl
 }
 
-const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClick: MouseEventHandler }> = ({channel, selected, onClick}) => {
+function extractRoomName (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
+    let result = channelInfo.Name;
+
+    if (!result) {
+        channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
+            if (meta.type === ChannelMetaType.TITLE) {
+                result = meta.content as string;
+            }
+        });
+
+        if (!result) {
+            result = userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
+        }
+    }
+
+    return result;
+}
+
+const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClick: MouseEventHandler }> = ({ channel, selected, onClick }) => {
     const [comp, setComp] = useState<JSX.Element>();
 
     useEffect(() => {
         channel.getChannelInfo().then((ch: ChannelInfo) => {
             const userInfoList = ch.UserIdList.map((id) => ch.getUserInfoId(id)).filter((v, i) => i < 5 && v != null) as UserInfo[];
-            const name = ch.Name ? ch.Name : userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
+
+            const name = extractRoomName(ch, userInfoList);
+            const profileImage = extractRoomImage(ch, userInfoList);
+
             setComp(<ChatRoomListItem
                 key={channel.Id.toString()}
                 lastChat={channel.LastChat ? channel.LastChat.Text : ''}
-                profileImageSrc={extractRoomImage(ch, userInfoList)}
+                profileImageSrc={profileImage}
                 username={name}
                 selected={selected}
-                onClick={onClick}/>)
+                onClick={onClick} />)
         });
     }, [selected])
 
@@ -65,8 +88,10 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
     );
 };
 
-const ChatRoomList: React.FC<ChatListProps> = ({channelList, onChange}) => {
+const ChatRoomList: React.FC<ChatListProps> = ({ channelList, onChange }) => {
     const [selectedIndex, setSelectedIndex] = useState(-1);
+
+    // console.log(channelList)
 
     return (
         <Wrapper>
@@ -74,7 +99,7 @@ const ChatRoomList: React.FC<ChatListProps> = ({channelList, onChange}) => {
                 <AsyncComponent channel={channel} selected={selectedIndex === index} onClick={() => {
                     setSelectedIndex(index);
                     onChange && onChange(index);
-                }}/>)}
+                }} />)}
         </Wrapper>
     );
 };
