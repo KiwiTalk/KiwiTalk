@@ -8,10 +8,9 @@ import {
     ChatlogStruct,
     ChatType,
     MoreSettingsStruct,
-    PacketSyncMessageReq,
-    PacketSyncMessageRes,
     TalkClient
 } from 'node-kakao/dist';
+import {PacketSyncMessageReq, PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/Chat/ChatRoom/ChatRoom';
 import {Long} from "bson";
 import EmptyChatRoom from '../components/Chat/ChatRoom/EmptyChatRoom';

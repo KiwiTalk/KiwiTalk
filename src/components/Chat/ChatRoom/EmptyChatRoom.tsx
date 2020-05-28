@@ -36,8 +36,8 @@ const Kiwi = styled.img`
 const EmptyChatRoom = () => {
   return (
     <Wrapper>
-      <Kiwi src={kiwi} />
-      <p>채팅방을 선택하세요</p>
+      <Kiwi src={kiwi}/>
+        <p><b>채팅방을 선택하세요</b></p>
     </Wrapper>
   )
 };
