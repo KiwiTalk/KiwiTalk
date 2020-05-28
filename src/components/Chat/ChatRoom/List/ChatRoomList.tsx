@@ -4,6 +4,7 @@ import ProfileDefault from '../../../../assets/images/profile_default.svg'
 import color from '../../../../assets/colors/theme';
 import { ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo } from 'node-kakao/dist';
 import ChatRoomListItem from './ChatRoomListItem';
+import { userInfo } from 'os';
 
 const Wrapper = styled.div`
 width: 309px;
@@ -24,20 +25,20 @@ interface ChatListProps {
 }
 
 function extractRoomImage (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
-    let imageUrl = channelInfo.RoomImageURL || ProfileDefault
+    let imageUrl = [channelInfo.RoomImageURL]
 
-    console.log(channelInfo)
+    if (!channelInfo.RoomImageURL) {
+        channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
+            if (meta.type === ChannelMetaType.PROFILE) {
+                // @ts-ignore
+                const content = JSON.parse(meta.content)
+                imageUrl = [content.imageUrl]
+            }
+        })
 
-    channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-        if (meta.type === ChannelMetaType.PROFILE) {
-            // @ts-ignore
-            const content = JSON.parse(meta.content)
-            imageUrl = content.imageUrl
+        if (!imageUrl[0]) {
+            imageUrl = userInfoList.slice(0, 4).map(e => e.ProfileImageURL || ProfileDefault)
         }
-    })
-
-    if (imageUrl === ProfileDefault) {
-        imageUrl = userInfoList[0] ? userInfoList[0].ProfileImageURL ? userInfoList[0].ProfileImageURL : ProfileDefault : ProfileDefault
     }
 
     return imageUrl
@@ -69,12 +70,12 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
             const userInfoList = ch.UserIdList.map((id) => ch.getUserInfoId(id)).filter((v, i) => i < 5 && v != null) as UserInfo[];
 
             const name = extractRoomName(ch, userInfoList);
-            const profileImage = extractRoomImage(ch, userInfoList);
+            const profileImages = extractRoomImage(ch, userInfoList);
 
             setComp(<ChatRoomListItem
                 key={channel.Id.toString()}
                 lastChat={channel.LastChat ? channel.LastChat.Text : ''}
-                profileImageSrc={profileImage}
+                profileImageSrcs={profileImages}
                 username={name}
                 selected={selected}
                 onClick={onClick} />)
@@ -90,8 +91,6 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
 
 const ChatRoomList: React.FC<ChatListProps> = ({ channelList, onChange }) => {
     const [selectedIndex, setSelectedIndex] = useState(-1);
-
-    // console.log(channelList)
 
     return (
         <Wrapper>
