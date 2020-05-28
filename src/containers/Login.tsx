@@ -45,18 +45,19 @@ const Login = () => {
         await nw.global.setAutoLogin(autoLogin);
         // @ts-ignore
         const uuid = await nw.global.getUUID();
-        try {
-            await talkClient.login(email, password, uuid, force)
+        talkClient.login(email, password, uuid, force).then(() => {
             if (autoLogin) {
                 // @ts-ignore
-                await nw.global.setAutoLoginEmail(talkClient.getLatestAccessData().autoLoginEmail)
-                // @ts-ignore
-                await nw.global.setAutoLoginToken(await talkClient.ApiClient.requestLoginToken());
+                nw.global.setAutoLoginEmail(talkClient.getLatestAccessData().autoLoginEmail)
+                talkClient.ApiClient.requestLoginToken().then((loginToken) => {
+                    // @ts-ignore
+                    nw.global.setAutoLoginToken(loginToken);
+                });
             }
             alert('로그인 성공');
             setRedirect('chat');
-        } catch (reason) {
-            switch (reason) {
+        }).catch((reason) => {
+            switch (reason.status) {
                 case -100: // 인증이 필요
                     // @ts-ignore
                     nw.global.email = email;
@@ -79,14 +80,16 @@ const Login = () => {
                     }
                     break;
                 default:
-                    if (errorReason[reason] !== undefined) {
+                    if (reason.message !== undefined) {
+                        alert(`${reason.status} : ${reason.message}`);
+                    } else if (errorReason[reason] !== undefined) {
                         alert(errorReason[reason]);
                     } else {
-                        alert(`알 수 없는 오류가 발생했습니다. 오류 코드: ${reason}`);
+                        alert(`알 수 없는 오류가 발생했습니다. 오류 코드: ${reason.status}`);
                     }
                     break;
             }
-        }
+        });
     };
 
     useEffect(() => {
