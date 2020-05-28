@@ -28,6 +28,7 @@ function extractRoomImage(channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
 
     channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
         if (meta.Type === ChannelMetaType.PROFILE) {
+            // @ts-ignore
             const content = JSON.parse(meta.Content)
             imageUrl = content.imageUrl
         }

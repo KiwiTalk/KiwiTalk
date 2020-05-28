@@ -3,7 +3,7 @@ import {Redirect} from 'react-router-dom';
 
 import LoginBackground from '../components/Login/LoginBackground';
 import LoginForm from '../components/Login/LoginForm';
-import {LoginTokenStruct, TalkClient} from 'node-kakao/dist';
+import {LoginError, LoginTokenStruct, TalkClient} from 'node-kakao/dist';
 
 const talkClient: TalkClient = (nw as any).global.talkClient;
 
@@ -56,7 +56,7 @@ const Login = () => {
             }
             alert('로그인 성공');
             setRedirect('chat');
-        }).catch((reason) => {
+        }).catch((reason: LoginError) => {
             switch (reason.status) {
                 case -100: // 인증이 필요
                     // @ts-ignore
@@ -82,8 +82,8 @@ const Login = () => {
                 default:
                     if (reason.message !== undefined) {
                         alert(`${reason.status} : ${reason.message}`);
-                    } else if (errorReason[reason] !== undefined) {
-                        alert(errorReason[reason]);
+                    } else if (errorReason[reason.status] !== undefined) {
+                        alert(errorReason[reason.status]);
                     } else {
                         alert(`알 수 없는 오류가 발생했습니다. 오류 코드: ${reason.status}`);
                     }
@@ -104,13 +104,12 @@ const Login = () => {
                     try {
                         await talkClient.loginToken(autoLoginEmail, loginToken.token, uuid)
                     } catch (reason) {
-                        if (reason === -101) {
+                        if (reason.status === -101) {
                             let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
                             if (result) {
                                 talkClient.loginToken(autoLoginEmail, loginToken.token, uuid, true);
                             }
-                        }
-                        else throw reason;
+                        } else throw reason;
                     }
                     alert('자동로그인 했습니다.');
                     setRedirect('chat');
