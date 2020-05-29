@@ -1,6 +1,6 @@
 import React, {ChangeEvent, EventHandler, FormEvent, useEffect, useState} from 'react';
 import Header from './Resources/Header';
-import {ChannelInfo, Chat, ChatChannel, UserInfo, ChannelMetaStruct, ChannelMetaType} from 'node-kakao/dist';
+import {ChannelInfo, Chat, ChatChannel, UserInfo, ChannelMetaStruct, ChannelMetaType, FeedType} from 'node-kakao/dist';
 import Chats from '../Chats';
 import ChatInput from '../Item/ChatInput';
 import Background from './Resources/Background';

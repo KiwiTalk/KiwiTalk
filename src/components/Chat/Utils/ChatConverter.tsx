@@ -16,6 +16,7 @@ import Reply from '../Type/Reply';
 import Location from '../Type/Location';
 import Video from '../Type/Video';
 import LongText from '../Type/LongText';
+import DeletedText from "../Type/DeletedText";
 
 export function toText(chat: Chat) {
     return <span>{chat.Text}</span>
@@ -110,6 +111,10 @@ export function toMap(chat: Chat) {
     return <div>{list}</div>
 }
 
+export function toDeletedText(chat: Chat, chatList: Chat[]) {
+    return <DeletedText chat={chat} chatList={chatList}></DeletedText>
+}
+
 export function convertContent (chat: Chat, chatList: Chat[]) {
     switch (chat.Type) {
         case ChatType.Text:
@@ -125,6 +130,8 @@ export function convertContent (chat: Chat, chatList: Chat[]) {
             return toSearch(chat);
         case ChatType.Reply:
             return toReply(chat, chatList);
+        case ChatType.Unknown:
+            return <span>{chat.Text}</span>
         case ChatType.Map:
         default:
             return <div>

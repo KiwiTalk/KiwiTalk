@@ -6,9 +6,9 @@ import ThemeColor from '../../assets/colors/theme';
 import ChatItem from './Item/ChatItem';
 import ChatBubble from './Item/ChatBubble';
 
-import {Chat, ChatChannel, ChatType} from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType, FeedType} from 'node-kakao/dist';
 
-import convertChat from './Utils/ChatConverter';
+import convertChat, { toDeletedText } from './Utils/ChatConverter';
 
 const Content = styled.div`
 display: flex;
@@ -76,6 +76,15 @@ class Chats extends React.Component<ChatsProps> {
 
                             const sendDate = new Date(chat.SendTime * 1000);
                             let content: JSX.Element = convertChat(chat, this.props.chatList);
+
+                            const nextChat = this.props.chatList[index + 1];
+                            if (nextChat?.Type === ChatType.Feed) {
+                                const feed = nextChat.getFeed()
+
+                                if (feed.feedType === FeedType.DELETE_TO_ALL) {
+                                    content = toDeletedText(chat, this.props.chatList)
+                                }
+                            }
 
                             this.bubbles.push(<ChatBubble
                                 key={chat.LogId.toString()}
