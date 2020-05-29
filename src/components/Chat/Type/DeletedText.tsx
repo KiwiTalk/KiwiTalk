@@ -1,9 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Chat } from 'node-kakao/dist';
+import {Chat} from 'node-kakao/dist';
 
-import convertChat from '../Utils/ChatConverter'
+import convertChat from '../Utils/ChatConverter';
+
+const ReactSpoiler = require('react-spoiler');
 
 const Wrapper = styled.div`
   display: flex;
@@ -26,8 +28,10 @@ export const DeletedText: React.FC<DeletedTextProps> = ({ chat, chatList }) => {
 
     return (
         <Wrapper>
-            <NoticeText>삭제된 메시지 입니다.</NoticeText>
-            {content}    
+            <NoticeText><b>삭제된 메시지 입니다.</b></NoticeText>
+            <ReactSpoiler blur={10} hoverBlur={8}>
+                {content}
+            </ReactSpoiler>
         </Wrapper>
     );
 };
