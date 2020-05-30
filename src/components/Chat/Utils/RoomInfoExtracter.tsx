@@ -37,4 +37,4 @@ export function extractRoomName (channelInfo: ChannelInfo, userInfoList: UserInf
   }
 
   return result;
-} 
+}
