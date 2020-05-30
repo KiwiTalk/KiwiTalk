@@ -61,7 +61,7 @@ const Chat = () => {
             if (firstMessage.ChatList.length) {
                 let start_id = (firstMessage.ChatList.shift() as ChatlogStruct).prevLogId, chatLog: ChatObject[] = [];
                 do {
-                    chatLog = await talkClient.ChatManager.getChatListFrom(channel.Id, start_id);
+                    chatLog = await talkClient.ChatManager.getChatListFrom(channel.Id, parseInt(start_id.toString()));
                     update.push(...chatLog);
 
                     if (chatLog.length > 0) {

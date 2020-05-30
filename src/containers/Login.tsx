@@ -48,11 +48,11 @@ const Login = () => {
         talkClient.login(email, password, uuid, force).then(() => {
             if (autoLogin) {
                 // @ts-ignore
-                nw.global.setAutoLoginEmail(talkClient.getLatestAccessData().autoLoginEmail)
+                /*nw.global.setAutoLoginEmail(talkClient.getLatestAccessData().autoLoginEmail)
                 talkClient.ApiClient.requestLoginToken().then((loginToken) => {
                     // @ts-ignore
                     nw.global.setAutoLoginToken(loginToken);
-                });
+                });*/
             }
             alert('로그인 성공');
             setRedirect('chat');
