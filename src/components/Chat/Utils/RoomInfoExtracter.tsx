@@ -1,4 +1,4 @@
-import ProfileDefault from '../../../../assets/images/profile_default.svg'
+import ProfileDefault from '../../../assets/images/profile_default.svg'
 import { ChannelInfo, ChannelMetaStruct, ChannelMetaType, UserInfo } from 'node-kakao/dist';
 
 export function extractRoomImage (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
