@@ -71,7 +71,7 @@ class Chats extends React.Component<ChatsProps> {
                             const isMine = (chat.Sender === undefined) || chat.Sender.isClientUser();
                             let willSenderChange = arr.length - 1 === index; // 맨 마지막 index면 당연히 바뀜
 
-                            if (isMine) willSenderChange = willSenderChange || (arr[index + 1].Sender !== undefined && !arr[index + 1].Sender.isClientUser()); 
+                            if (isMine) willSenderChange = willSenderChange || (arr[index + 1].Sender !== undefined && !arr[index + 1].Sender.isClientUser());
                             else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
 
                             const sendDate = new Date(chat.SendTime * 1000);

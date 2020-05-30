@@ -86,7 +86,7 @@ export function toSearch(chat: Chat) {
     return <div>{list}</div>
 }
 
-export function toReply(chat: Chat, chatList: Chat[]) { 
+export function toReply(chat: Chat, chatList: Chat[]) {
     let prevChat = null;
     const attachments = (chat as ReplyChatObject).AttachmentList as ReplyAttachment[]
     const prevId = attachments[0].SourceLogId.toString()
