@@ -17,9 +17,14 @@ import Location from '../Type/Location';
 import Video from '../Type/Video';
 import LongText from '../Type/LongText';
 import DeletedText from "../Type/DeletedText";
+import styled from "styled-components";
+
+const Content = styled.span`
+    white-space: pre-line;
+`;
 
 export function toText(chat: Chat) {
-    return <span>{chat.Text}</span>
+    return <Content style={{ whiteSpace: 'pre-line' }}>{chat.Text}</Content>
 }
 
 export function toLongText(chat: Chat) {

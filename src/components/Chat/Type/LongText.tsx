@@ -4,8 +4,12 @@ import styled from 'styled-components';
 import {Chat} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
+`;
+
+const Content = styled.span`
+    white-space: pre-line;
 `;
 
 const Expansion = styled.button`
@@ -44,7 +48,7 @@ export const LongText: React.FC<LongChatProps> = (props: { chat: Chat }) => {
 
     return (
         <Wrapper>
-            <span ref={content}>{props.chat.Text.substring(0, 500) + '...'}</span>
+            <Content ref={content}>{props.chat.Text.substring(0, 500) + '...'}</Content>
             <Expansion ref={button} onClick={expand}>{'펼쳐보기'}</Expansion>
         </Wrapper>
     );

@@ -35,13 +35,17 @@ const Author = styled.span((props: { isMine: boolean }) => `
   margin-bottom: 4px;
 `);
 
+const Content = styled.span`
+    white-space: pre-line;
+`;
+
 interface ReplyChatProps {
   me: Chat,
   prevChat: Chat, // Chat
 }
 
 export const Reply: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
-  let content = <span>{chat.prevChat.Text}</span>
+  let content = <Content>{chat.prevChat.Text}</Content>
 
   switch (chat.prevChat.Type) {
     case ChatType.Photo:
@@ -62,7 +66,7 @@ export const Reply: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
         <Author isMine={isMine}>{`${chat.prevChat.Sender.Nickname}에게 답장`}</Author>
         {content}
       </ReplyTarget>
-      <span>{chat.me.Text}</span>
+      <Content>{chat.me.Text}</Content>
     </Wrapper>
   );
 };
