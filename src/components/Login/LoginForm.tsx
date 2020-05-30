@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, InputHTMLAttributes, useEffect, useState} from 'react';
+import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import Color from '../../assets/colors/theme';
 
@@ -10,6 +10,7 @@ import VPNKey from '../../assets/images/vpn_key.svg'
 import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg'
 
 import CheckBox from '../Etc/CheckBox';
+import Input from '../Etc/Input';
 
 const Wrapper = styled.div`
   padding: 50px 0 0 50px;
@@ -23,37 +24,6 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
   }
-`;
-
-const StyledInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: none;
-  margin-left: 10px;
-  padding: 0;
-  background: none;
-
-  :focus {
-    outline: none;
-  }
-
-  ::placeholder {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.3);
-  }
-`;
-
-const InputWrapper = styled.div`
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-sizing: border-box;
-  padding: 10px;
-  background: #FFFFFF;
-  box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
 `;
 
 const Button = styled.button`
@@ -80,29 +50,6 @@ const Form = styled.form`
   width: 300px;
   margin-bottom: 50px;
 `;
-
-const Icon = styled.img`
-  width: 20px;
-  height: 20px;
-`
-
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-    placeholder: string
-    icon: string
-    disabledIcon: string
-}
-
-const Input: React.FC<InputProps> = ({placeholder, icon, disabledIcon, ...args}) => {
-    const [focus, setFocus] = useState(false);
-
-    return (
-        <InputWrapper>
-            <Icon src={focus ? icon : disabledIcon}/>
-            <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
-                         onBlur={() => setFocus(false)} {...args}/>
-        </InputWrapper>
-    );
-};
 
 export type LoginHandler = (email: string, password: string, saveEmail: boolean, autoLogin: boolean) => any;
 

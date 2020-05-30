@@ -1,10 +1,9 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ProfileDefault from '../../../../assets/images/profile_default.svg'
 import color from '../../../../assets/colors/theme';
-import { ChannelInfo, ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo } from 'node-kakao/dist';
+import { ChannelInfo, ChatChannel, UserInfo } from 'node-kakao/dist';
 import ChatRoomListItem from './ChatRoomListItem';
-import { userInfo } from 'os';
+import { extractRoomName, extractRoomImage } from '../../Utils/RoomInfoExtracter';
 
 const Wrapper = styled.div`
 width: 309px;
@@ -22,44 +21,6 @@ overflow-y: scroll;
 interface ChatListProps {
     channelList: ChatChannel[]
     onChange?: (index: number) => any;
-}
-
-function extractRoomImage (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
-    let imageUrl = [channelInfo.RoomImageURL]
-
-    if (!channelInfo.RoomImageURL) {
-        channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-            if (meta.type === ChannelMetaType.PROFILE) {
-                // @ts-ignore
-                const content = JSON.parse(meta.content)
-                imageUrl = [content.imageUrl]
-            }
-        })
-
-        if (!imageUrl[0]) {
-            imageUrl = userInfoList.slice(0, 4).map(e => e.ProfileImageURL || ProfileDefault)
-        }
-    }
-
-    return imageUrl
-}
-
-function extractRoomName (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
-    let result = channelInfo.Name;
-
-    if (!result) {
-        channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-            if (meta.type === ChannelMetaType.TITLE) {
-                result = meta.content as string;
-            }
-        });
-
-        if (!result) {
-            result = userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
-        }
-    }
-
-    return result;
 }
 
 const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClick: MouseEventHandler }> = ({ channel, selected, onClick }) => {

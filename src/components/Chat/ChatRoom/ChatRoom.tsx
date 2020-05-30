@@ -4,6 +4,7 @@ import {ChannelInfo, Chat, ChatChannel, UserInfo, ChannelMetaStruct, ChannelMeta
 import Chats from '../Chats';
 import ChatInput from '../Item/ChatInput';
 import Background from './Resources/Background';
+import { extractRoomName } from '../Utils/RoomInfoExtracter';
 
 export interface ChatRoomProps {
     channel: ChatChannel
@@ -11,24 +12,6 @@ export interface ChatRoomProps {
     onInputChange: EventHandler<ChangeEvent<HTMLInputElement>>
     onSubmit: EventHandler<FormEvent>
     inputValue: string
-}
-
-function extractRoomName (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
-    let result = channelInfo.Name;
-
-    if (!result) {
-        channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-            if (meta.type === ChannelMetaType.TITLE) {
-                result = meta.content as string;
-            }
-        });
-
-        if (!result) {
-            result = userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
-        }
-    }
-
-    return result;
 }
 
 const ChatRoom: React.FC<ChatRoomProps> = ({channel, chatList, onInputChange, onSubmit, inputValue}) => {

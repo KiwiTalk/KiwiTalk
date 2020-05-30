@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import ChatRoomColor from '../../../assets/colors/chatroom';
 
-import kiwi from '../../../assets/images/kiwi.svg';
+import Kiwi from '../../Etc/Kiwi';
 
 const Wrapper = styled.div`
   position: relative;
@@ -21,22 +21,10 @@ const Wrapper = styled.div`
   line-height: 25px;
 `
 
-
-const Kiwi = styled.img`
-  position: fixed;
-  width: 70vw;
-  height: 70vh;
-  right: -10%;
-  bottom: -33%;
-  mix-blend-mode: overlay;
-  opacity: 0.5;
-`;
-
-
 const EmptyChatRoom = () => {
   return (
     <Wrapper>
-      <Kiwi src={kiwi}/>
+      <Kiwi/>
         <p><b>채팅방을 선택하세요</b></p>
     </Wrapper>
   )

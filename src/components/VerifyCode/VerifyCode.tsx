@@ -1,8 +1,11 @@
-import React, {ChangeEvent, InputHTMLAttributes, useState} from 'react';
+import React, {ChangeEvent, useState} from 'react';
 import Color from '../../assets/colors/theme';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
 import {Link} from 'react-router-dom';
+import Input from '../Etc/Input';
+import Dialpad from '../../assets/images/dialpad.svg'
+import DialpadDisabled from '../../assets/images/dialpad_disabled.svg'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -24,37 +27,6 @@ const Logo = styled.img`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-`;
-
-const StyledInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: none;
-  margin-left: 10px;
-  padding: 0;
-  background: none;
-
-  :focus {
-    outline: none;
-  }
-
-  ::placeholder {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.3);
-  }
-`;
-
-const InputWrapper = styled.div`
-  width: 280px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  box-sizing: border-box;
-  padding: 16px 38px;
-  background: #FFFFFF;
-  box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
 `;
 
 const Button = styled.button`
@@ -93,27 +65,6 @@ const PreviousLink = styled(Link)`
   user-select: none;
 `;
 
-const Icon = styled.i((props: { focus: boolean }) => `
-  color: ${props.focus ? '#000000' : '#B3B3B3'};
-`)
-
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-    placeholder: string
-    icon: string
-}
-
-const Input: React.FC<InputProps> = ({placeholder, icon, ...args}) => {
-    const [focus, setFocus] = useState(false);
-
-    return (
-        <InputWrapper>
-            <Icon className={icon} focus={focus}/>
-            <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
-                         onBlur={() => setFocus(false)} {...args}/>
-        </InputWrapper>
-    );
-};
-
 const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({onSubmit}) => {
     const [passcode, setPasscode] = useState('');
     return (
@@ -125,7 +76,7 @@ const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({onSubmit
                 onSubmit(passcode);
                 e.preventDefault();
             }}>
-                <Input placeholder={'인증 번호를 입력해주세요.'} icon={'fas fa-shield-alt'} value={passcode}
+                <Input placeholder={'인증 번호를 입력해주세요.'} icon={Dialpad} disabledIcon={DialpadDisabled} value={passcode}
                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
                            setPasscode(event.target.value);
                        }}/>

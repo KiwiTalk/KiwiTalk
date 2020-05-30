@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ThemeColor from '../../assets/colors/theme';
 import background from '../../assets/images/background.svg';
-import kiwi from '../../assets/images/kiwi.svg';
+import Kiwi from '../Etc/Kiwi';
 
 const Wrapper = styled.div`margin-top: ${(() => {
     switch ((nw as any).process.platform) {
@@ -46,16 +46,6 @@ animation: slide 3s;
 }
 `;
 
-const Kiwi = styled.img`
-position: fixed;
-width: 70vw;
-height: 70vh;
-right: -10%;
-bottom: -33%;
-mix-blend-mode: overlay;
-opacity: 0.5;
-`;
-
 const VersionText = styled.span`
 position: absolute;
 left: 13px;
@@ -68,7 +58,7 @@ const LoginBackground: React.FC = ({children}) => {
         <Wrapper>
             <Background1/>
             <Background2/>
-            <Kiwi src={kiwi}/>
+            <Kiwi/>
             {children}
             <VersionText><b>Kiwitalk</b> ver 0.0.1</VersionText>
         </Wrapper>
