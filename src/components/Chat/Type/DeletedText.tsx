@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 
-import {Chat} from 'node-kakao/dist';
+import { Chat } from 'node-kakao/dist';
 
 import convertChat from '../Utils/ChatConverter';
 
@@ -16,17 +16,23 @@ const NoticeText = styled.div`
     padding: 4px;
 `;
 
-const BlurredDiv = styled.div`
-    -webkit-filter: blur(10px);
-    filter: blur(10px);
-
-    transition: all 0.25s;
-
-    :hover {
+const blur = (element: any, isBlur: boolean) => {
+    if (isBlur) {
+        element.style = `
+        -webkit-filter: blur(10px);
+        filter: blur(10px);
+    
+        transition: all 0.25s;
+    `
+    } else {
+        element.style = `
         -webkit-filter: blur(0px);
         filter: blur(0px);
+    
+        transition: all 0.25s;
+    `
     }
-`
+}
 
 interface DeletedTextProps {
     chat: Chat
@@ -34,14 +40,37 @@ interface DeletedTextProps {
 }
 
 export const DeletedText: React.FC<DeletedTextProps> = ({ chat, chatList }) => {
-    const content = convertChat(chat, chatList)
-    
+    const content = convertChat(chat, chatList);
+    const target = useRef(null);
+
+    let isBlurred = true;
+    const hoverIn = (event: any) => {
+        blur(target.current, false);
+    }
+
+    const hoverOut = (event: any) => {
+        blur(target.current, isBlurred);
+    }
+
+    const click = (event: any) => {
+        isBlurred = !isBlurred;
+
+        blur(target.current, isBlurred);
+    }
+
     return (
         <Wrapper>
             <NoticeText><b>삭제된 메시지 입니다.</b></NoticeText>
-            <BlurredDiv>
+            <div ref={target}
+                style={{
+                    filter: 'blur(10px)',
+                    transition: 'all 0.25s'
+                }}
+                onClick={click}
+                onMouseOver={hoverIn}
+                onMouseOut={hoverOut}>
                 {content}
-            </BlurredDiv>
+            </div>
         </Wrapper>
     );
 };
