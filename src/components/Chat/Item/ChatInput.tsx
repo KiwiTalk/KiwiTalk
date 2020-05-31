@@ -44,7 +44,7 @@ width: 24px;
 height: 24px;
 position: absolute;
 top: 20px;
-right: 38px;
+right: 34px;
 `
 
 export interface ChatInputProps {
@@ -60,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({onChange, onSubmit, value}) => {
                 <IconButton background={IconAttachment} style={{
                     width: '24px',
                     height: '24px',
-                    marginLeft: '9px',
+                    marginLeft: '14px',
                     marginRight: '6px',
                     marginTop: '8px',
                     flexShrink: 0
