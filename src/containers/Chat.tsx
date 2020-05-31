@@ -109,6 +109,7 @@ const Chat = () => {
                         .then((template: any) => {
                             channel.sendTemplate(template)
                                 .then(result => {
+                                    if (!(result instanceof ChatObject)) throw new Error();
                                     setInputText('');
 
                                     messageHook(result);
@@ -123,6 +124,7 @@ const Chat = () => {
                         .then((template: any) => {
                             channel.sendTemplate(template)
                                 .then(result => {
+                                    if (!(result instanceof ChatObject)) throw new Error();
                                     setInputText('');
 
                                     messageHook(result);
@@ -137,6 +139,7 @@ const Chat = () => {
                         .then((template: any) => {
                             channel.sendTemplate(template)
                                 .then(result => {
+                                    if (!(result instanceof ChatObject)) throw new Error();
                                     setInputText('');
 
                                     messageHook(result);
@@ -150,6 +153,7 @@ const Chat = () => {
         } else {
             channel.sendText(inputText)
                 .then(result => {
+                    if (!(result instanceof ChatObject)) throw new Error();
                     setInputText('');
 
                     messageHook(result);
