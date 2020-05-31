@@ -13,7 +13,8 @@
   ],
   "main": "public/entry.js",
   "window": {
-    "toolbar": false
+    "toolbar": false,
+    "icon": "./public/img/android-chrome-512x512.png"
   },
   "homepage": "./",
   "scripts": {
