@@ -17,9 +17,10 @@ export function toLeave(feed: any, chat: Chat) {
     return <Leave member={feed.member.nickName}></Leave>
 }
 
-export function convertFeed (chat: Chat, chatList: Chat[]) {
-    const feed = chat.getFeed()
-    switch(feed.feedType) {
+export function convertFeed (chat: Chat, chatList: Chat[], options = { feed: null }) {
+    let feed = options.feed == null ? chat.getFeed() : options.feed;
+
+    switch(feed?.feedType) {
         case FeedType.DELETE_TO_ALL:
             return undefined;
         case FeedType.INVITE: case FeedType.OPENLINK_JOIN:

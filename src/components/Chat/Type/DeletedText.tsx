@@ -5,8 +5,6 @@ import {Chat} from 'node-kakao/dist';
 
 import convertChat from '../Utils/ChatConverter';
 
-const ReactSpoiler = require('react-spoiler');
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,6 +16,18 @@ const NoticeText = styled.div`
     padding: 4px;
 `;
 
+const BlurredDiv = styled.div`
+    -webkit-filter: blur(10px);
+    filter: blur(10px);
+
+    transition: all 0.25s;
+
+    :hover {
+        -webkit-filter: blur(0px);
+        filter: blur(0px);
+    }
+`
+
 interface DeletedTextProps {
     chat: Chat
     chatList: Chat[]
@@ -25,13 +35,13 @@ interface DeletedTextProps {
 
 export const DeletedText: React.FC<DeletedTextProps> = ({ chat, chatList }) => {
     const content = convertChat(chat, chatList)
-
+    
     return (
         <Wrapper>
             <NoticeText><b>삭제된 메시지 입니다.</b></NoticeText>
-            <ReactSpoiler blur={10} hoverBlur={8}>
+            <BlurredDiv>
                 {content}
-            </ReactSpoiler>
+            </BlurredDiv>
         </Wrapper>
     );
 };

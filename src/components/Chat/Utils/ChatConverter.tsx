@@ -6,7 +6,8 @@ import {
     PhotoAttachment,
     ReplyAttachment,
     ReplyChat as ReplyChatObject,
-    VideoAttachment
+    VideoAttachment,
+    FeedType
 } from "node-kakao";
 
 import Photo, { PhotoChatProps } from '../Type/Photo';
@@ -139,6 +140,14 @@ export function convertChat (chat: Chat, chatList: Chat[]) {
         case ChatType.Reply:
             return toReply(chat, chatList);
         case ChatType.Unknown:
+            try {
+                const content = JSON.parse(chat.Text);
+                console.log(content)
+                if (content.feedType !== FeedType.UNDEFINED) {
+                    return convertFeed(chat, chatList, { feed: content });
+                }
+            } catch (err) { console.log(chat.Text, err) }
+
             return <span>{chat.Text}</span>
         case ChatType.Map:
         default:
