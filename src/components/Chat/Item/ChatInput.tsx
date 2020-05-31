@@ -11,7 +11,7 @@ import IconButton from '../../Etc/IconButton';
 
 const Form = styled.form`
 width: 100%;
-height: 89px;
+height: 64px;
 background: ${ThemeColor.GREY_900};
 position: absolute;
 display: flex;
@@ -24,7 +24,7 @@ display: flex;
 flex: 1;
 background: ${ThemeColor.GREY_800};
 border-radius: 9999px;
-margin: 20px;
+margin: 12px;
 `
 
 const Input = styled.input`
@@ -43,7 +43,7 @@ const SendButton = styled(IconButton)`
 width: 24px;
 height: 24px;
 position: absolute;
-top: 33.5px;
+top: 20px;
 right: 38px;
 `
 
@@ -60,12 +60,16 @@ const ChatInput: React.FC<ChatInputProps> = ({onChange, onSubmit, value}) => {
                 <IconButton background={IconAttachment} style={{
                     width: '24px',
                     height: '24px',
-                    marginLeft: '18px',
-                    marginRight: '12px',
-                    marginTop: '13.5px',
+                    marginLeft: '9px',
+                    marginRight: '6px',
+                    marginTop: '8px',
                     flexShrink: 0
                 }}/>
-                <IconButton background={IconEmoji} style={{width: '24px', height: '24px', marginTop: '13.5px', flexShrink: 0}}/>
+                <IconButton background={IconEmoji} style={{
+                    width: '24px',
+                    height: '24px',
+                    marginTop: '8px',
+                    flexShrink: 0}}/>
                 <Input onChange={onChange} value={value}/>
                 <SendButton type={'submit'} background={IconSend}/>
             </InputWrapper>

@@ -20,7 +20,7 @@ const Title = styled.span`
   font-size: 24px;
   line-height: 37px;
   color: ${color.GREY_100};
-  padding: 16px 32px;
+  padding: 8px 16px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -34,7 +34,7 @@ const IconButtonWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0px 10px;
-  margin-right: 35px;
+  margin-right: 16px;
   box-sizing: border-box;
 `;
 

@@ -7,7 +7,7 @@ import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`
   width: 309px;
-  height: 69px;
+  height: 53px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -15,18 +15,18 @@ const Wrapper = styled.div`
 `;
 
 const SearchInputWrapper = styled.div`
-  width: 217px;
-  height: 41px;
+  width: 246px;
+  height: 32px;
   position: relative;
   background: ${color.GREY_800};
   border-radius: 5px;
-  margin-left: 24px;
-  margin-right: 24px;
+  margin-left: 12px;
+  margin-right: 12px;
 `;
 
 const SearchInput = styled.input`
   width: 161px;
-  height: 41px;
+  height: 32px;
   padding-left: 16px;
   border: none;
   background: none;
@@ -36,8 +36,8 @@ const Icon = styled.img`
   position: absolute;
   width: 18px;
   height: 18px;
-  left: 182px;
-  top: 11px;
+  left: 211px;
+  top: 8px;
 `
 
 interface SearchProps {
@@ -61,7 +61,7 @@ const Search: React.FC<SearchProps> = ({onChange, onSearch}) => {
                 }}/>
                 <Icon src={IconSearch}/>
             </SearchInputWrapper>
-            <IconButton background={IconNewChat} style={{width: '28px', height: '28px'}}/>
+            <IconButton background={IconNewChat} style={{width: '24px', height: '24px'}}/>
         </Wrapper>
     );
 };

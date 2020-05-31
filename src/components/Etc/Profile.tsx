@@ -9,7 +9,7 @@ import {MoreSettingsStruct} from 'node-kakao/dist';
 
 const Wrapper = styled.div`
   width: 309px;
-  height: 89px;
+  height: 64px;
   display: flex;
   flex-direction: row;
   align-items: center;

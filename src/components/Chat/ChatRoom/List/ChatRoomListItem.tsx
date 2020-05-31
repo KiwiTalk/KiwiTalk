@@ -6,7 +6,7 @@ import color from '../../../../assets/colors/theme';
 const Wrapper = styled.div`
   width: 309px;
   height: 89px;
-  padding: 14px 25px;
+  padding: 14px 16px;
   box-sizing: border-box;
   cursor: pointer;
 `;
