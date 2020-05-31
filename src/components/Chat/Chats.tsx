@@ -97,7 +97,7 @@ class Chats extends React.Component<ChatsProps> {
                 }
             }
 
-            if (content !== undefined) {
+            if (content !== undefined && chat.Type !== ChatType.Feed) {
                 this.bubbles.push(<ChatBubble
                     key={chat.LogId.toString()}
                     hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
@@ -108,8 +108,8 @@ class Chats extends React.Component<ChatsProps> {
                     hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
                     {content}
                 </ChatBubble>);
-            } else {
-                console.log(chat)
+            } else if (content !== undefined && chat.Type === ChatType.Feed) {
+                list.push(content)
             }
 
             this.nextWithAuthor = false;
