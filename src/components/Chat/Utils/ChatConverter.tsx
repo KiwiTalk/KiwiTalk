@@ -9,7 +9,7 @@ import {
     VideoAttachment
 } from "node-kakao";
 
-import Photo, {PhotoChatProps} from '../Type/Photo';
+import Photo, { PhotoChatProps } from '../Type/Photo';
 import MultiPhoto from '../Type/MultiPhoto';
 import SearchChat from '../Type/SearchChat';
 import Reply from '../Type/Reply';
@@ -19,19 +19,21 @@ import LongText from '../Type/LongText';
 import DeletedText from "../Type/DeletedText";
 import styled from "styled-components";
 
+import convertFeed from "./FeedConverter";
+
 const Content = styled.span`
     white-space: pre-line;
 `;
 
-export function toText(chat: Chat) {
+export function toText (chat: Chat) {
     return <Content style={{ whiteSpace: 'pre-line' }}>{chat.Text}</Content>
 }
 
-export function toLongText(chat: Chat) {
+export function toLongText (chat: Chat) {
     return <LongText chat={chat}></LongText>
 }
 
-export function toPhoto(chat: Chat, options = {ratio: -1, limit: [300, 500]}) {
+export function toPhoto (chat: Chat, options = { ratio: -1, limit: [300, 500] }) {
     const list = chat.AttachmentList.map((attachment: any) => {
         attachment = attachment as PhotoAttachment;
 
@@ -59,7 +61,7 @@ export function toPhotos (chat: Chat) {
         } as PhotoChatProps
     })
 
-    return <MultiPhoto datas={datas}/>
+    return <MultiPhoto datas={datas} />
 }
 
 export function toVideo (chat: Chat) {
@@ -70,13 +72,13 @@ export function toVideo (chat: Chat) {
             url={attachment.VideoURL}
             width={attachment.Width}
             height={attachment.Height}
-            duration={attachment.Duration}/>
+            duration={attachment.Duration} />
     })
 
     return <div>{list}</div>
 }
 
-export function toSearch(chat: Chat) {
+export function toSearch (chat: Chat) {
     const list = chat.AttachmentList.map((attachment: any) => {
         const { Question, ContentType, ContentList } = attachment;
 
@@ -86,11 +88,10 @@ export function toSearch(chat: Chat) {
     return <div>{list}</div>
 }
 
-export function toReply(chat: Chat, chatList: Chat[]) {
+export function toReply (chat: Chat, chatList: Chat[]) {
     let prevChat = null;
     const attachments = (chat as ReplyChatObject).AttachmentList as ReplyAttachment[]
     const prevId = attachments[0].SourceLogId.toString()
-    console.log(chat as ReplyChatObject)
 
     for (const c of chatList) {
         if (c.LogId.toString() === prevId.toString()) {
@@ -106,7 +107,7 @@ export function toReply(chat: Chat, chatList: Chat[]) {
     }
 }
 
-export function toMap(chat: Chat) {
+export function toMap (chat: Chat) {
     const list = chat.AttachmentList.map((attachment: any) => {
         const { Name, Lat, Lng } = attachment
 
@@ -116,12 +117,14 @@ export function toMap(chat: Chat) {
     return <div>{list}</div>
 }
 
-export function toDeletedText(chat: Chat, chatList: Chat[]) {
+export function toDeletedText (chat: Chat, chatList: Chat[]) {
     return <DeletedText chat={chat} chatList={chatList}></DeletedText>
 }
 
-export function convertContent (chat: Chat, chatList: Chat[]) {
+export function convertChat (chat: Chat, chatList: Chat[]) {
     switch (chat.Type) {
+        case ChatType.Feed:
+            return convertFeed(chat, chatList);
         case ChatType.Text:
             if (chat.Text.length > 500) return toLongText(chat);
             else return toText(chat);
@@ -146,4 +149,4 @@ export function convertContent (chat: Chat, chatList: Chat[]) {
     }
 }
 
-export default convertContent;
+export default convertChat;

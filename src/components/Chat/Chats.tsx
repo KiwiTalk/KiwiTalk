@@ -1,4 +1,4 @@
-import React, {createRef} from 'react';
+import React, { createRef } from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
@@ -6,7 +6,7 @@ import ThemeColor from '../../assets/colors/theme';
 import ChatItem from './Item/ChatItem';
 import ChatBubble from './Item/ChatBubble';
 
-import {Chat, ChatChannel, ChatType, FeedType} from 'node-kakao/dist';
+import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao/dist';
 
 import convertChat, { toDeletedText } from './Utils/ChatConverter';
 
@@ -51,65 +51,86 @@ class Chats extends React.Component<ChatsProps> {
 
     private refScrollEnd = createRef() as any;
 
-    shouldComponentUpdate(nextProps: ChatsProps, nextState: any) {
+    shouldComponentUpdate (nextProps: ChatsProps, nextState: any) {
         return this.props.chatList.length !== nextProps.chatList.length
             && this.props.channel.Id.toString() === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.toString();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
         this.refScrollEnd.current.scrollIntoView({
             behavior: 'smooth'
         })
     }
 
-    render() {
+    render () {
+        let feedMap = new Map();
+
+        this.props.chatList.filter(e => e.Type === ChatType.Feed).forEach((chat) => {
+            const feed = chat.getFeed()
+
+            feedMap.set(feed.logId?.toString(), JSON.parse(chat.Text))
+        })
+
+        const list = [];
+        const arr = this.props.chatList;
+        let index = 0;
+        for (let chat of this.props.chatList) {
+            const isMine = (chat.Sender === undefined) || chat.Sender.isClientUser();
+            let willSenderChange = arr.length - 1 === index; // 맨 마지막 index면 당연히 바뀜
+
+            if (isMine) willSenderChange = willSenderChange || (arr[index + 1].Sender !== undefined && !arr[index + 1].Sender.isClientUser());
+            else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
+
+            const sendDate = new Date(chat.SendTime * 1000);
+            let content: JSX.Element | undefined;
+            
+            const extraFeed = feedMap.get(chat.LogId.toString())
+            if (!extraFeed) {
+                content = convertChat(chat, this.props.chatList);
+            } else {
+                switch(extraFeed.feedType) {
+                    case FeedType.DELETE_TO_ALL:
+                        content = toDeletedText(chat, this.props.chatList)
+                    break;
+                    default:
+                        content = convertChat(chat, this.props.chatList);
+                }
+            }
+
+            if (content !== undefined) {
+                this.bubbles.push(<ChatBubble
+                    key={chat.LogId.toString()}
+                    hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
+                    unread={1}
+                    author={this.nextWithAuthor ? chat.Sender?.Nickname : ''}
+                    isMine={isMine}
+                    time={sendDate}
+                    hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
+                    {content}
+                </ChatBubble>);
+            } else {
+                console.log(chat)
+            }
+
+            this.nextWithAuthor = false;
+
+            if (willSenderChange && this.bubbles.length > 0) {
+                const chatItem = <ChatItem
+                    isMine={isMine}
+                    profileImageSrc={this.props.channel['channelInfo'].getUserInfo(chat.Sender)?.ProfileImageURL}
+                    key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
+                this.bubbles = [];
+                this.nextWithAuthor = true;
+            
+                list.push(chatItem);
+            }
+
+            index ++;
+        }
+
         return (
             <Content>
-                {
-                    this.props.chatList
-                        .map((chat, index, arr) => {
-                            const isMine = (chat.Sender === undefined) || chat.Sender.isClientUser();
-                            let willSenderChange = arr.length - 1 === index; // 맨 마지막 index면 당연히 바뀜
-
-                            if (isMine) willSenderChange = willSenderChange || (arr[index + 1].Sender !== undefined && !arr[index + 1].Sender.isClientUser());
-                            else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
-
-                            const sendDate = new Date(chat.SendTime * 1000);
-                            let content: JSX.Element = convertChat(chat, this.props.chatList);
-
-                            const nextChat = this.props.chatList[index + 1];
-                            if (nextChat?.Type === ChatType.Feed) {
-                                const feed = nextChat.getFeed()
-
-                                if (feed.feedType === FeedType.DELETE_TO_ALL) {
-                                    content = toDeletedText(chat, this.props.chatList)
-                                }
-                            }
-
-                            this.bubbles.push(<ChatBubble
-                                key={chat.LogId.toString()}
-                                hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
-                                unread={1}
-                                author={this.nextWithAuthor ? chat.Sender?.Nickname : ''}
-                                isMine={isMine}
-                                time={sendDate}
-                                hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
-                                {content}
-                            </ChatBubble>);
-
-                            this.nextWithAuthor = false;
-
-                            if (willSenderChange) {
-                                const chatItem = <ChatItem
-                                    isMine={isMine}
-                                    profileImageSrc={this.props.channel['channelInfo'].getUserInfo(chat.Sender)?.ProfileImageURL}
-                                    key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
-                                this.bubbles = [];
-                                this.nextWithAuthor = true;
-                                return chatItem;
-                            }
-                        })
-                }
+                {list}
                 <div ref={this.refScrollEnd} />
             </Content>
         );
