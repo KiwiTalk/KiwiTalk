@@ -63,11 +63,13 @@ const Chat = () => {
                 do {
                     chatLog = await talkClient.ChatManager.getChatListFrom(channel.Id, parseInt(start_id.toString(), 10));
                     update.push(...chatLog);
-
-                    if (chatLog.length > 0) {
-                        start_id = chatLog[chatLog.length - 1].LogId;
-                    }
-                } while (chatLog.length > 0);
+					
+					if (chatLog.length > 0 && start_id.notEquals(chatLog[chatLog.length - 1].LogId)) {
+						start_id = chatLog[chatLog.length - 1].LogId;
+						continue;
+					}
+					break;
+                } while (true);
                 setChatList((prev) => [...prev, ...update]);
             }
             records[index] = true;
