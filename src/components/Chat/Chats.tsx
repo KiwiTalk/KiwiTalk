@@ -9,6 +9,7 @@ import ChatBubble from './Item/ChatBubble';
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao/dist';
 
 import convertChat, { toDeletedText } from './Utils/ChatConverter';
+import ReactDOM from 'react-dom';
 
 const Content = styled.div`
 display: flex;
@@ -45,6 +46,7 @@ export interface ChatsProps {
     chatList: Chat[]
 }
 
+let isScroll = true;
 class Chats extends React.Component<ChatsProps> {
     private bubbles: JSX.Element[] = [];
     private nextWithAuthor = true;
@@ -57,9 +59,20 @@ class Chats extends React.Component<ChatsProps> {
     }
 
     componentDidUpdate () {
-        this.refScrollEnd.current.scrollIntoView({
-            behavior: 'smooth'
-        })
+        isScroll = this.props.chatList[this.props.chatList.length - 1].Sender.isClientUser() ? true : isScroll
+
+        if (isScroll) {
+            this.refScrollEnd.current.scrollIntoView({
+                behavior: 'smooth'
+            })
+        }
+    }
+
+    handleScroll (event: any) {
+        const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638)
+
+        if (num > 600) isScroll = false
+        else isScroll = true
     }
 
     render () {
@@ -83,15 +96,15 @@ class Chats extends React.Component<ChatsProps> {
 
             const sendDate = new Date(chat.SendTime * 1000);
             let content: JSX.Element | undefined;
-            
+
             const extraFeed = feedMap.get(chat.LogId.toString())
             if (!extraFeed) {
                 content = convertChat(chat, this.props.chatList);
             } else {
-                switch(extraFeed.feedType) {
+                switch (extraFeed.feedType) {
                     case FeedType.DELETE_TO_ALL:
                         content = toDeletedText(chat, this.props.chatList)
-                    break;
+                        break;
                     default:
                         content = convertChat(chat, this.props.chatList);
                 }
@@ -121,15 +134,16 @@ class Chats extends React.Component<ChatsProps> {
                     key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
                 this.bubbles = [];
                 this.nextWithAuthor = true;
-            
+
                 list.push(chatItem);
             }
 
-            index ++;
+            index++;
         }
 
+
         return (
-            <Content>
+            <Content onScroll={this.handleScroll}>
                 {list}
                 <div ref={this.refScrollEnd} />
             </Content>
