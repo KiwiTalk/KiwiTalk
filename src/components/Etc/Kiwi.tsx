@@ -10,6 +10,8 @@ right: -10%;
 bottom: -33%;
 mix-blend-mode: overlay;
 opacity: 0.5;
+user-select: none;
+-webkit-user-drag: none;
 `;
 
 export default () => {

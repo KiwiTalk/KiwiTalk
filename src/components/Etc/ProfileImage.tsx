@@ -17,6 +17,7 @@ const Image = styled.img`
   top: 0;
   left: 0;
   width: 100%;
+  -webkit-user-drag: none;
 `;
 
 export enum ProfileImageBackgroundColor {

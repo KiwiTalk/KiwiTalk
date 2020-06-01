@@ -38,6 +38,7 @@ const Icon = styled.img`
   height: 18px;
   left: 211px;
   top: 8px;
+  -webkit-user-drag: none;
 `
 
 interface SearchProps {

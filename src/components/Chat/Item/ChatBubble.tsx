@@ -7,6 +7,7 @@ import color from '../../../assets/colors/theme';
 const BubbleTail = styled.img`
   margin-bottom: 5px;
   width: 16px;
+  -webkit-user-drag: none;
 `;
 
 const FakeTail = styled.div`

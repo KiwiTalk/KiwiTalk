@@ -49,6 +49,10 @@ const CloseButton = styled(Button)`
   }
 `;
 
+const Image = styled.img`
+  -webkit-user-drag: none;
+`;
+
 const MenuBar = () => {
     const [isMaximum, setMaximum] = useState(false);
 
@@ -60,18 +64,18 @@ const MenuBar = () => {
         <Wrapper className={'menu-bar'}>
             <div>
                 <Button>
-                    <img src={iconLogo}/>
+                    <Image src={iconLogo}/>
                 </Button>
             </div>
             <div>
                 <Button onClick={() => win.minimize()}>
-                    <img src={iconMinimize}/>
+                    <Image src={iconMinimize}/>
                 </Button>
                 <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
-                    <img src={iconMaximize}/>
+                    <Image src={iconMaximize}/>
                 </Button>
                 <CloseButton onClick={() => win.close()}>
-                    <img src={iconClose}/>
+                    <Image src={iconClose}/>
                 </CloseButton>
             </div>
         </Wrapper>

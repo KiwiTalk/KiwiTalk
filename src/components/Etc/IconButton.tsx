@@ -20,6 +20,7 @@ const Icon = styled.img`
   top: 0;
   left: 0;
   width: 100%;
+  -webkit-user-drag: none;
 `;
 
 interface ChatroomHeaderProps extends ButtonHTMLAttributes<HTMLButtonElement> {

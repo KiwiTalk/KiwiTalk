@@ -9,6 +9,7 @@ const TitleWrapper = styled.div`
 `;
 
 const Logo = styled.img`
+  -webkit-user-drag: none;
 `;
 
 const LoginTitle = () => {

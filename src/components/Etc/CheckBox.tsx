@@ -26,6 +26,7 @@ const CheckBoxChecked = styled.img`
     width: 18px;
     height: 18px;
     margin-right: 6px;
+    -webkit-user-drag: none;
 `;
 
 const CheckBoxLabel = styled.span`

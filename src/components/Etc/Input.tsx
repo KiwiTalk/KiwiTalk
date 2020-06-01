@@ -35,6 +35,7 @@ box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
 const Icon = styled.img`
   width: 20px;
   height: 20px;
+  -webkit-user-drag: none;
 `
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
