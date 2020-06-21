@@ -33,18 +33,14 @@ errorReason[500] = "Internal Error";
 const Login = () => {
     const [redirect, setRedirect] = useState('');
 
-    const onSubmit = async (email: string, password: string, saveEmail: boolean, autoLogin: boolean, force: boolean = false) => {
+    const login = async (email: string, password: string, saveEmail: boolean, autoLogin: boolean, force: boolean = false) => {
         if (saveEmail) {
-            // @ts-ignore
-            await nw.global.setEmail(email);
+            await (nw as any).global.setEmail(email);
         } else {
-            // @ts-ignore
-            await nw.global.setEmail('');
+            await (nw as any).global.setEmail('');
         }
-        // @ts-ignore
-        await nw.global.setAutoLogin(autoLogin);
-        // @ts-ignore
-        const uuid = await nw.global.getUUID();
+        await (nw as any).global.setAutoLogin(autoLogin);
+        const uuid = await (nw as any).global.getUUID();
         talkClient.login(email, password, uuid, force).then(() => {
             if (autoLogin) {
                 // @ts-ignore
@@ -59,16 +55,19 @@ const Login = () => {
         }).catch((reason: LoginError) => {
             switch (reason.status) {
                 case -100: // 인증이 필요
-                    // @ts-ignore
-                    nw.global.email = email;
-                    // @ts-ignore
-                    nw.global.password = password;
+                    (nw as any).global.loginData = {
+                        email: email,
+                        password: password,
+                        saveEmail: saveEmail,
+                        autoLogin: autoLogin,
+                        force: force
+                    };
                     setRedirect('verify');
                     break;
                 case -101:
                     let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
                     if (result) {
-                        onSubmit(email, password, saveEmail, autoLogin, true);
+                        login(email, password, saveEmail, autoLogin, true);
                     }
                     break;
                 case 12:
@@ -91,6 +90,10 @@ const Login = () => {
             }
         });
     };
+
+    (nw as any).global.login = login
+
+    const onSubmit = login
 
     useEffect(() => {
         (async () => {

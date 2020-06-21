@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import VerifyCode from "../components/VerifyCode/VerifyCode";
 import styled from 'styled-components';
 import {Redirect} from 'react-router-dom';
-import {ClientChatUser, KakaoAPI, TalkClient} from 'node-kakao/dist';
+import {KakaoAPI, TalkClient} from 'node-kakao/dist';
 import * as os from 'os';
 
 const Wrapper = styled.div`
@@ -34,29 +34,33 @@ const talkClient: TalkClient = (nw as any).global.talkClient;
 const Verify = () => {
     const [redirect, setRedirect] = useState('');
     const onSubmit = (passcode: string) => {
-        talkClient.once('login', (user: ClientChatUser) => {
-            alert('로그인 성공');
-            setRedirect('chat');
-        });
         (nw as any).global.getUUID()
             .then((uuid: string) => {
-                KakaoAPI.registerDevice(passcode, (nw as any).global.email, (nw as any).global.password, uuid, os.hostname(), true)
-                    .then(() => {
-                        alert('인증 성공');
-                        talkClient.emit('login');
-                    })
-                    .catch((reason: any) => {
-                        switch (reason) {
+                const loginData = (nw as any).global.loginData;
+                const email = loginData.email;
+                const password = loginData.password;
+                KakaoAPI.registerDevice(passcode, email, password, uuid, os.hostname(), true)
+                    .then((result: string) => {
+                        const parsedResult = JSON.parse(result)
+
+                        switch (parsedResult.status) {
+                            case 0:
+                                alert('인증 성공');
+                                (nw as any).global.login(email, password, loginData.saveEmail, loginData.autoLogin, loginData.force);
+                                break;
                             case -112: // 입력불가
-                                alert('인증 불가. 24시간 후에 재시도하십시오.');
+                                alert(parsedResult.message);
                                 break;
                             case -111: // 틀림
-                                alert(`인증번호가 틀렸습니다.`);
+                                alert(`인증 번호가 틀렸습니다.`);
                                 break;
                             default:
-                                alert(`알 수 없는 에러가 발생했습니다. 에러: ${reason}`);
+                                alert(`알 수 없는 에러가 발생했습니다. 에러: ${result}`);
                                 break;
                         }
+                    })
+                    .catch((reason: any) => {
+                        alert(`알 수 없는 에러가 발생했습니다. 에러: ${reason}`);
                     });
             });
     };

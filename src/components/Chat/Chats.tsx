@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React, {createRef} from 'react';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
@@ -6,10 +6,9 @@ import ThemeColor from '../../assets/colors/theme';
 import ChatItem from './Item/ChatItem';
 import ChatBubble from './Item/ChatBubble';
 
-import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType, FeedType} from 'node-kakao/dist';
 
-import convertChat, { toDeletedText } from './Utils/ChatConverter';
-import ReactDOM from 'react-dom';
+import convertChat, {toDeletedText} from './Utils/ChatConverter';
 
 const Content = styled.div`
 display: flex;
@@ -71,8 +70,7 @@ class Chats extends React.Component<ChatsProps> {
     handleScroll (event: any) {
         const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638)
 
-        if (num > 600) isScroll = false
-        else isScroll = true
+        isScroll = num <= 600;
     }
 
     render () {
