@@ -1,6 +1,6 @@
 # _KiwiTalk_ [![CodeFactor](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk/badge?s=c3981bac3a87fe9d0f0c5fdb854efd203b389649)](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk)
 
-**카카오톡 재구현 프로젝트 (With React / nw.js)**
+**카카오톡 재구현 프로젝트 (React & nw.js)**
 
 ## 백엔드
 
