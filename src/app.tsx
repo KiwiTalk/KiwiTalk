@@ -20,8 +20,8 @@ export const App = () => {
         <div className="App">
             {menubar}
             <HashRouter>
-                <Route path={'/'} render={() => <Redirect to={'/login'}/>} exact/>
-                <Route path={'/login'} component={Login} exact/>
+                <Route path={'/'} render={() => <Redirect to={'/index'}/>} exact/>
+                <Route path={'/index'} component={Login} exact/>
                 <Route path={'/verify'} component={VerifyCode} exact/>
                 <Route path={'/chat'} component={Chat} exact/>
             </HashRouter>

@@ -82,7 +82,7 @@ const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({ onSubmi
                            setPasscode(event.target.value);
                        }}/>
                 <Button>인증하기</Button>
-                <PreviousLink to='/login'>처음으로 돌아가기</PreviousLink>
+                <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
             </Form>
         </Wrapper>
     )

@@ -1,153 +1,24 @@
-import localforage from 'localforage';
-import {v4} from 'uuid';
-import {
-    AttachmentTemplate,
-    ChatType,
-    FileAttachment,
-    LoginTokenStruct,
-    PhotoAttachment,
-    TalkClient,
-    VideoAttachment
-} from 'node-kakao/dist';
 import * as os from 'os';
-import fs from 'fs';
-import path from 'path';
 
-const sizeOf = require('image-size');
+import { TalkClient } from 'node-kakao/dist';
 
-// @ts-ignore
-global.createNewUUID = (): string => {
-    return Buffer.from(v4()).toString('base64');
-}
-// @ts-ignore
-global.getUUID = async (): Promise<string> => {
-    try {
-        const uuid = await localforage.getItem('uuid') as string | null;
-        if (uuid)
-            return uuid;
-        else
-            throw new Error();
-    } catch (e) {
-        // @ts-ignore
-        let uuid = global.createNewUUID();
-        localforage.setItem('uuid', uuid)
-            .catch((error) => {
-                console.log(error);
-            });
-        return uuid;
-    }
-}
+import loginModules from './login';
+import utilModules from './utils';
+import chatModules from './chat';
 
-// @ts-ignore
-global.getEmail = async (): Promise<string> => {
-    try {
-        const email = await localforage.getItem('email') as string | null;
-        if (email)
-            return email;
-        else
-            return ''
-    } catch (e) {
-        return ''
-    }
-}
+const globalAny = global as any;
 
-// @ts-ignore
-global.setEmail = async (email: string) => {
-    await localforage.setItem('email', email)
-    .catch((error) => {
-        console.log(error);
-    });
-}
+(async () => {
+    const uuid = await utilModules.getUUID();
 
-// @ts-ignore
-global.isAutoLogin = async (): Promise<boolean> => {
-    try {
-        const autoLogin = await localforage.getItem('autoLogin') as boolean | null;
-        if (autoLogin)
-            return autoLogin;
-        else
-            return false
-    } catch (e) {
-        return false
-    }
-}
+    globalAny.talkClient = new TalkClient(os.hostname(), uuid);
 
-// @ts-ignore
-global.setAutoLogin = async (autoLogin: boolean) => {
-    await localforage.setItem('autoLogin', autoLogin)
-    .catch((error) => {
-        console.log(error);
-    });
-}
+    console.log('load uuid', uuid)
+})();
 
-// @ts-ignore
-global.setAutoLoginEmail = async (autoLoginEmail: string) => {
-    await localforage.setItem('autoLoginEmail', autoLoginEmail)
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-// @ts-ignore
-global.getAutoLoginEmail = async (): Promise<string> => {
-    try {
-        const autoLoginEmail = await localforage.getItem('autoLoginEmail') as string | null;
-        if (autoLoginEmail)
-            return autoLoginEmail;
-        else
-            return ''
-    } catch (e) {
-        return ''
-    }
-}
-
-// @ts-ignore
-global.setAutoLoginToken = async (autoLoginToken: LoginTokenStruct) => {
-    await localforage.setItem('autoLoginToken', autoLoginToken)
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-// @ts-ignore
-global.getAutoLoginToken = async (): Promise<LoginTokenStruct | null> => {
-    try {
-        const autoLoginToken = await localforage.getItem('autoLoginToken') as LoginTokenStruct | null;
-        if (autoLoginToken)
-            return autoLoginToken;
-        else
-            return null
-    } catch (e) {
-        return null
-    }
-}
-
-// @ts-ignore
-global.talkClient = new TalkClient(os.hostname());
-
-// @ts-ignore
-global.makeTemplate = async (type, _path) => {
-    const file = fs.readFileSync(_path);
-    const name = path.basename(_path);
-
-    switch (type) {
-        case ChatType.Photo:
-            const { width, height } = sizeOf(_path);
-            const photo = await PhotoAttachment.fromBuffer(file, name, width, height);
-
-            return new AttachmentTemplate(photo, 'KiwiTalk 사진');
-        case ChatType.Video:
-            // @ts-ignore
-            const video = await VideoAttachment.fromBuffer(file, name, 1280, 720, 30); // width height duration
-
-            return new AttachmentTemplate(video, 'KiwiTalk 동영상');
-        case ChatType.File:
-            // @ts-ignore
-            const fileAttachment = await FileAttachment.fromBuffer(file, name, 1280, 720);
-
-            return new AttachmentTemplate(fileAttachment, 'KiwiTalk 파일');
-    }
-}
+globalAny.login = loginModules;
+globalAny.util = utilModules;
+globalAny.chat = chatModules;
 
 let setting: NWJS_Helpers.WindowOpenOption = {
     frame: true,
@@ -158,9 +29,7 @@ let setting: NWJS_Helpers.WindowOpenOption = {
 };
 
 switch (os.platform()) {
-    case 'win32':
-    case 'darwin':
-    case 'cygwin':
+    case 'win32': case 'darwin': case 'cygwin':
         setting.frame = false;
         break;
 }
