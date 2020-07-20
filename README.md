@@ -1,6 +1,6 @@
 # _KiwiTalk_ [![CodeFactor](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk/badge?s=c3981bac3a87fe9d0f0c5fdb854efd203b389649)](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk)
 
-<img src="https://i.imgur.com/rRnYqx3.png"/>
+<img src="https://user-images.githubusercontent.com/39073901/87921235-3f69a180-cab5-11ea-9122-eaa5fd912ac4.gif"/>
 
 **카카오톡 재구현 프로젝트 (React & nw.js)**
 
