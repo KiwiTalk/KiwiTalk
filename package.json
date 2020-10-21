@@ -46,7 +46,7 @@
     "image-size": "^0.9.1",
     "localforage": "^1.7.3",
     "nwjs": "^1.4.4",
-    "react": "^16.13.1",
+    "react": "^17.0.0",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.3",
