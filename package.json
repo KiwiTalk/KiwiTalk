@@ -68,7 +68,7 @@
     "@types/nw.gui": "^0.0.20",
     "@types/nw.js": "^0.13.9",
     "@types/react": "^17.0.0",
-    "@types/react-dom": "^16.9.0",
+    "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.5",
     "@types/request-promise": "^4.1.46",
     "@types/styled-components": "^5.1.0",
