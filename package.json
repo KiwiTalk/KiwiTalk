@@ -49,7 +49,7 @@
     "react": "^17.0.0",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "4.0.0",
+    "react-scripts": "4.0.1",
     "react-spoiler": "^0.4.3",
     "request-promise": "^4.2.5",
     "styled-components": "^5.1.0",
