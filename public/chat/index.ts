@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import {AttachmentTemplate, ChatChannel, ChatType, FileAttachment, PhotoAttachment, VideoAttachment} from 'node-kakao';
+import {AttachmentTemplate, ChatType, FileAttachment, PhotoAttachment, TalkClient, VideoAttachment} from 'node-kakao';
 import {RequestResult} from "node-kakao/dist/talk/request/request-result";
 
 const sizeOf = require('image-size');
@@ -28,7 +28,7 @@ export async function makeTemplate(type: any, _path: string): Promise<Attachment
 }
 
 export async function chatOn(i: number): Promise<RequestResult<boolean>> {
-    return await (global as any).talkClient.ChatManager.getChannelList()[i].chatON();
+    return await ((global as any).talkClient as TalkClient).ChannelManager.getChannelList()[i].chatON();
 }
 
 export default {
