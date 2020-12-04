@@ -6,9 +6,9 @@ import * as serviceWorker from './service-worker';
 
 ReactDOM.render(
     <React.StrictMode>
-        <App/>
+      <App/>
     </React.StrictMode>,
-    document.getElementById('root')
+    document.getElementById('root'),
 );
 
 serviceWorker.unregister();

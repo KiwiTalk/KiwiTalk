@@ -19,15 +19,15 @@ const Wrapper = styled.div`
   font-weight: 500;
   font-size: 16px;
   line-height: 25px;
-`
+`;
 
 const EmptyChatRoom = () => {
   return (
     <Wrapper>
       <Kiwi/>
-        <p><b>채팅방을 선택하세요</b></p>
+      <p><b>채팅방을 선택하세요</b></p>
     </Wrapper>
-  )
+  );
 };
 
 export default EmptyChatRoom;

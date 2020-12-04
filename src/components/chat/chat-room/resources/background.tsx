@@ -13,12 +13,12 @@ const Wrapper = styled.div`
 `;
 
 const Background: React.FC = ({children}) => {
-    return (
-        <Wrapper>
-            <Kiwi/>
-            {children}
-        </Wrapper>
-    )
+  return (
+    <Wrapper>
+      <Kiwi/>
+      {children}
+    </Wrapper>
+  );
 };
 
 export default Background;

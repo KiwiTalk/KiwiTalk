@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import bubbleTail from '../../../assets/images/bubble_tail.svg'
-import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg'
+import bubbleTail from '../../../assets/images/bubble_tail.svg';
+import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
 import color from '../../../assets/colors/theme';
 
 const BubbleTail = styled.img`
@@ -23,7 +23,11 @@ const Wrapper = styled.div((props: { isMine: boolean }) => `
   justify-content: 'flex-start';
 `);
 
-const Content = styled.div((props: { isMine: boolean, hasPadding: boolean, hasAuthor: boolean }) => `
+const Content = styled.div((props: {
+    isMine: boolean,
+    hasPadding: boolean,
+    hasAuthor: boolean
+}) => `
   background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
   ${props.hasPadding ? `padding: 8px 8px 8px 8px;` : ''}
   border-radius: 5px;
@@ -54,7 +58,15 @@ const Author = styled.span((props: { hasPadding: boolean }) => `
   font-size: 11px;
   line-height: 17px;
   color: ${color.BLUE_300};
-  padding: ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px ${props.hasPadding ? '0' : '8'}px;
+  padding: ${
+    props.hasPadding ? '0' : '8'
+}px ${
+    props.hasPadding ? '0' : '8'
+}px ${
+    props.hasPadding ? '0' : '8'
+}px ${
+    props.hasPadding ? '0' : '8'
+}px;
 `);
 
 const HeadWrapper = styled.div`
@@ -93,29 +105,44 @@ export interface BubbleProps {
 }
 
 const convertTime = (time: Date, use24format = true) => {
-    const hour = time.getHours();
-    const minute = time.getMinutes();
+  const hour = time.getHours();
+  const minute = time.getMinutes();
 
-    let hourStr = use24format ? hour.toString() : hour < 12 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour === 12 ? hour : hour - 12}`;
+  const hourStr = use24format ? hour.toString() : hour < 12 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour === 12 ? hour : hour - 12}`;
 
-    return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`
-}
+  return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`;
+};
 
-const ChatBubble: React.FC<BubbleProps> = ({hasTail, author, time, unread, isMine, children, hasPadding}) => {
-    const hasAuthor = !!(!isMine && author)
-    return (
-        <Wrapper isMine={isMine}>
-            {hasTail ? <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> : <FakeTail/>}
-            <Content isMine={isMine} hasAuthor={hasAuthor} hasPadding={hasPadding}>
-                {hasAuthor ? <Author hasPadding={hasPadding}>{author}</Author> : hasPadding}
-                {children}
-            </Content>
-            <HeadWrapper>
-                <Unread isMine={isMine}>{unread}</Unread>
-                <Date>{convertTime(time, false)}</Date>
-            </HeadWrapper>
-        </Wrapper>
-    );
+const ChatBubble: React.FC<BubbleProps> = ({
+  hasTail,
+  author,
+  time, unread,
+  isMine,
+  children,
+  hasPadding,
+}) => {
+  const hasAuthor = !!(!isMine && author);
+  return (
+    <Wrapper isMine={isMine}>
+      {
+          hasTail ?
+              <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> :
+              <FakeTail/>
+      }
+      <Content isMine={isMine} hasAuthor={hasAuthor} hasPadding={hasPadding}>
+        {
+            hasAuthor ?
+                <Author hasPadding={hasPadding}>{author}</Author> :
+                hasPadding
+        }
+        {children}
+      </Content>
+      <HeadWrapper>
+        <Unread isMine={isMine}>{unread}</Unread>
+        <Date>{convertTime(time, false)}</Date>
+      </HeadWrapper>
+    </Wrapper>
+  );
 };
 
 export default ChatBubble;

@@ -74,8 +74,12 @@
     "@types/request-promise": "^4.1.46",
     "@types/styled-components": "^5.1.0",
     "@types/uuid": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
+    "eslint": "^7.14.0",
+    "eslint-config-google": "^0.14.0",
     "nw": "^0.50.0",
     "nw-builder": "^3.5.7",
     "wait-on": "^5.0.0"

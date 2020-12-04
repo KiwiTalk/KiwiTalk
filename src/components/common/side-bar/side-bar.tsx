@@ -18,7 +18,9 @@ const Wrapper = styled.div`
 `;
 
 export enum SideBarChangeType {
+    // eslint-disable-next-line no-unused-vars
     PROFILES = 0,
+    // eslint-disable-next-line no-unused-vars
     CHATS = 1
 }
 
@@ -27,22 +29,41 @@ interface SideBarProps {
 }
 
 const SideBar: React.FC<SideBarProps> = ({onChange}) => {
-    const [type, setType] = useState<SideBarChangeType>(0);
-    return (
-        <Wrapper>
-            <IconButton onClick={() => {
-                setType(SideBarChangeType.PROFILES);
-                console.log('profile click')
-                onChange && onChange(SideBarChangeType.PROFILES);
-            }} background={type === SideBarChangeType.PROFILES ? IconProfiles : IconProfilesDisabled}
-                        style={{width: '32px', height: '32px', marginBottom: '32px'}}/>
-            <IconButton onClick={() => {
-                setType(SideBarChangeType.CHATS);
-                onChange && onChange(SideBarChangeType.CHATS);
-            }} background={type === SideBarChangeType.CHATS ? IconChats : IconChatsDisabled}
-                        style={{width: '32px', height: '32px'}}/>
-        </Wrapper>
-    );
+  const [type, setType] = useState<SideBarChangeType>(0);
+  return (
+    <Wrapper>
+      <IconButton onClick={
+        () => {
+          setType(SideBarChangeType.PROFILES);
+          console.log('profile click');
+          onChange && onChange(SideBarChangeType.PROFILES);
+        }
+      } background={
+          type === SideBarChangeType.PROFILES ? IconProfiles : IconProfilesDisabled
+      }
+      style={
+        {
+          width: '32px',
+          height: '32px',
+          marginBottom: '32px',
+        }
+      }/>
+      <IconButton onClick={
+        () => {
+          setType(SideBarChangeType.CHATS);
+          onChange && onChange(SideBarChangeType.CHATS);
+        }
+      } background={
+          type === SideBarChangeType.CHATS ? IconChats : IconChatsDisabled
+      }
+      style={
+        {
+          width: '32px',
+          height: '32px',
+        }
+      }/>
+    </Wrapper>
+  );
 };
 
 export default SideBar;

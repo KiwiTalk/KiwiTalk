@@ -30,7 +30,7 @@ const SearchInput = styled.input`
   padding-left: 16px;
   border: none;
   background: none;
-`
+`;
 
 const Icon = styled.img`
   position: absolute;
@@ -39,7 +39,7 @@ const Icon = styled.img`
   left: 211px;
   top: 8px;
   -webkit-user-drag: none;
-`
+`;
 
 interface SearchProps {
     onChange?: (text: string) => any
@@ -47,24 +47,31 @@ interface SearchProps {
 }
 
 const Search: React.FC<SearchProps> = ({onChange, onSearch}) => {
-    const [search, setSearch] = useState('');
-    return (
-        <Wrapper>
-            <SearchInputWrapper>
-                <SearchInput value={search} onChange={(e) => {
-                    setSearch(e.target.value);
-                    if (onChange) onChange(search);
-                }} onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (onSearch) onSearch(search);
-                    }
-                }}/>
-                <Icon src={IconSearch}/>
-            </SearchInputWrapper>
-            <IconButton background={IconNewChat} style={{width: '24px', height: '24px'}}/>
-        </Wrapper>
-    );
+  const [search, setSearch] = useState('');
+  return (
+    <Wrapper>
+      <SearchInputWrapper>
+        <SearchInput value={search} onChange={(e) => {
+          setSearch(e.target.value);
+          if (onChange) onChange(search);
+        }} onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (onSearch) onSearch(search);
+          }
+        }}/>
+        <Icon src={IconSearch}/>
+      </SearchInputWrapper>
+      <IconButton background={
+        IconNewChat
+      } style={
+        {
+          width: '24px',
+          height: '24px',
+        }
+      }/>
+    </Wrapper>
+  );
 };
 
 export default Search;

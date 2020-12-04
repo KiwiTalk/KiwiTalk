@@ -1,5 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const loginObject = require('../public/login');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const utilObject = require('../public/utils');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const chatObject = require('../public/chat');
 
 type LoginOption = {

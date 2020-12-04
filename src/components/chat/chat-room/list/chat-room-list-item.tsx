@@ -1,6 +1,8 @@
-import React, { HTMLAttributes, useState } from 'react';
+import React, {HTMLAttributes, useState} from 'react';
 import styled from 'styled-components';
-import ProfileImage, { ProfileImageBackgroundColor } from '../../../common/profile-image';
+import ProfileImage, {
+  ProfileImageBackgroundColor,
+} from '../../../common/profile-image';
 import color from '../../../../assets/colors/theme';
 
 const Wrapper = styled.div`
@@ -51,7 +53,7 @@ const LastChat = styled.span`
 `;
 
 interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {
-  profileImageSrcs: string[]
+  profileImageSrcArr: string[]
   username: string
   lastChat: string
   selected: boolean
@@ -62,47 +64,75 @@ interface ProfileImageSetProps extends HTMLAttributes<HTMLDivElement> {
   backgroundColor: number
 }
 
-const ProfileImageSet: React.FC<ProfileImageSetProps> = ({ urls, backgroundColor }) => {
-  let size = urls.length <= 1 ? 54 : 24;
+const ProfileImageSet: React.FC<ProfileImageSetProps> = ({
+  urls,
+  backgroundColor,
+}) => {
+  const size = urls.length <= 1 ? 54 : 24;
 
   const setPosition = (i: number) => {
-    let model = {
-      gridArea: '1 / 1 / span 1 / span 1'
-    }
+    const model = {
+      gridArea: '1 / 1 / span 1 / span 1',
+    };
 
-    switch(urls.length) {
+    switch (urls.length) {
       case 2:
-        model.gridArea = `${i} / ${i} / span 1 / span 1`
+        model.gridArea = `${i} / ${i} / span 1 / span 1`;
         return model;
       case 3:
-        model.gridArea = `${Math.ceil((i + 2) / 3)} / ${i === 1 ? 2 : i === 2 ? 1 : 3} / span 1 / span 2`
+        model.gridArea = `${
+          Math.ceil((i + 2) / 3)
+        } / ${
+          i === 1 ? 2 : i === 2 ? 1 : 3
+        } / span 1 / span 2`;
         return model;
       case 4:
-        model.gridArea = `${i < 2 ? 1 : 2} / ${i < 2 ? i : i - 2} / span 1 / span 1`
+        model.gridArea = `${
+          i < 2 ? 1 : 2
+        } / ${
+          i < 2 ? i : i - 2
+        } / span 1 / span 1`;
         return model;
     }
-  }
+  };
 
   const list = urls.map((e, i) => {
     return <ProfileImage
       key={e}
       src={e}
       backgroundColor={backgroundColor}
-      style={{ width: size, height: size, ...setPosition(i + 1) }} />
-  })
+      style={{width: size, height: size, ...setPosition(i + 1)}} />;
+  });
 
-  return <div style={{ display: 'grid', gridGap: '3px' }}>{list}</div>
-}
+  return <div style={{display: 'grid', gridGap: '3px'}}>{list}</div>;
+};
 
-const ChatRoomListItem: React.FC<ChatListItemProps> = ({ profileImageSrcs, username, lastChat, selected, ...args }) => {
+const ChatRoomListItem: React.FC<ChatListItemProps> = ({
+  profileImageSrcArr,
+  username,
+  lastChat,
+  selected,
+  ...args
+}) => {
   const [hover, setHover] = useState(false);
   return (
-    <Wrapper style={hover || selected ? { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }}
-      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} {...args}>
+    <Wrapper style={
+      hover || selected ?
+          {backgroundColor: '#F7F7F7'} : {backgroundColor: '#FFFFFF'}
+    }
+    onMouseEnter={
+      () => setHover(true)
+    } onMouseLeave={
+      () => setHover(false)
+    } {...args}>
       <Content>
         <ProfileImageSet
-          urls={profileImageSrcs}
-          backgroundColor={hover || selected ? ProfileImageBackgroundColor.GRAY_800 : ProfileImageBackgroundColor.GRAY_900} />
+          urls={profileImageSrcArr}
+          backgroundColor={
+            hover || selected ?
+                ProfileImageBackgroundColor.GRAY_800 :
+                ProfileImageBackgroundColor.GRAY_900
+          }/>
         <Text>
           <Username>{username}</Username>
           <LastChat>{lastChat || '\u200b'}</LastChat>

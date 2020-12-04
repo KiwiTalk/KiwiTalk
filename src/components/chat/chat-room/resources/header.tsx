@@ -25,7 +25,7 @@ const Title = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-`
+`;
 
 const IconButtonWrapper = styled.div`
   display: flex;
@@ -43,17 +43,17 @@ interface ChatroomHeaderProps {
 }
 
 const Header: React.FC<ChatroomHeaderProps> = ({title}) => {
-    return (
-        <Wrapper>
-            <Title>{title}</Title>
-            <IconButtonWrapper>
-                <IconButton background={IconNotification}/>
-                <IconButton background={IconSearch}/>
-                <IconButton background={IconExternal}/>
-                <IconButton background={IconMenu}/>
-            </IconButtonWrapper>
-        </Wrapper>
-    );
+  return (
+    <Wrapper>
+      <Title>{title}</Title>
+      <IconButtonWrapper>
+        <IconButton background={IconNotification}/>
+        <IconButton background={IconSearch}/>
+        <IconButton background={IconExternal}/>
+        <IconButton background={IconMenu}/>
+      </IconButtonWrapper>
+    </Wrapper>
+  );
 };
 
 export default Header;

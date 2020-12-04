@@ -1,16 +1,19 @@
+// eslint-disable-next-line no-unused-vars
 const resultText = {
-    success: '로그인 성공',
-    passcode: '인증번호 필요',
-    anotherdevice: '다른 기기에서 이미 로그인됨',
-    restricted: '제한된 계정입니다.',
-    wrong: '아이디 또는 비밀번호가 올바르지 않습니다.',
+  success: '로그인 성공',
+  passcode: '인증번호 필요',
+  anotherdevice: '다른 기기에서 이미 로그인됨',
+  restricted: '제한된 계정입니다.',
+  wrong: '아이디 또는 비밀번호가 올바르지 않습니다.',
 };
 
+// eslint-disable-next-line no-unused-vars
 interface LoginResponse {
     result: string
     errorCode?: number
 }
 
+// eslint-disable-next-line no-unused-vars
 interface PasscodeResponse {
     result: string
     error?: string
@@ -40,5 +43,5 @@ LoginErrorReason.set(32, '카카오톡 계정을 찾을 수 없음');
 LoginErrorReason.set(500, 'Internal Error');
 
 export default {
-    LoginErrorReason,
+  LoginErrorReason,
 };

@@ -5,7 +5,7 @@ import SideBar from '../components/common/side-bar/side-bar';
 import {Chat as ChatObject, ChatChannel, ChatType, MoreSettingsStruct, TalkClient, TalkPacketHandler} from 'node-kakao';
 import {PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
-import {Long} from "bson";
+import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
 
 const Wrapper = styled.div`
@@ -16,169 +16,177 @@ display: flex;
 flex-direction: row;
 padding-top: ${(() => {
     switch (nw.process.platform) {
-        case 'darwin':
-        case 'cygwin':
-        case 'win32':
-            return 20;
-        default:
-            return 0;
+      case 'darwin':
+      case 'cygwin':
+      case 'win32':
+        return 20;
+      default:
+        return 0;
     }
-})()}px;
+  })()}px;
 `;
 
 const talkClient: TalkClient = nw.global.talkClient;
 
 const makeTemplate = nw.global.chat.makeTemplate;
 
-let records: boolean[] = [];
+const records: boolean[] = [];
 
 const Chat = () => {
-    const [channelList, setChannelList] = useState<ChatChannel[]>([]);
-    const [selectedChannel, setSelectedChannel] = useState(-1);
-    const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
-    const [chatList, setChatList] = useState<ChatObject[]>([]);
-    const [inputText, setInputText] = useState('');
+  const [channelList, setChannelList] = useState<ChatChannel[]>([]);
+  const [selectedChannel, setSelectedChannel] = useState(-1);
+  const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
+  const [chatList, setChatList] = useState<ChatObject[]>([]);
+  const [inputText, setInputText] = useState('');
 
-    const messageHook = (chat: ChatObject) => {
-        setChatList((prev) => [...prev, chat]);
-    }
+  const messageHook = (chat: ChatObject) => {
+    setChatList((prev) => [...prev, chat]);
+  };
 
-    useEffect(() => {
-        channelList.forEach(async (channel, index) => {
-            if (index !== selectedChannel) return;
-            if (records[index]) return;
-            let LastChat = channel.LastChat as ChatObject;
-            //setChatList((prev) => [LastChat]);
+  useEffect(() => {
+    channelList.forEach(async (channel, index) => {
+      if (index !== selectedChannel) return;
+      if (records[index]) return;
+      const LastChat = channel.LastChat as ChatObject;
+      // setChatList((prev) => [LastChat]);
 
-            let e = talkClient.NetworkManager.Handler as TalkPacketHandler, f = 0;
-            let lastTokenId = channel.LastChat?.LogId as Long;
-            //e.on("MCHATLOGS", (pk) => console.log(pk));
-            e.on("SYNCMSG", async (pk: PacketSyncMessageRes) => {
-                if (f) return;
-                f = 1;
-                if (pk.ChatList.length < 1) return;
-                let startId = pk.ChatList[0].prevLogId;
-                let update: ChatObject[] = [];
-                do {
-                    let chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result as ChatObject[];
-                    console.log(chatLog);
-                    if (chatLog.length > 0) {
-                        update.push(...chatLog);
-                        if (chatLog.length > 0 && startId.notEquals(chatLog[chatLog.length - 1].LogId)) {
-                            startId = chatLog[chatLog.length - 1].LogId;
-                            continue;
-                        }
-                    }
-                    break;
-                } while (true);
-                setChatList((prev) => [...prev, ...update]);
-            });
-            await talkClient.ChatManager.getChatListBetween(channel.Id, Long.fromString("1"), 1, lastTokenId);
+      const e = talkClient.NetworkManager.Handler as TalkPacketHandler; let f = 0;
+      const lastTokenId = channel.LastChat?.LogId as Long;
+      // e.on("MCHATLOGS", (pk) => console.log(pk));
+      e.on('SYNCMSG', async (pk: PacketSyncMessageRes) => {
+        if (f) return;
+        f = 1;
+        if (pk.ChatList.length < 1) return;
+        let startId = pk.ChatList[0].prevLogId;
+        const update: ChatObject[] = [];
+        do {
+          const chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result as ChatObject[];
+          console.log(chatLog);
+          if (chatLog.length > 0) {
+            update.push(...chatLog);
+            if (chatLog.length > 0 && startId.notEquals(chatLog[chatLog.length - 1].LogId)) {
+              startId = chatLog[chatLog.length - 1].LogId;
+              continue;
+            }
+          }
+          break;
+        } while (true);
+        setChatList((prev) => [...prev, ...update]);
+      });
+      await talkClient.ChatManager.getChatListBetween(channel.Id, Long.fromString('1'), 1, lastTokenId);
 
-            records[index] = true;
-        });
-    }, [selectedChannel]);
+      records[index] = true;
+    });
+  }, [selectedChannel]);
 
-    useEffect(() => {
-        (async () => {
-            const list: ChatChannel[] = talkClient.ChannelManager.getChannelList()
-                .map((chatChannel) => talkClient.ChannelManager.get(chatChannel.Id)) as ChatChannel[];
+  useEffect(() => {
+    (async () => {
+      const list: ChatChannel[] = talkClient.ChannelManager.getChannelList()
+          .map((chatChannel) => talkClient.ChannelManager.get(chatChannel.Id)) as ChatChannel[];
 
-            setChannelList(list);
+      setChannelList(list);
 
-            try {
-                const settings = await talkClient.Auth.requestMoreSettings();
-                setAccountSettings(settings);
-            } catch (error) {
-                alert("오류가 발생했습니다.\n" + error);
+      try {
+        const settings = await talkClient.Auth.requestMoreSettings();
+        setAccountSettings(settings);
+      } catch (error) {
+        alert('오류가 발생했습니다.\n' + error);
+      }
+
+      talkClient.on('message', messageHook);
+    })();
+  }, []);
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputText(event.target.value);
+  };
+
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const channel = channelList[selectedChannel];
+    if (!channel?.Id) return;
+    if (inputText.length <= 0) return;
+
+    try {
+      if (inputText[0] === '/') {
+        const cmd = inputText.split(/\s/g);
+        switch (cmd[0]) {
+          case '/photo': {
+            const template = await makeTemplate(ChatType.Photo, cmd[1]);
+            const result = await channel.sendTemplate(template);
+            if (result == null) {
+              throw new Error();
             }
 
-            talkClient.on('message', messageHook);
-        })();
-    }, []);
-
-    const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setInputText(event.target.value);
-    }
-
-    const onSubmit = async (event: FormEvent) => {
-        event.preventDefault();
-        const channel = channelList[selectedChannel];
-        if (!channel?.Id) return;
-        if (inputText.length <= 0) return;
-
-        try {
-            if (inputText[0] === '/') {
-                const cmd = inputText.split(/\s/g);
-                switch (cmd[0]) {
-                    case '/photo': {
-                        const template = await makeTemplate(ChatType.Photo, cmd[1]);
-                        const result = await channel.sendTemplate(template);
-                        if (result == null)
-                            throw new Error();
-
-                        setInputText('');
-                        messageHook(result);
-                        break;
-                    }
-                    case '/video': {
-                        const template = await makeTemplate(ChatType.Video, cmd[1]);
-                        const result = await channel.sendTemplate(template);
-                        if (result == null)
-                            throw new Error();
-
-                        setInputText('');
-
-                        messageHook(result);
-                        break;
-                    }
-                    case '/file': {
-                        const template = await makeTemplate(ChatType.File, cmd[1]);
-                        const result = await channel.sendTemplate(template);
-                        if (result == null)
-                            throw new Error();
-
-                        setInputText('');
-
-                        messageHook(result);
-                        break;
-                    }
-                }
-            } else {
-                const result = await channel.sendText(inputText)
-                if (result == null)
-                    throw new Error();
-                setInputText('');
-
-                messageHook(result);
+            setInputText('');
+            messageHook(result);
+            break;
+          }
+          case '/video': {
+            const template = await makeTemplate(ChatType.Video, cmd[1]);
+            const result = await channel.sendTemplate(template);
+            if (result == null) {
+              throw new Error();
             }
-        } catch (error) {
-            alert(`메시지 발송 중 오류 발생 ${error}`);
+
+            setInputText('');
+
+            messageHook(result);
+            break;
+          }
+          case '/file': {
+            const template = await makeTemplate(ChatType.File, cmd[1]);
+            const result = await channel.sendTemplate(template);
+            if (result == null) {
+              throw new Error();
+            }
+
+            setInputText('');
+
+            messageHook(result);
+            break;
+          }
         }
-    }
+      } else {
+        const result = await channel.sendText(inputText);
+        if (result == null) {
+          throw new Error();
+        }
+        setInputText('');
 
-    return (
-        <Wrapper>
-            <SideBar />
-            <SidePanel
-                channelList={channelList}
-                accountSettings={accountSettings}
-                onChange={async (selectedChannel) => {
-                    setSelectedChannel(selectedChannel);
-                    if (!channelList[selectedChannel]) return;
-                    await nw.global.chat.chatOn(selectedChannel);
-                }} />
-            {
-                channelList[selectedChannel]
-                    ? <ChatRoom
-                        channel={channelList[selectedChannel]}
-                        chatList={chatList.filter((chat) => chat.Channel.Id.toString() === channelList[selectedChannel].Id.toString())}
-                        onInputChange={onChange}
-                        onSubmit={onSubmit} inputValue={inputText} />
-                    : <EmptyChatRoom />
-            }
-        </Wrapper>
-    );
+        messageHook(result);
+      }
+    } catch (error) {
+      alert(`메시지 발송 중 오류 발생 ${error}`);
+    }
+  };
+
+  return (
+    <Wrapper>
+      <SideBar />
+      <SidePanel
+        channelList={channelList}
+        accountSettings={accountSettings}
+        onChange={async (selectedChannel) => {
+          setSelectedChannel(selectedChannel);
+          if (!channelList[selectedChannel]) return;
+          await nw.global.chat.chatOn(selectedChannel);
+        }} />{
+        channelList[selectedChannel] ?
+            <ChatRoom
+              channel={channelList[selectedChannel]}
+              chatList={
+                chatList.filter(
+                    (chat) => chat.Channel.Id.toString() ===
+                          channelList[selectedChannel].Id.toString(),
+                )
+              }
+              onInputChange={onChange}
+              onSubmit={onSubmit} inputValue={inputText} /> :
+            <EmptyChatRoom />
+      }
+    </Wrapper>
+  );
 };
 
 export default Chat;

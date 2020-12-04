@@ -17,7 +17,7 @@ position: absolute;
 display: flex;
 bottom: 0;
 left: 0;
-`
+`;
 
 const InputWrapper = styled.div`
 display: flex;
@@ -25,7 +25,7 @@ flex: 1;
 background: ${ThemeColor.GREY_800};
 border-radius: 9999px;
 margin: 12px;
-`
+`;
 
 const Input = styled.input`
 background: none;
@@ -45,7 +45,7 @@ height: 24px;
 position: absolute;
 top: 20px;
 right: 34px;
-`
+`;
 
 export interface ChatInputProps {
     onChange: EventHandler<ChangeEvent<HTMLInputElement>>
@@ -54,27 +54,27 @@ export interface ChatInputProps {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({onChange, onSubmit, value}) => {
-    return (
-        <Form onSubmit={onSubmit}>
-            <InputWrapper>
-                <IconButton background={IconAttachment} style={{
-                    width: '24px',
-                    height: '24px',
-                    marginLeft: '14px',
-                    marginRight: '6px',
-                    marginTop: '8px',
-                    flexShrink: 0
-                }}/>
-                <IconButton background={IconEmoji} style={{
-                    width: '24px',
-                    height: '24px',
-                    marginTop: '8px',
-                    flexShrink: 0}}/>
-                <Input onChange={onChange} value={value}/>
-                <SendButton type={'submit'} background={IconSend}/>
-            </InputWrapper>
-        </Form>
-    )
+  return (
+    <Form onSubmit={onSubmit}>
+      <InputWrapper>
+        <IconButton background={IconAttachment} style={{
+          width: '24px',
+          height: '24px',
+          marginLeft: '14px',
+          marginRight: '6px',
+          marginTop: '8px',
+          flexShrink: 0,
+        }}/>
+        <IconButton background={IconEmoji} style={{
+          width: '24px',
+          height: '24px',
+          marginTop: '8px',
+          flexShrink: 0}}/>
+        <Input onChange={onChange} value={value}/>
+        <SendButton type={'submit'} background={IconSend}/>
+      </InputWrapper>
+    </Form>
+  );
 };
 
 export default ChatInput;

@@ -29,16 +29,16 @@ z-index: 1;
 `;
 
 const ChatTypeWithTail = [
-    ChatType.Text,
-    ChatType.Search,
-    ChatType.Reply
-]
+  ChatType.Text,
+  ChatType.Search,
+  ChatType.Reply,
+];
 
 const ChatTypeWithPadding = [
-    ChatType.Text,
-    ChatType.Search,
-    ChatType.Reply
-]
+  ChatType.Text,
+  ChatType.Search,
+  ChatType.Reply,
+];
 
 export interface ChatsProps {
     channel: ChatChannel
@@ -52,98 +52,126 @@ class Chats extends React.Component<ChatsProps> {
 
     private refScrollEnd = createRef() as any;
 
-    shouldComponentUpdate (nextProps: ChatsProps, nextState: any) {
-        return this.props.chatList.length !== nextProps.chatList.length
-            && this.props.channel.Id.toString() === nextProps.chatList[nextProps.chatList.length - 1]?.Channel?.Id?.toString();
+    shouldComponentUpdate(nextProps: ChatsProps, nextState: any): boolean {
+      return this.props.chatList.length !== nextProps.chatList.length &&
+        this.props.channel.Id.toString() === nextProps
+            .chatList[nextProps.chatList.length - 1]
+            ?.Channel
+            ?.Id
+            ?.toString();
     }
 
-    componentDidUpdate () {
-        isScroll = this.props.chatList[this.props.chatList.length - 1].Sender.isClientUser() ? true : isScroll
+    componentDidUpdate(): void {
+      isScroll = this.props.chatList[this.props.chatList.length - 1]
+          .Sender
+          .isClientUser() ? true : isScroll;
 
-        if (isScroll) {
-            this.refScrollEnd.current.scrollIntoView({
-                behavior: 'smooth'
-            })
-        }
+      if (isScroll) {
+        this.refScrollEnd.current.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
     }
 
-    handleScroll (event: any) {
-        const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638)
+    handleScroll(event: any): void {
+      const num = Math.abs(
+          event.target.scrollHeight - event.target.scrollTop - 638,
+      );
 
-        isScroll = num <= 600;
+      isScroll = num <= 600;
     }
 
-    render () {
-        let feedMap = new Map();
+    render(): JSX.Element {
+      const feedMap = new Map();
 
-        this.props.chatList.filter(e => e.Type === ChatType.Feed).forEach((chat) => {
-            feedMap.set(chat.LogId.toString(), JSON.parse(chat.Text))
-        })
+      this.props.chatList.filter((e) => e.Type === ChatType.Feed)
+          .forEach(
+              (chat) => {
+                feedMap.set(chat.LogId.toString(), JSON.parse(chat.Text));
+              },
+          );
 
-        const list = [];
-        const arr = this.props.chatList;
-        let index = 0;
-        for (let chat of this.props.chatList) {
-            const isMine = (chat.Sender === undefined) || chat.Sender.isClientUser();
-            let willSenderChange = arr.length - 1 === index; // 맨 마지막 index면 당연히 바뀜
+      const list = [];
+      const arr = this.props.chatList;
+      let index = 0;
+      for (const chat of this.props.chatList) {
+        const isMine = (chat.Sender === undefined) ||
+            chat.Sender.isClientUser();
+        let willSenderChange = arr.length - 1 === index; // 맨 마지막 index면 당연히 바뀜
 
-            if (isMine) willSenderChange = willSenderChange || (arr[index + 1].Sender !== undefined && !arr[index + 1].Sender.isClientUser());
-            else willSenderChange = willSenderChange || arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
-
-            const sendDate = new Date(chat.SendTime * 1000);
-            let content: JSX.Element | undefined;
-
-            const extraFeed = feedMap.get(chat.LogId.toString())
-            if (!extraFeed) {
-                content = convertChat(chat, this.props.chatList);
-            } else {
-                switch (extraFeed.feedType) {
-                    case FeedType.DELETE_TO_ALL:
-                        content = toDeletedText(chat, this.props.chatList)
-                        break;
-                    default:
-                        content = convertChat(chat, this.props.chatList);
-                }
-            }
-
-            if (content !== undefined && chat.Type !== ChatType.Feed) {
-                this.bubbles.push(<ChatBubble
-                    key={chat.LogId.toString()}
-                    hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
-                    unread={1}
-                    author={this.nextWithAuthor ? this.props.channel.getUserInfo(chat.Sender)?.Nickname : ''}
-                    isMine={isMine}
-                    time={sendDate}
-                    hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
-                    {content}
-                </ChatBubble>);
-            } else if (content !== undefined && chat.Type === ChatType.Feed) {
-                list.push(content)
-            }
-
-            this.nextWithAuthor = false;
-
-            if (willSenderChange && this.bubbles.length > 0) {
-                const chatItem = <ChatItem
-                    isMine={isMine}
-                    profileImageSrc={this.props.channel.getUserInfo(chat.Sender)?.ProfileImageURL}
-                    key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
-                this.bubbles = [];
-                this.nextWithAuthor = true;
-
-                list.push(chatItem);
-            }
-
-            index++;
+        if (isMine) {
+          willSenderChange =
+              willSenderChange ||
+              (
+                arr[index + 1].Sender !==
+                  undefined && !arr[index + 1].Sender.isClientUser()
+              );
+        } else {
+          willSenderChange =
+              willSenderChange ||
+              arr[index + 1].Sender?.Id.toString() !==
+                chat.Sender?.Id.toString();
         }
 
+        const sendDate = new Date(chat.SendTime * 1000);
+        let content: JSX.Element | undefined;
 
-        return (
-            <Content onScroll={this.handleScroll}>
-                {list}
-                <div ref={this.refScrollEnd} />
-            </Content>
-        );
+        const extraFeed = feedMap.get(chat.LogId.toString());
+        if (!extraFeed) {
+          content = convertChat(chat, this.props.chatList);
+        } else {
+          switch (extraFeed.feedType) {
+            case FeedType.DELETE_TO_ALL:
+              content = toDeletedText(chat, this.props.chatList);
+              break;
+            default:
+              content = convertChat(chat, this.props.chatList);
+          }
+        }
+
+        if (content !== undefined && chat.Type !== ChatType.Feed) {
+          this.bubbles.push(<ChatBubble
+            key={chat.LogId.toString()}
+            hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
+            unread={1}
+            author={
+                this.nextWithAuthor ?
+                    this.props.channel.getUserInfo(chat.Sender)?.Nickname : ''
+            }
+            isMine={isMine}
+            time={sendDate}
+            hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
+            {content}
+          </ChatBubble>);
+        } else if (content !== undefined && chat.Type === ChatType.Feed) {
+          list.push(content);
+        }
+
+        this.nextWithAuthor = false;
+
+        if (willSenderChange && this.bubbles.length > 0) {
+          const chatItem = <ChatItem
+            isMine={isMine}
+            profileImageSrc={
+              this.props.channel.getUserInfo(chat.Sender)?.ProfileImageURL
+            }
+            key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
+          this.bubbles = [];
+          this.nextWithAuthor = true;
+
+          list.push(chatItem);
+        }
+
+        index++;
+      }
+
+
+      return (
+        <Content onScroll={this.handleScroll}>
+          {list}
+          <div ref={this.refScrollEnd} />
+        </Content>
+      );
     }
 }
 

@@ -21,8 +21,11 @@ const Image = styled.img`
 `;
 
 export enum ProfileImageBackgroundColor {
+    // eslint-disable-next-line no-unused-vars
     GRAY_900 = 0,
+    // eslint-disable-next-line no-unused-vars
     GRAY_800 = 1,
+    // eslint-disable-next-line no-unused-vars
     BACKGROUND = 2
 }
 
@@ -32,23 +35,27 @@ interface ProfileImageProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const getBackground = (backgroundColor: ProfileImageBackgroundColor) => {
-    switch (backgroundColor) {
-        case ProfileImageBackgroundColor.GRAY_900:
-            return ProfileMaskFF;
-        case ProfileImageBackgroundColor.GRAY_800:
-            return ProfileMaskF7;
-        case ProfileImageBackgroundColor.BACKGROUND:
-            return ProfileMaskBackground;
-    }
-}
+  switch (backgroundColor) {
+    case ProfileImageBackgroundColor.GRAY_900:
+      return ProfileMaskFF;
+    case ProfileImageBackgroundColor.GRAY_800:
+      return ProfileMaskF7;
+    case ProfileImageBackgroundColor.BACKGROUND:
+      return ProfileMaskBackground;
+  }
+};
 
-const ProfileImage: React.FC<ProfileImageProps> = ({src, backgroundColor, ...args}) => {
-    return (
-        <Wrapper {...args}>
-            <Image src={src}/>
-            <Image src={getBackground(backgroundColor)}/>
-        </Wrapper>
-    );
+const ProfileImage: React.FC<ProfileImageProps> = ({
+  src,
+  backgroundColor,
+  ...args
+}) => {
+  return (
+    <Wrapper {...args}>
+      <Image src={src}/>
+      <Image src={getBackground(backgroundColor)}/>
+    </Wrapper>
+  );
 };
 
 export default ProfileImage;

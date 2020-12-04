@@ -37,32 +37,34 @@ interface LongChatProps {
 }
 
 export const Long: React.FC<LongChatProps> = (props: { chat: Chat }) => {
-    const content = createRef() as any;
-    const button = createRef() as any;
+  const content = createRef() as React.RefObject<any>;
+  const button = createRef() as React.RefObject<any>;
 
-    let isExpanded = false;
-    const expand = () => {
-        isExpanded = !isExpanded;
+  let isExpanded = false;
+  const expand = () => {
+    isExpanded = !isExpanded;
 
-        if (isExpanded) {
-            content.current.innerText = props.chat.Text;
-            button.current.innerText = '접기';
-        } else {
-            content.current.innerText = props.chat.Text.substring(0, 500) + '...';
-            button.current.innerText = '펼쳐보기';
-        }
-
-        content.current.scrollIntoView({
-            behavior: 'smooth'
-        })
+    if (isExpanded) {
+      content.current.innerText = props.chat.Text;
+      button.current.innerText = '접기';
+    } else {
+      content.current.innerText = props.chat.Text.substring(0, 500) + '...';
+      button.current.innerText = '펼쳐보기';
     }
 
-    return (
-        <Wrapper>
-            <Content ref={content}>{props.chat.Text.substring(0, 500) + '...'}</Content>
-            <Expansion ref={button} onClick={expand}>{'펼쳐보기'}</Expansion>
-        </Wrapper>
-    );
+    content.current.scrollIntoView({
+      behavior: 'smooth',
+    });
+  };
+
+  return (
+    <Wrapper>
+      <Content ref={content}>{
+        props.chat.Text.substring(0, 500) + '...'
+      }</Content>
+      <Expansion ref={button} onClick={expand}>{'펼쳐보기'}</Expansion>
+    </Wrapper>
+  );
 };
 
 export default Long;

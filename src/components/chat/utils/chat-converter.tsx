@@ -66,7 +66,7 @@ export function toPhotos (chat: Chat) {
         } as PhotoChatProps
     })
 
-    return <MultiPhoto datas={datas} />
+    return <MultiPhoto photoChatProps={datas} />
 }
 
 export function toVideo (chat: Chat) {

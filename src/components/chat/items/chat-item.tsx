@@ -1,6 +1,6 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
-import ProfileDefault from '../../../assets/images/profile_default.svg'
+import ProfileDefault from '../../../assets/images/profile_default.svg';
 import ProfileImage, {ProfileImageBackgroundColor} from '../../common/profile-image';
 
 const Wrapper = styled.div`
@@ -24,20 +24,25 @@ export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
     profileImageSrc?: string;
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({isMine, profileImageSrc, children, ...args}) => {
-    if (!profileImageSrc) {
-        profileImageSrc = ProfileDefault;
-    }
+const ChatItem: React.FC<ChatItemProps> = ({
+  isMine,
+  profileImageSrc,
+  children,
+  ...args
+}) => {
+  if (!profileImageSrc) {
+    profileImageSrc = ProfileDefault;
+  }
 
-    return (
-        <Wrapper {...args}>
-            {!isMine && <StyledProfileImage src={profileImageSrc}
-                                            backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
-            <Contents>
-                {children}
-            </Contents>
-        </Wrapper>
-    );
+  return (
+    <Wrapper {...args}>
+      {!isMine && <StyledProfileImage src={profileImageSrc}
+        backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
+      <Contents>
+        {children}
+      </Contents>
+    </Wrapper>
+  );
 };
 
 export default ChatItem;

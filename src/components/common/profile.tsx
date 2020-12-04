@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import ProfileDefault from '../../assets/images/profile_default.svg'
+import ProfileDefault from '../../assets/images/profile_default.svg';
 import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './icon-button';
 import ProfileImage, {ProfileImageBackgroundColor} from './profile-image';
@@ -20,7 +20,7 @@ const UserInfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-`
+`;
 
 const Username = styled.span`
   font-family: KoPubWorldDotum;
@@ -45,25 +45,49 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
-    if (!accountSettings) {
-        return (
-            <Wrapper>
-                <IconButton background={IconSettings} style={{width: '24px', height: '24px'}}/>
-            </Wrapper>
-        );
-    }
+  if (!accountSettings) {
     return (
-        <Wrapper>
-            <ProfileImage src={accountSettings.profileImageUrl.toString() || ProfileDefault}
-                          style={{width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px'}}
-                          backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
-            <UserInfoWrapper>
-                <Username>{accountSettings.nickName}</Username>
-                <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
-            </UserInfoWrapper>
-            <IconButton background={IconSettings} style={{width: '24px', height: '24px', marginRight: '32px'}}/>
-        </Wrapper>
+      <Wrapper>
+        <IconButton background={
+          IconSettings
+        } style={
+          {
+            width: '24px',
+            height: '24px',
+          }
+        }/>
+      </Wrapper>
     );
+  }
+  return (
+    <Wrapper>
+      <ProfileImage src={
+        accountSettings.profileImageUrl.toString() || ProfileDefault
+      }
+      style={
+        {
+          width: '36px',
+          height: '36px',
+          marginLeft: '25px',
+          marginRight: '16px',
+        }
+      }
+      backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
+      <UserInfoWrapper>
+        <Username>{accountSettings.nickName}</Username>
+        <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
+      </UserInfoWrapper>
+      <IconButton background={
+        IconSettings
+      } style={
+        {
+          width: '24px',
+          height: '24px',
+          marginRight: '32px',
+        }
+      }/>
+    </Wrapper>
+  );
 };
 
 export default Profile;

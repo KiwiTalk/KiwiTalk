@@ -18,14 +18,18 @@ interface SidePanelProps {
     onChange?: (index: number) => any;
 }
 
-const SidePanel: React.FC<SidePanelProps> = ({channelList, accountSettings, onChange}) => {
-    return (
-        <Wrapper>
-            <Search/>
-            <ChatRoomList channelList={channelList} onChange={onChange}/>
-            <Profile accountSettings={accountSettings}/>
-        </Wrapper>
-    );
+const SidePanel: React.FC<SidePanelProps> = ({
+  channelList,
+  accountSettings,
+  onChange,
+}) => {
+  return (
+    <Wrapper>
+      <Search/>
+      <ChatRoomList channelList={channelList} onChange={onChange}/>
+      <Profile accountSettings={accountSettings}/>
+    </Wrapper>
+  );
 };
 
 export default SidePanel;

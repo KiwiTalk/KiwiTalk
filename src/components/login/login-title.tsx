@@ -12,12 +12,12 @@ const Logo = styled.img`
   -webkit-user-drag: none;
 `;
 
-const LoginTitle = () => {
-    return (
-        <TitleWrapper>
-            <Logo src={logo} alt={'logo'}/>
-        </TitleWrapper>
-    )
+const LoginTitle = (): JSX.Element => {
+  return (
+    <TitleWrapper>
+      <Logo src={logo} alt={'logo'}/>
+    </TitleWrapper>
+  );
 };
 
 export default LoginTitle;

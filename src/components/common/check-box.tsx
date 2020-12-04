@@ -2,7 +2,7 @@ import React, {HTMLAttributes} from 'react';
 
 import styled from 'styled-components';
 
-import RoundCheckBox from '../../assets/images/round_checkbox.svg'
+import RoundCheckBox from '../../assets/images/round_checkbox.svg';
 import ThemeColor from '../../assets/colors/theme';
 
 const CheckBoxContainer = styled.div`
@@ -43,13 +43,20 @@ interface CheckBoxProps extends HTMLAttributes<HTMLDivElement> {
     checked: boolean
 }
 
-export const CheckBox: React.FC<CheckBoxProps> = ({ label, checked, ...args }) => {
-    return (
-        <CheckBoxContainer {...args}>
-            {checked ? <CheckBoxChecked src={RoundCheckBox} /> : <CheckBoxUnchecked />}
-            <CheckBoxLabel>{label}</CheckBoxLabel>
-        </CheckBoxContainer>
-    );
+export const CheckBox: React.FC<CheckBoxProps> = ({
+  label,
+  checked,
+  ...args
+}) => {
+  return (
+    <CheckBoxContainer {...args}>
+      {
+          checked ?
+              <CheckBoxChecked src={RoundCheckBox} /> : <CheckBoxUnchecked />
+      }
+      <CheckBoxLabel>{label}</CheckBoxLabel>
+    </CheckBoxContainer>
+  );
 };
 
 export default CheckBox;

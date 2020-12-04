@@ -23,43 +23,59 @@ interface ChatListProps {
     onChange?: (index: number) => any;
 }
 
-const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClick: MouseEventHandler }> = ({ channel, selected, onClick }) => {
-    const [comp, setComp] = useState<JSX.Element>();
+const AsyncComponent: React.FC<{
+    channel: ChatChannel,
+    selected: boolean,
+    onClick: MouseEventHandler
+}> = ({
+  channel,
+  selected,
+  onClick,
+}) => {
+  const [comp, setComp] = useState<JSX.Element>();
 
-    useEffect(() => {
-        const userInfoList = channel.getUserInfoList();
+  useEffect(() => {
+    const userInfoList = channel.getUserInfoList();
 
-        const name = extractRoomName(channel, userInfoList);
-        const profileImages = extractRoomImage(channel, userInfoList);
+    const name = extractRoomName(channel, userInfoList);
+    const profileImages = extractRoomImage(channel, userInfoList);
 
-        setComp(<ChatRoomListItem
-            key={channel.Id.toString()}
-            lastChat={channel.LastChat ? channel.LastChat.Text : ''}
-            profileImageSrcs={profileImages}
-            username={name}
-            selected={selected}
-            onClick={onClick}/>)
-    }, [selected])
+    setComp(<ChatRoomListItem
+      key={channel.Id.toString()}
+      lastChat={channel.LastChat ? channel.LastChat.Text : ''}
+      profileImageSrcArr={profileImages}
+      username={name}
+      selected={selected}
+      onClick={onClick}/>);
+  }, [selected]);
 
-    return (
-        <React.Fragment>
-            {comp}
-        </React.Fragment>
-    );
+  return (
+    <React.Fragment>
+      {comp}
+    </React.Fragment>
+  );
 };
 
-const ChatRoomList: React.FC<ChatListProps> = ({ channelList, onChange }) => {
-    const [selectedIndex, setSelectedIndex] = useState(-1);
+const ChatRoomList: React.FC<ChatListProps> = ({channelList, onChange}) => {
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
-    return (
-        <Wrapper>
-            {channelList.map((channel, index) =>
-                <AsyncComponent key={`channel-${channel.Id.toString()}`} channel={channel} selected={selectedIndex === index} onClick={() => {
-                    setSelectedIndex(index);
-                    onChange && onChange(index);
-                }} />)}
-        </Wrapper>
-    );
+  return (
+    <Wrapper>
+      {channelList.map((channel, index) =>
+        <AsyncComponent key={
+          `channel-${channel.Id.toString()}`
+        } channel={
+          channel
+        } selected={
+          selectedIndex === index
+        } onClick={
+          () => {
+            setSelectedIndex(index);
+            onChange && onChange(index);
+          }
+        } />)}
+    </Wrapper>
+  );
 };
 
 export default ChatRoomList;

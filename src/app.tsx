@@ -8,25 +8,25 @@ import VerifyCode from './pages/verify';
 import Chat from './pages/chat';
 
 export const App = () => {
-    let menubar: JSX.Element | null = null;
+  let menubar: JSX.Element | null = null;
 
-    switch (nw.process.platform) {
-        case 'darwin':case 'cygwin':case 'win32':
-            menubar = <MenuBar/>;
-            break;
-    }
+  switch (nw.process.platform) {
+    case 'darwin': case 'cygwin': case 'win32':
+      menubar = <MenuBar/>;
+      break;
+  }
 
-    return (
-        <div className="App">
-            {menubar}
-            <HashRouter>
-                <Route path={'/'} render={() => <Redirect to={'/index'}/>} exact/>
-                <Route path={'/index'} component={Login} exact/>
-                <Route path={'/verify'} component={VerifyCode} exact/>
-                <Route path={'/chat'} component={Chat} exact/>
-            </HashRouter>
-        </div>
-    );
-}
+  return (
+    <div className="App">
+      {menubar}
+      <HashRouter>
+        <Route path={'/'} render={() => <Redirect to={'/index'}/>} exact/>
+        <Route path={'/index'} component={Login} exact/>
+        <Route path={'/verify'} component={VerifyCode} exact/>
+        <Route path={'/chat'} component={Chat} exact/>
+      </HashRouter>
+    </div>
+  );
+};
 
 export default App;

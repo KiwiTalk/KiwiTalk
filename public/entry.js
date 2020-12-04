@@ -1,8 +1,10 @@
-require("ts-node").register({
-    compilerOptions: {
-        module: 'commonjs'
-    },
-    transpileOnly: true
+import {register} from 'ts-node';
+
+register({
+  compilerOptions: {
+    module: 'commonjs',
+  },
+  transpileOnly: true,
 });
 
-require("./public/index");
+require('./public/index');

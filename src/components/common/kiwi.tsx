@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 import kiwi from '../../assets/images/kiwi.svg';
 
 const Kiwi = styled.img`
@@ -14,6 +14,4 @@ user-select: none;
 -webkit-user-drag: none;
 `;
 
-export default () => {
-  return <Kiwi src={kiwi} />
-}
+export default (): JSX.Element => <Kiwi src={kiwi}/>;

@@ -11,11 +11,11 @@ const MapItemName = styled.div`
   color: #808080;
   text-overflow: ellipsis;
   overflow: hidden;
-`
+`;
 const MapItemImage = styled.img`
   float: right;
   margin: 8px;
-`
+`;
 
 interface MapChatProps {
     url: string,
@@ -25,12 +25,12 @@ interface MapChatProps {
 }
 
 export const Location: React.FC<MapChatProps> = (data: any) => {
-    return (
-        <Wrapper>
-            <MapItemImage src={data.url}></MapItemImage>
-            <MapItemName>{data.name}</MapItemName>
-        </Wrapper>
-    );
+  return (
+    <Wrapper>
+      <MapItemImage src={data.url}/>
+      <MapItemName>{data.name}</MapItemName>
+    </Wrapper>
+  );
 };
 
 export default Location;

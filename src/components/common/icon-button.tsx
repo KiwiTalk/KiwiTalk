@@ -13,7 +13,7 @@ const IconButton = styled.button`
   }
   cursor: pointer;
   user-select: none;
-`
+`;
 
 const Icon = styled.img`
   position: absolute;
@@ -27,12 +27,16 @@ interface ChatroomHeaderProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     background: string
 }
 
-const ChatroomHeader: React.FC<ChatroomHeaderProps> = ({background, style, ...args}) => {
-    return (
-        <IconButton style={style} {...args}>
-            <Icon src={background}/>
-        </IconButton>
-    );
+const ChatroomHeader: React.FC<ChatroomHeaderProps> = ({
+  background,
+  style,
+  ...args
+}) => {
+  return (
+    <IconButton style={style} {...args}>
+      <Icon src={background}/>
+    </IconButton>
+  );
 };
 
 export default ChatroomHeader;

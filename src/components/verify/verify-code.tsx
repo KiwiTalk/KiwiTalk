@@ -77,26 +77,40 @@ const PreviousLink = styled(Link)`
   user-select: none;
 `;
 
-const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({ onSubmit }) => {
-    const [passcode, setPasscode] = useState('');
-    return (
-        <Wrapper>
-            <TitleWrapper>
-                <Logo src={logo} alt={'logo'}/>
-            </TitleWrapper>
-            <Form onSubmit={(e) => {
-                onSubmit(passcode);
-                e.preventDefault();
-            }}>
-                <Input placeholder={'인증 번호를 입력해주세요.'} icon={Dialpad} disabledIcon={DialpadDisabled} value={passcode} maxLength={4}
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                      setPasscode(event.target.value);
-                    }}/>
-                <Button disabled={passcode.length !== 4}>인증하기</Button>
-                <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
-            </Form>
-        </Wrapper>
-    )
+const VerifyCode: React.FC<{
+    onSubmit: (passcode: string) => any
+}> = ({onSubmit}) => {
+  const [passcode, setPasscode] = useState('');
+  return (
+    <Wrapper>
+      <TitleWrapper>
+        <Logo src={logo} alt={'logo'}/>
+      </TitleWrapper>
+      <Form onSubmit={(e) => {
+        onSubmit(passcode);
+        e.preventDefault();
+      }}>
+        <Input placeholder={
+          '인증 번호를 입력해주세요.'
+        } icon={
+          Dialpad
+        } disabledIcon={
+          DialpadDisabled
+        } value={
+          passcode
+        } maxLength={
+          4
+        }
+        onChange={
+          (event: ChangeEvent<HTMLInputElement>) => {
+            setPasscode(event.target.value);
+          }
+        }/>
+        <Button disabled={passcode.length !== 4}>인증하기</Button>
+        <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
+      </Form>
+    </Wrapper>
+  );
 };
 
 export default VerifyCode;

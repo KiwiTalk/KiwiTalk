@@ -1,5 +1,5 @@
-import React, { InputHTMLAttributes, useState } from "react";
-import styled from "styled-components";
+import React, {InputHTMLAttributes, useState} from 'react';
+import styled from 'styled-components';
 
 const StyledInput = styled.input`
 width: 100%;
@@ -36,7 +36,7 @@ const Icon = styled.img`
   width: 20px;
   height: 20px;
   -webkit-user-drag: none;
-`
+`;
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   placeholder: string
@@ -44,15 +44,20 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   disabledIcon: string
 }
 
-const Input: React.FC<InputProps> = ({placeholder, icon, disabledIcon, ...args}) => {
+const Input: React.FC<InputProps> = ({
+  placeholder,
+  icon,
+  disabledIcon,
+  ...args
+}) => {
   const [focus, setFocus] = useState(false);
 
   return (
-      <InputWrapper>
-          <Icon src={focus ? icon : disabledIcon}/>
-          <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
-                       onBlur={() => setFocus(false)} {...args}/>
-      </InputWrapper>
+    <InputWrapper>
+      <Icon src={focus ? icon : disabledIcon}/>
+      <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)} {...args}/>
+    </InputWrapper>
   );
 };
 

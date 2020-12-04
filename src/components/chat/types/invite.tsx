@@ -27,7 +27,9 @@ export const Invite: React.FC<InviteProps> = ({ invitee, inviter }) => {
   return (
     <Wrapper>
       {
-        inviter == null ? <Content>{invitee}님이 들어왔습니다.</Content> : <Content>{inviter}님이 {invitee}님을 초대하였습니다.</Content>
+        inviter == null ?
+            <Content>{invitee}님이 들어왔습니다.</Content> :
+            <Content>{inviter}님이 {invitee}님을 초대하였습니다.</Content>
       }
     </Wrapper>
   );

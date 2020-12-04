@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Chat, ChatType } from 'node-kakao';
+import {Chat, ChatType} from 'node-kakao';
 
-import { convertShortChat, toPhoto } from '../utils/chat-converter';
+import {convertShortChat, toPhoto} from '../utils/chat-converter';
 
 import color from '../../../assets/colors/theme';
 
@@ -33,7 +33,7 @@ const ReplyTarget = styled.div((props: { isMine: boolean }) => `
   :active {
     transform: scale(0.95);
   }
-`)
+`);
 
 const Author = styled.span((props: { isMine: boolean }) => `
   font-family: KoPubWorldDotum;
@@ -58,14 +58,19 @@ interface ReplyChatProps {
 }
 
 export const Reply: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
-  let content = convertShortChat(chat.prevChat);
-
-  const isMyChat = chat.me.Sender.Id.toString() === chat.me.Channel.Client.ClientUser.Id.toString();
+  const content = convertShortChat(chat.prevChat);
+  const isMyChat =
+      chat.me.Sender.Id.toString() ===
+      chat.me.Channel.Client.ClientUser.Id.toString();
 
   return (
     <Wrapper isMine={isMyChat}>
       <ReplyTarget isMine={isMyChat} onClick={chat.onClick}>
-        <Author isMine={false}>{`${chat.me.Channel.getUserInfo(chat.prevChat.Sender)?.Nickname}에게 답장`}</Author>
+        <Author isMine={false}>{
+          `${
+            chat.me.Channel.getUserInfo(chat.prevChat.Sender)?.Nickname
+          }에게 답장`
+        }</Author>
         {content}
       </ReplyTarget>
       <Content>{chat.me.Text}</Content>

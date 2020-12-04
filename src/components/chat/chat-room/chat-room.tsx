@@ -14,21 +14,34 @@ export interface ChatRoomProps {
     inputValue: string
 }
 
-const ChatRoom: React.FC<ChatRoomProps> = ({channel, chatList, onInputChange, onSubmit, inputValue}) => {
-    const [title, setTitle] = useState('')
-    useEffect(() => {
-        const userInfoList = channel.getUserInfoList();
-        const name = extractRoomName(channel, userInfoList)
+const ChatRoom: React.FC<ChatRoomProps> = (
+    {
+      channel,
+      chatList,
+      onInputChange,
+      onSubmit,
+      inputValue,
+    }) => {
+  const [title, setTitle] = useState('');
+  useEffect(() => {
+    const userInfoList = channel.getUserInfoList();
+    const name = extractRoomName(channel, userInfoList);
 
-        setTitle(name)
-    }, [channel])
-    return (
-        <Background>
-            <Header title={title}/>
-            <Chats channel={channel} chatList={chatList}/>
-            <ChatInput onChange={onInputChange} onSubmit={onSubmit} value={inputValue}/>
-        </Background>
-    )
+    setTitle(name);
+  }, [channel]);
+  return (
+    <Background>
+      <Header title={title}/>
+      <Chats channel={channel} chatList={chatList}/>
+      <ChatInput onChange={
+        onInputChange
+      } onSubmit={
+        onSubmit
+      } value={
+        inputValue
+      }/>
+    </Background>
+  );
 };
 
 export default ChatRoom;
