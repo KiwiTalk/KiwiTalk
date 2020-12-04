@@ -2,16 +2,8 @@ import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/common/side-bar/side-panel';
 import SideBar from '../components/common/side-bar/side-bar';
-import {
-    Chat as ChatObject,
-    ChatChannel,
-    ChatlogStruct,
-    ChatType,
-    MoreSettingsStruct,
-    TalkClient,
-    TalkPacketHandler
-} from 'node-kakao';
-import {PacketSyncMessageReq, PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
+import {Chat as ChatObject, ChatChannel, ChatType, MoreSettingsStruct, TalkClient, TalkPacketHandler} from 'node-kakao';
+import {PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from "bson";
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
@@ -184,11 +176,11 @@ const Chat = () => {
             <SidePanel
                 channelList={channelList}
                 accountSettings={accountSettings}
-                onChange={(selectedChannel) => {
+                onChange={async (selectedChannel) => {
                     setSelectedChannel(selectedChannel);
                     if (!channelList[selectedChannel]) return;
                     let ch = channelList[selectedChannel] as ChatChannel;
-                    ch.chatON();
+                    await (nw as any).global.chat.chatOn(ch);
                 }} />
             {
                 channelList[selectedChannel]

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Redirect} from 'react-router-dom';
 
-import {AuthStatusCode, LoginTokenStruct, TalkClient, WebApiStatusCode} from 'node-kakao';
+import {AuthStatusCode, TalkClient, WebApiStatusCode} from 'node-kakao';
 
 import LoginBackground from '../components/login/login-background';
 import LoginForm from '../components/login/login-form';
@@ -35,7 +35,6 @@ async function login (
             await client.login(email, password, !!force);
 
             if (autoLogin) {
-                // @ts-ignore
                 nwGlobal.login.setAutoLoginEmail(talkClient.Auth.getLatestAccessData().autoLoginEmail);
                 nwGlobal.login.setAutoLoginToken(talkClient.Auth.generateAutoLoginToken());
             }

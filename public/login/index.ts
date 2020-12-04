@@ -1,5 +1,4 @@
 import localForage from 'localforage';
-import {LoginTokenStruct} from 'node-kakao';
 
 export async function getEmail (): Promise<string> {
     try {
