@@ -101,72 +101,59 @@ const Chat = () => {
         setInputText(event.target.value);
     }
 
-    const onSubmit = (event: FormEvent) => {
+    const onSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const channel = channelList[selectedChannel];
         if (!channel?.Id) return;
         if (inputText.length <= 0) return;
 
-        if (inputText[0] === '/') {
-            const cmd = inputText.split(/\s/g);
-            switch (cmd[0]) {
-                case '/photo':
-                    makeTemplate(ChatType.Photo, cmd[1])
-                        .then((template: any) => {
-                            channel.sendTemplate(template)
-                                .then(result => {
-                                    if (result == null) throw new Error();
-                                    setInputText('');
+        try {
+            if (inputText[0] === '/') {
+                const cmd = inputText.split(/\s/g);
+                switch (cmd[0]) {
+                    case '/photo': {
+                        const template = await makeTemplate(ChatType.Photo, cmd[1]);
+                        const result = await channel.sendTemplate(template);
+                        if (result == null)
+                            throw new Error();
 
-                                    messageHook(result);
-                                })
-                                .catch((error: any) => {
-                                    alert(`메시지 발송 중 오류 발생 ${error}`);
-                                });
-                        })
-                    break;
-                case '/video':
-                    makeTemplate(ChatType.Video, cmd[1])
-                        .then((template: any) => {
-                            channel.sendTemplate(template)
-                                .then(result => {
-                                    if (result == null) throw new Error();
-                                    setInputText('');
+                        setInputText('');
+                        messageHook(result);
+                        break;
+                    }
+                    case '/video': {
+                        const template = await makeTemplate(ChatType.Video, cmd[1]);
+                        const result = await channel.sendTemplate(template);
+                        if (result == null)
+                            throw new Error();
 
-                                    messageHook(result);
-                                })
-                                .catch((error: any) => {
-                                    alert(`메시지 발송 중 오류 발생 ${error}`);
-                                });
-                        })
-                    break;
-                case '/file':
-                    makeTemplate(ChatType.File, cmd[1])
-                        .then((template: any) => {
-                            channel.sendTemplate(template)
-                                .then(result => {
-                                    if (result == null) throw new Error();
-                                    setInputText('');
+                        setInputText('');
 
-                                    messageHook(result);
-                                })
-                                .catch((error: any) => {
-                                    alert(`메시지 발송 중 오류 발생 ${error}`);
-                                });
-                        })
-                    break;
+                        messageHook(result);
+                        break;
+                    }
+                    case '/file': {
+                        const template = await makeTemplate(ChatType.File, cmd[1]);
+                        const result = await channel.sendTemplate(template);
+                        if (result == null)
+                            throw new Error();
+
+                        setInputText('');
+
+                        messageHook(result);
+                        break;
+                    }
+                }
+            } else {
+                const result = await channel.sendText(inputText)
+                if (result == null)
+                    throw new Error();
+                setInputText('');
+
+                messageHook(result);
             }
-        } else {
-            channel.sendText(inputText)
-                .then(result => {
-                    if (result == null) throw new Error();
-                    setInputText('');
-
-                    messageHook(result);
-                })
-                .catch((error: any) => {
-                    alert(`메시지 발송 중 오류 발생 ${error}`);
-                });
+        } catch (error) {
+            alert(`메시지 발송 중 오류 발생 ${error}`);
         }
     }
 
