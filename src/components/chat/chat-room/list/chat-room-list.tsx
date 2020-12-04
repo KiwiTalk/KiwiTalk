@@ -1,9 +1,9 @@
-import React, { MouseEventHandler, useEffect, useState } from 'react';
+import React, {MouseEventHandler, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
-import { ChannelInfo, ChatChannel, UserInfo } from 'node-kakao/dist';
+import {ChannelInfo, ChatChannel, UserInfo} from 'node-kakao';
 import ChatRoomListItem from './chat-room-list-item';
-import { extractRoomName, extractRoomImage } from '../../utils/room-info-extractor';
+import {extractRoomImage, extractRoomName} from '../../utils/room-info-extractor';
 
 const Wrapper = styled.div`
 width: 309px;

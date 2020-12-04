@@ -6,7 +6,7 @@ import ThemeColor from '../../assets/colors/theme';
 import ChatItem from './items/chat-item';
 import ChatBubble from './items/chat-bubble';
 
-import {Chat, ChatChannel, ChatType, FeedType} from 'node-kakao/dist';
+import {Chat, ChatChannel, ChatType, FeedType} from 'node-kakao';
 
 import convertChat, {toDeletedText} from './utils/chat-converter';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import {Chat, ChatType} from 'node-kakao/dist';
+import {Chat, ChatType} from 'node-kakao';
 
 import {toPhoto} from '../utils/chat-converter';
 

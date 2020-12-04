@@ -1,6 +1,6 @@
 import * as os from 'os';
 
-import { TalkClient } from 'node-kakao/dist';
+import {TalkClient} from 'node-kakao';
 
 import loginModules from './login';
 import utilModules from './utils';

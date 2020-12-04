@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import VerifyCode from "../components/verify/verify-code";
 import styled from 'styled-components';
-import { Redirect } from 'react-router-dom';
-import { KakaoAPI, TalkClient, AuthStatusCode, WebApiStatusCode } from 'node-kakao/dist';
-import os from 'os';
+import {Redirect} from 'react-router-dom';
+import {AuthStatusCode, TalkClient, WebApiStatusCode} from 'node-kakao';
 
 const nwGlobal = (nw as any).global
 

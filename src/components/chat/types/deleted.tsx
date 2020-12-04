@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, {useRef} from 'react';
 import styled from 'styled-components';
 
-import { Chat } from 'node-kakao/dist';
+import {Chat} from 'node-kakao';
 
 import convertChat from '../utils/chat-converter';
 

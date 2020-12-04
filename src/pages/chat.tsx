@@ -1,15 +1,8 @@
-import React, {ChangeEvent, FormEvent, useCallback, useEffect, useState} from 'react';
+import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/common/side-bar/side-panel';
 import SideBar from '../components/common/side-bar/side-bar';
-import {
-    Chat as ChatObject,
-    ChatChannel,
-    ChatlogStruct,
-    ChatType,
-    MoreSettingsStruct,
-    TalkClient
-} from 'node-kakao/dist';
+import {Chat as ChatObject, ChatChannel, ChatlogStruct, ChatType, MoreSettingsStruct, TalkClient} from 'node-kakao';
 import {PacketSyncMessageReq, PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from "bson";
@@ -55,20 +48,23 @@ const Chat = () => {
             if (index !== selectedChannel) return;
             if (records[index]) return;
 
-            let lastTokenId = (await talkClient.LocoInterface.requestPacketRes<PacketSyncMessageRes>(new PacketSyncMessageReq(channel.Id, Long.fromString("1"), 1, Long.fromString("2")))).LastTokenId;
-            let firstMessage = (await talkClient.LocoInterface.requestPacketRes<PacketSyncMessageRes>(new PacketSyncMessageReq(channel.Id, Long.fromString("1"), 1, lastTokenId)));
+            let lastTokenId = (await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(new PacketSyncMessageReq(channel.Id, Long.fromString("1"), 1, Long.fromString("2")))).LastTokenId;
+            let firstMessage = (await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(new PacketSyncMessageReq(channel.Id, Long.fromString("1"), 1, lastTokenId)));
             let update: ChatObject[] = [];
             if (firstMessage.ChatList.length) {
-                let start_id = (firstMessage.ChatList.shift() as ChatlogStruct).prevLogId, chatLog: ChatObject[] = [];
+                let startId = (firstMessage.ChatList.shift() as ChatlogStruct).prevLogId;
+                let chatLog: ChatObject[] | null | undefined = [];
                 do {
-                    chatLog = await talkClient.ChatManager.getChatListFrom(channel.Id, parseInt(start_id.toString(), 10));
-                    update.push(...chatLog);
+                    chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result;
+                    if (chatLog) {
+                        update.push(...chatLog);
 
-					if (chatLog.length > 0 && start_id.notEquals(chatLog[chatLog.length - 1].LogId)) {
-						start_id = chatLog[chatLog.length - 1].LogId;
-						continue;
-					}
-					break;
+                        if (chatLog.length > 0 && startId.notEquals(chatLog[chatLog.length - 1].LogId)) {
+                            startId = chatLog[chatLog.length - 1].LogId;
+                            continue;
+                        }
+                    }
+                    break;
                 } while (true);
                 setChatList((prev) => [...prev, ...update]);
             }
@@ -77,23 +73,21 @@ const Chat = () => {
     }, [selectedChannel]);
 
     useEffect(() => {
-        async function run () {
-            const list: ChatChannel[] = talkClient.ChannelManager.getChannelIdList()
-                .map((id) => talkClient.ChannelManager.get(id)) as ChatChannel[];
+        (async () => {
+            const list: ChatChannel[] = talkClient.ChannelManager.getChannelList()
+                .map((chatChannel) => talkClient.ChannelManager.get(chatChannel.Id)) as ChatChannel[];
 
             setChannelList(list);
 
             try {
-                const settings = await talkClient.ApiClient.requestMoreSettings();
+                const settings = await talkClient.Auth.requestMoreSettings();
                 setAccountSettings(settings);
             } catch (error) {
                 alert("오류가 발생했습니다.\n" + error);
             }
 
             talkClient.on('message', messageHook);
-        }
-
-        run();
+        })();
     }, []);
 
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {

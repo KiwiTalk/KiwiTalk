@@ -1,15 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import {
-    AttachmentTemplate,
-    ChatType,
-    FileAttachment,
-    LoginTokenStruct,
-    PhotoAttachment,
-    TalkClient,
-    VideoAttachment
-} from 'node-kakao/dist';
+import {AttachmentTemplate, ChatType, FileAttachment, PhotoAttachment, VideoAttachment} from 'node-kakao';
 
 const sizeOf = require('image-size');
 

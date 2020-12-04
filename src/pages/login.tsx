@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Redirect} from 'react-router-dom';
 
-import { LoginTokenStruct, TalkClient, AuthStatusCode, WebApiStatusCode } from 'node-kakao/dist';
+import {AuthStatusCode, LoginTokenStruct, TalkClient, WebApiStatusCode} from 'node-kakao';
 
 import LoginBackground from '../components/login/login-background';
 import LoginForm from '../components/login/login-form';
 
-import { LoginErrorReason } from '../constants';
+import {LoginErrorReason} from '../constants';
 
 const nwGlobal = (nw as any).global;
 
