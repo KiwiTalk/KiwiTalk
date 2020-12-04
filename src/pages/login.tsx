@@ -31,15 +31,13 @@ async function login (
         await nwGlobal.login.setAutoLogin(autoLogin);
 
         try {
+            await client.logout();
             await client.login(email, password, !!force);
 
             if (autoLogin) {
                 // @ts-ignore
-                /*nwGlobal.setAutoLoginEmail(talkClient.getLatestAccessData().autoLoginEmail)
-                talkClient.ApiClient.requestLoginToken().then((loginToken) => {
-                    // @ts-ignore
-                    nwGlobal.setAutoLoginToken(loginToken);
-                });*/
+                nwGlobal.login.setAutoLoginEmail(talkClient.Auth.getLatestAccessData().autoLoginEmail);
+                nwGlobal.login.setAutoLoginToken(talkClient.Auth.generateAutoLoginToken());
             }
 
             resolve(WebApiStatusCode.SUCCESS);
@@ -109,17 +107,19 @@ export const Login = () => {
 
         if (autoLogin) {
             try {
-                const loginToken = await nwGlobal.login.getAutoLoginToken() as LoginTokenStruct;
+                const loginToken = await nwGlobal.login.getAutoLoginToken();
                 const autoLoginEmail = await nwGlobal.login.getAutoLoginEmail();
                 const uuid = await nwGlobal.util.getUUID();
 
                 try {
-                    await talkClient.loginToken(autoLoginEmail, loginToken.token, uuid);
+                    await talkClient.logout();
+                    await talkClient.loginToken(autoLoginEmail, loginToken, uuid); //TODO: nwGlobal.login.login 사용해서 loginToken 갱신해야함
                 } catch (reason) {
                     if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
                         let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
                         if (result) {
-                            talkClient.loginToken(autoLoginEmail, loginToken.token, uuid, true);
+                            await talkClient.logout();
+                            await talkClient.loginToken(autoLoginEmail, loginToken, uuid, true);
                         }
                     } else throw reason;
                 }

@@ -27,11 +27,13 @@ const Verify = () => {
                 case WebApiStatusCode.SUCCESS:
                     alert('인증 성공');
 
+                    await nwGlobal.talkClient.logout();
                     await nwGlobal.login.login(talkClient, email, password, {
                         saveEmail,
                         autoLogin,
                         force,
                     });
+                    //TODO: try - catch 넣어서 다른 기기 접속 중인지 확인 필요
 
                     setRedirect('chat');
                     break;
@@ -48,7 +50,7 @@ const Verify = () => {
     };
 
     useEffect(() => {
-        talkClient.Auth.requestPasscode(nwGlobal.email, nwGlobal.password, true);
+        talkClient.Auth.requestPasscode(nwGlobal.login.data.email, nwGlobal.login.data.password, true);
     }, []);
 
     return redirect ? <Redirect to={redirect}/> : (

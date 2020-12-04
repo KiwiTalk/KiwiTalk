@@ -2,7 +2,15 @@ import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/common/side-bar/side-panel';
 import SideBar from '../components/common/side-bar/side-bar';
-import {Chat as ChatObject, ChatChannel, ChatlogStruct, ChatType, MoreSettingsStruct, TalkClient} from 'node-kakao';
+import {
+    Chat as ChatObject,
+    ChatChannel,
+    ChatlogStruct,
+    ChatType,
+    MoreSettingsStruct,
+    TalkClient,
+    TalkPacketHandler
+} from 'node-kakao';
 import {PacketSyncMessageReq, PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from "bson";
@@ -44,13 +52,35 @@ const Chat = () => {
     }
 
     useEffect(() => {
+        //console.log(require("util").inspect(channelList, true, null, true));
         channelList.forEach(async (channel, index) => {
             if (index !== selectedChannel) return;
             if (records[index]) return;
-
-            let lastTokenId = (await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(new PacketSyncMessageReq(channel.Id, Long.fromString("1"), 1, Long.fromString("2")))).LastTokenId;
-            let firstMessage = (await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(new PacketSyncMessageReq(channel.Id, Long.fromString("1"), 1, lastTokenId)));
-            let update: ChatObject[] = [];
+            let LastChat = channel.LastChat as ChatObject;
+            setChatList((prev) => [LastChat]);
+/*
+            let e = talkClient.NetworkManager.Handler as TalkPacketHandler;
+            e.on("SYNCMSG", async (pk: PacketSyncMessageRes) => {
+                let lastTokenId = channel.LastChat, startId = pk.LastTokenId;
+                let update: ChatObject[] = [], chatLog: ChatObject[] = [];
+                do {
+                    chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result as ChatObject[];
+                    console.log(chatLog);
+                    if (chatLog.length > 0) {
+                        update.push(...chatLog);
+                        if (chatLog.length > 0 && startId.notEquals(chatLog[chatLog.length - 1].LogId)) {
+                            startId = chatLog[chatLog.length - 1].LogId;
+                            continue;
+                        }
+                    }
+                    break;
+                } while (true);
+                setChatList((prev) => [...prev, ...update]);
+            });
+            await talkClient.ChatManager.getChatListBetween(channel.Id, Long.fromString("1"), 1, Long.fromString("2"));
+*/
+            records[index] = true;
+            /*let update: ChatObject[] = [];
             if (firstMessage.ChatList.length) {
                 let startId = (firstMessage.ChatList.shift() as ChatlogStruct).prevLogId;
                 let chatLog: ChatObject[] | null | undefined = [];
@@ -67,8 +97,7 @@ const Chat = () => {
                     break;
                 } while (true);
                 setChatList((prev) => [...prev, ...update]);
-            }
-            records[index] = true;
+            }*/
         });
     }, [selectedChannel]);
 
@@ -84,6 +113,7 @@ const Chat = () => {
                 setAccountSettings(settings);
             } catch (error) {
                 alert("오류가 발생했습니다.\n" + error);
+                console.log(require("util").inspect(error, true, null, true));
             }
 
             talkClient.on('message', messageHook);

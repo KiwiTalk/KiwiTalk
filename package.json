@@ -45,7 +45,7 @@
     "bson": "^4.0.4",
     "image-size": "^0.9.1",
     "localforage": "^1.7.3",
-    "node-kakao": "^3.1.3",
+    "node-kakao": "^3.1.4",
     "nwjs": "^1.4.4",
     "react": "^17.0.0",
     "react-dom": "^17.0.1",
@@ -97,5 +97,5 @@
   },
   "chromium-args": "--enable-logging=stderr",
   "node-remote": "<all_urls>",
-  "user-agent": "KT/3.1.2 Wd/10.0 ko"
+  "user-agent": "KT/3.1.9 Wd/10.0 ko"
 }

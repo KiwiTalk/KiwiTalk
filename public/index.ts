@@ -11,7 +11,11 @@ const globalAny = global as any;
 (async () => {
     const uuid = await utilModules.getUUID();
 
-    globalAny.talkClient = new TalkClient(os.hostname(), uuid);
+    globalAny.talkClient = new TalkClient(os.hostname(), uuid, {
+        version: "3.1.9",
+        appVersion: "3.1.9.2626",
+        xvcSeedList: [ 'JAYDEN', 'JAYMOND' ]
+    });
 
     console.log('load uuid', uuid)
 })();

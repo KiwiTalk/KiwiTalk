@@ -55,7 +55,7 @@ export async function getAutoLoginEmail (): Promise<string> {
     }
 }
 
-export async function setAutoLoginToken (autoLoginToken: LoginTokenStruct) {
+export async function setAutoLoginToken (autoLoginToken: string) {
     try {
         await localForage.setItem('autoLoginToken', autoLoginToken);
     } catch (error) {
@@ -63,9 +63,9 @@ export async function setAutoLoginToken (autoLoginToken: LoginTokenStruct) {
     }
 }
 
-export async function getAutoLoginToken (): Promise<LoginTokenStruct | null> {
+export async function getAutoLoginToken (): Promise<string | null> {
     try {
-        return (await localForage.getItem('autoLoginToken')) as LoginTokenStruct | null;
+        return (await localForage.getItem('autoLoginToken')) as string | null;
     } catch (e) {
         return null;
     }
