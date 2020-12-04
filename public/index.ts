@@ -9,7 +9,7 @@ import chatModules from './chat';
 const globalAny = global as any;
 
 (async () => {
-  const uuid = await utilModules.getUUID();
+  const uuid = await utilModules.uuid.getUUID();
 
   globalAny.talkClient = new TalkClient(os.hostname(), uuid, {
     version: '3.1.9',

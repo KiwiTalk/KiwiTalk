@@ -26,7 +26,9 @@ declare namespace nw {
         force: boolean
       }
     }
-    util: typeof import('../public/utils')
+    util: {
+      uuid: typeof import('../public/utils').uuid
+    }
     chat: typeof import('../public/chat')
   };
   const process: NodeJS.Process;

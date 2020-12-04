@@ -132,34 +132,38 @@ export const Login = (): JSX.Element => {
     if (autoLogin) {
       try {
         const loginToken = await nw.global.login.getAutoLoginToken();
-        const autoLoginEmail = await nw.global.login.getAutoLoginEmail();
-        const uuid = await nw.global.util.getUUID();
+        if (loginToken !== null) {
+          const autoLoginEmail = await nw.global.login.getAutoLoginEmail();
+          const uuid = await nw.global.util.uuid.getUUID();
 
-        try {
-          await talkClient.logout();
-          await talkClient.loginToken(autoLoginEmail, loginToken, uuid);
-          // TODO: nw.global.login.login 사용해서 loginToken 갱신해야함
-        } catch (reason) {
-          if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
-            const result = window.confirm(
-                '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
-            );
-            if (result) {
-              await talkClient.logout();
-              await talkClient.loginToken(
-                  autoLoginEmail,
-                  loginToken,
-                  uuid,
-                  true,
+          try {
+            await talkClient.logout();
+            await talkClient.loginToken(autoLoginEmail, loginToken, uuid);
+            // TODO: nw.global.login.login 사용해서 loginToken 갱신해야함
+          } catch (reason) {
+            if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
+              const result = window.confirm(
+                  '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
               );
+              if (result) {
+                await talkClient.logout();
+                await talkClient.loginToken(
+                    autoLoginEmail,
+                    loginToken,
+                    uuid,
+                    true,
+                );
+              }
+            } else {
+              throw reason;
             }
-          } else {
-            throw reason;
           }
-        }
 
-        alert('자동로그인 했습니다.');
-        setRedirect('chat');
+          alert('자동로그인 했습니다.');
+          setRedirect('chat');
+        } else {
+          throw new Error('자동로그인에 필요한 데이터가 없습니다.');
+        }
       } catch (e) {
         alert('자동로그인에 실패했습니다: ' + e);
       }
