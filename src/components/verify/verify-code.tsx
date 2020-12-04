@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
 import {Link} from 'react-router-dom';
 import Input from '../common/input';
-import Dialpad from '../../assets/images/dialpad.svg'
-import DialpadDisabled from '../../assets/images/dialpad_disabled.svg'
+import Dialpad from '../../assets/images/dialpad.svg';
+import DialpadDisabled from '../../assets/images/dialpad_disabled.svg';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -26,6 +26,7 @@ const Logo = styled.img`
 `;
 
 const Form = styled.form`
+  width: 280px;
   display: flex;
   flex-direction: column;
 `;
@@ -41,13 +42,23 @@ const Button = styled.button`
   font-weight: 600;
   font-size: 12px;
   user-select: none;
+  cursor: pointer;
 
-  :hover {
+  :hover:active {
     background: ${Color.BUTTON_HOVER};
   }
 
-  :focus {
+  :focus:active {
     outline:none;
+  }
+
+  :disabled {
+    background: #F2F2F3;
+    border: 1px solid #BFBDC1;
+    box-shadow: 0px 4px 20px rgba(26, 60, 68, 0.07);
+    border-radius: 12px;
+    color: #BFBDC1;
+    cursor: not-allowed;
   }
 `;
 
@@ -77,11 +88,11 @@ const VerifyCode: React.FC<{ onSubmit: (passcode: string) => any }> = ({ onSubmi
                 onSubmit(passcode);
                 e.preventDefault();
             }}>
-                <Input placeholder={'인증 번호를 입력해주세요.'} icon={Dialpad} disabledIcon={DialpadDisabled} value={passcode}
-                       onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                           setPasscode(event.target.value);
-                       }}/>
-                <Button>인증하기</Button>
+                <Input placeholder={'인증 번호를 입력해주세요.'} icon={Dialpad} disabledIcon={DialpadDisabled} value={passcode} maxLength={4}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                      setPasscode(event.target.value);
+                    }}/>
+                <Button disabled={passcode.length !== 4}>인증하기</Button>
                 <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
             </Form>
         </Wrapper>

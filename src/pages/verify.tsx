@@ -21,7 +21,7 @@ const Verify = () => {
         const { email, password, saveEmail, autoLogin, force } = nwGlobal.login.data;
 
         try {
-            const { status } = await talkClient.Auth.registerDevice(passcode, email, password, false)
+            const { status } = await talkClient.Auth.registerDevice(passcode, email, password, true)
 
             switch (status) {
                 case WebApiStatusCode.SUCCESS:
