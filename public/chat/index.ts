@@ -7,10 +7,8 @@ import {
   ChatType,
   FileAttachment,
   PhotoAttachment,
-  TalkClient,
   VideoAttachment,
 } from 'node-kakao';
-import {RequestResult} from 'node-kakao/dist/talk/request/request-result';
 
 
 export async function makeTemplate(
@@ -41,7 +39,7 @@ export async function makeTemplate(
           name,
           1280,
           720,
-          30
+          30,
       ); // width height duration
 
       return new AttachmentTemplate(video, 'KiwiTalk 동영상');
@@ -54,13 +52,6 @@ export async function makeTemplate(
   }
 }
 
-export async function chatOn(i: number): Promise<RequestResult<boolean>> {
-  return await (
-      (global as any).talkClient as TalkClient
-  ).ChannelManager.getChannelList()[i].chatON();
-}
-
 export default {
   makeTemplate,
-  chatOn,
 };

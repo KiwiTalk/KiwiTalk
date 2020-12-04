@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SidePanel from '../components/common/side-bar/side-panel';
 import SideBar from '../components/common/side-bar/side-bar';
 import {
+  AttachmentTemplate,
   Chat as ChatObject,
   ChatChannel,
   ChatType,
@@ -142,7 +143,9 @@ const Chat = (): JSX.Element => {
         switch (cmd[0]) {
           case '/photo': {
             const template = await makeTemplate(ChatType.Photo, cmd[1]);
-            const result = await channel.sendTemplate(template);
+            const result = await channel.sendTemplate(
+                template as AttachmentTemplate,
+            );
             if (result == null) {
               throw new Error();
             }
@@ -153,7 +156,9 @@ const Chat = (): JSX.Element => {
           }
           case '/video': {
             const template = await makeTemplate(ChatType.Video, cmd[1]);
-            const result = await channel.sendTemplate(template);
+            const result = await channel.sendTemplate(
+                template as AttachmentTemplate,
+            );
             if (result == null) {
               throw new Error();
             }
@@ -165,7 +170,9 @@ const Chat = (): JSX.Element => {
           }
           case '/file': {
             const template = await makeTemplate(ChatType.File, cmd[1]);
-            const result = await channel.sendTemplate(template);
+            const result = await channel.sendTemplate(
+                template as AttachmentTemplate,
+            );
             if (result == null) {
               throw new Error();
             }
@@ -199,7 +206,7 @@ const Chat = (): JSX.Element => {
         onChange={async (selectedChannel) => {
           setSelectedChannel(selectedChannel);
           if (!channelList[selectedChannel]) return;
-          await nw.global.chat.chatOn(selectedChannel);
+          await channelList[selectedChannel].chatON();
         }} />{
         channelList[selectedChannel] ?
             <ChatRoom

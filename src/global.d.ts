@@ -1,10 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const loginObject = require('../public/login');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const utilObject = require('../public/utils');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const chatObject = require('../public/chat');
-
 type LoginOption = {
   saveEmail: boolean
   autoLogin: boolean
@@ -19,7 +12,7 @@ declare module '*.svg' {
 declare namespace nw {
   const global: {
     talkClient: import('node-kakao').TalkClient
-    login: typeof loginObject & {
+    login: typeof import('../public/login') & {
       login(
           client: import('node-kakao').TalkClient,
           email: string,
@@ -33,8 +26,8 @@ declare namespace nw {
         force: boolean
       }
     }
-    util: typeof utilObject
-    chat: typeof chatObject
+    util: typeof import('../public/utils')
+    chat: typeof import('../public/chat')
   };
   const process: NodeJS.Process;
 }
