@@ -1,10 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
 import color from '../../../assets/colors/theme';
 

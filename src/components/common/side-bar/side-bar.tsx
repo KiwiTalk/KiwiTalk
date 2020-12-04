@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import styled from 'styled-components';
 import IconProfiles from '../../../assets/images/icon_profiles.svg';
 import IconChats from '../../../assets/images/icon_chats.svg';
-import IconProfilesDisabled from '../../../assets/images/icon_profiles_disabled.svg';
+import IconProfilesDisabled
+  from '../../../assets/images/icon_profiles_disabled.svg';
 import IconChatsDisabled from '../../../assets/images/icon_chats_disabled.svg';
 import IconButton from '../icon-button';
 import color from '../../../assets/colors/theme';
@@ -39,7 +40,8 @@ const SideBar: React.FC<SideBarProps> = ({onChange}) => {
           onChange && onChange(SideBarChangeType.PROFILES);
         }
       } background={
-          type === SideBarChangeType.PROFILES ? IconProfiles : IconProfilesDisabled
+          type === SideBarChangeType.PROFILES ?
+              IconProfiles : IconProfilesDisabled
       }
       style={
         {

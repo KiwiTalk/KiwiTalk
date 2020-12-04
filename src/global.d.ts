@@ -11,6 +11,11 @@ type LoginOption = {
   force?: boolean
 };
 
+declare module '*.svg' {
+  const content: any;
+  export default content;
+}
+
 declare namespace nw {
   const global: {
     talkClient: import('node-kakao').TalkClient

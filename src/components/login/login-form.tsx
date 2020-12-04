@@ -5,8 +5,8 @@ import Color from '../../assets/colors/theme';
 import LoginTitle from './login-title';
 
 import AccountCircle from '../../assets/images/account_circle.svg';
-// eslint-disable-next-line max-len
-import AccountCircleDisabled from '../../assets/images/account_circle_disabled.svg';
+import AccountCircleDisabled
+  from '../../assets/images/account_circle_disabled.svg';
 import VPNKey from '../../assets/images/vpn_key.svg';
 import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
 

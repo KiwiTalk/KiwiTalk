@@ -2,7 +2,14 @@ import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/common/side-bar/side-panel';
 import SideBar from '../components/common/side-bar/side-bar';
-import {Chat as ChatObject, ChatChannel, ChatType, MoreSettingsStruct, TalkClient, TalkPacketHandler} from 'node-kakao';
+import {
+  Chat as ChatObject,
+  ChatChannel,
+  ChatType,
+  MoreSettingsStruct,
+  TalkClient,
+  TalkPacketHandler,
+} from 'node-kakao';
 import {PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
@@ -32,7 +39,7 @@ const makeTemplate = nw.global.chat.makeTemplate;
 
 const records: boolean[] = [];
 
-const Chat = () => {
+const Chat = (): JSX.Element => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(-1);
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
@@ -47,10 +54,11 @@ const Chat = () => {
     channelList.forEach(async (channel, index) => {
       if (index !== selectedChannel) return;
       if (records[index]) return;
-      const LastChat = channel.LastChat as ChatObject;
-      // setChatList((prev) => [LastChat]);
+      // const lastChat = channel.LastChat as ChatObject;
+      // setChatList((prev) => [lastChat]);
 
-      const e = talkClient.NetworkManager.Handler as TalkPacketHandler; let f = 0;
+      const e = talkClient.NetworkManager.Handler as TalkPacketHandler;
+      let f = 0;
       const lastTokenId = channel.LastChat?.LogId as Long;
       // e.on("MCHATLOGS", (pk) => console.log(pk));
       e.on('SYNCMSG', async (pk: PacketSyncMessageRes) => {
@@ -60,20 +68,39 @@ const Chat = () => {
         let startId = pk.ChatList[0].prevLogId;
         const update: ChatObject[] = [];
         do {
-          const chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result as ChatObject[];
+          const chatLog = (
+              await talkClient
+                  .ChatManager
+                  .getChatListFrom(
+                      channel.Id,
+                      startId,
+                  )
+          ).result as ChatObject[];
+
           console.log(chatLog);
           if (chatLog.length > 0) {
             update.push(...chatLog);
-            if (chatLog.length > 0 && startId.notEquals(chatLog[chatLog.length - 1].LogId)) {
+            if (
+              chatLog.length > 0 &&
+                startId.notEquals(chatLog[chatLog.length - 1].LogId)
+            ) {
               startId = chatLog[chatLog.length - 1].LogId;
               continue;
             }
           }
           break;
+          // eslint-disable-next-line no-constant-condition
         } while (true);
         setChatList((prev) => [...prev, ...update]);
       });
-      await talkClient.ChatManager.getChatListBetween(channel.Id, Long.fromString('1'), 1, lastTokenId);
+      await talkClient
+          .ChatManager
+          .getChatListBetween(
+              channel.Id,
+              Long.fromString('1'),
+              1,
+              lastTokenId,
+          );
 
       records[index] = true;
     });
@@ -82,7 +109,9 @@ const Chat = () => {
   useEffect(() => {
     (async () => {
       const list: ChatChannel[] = talkClient.ChannelManager.getChannelList()
-          .map((chatChannel) => talkClient.ChannelManager.get(chatChannel.Id)) as ChatChannel[];
+          .map((chatChannel) =>
+            talkClient.ChannelManager.get(chatChannel.Id),
+          ) as ChatChannel[];
 
       setChannelList(list);
 

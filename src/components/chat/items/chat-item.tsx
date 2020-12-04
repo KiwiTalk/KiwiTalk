@@ -1,7 +1,5 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import ProfileImage, {
   ProfileImageBackgroundColor,
