@@ -54,7 +54,7 @@ const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
     }
     return (
         <Wrapper>
-            <ProfileImage src={accountSettings.profileImageURL?.toString() || ProfileDefault}
+            <ProfileImage src={accountSettings.profileImageUrl.toString() || ProfileDefault}
                           style={{width: '36px', height: '36px', marginLeft: '25px', marginRight: '16px'}}
                           backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
             <UserInfoWrapper>

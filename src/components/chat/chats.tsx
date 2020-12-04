@@ -77,9 +77,7 @@ class Chats extends React.Component<ChatsProps> {
         let feedMap = new Map();
 
         this.props.chatList.filter(e => e.Type === ChatType.Feed).forEach((chat) => {
-            const feed = chat.getFeed()
-
-            feedMap.set(feed.logId?.toString(), JSON.parse(chat.Text))
+            feedMap.set(chat.LogId.toString(), JSON.parse(chat.Text))
         })
 
         const list = [];
@@ -113,7 +111,7 @@ class Chats extends React.Component<ChatsProps> {
                     key={chat.LogId.toString()}
                     hasTail={willSenderChange && ChatTypeWithTail.includes(chat.Type)}
                     unread={1}
-                    author={this.nextWithAuthor ? chat.Sender?.Nickname : ''}
+                    author={this.nextWithAuthor ? this.props.channel.getUserInfo(chat.Sender)?.Nickname : ''}
                     isMine={isMine}
                     time={sendDate}
                     hasPadding={ChatTypeWithPadding.includes(chat.Type)}>
@@ -128,7 +126,7 @@ class Chats extends React.Component<ChatsProps> {
             if (willSenderChange && this.bubbles.length > 0) {
                 const chatItem = <ChatItem
                     isMine={isMine}
-                    profileImageSrc={this.props.channel['channelInfo'].getUserInfo(chat.Sender)?.ProfileImageURL}
+                    profileImageSrc={this.props.channel.getUserInfo(chat.Sender)?.ProfileImageURL}
                     key={chat.LogId.toString()}>{this.bubbles}</ChatItem>;
                 this.bubbles = [];
                 this.nextWithAuthor = true;

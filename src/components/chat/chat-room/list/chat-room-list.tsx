@@ -1,7 +1,7 @@
 import React, {MouseEventHandler, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
-import {ChannelInfo, ChatChannel, UserInfo} from 'node-kakao';
+import {ChatChannel} from 'node-kakao';
 import ChatRoomListItem from './chat-room-list-item';
 import {extractRoomImage, extractRoomName} from '../../utils/room-info-extractor';
 
@@ -27,20 +27,18 @@ const AsyncComponent: React.FC<{ channel: ChatChannel, selected: boolean, onClic
     const [comp, setComp] = useState<JSX.Element>();
 
     useEffect(() => {
-        channel.getChannelInfo().then((ch: ChannelInfo) => {
-            const userInfoList = ch.UserIdList.map((id) => ch.getUserInfoId(id)).filter((v, i) => i < 5 && v != null) as UserInfo[];
+        const userInfoList = channel.getUserInfoList();
 
-            const name = extractRoomName(ch, userInfoList);
-            const profileImages = extractRoomImage(ch, userInfoList);
+        const name = extractRoomName(channel, userInfoList);
+        const profileImages = extractRoomImage(channel, userInfoList);
 
-            setComp(<ChatRoomListItem
-                key={channel.Id.toString()}
-                lastChat={channel.LastChat ? channel.LastChat.Text : ''}
-                profileImageSrcs={profileImages}
-                username={name}
-                selected={selected}
-                onClick={onClick} />)
-        });
+        setComp(<ChatRoomListItem
+            key={channel.Id.toString()}
+            lastChat={channel.LastChat ? channel.LastChat.Text : ''}
+            profileImageSrcs={profileImages}
+            username={name}
+            selected={selected}
+            onClick={onClick}/>)
     }, [selected])
 
     return (

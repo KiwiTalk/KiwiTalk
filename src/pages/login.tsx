@@ -97,7 +97,7 @@ export const Login = () => {
                     });
                     break;
                 default:
-                    if (error.message) alert(`status: ${error.status}\n reason: ${error.reason}\n meessage : ${error.message}`);
+                    if (error.message) alert(`status: ${error.status}\n reason: ${error.reason}\n message : ${error.message}`);
                     else if (error.reason) alert(`reason: ${error.reason}`);
                     else alert(`알 수 없는 오류가 발생했습니다. 오류 코드: ${error.status}`);
             }

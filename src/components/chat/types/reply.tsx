@@ -63,7 +63,7 @@ export const Reply: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
   return (
     <Wrapper isMine={isMyChat}>
       <ReplyTarget isMine={isMyChat}>
-        <Author isMine={isMine}>{`${chat.prevChat.Sender.Nickname}에게 답장`}</Author>
+        <Author isMine={isMine}>{`${chat.me.Channel.getUserInfo(chat.prevChat.Sender)?.Nickname}에게 답장`}</Author>
         {content}
       </ReplyTarget>
       <Content>{chat.me.Text}</Content>

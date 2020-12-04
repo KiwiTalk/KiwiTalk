@@ -1,38 +1,38 @@
 import ProfileDefault from '../../../assets/images/profile_default.svg'
-import {ChannelInfo, ChannelMetaStruct, ChannelMetaType, UserInfo} from 'node-kakao';
+import {ChannelMetaStruct, ChannelMetaType, ChatChannel, UserInfo} from 'node-kakao';
 
-export function extractRoomImage (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
-  let imageUrl = [channelInfo.RoomImageURL]
+export function extractRoomImage(channel: ChatChannel, userInfoList: UserInfo[]) {
+    let imageUrl = [channel.RoomImageURL]
 
-  if (!channelInfo.RoomImageURL) {
-      channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-          if (meta.type === ChannelMetaType.PROFILE) {
-              // @ts-ignore
-              const content = JSON.parse(meta.content)
-              imageUrl = [content.imageUrl]
-          }
-      })
+    if (!channel.RoomImageURL) {
+        channel.ChannelMetaList.forEach((meta: ChannelMetaStruct) => {
+            if (meta.type === ChannelMetaType.PROFILE) {
+                // @ts-ignore
+                const content = JSON.parse(meta.content)
+                imageUrl = [content.imageUrl]
+            }
+        })
 
-      if (!imageUrl[0]) {
-          imageUrl = userInfoList.slice(0, 4).map(e => e.ProfileImageURL || ProfileDefault)
-      }
+        if (!imageUrl[0]) {
+            imageUrl = userInfoList.slice(0, 4).map(e => e.ProfileImageURL || ProfileDefault)
+        }
   }
 
   return imageUrl
 }
 
-export function extractRoomName (channelInfo: ChannelInfo, userInfoList: UserInfo[]) {
-  let result = channelInfo.Name;
+export function extractRoomName(channel: ChatChannel, userInfoList: UserInfo[]) {
+    let result = channel.Name;
 
-  if (!result) {
-      channelInfo.ChatMetaList.forEach((meta: ChannelMetaStruct) => {
-          if (meta.type === ChannelMetaType.TITLE) {
-              result = meta.content as string;
-          }
-      });
+    if (!result) {
+        channel.ChannelMetaList.forEach((meta: ChannelMetaStruct) => {
+            if (meta.type === ChannelMetaType.TITLE) {
+                result = meta.content as string;
+            }
+        });
 
-      if (!result) {
-          result = userInfoList.map((userInfo) => userInfo?.User.Nickname).join(', ')
+        if (!result) {
+            result = userInfoList.map((userInfo) => userInfo.Nickname).join(', ')
       }
   }
 
