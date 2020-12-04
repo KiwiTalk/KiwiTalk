@@ -8,9 +8,7 @@ import LoginForm from '../components/login/login-form';
 
 import {LoginErrorReason} from '../constants';
 
-const nwGlobal = (nw as any).global;
-
-const talkClient: TalkClient = nwGlobal.talkClient;
+const talkClient: TalkClient = nw.global.talkClient;
 
 type LoginOption = {
     saveEmail: boolean
@@ -27,16 +25,16 @@ async function login (
     { saveEmail, autoLogin, force }: LoginOption
 ) {
     return new Promise(async (resolve, reject) => {
-        await nwGlobal.login.setEmail(saveEmail ? email : '');
-        await nwGlobal.login.setAutoLogin(autoLogin);
+        await nw.global.login.setEmail(saveEmail ? email : '');
+        await nw.global.login.setAutoLogin(autoLogin);
 
         try {
             await client.logout();
             await client.login(email, password, !!force);
 
             if (autoLogin) {
-                nwGlobal.login.setAutoLoginEmail(talkClient.Auth.getLatestAccessData().autoLoginEmail);
-                nwGlobal.login.setAutoLoginToken(talkClient.Auth.generateAutoLoginToken());
+                nw.global.login.setAutoLoginEmail(talkClient.Auth.getLatestAccessData().autoLoginEmail);
+                nw.global.login.setAutoLoginToken(talkClient.Auth.generateAutoLoginToken());
             }
 
             resolve(WebApiStatusCode.SUCCESS);
@@ -54,7 +52,7 @@ async function login (
     })
 }
 
-nwGlobal.login.login = login;
+nw.global.login.login = login;
 
 // src 폴더안에서 등록해야 제대로 작동함.
 
@@ -63,7 +61,7 @@ export const Login = () => {
 
     const onSubmit = async (email: string, password: string, saveEmail: boolean, autoLogin: boolean, force = false) => {
         try {
-            await nwGlobal.login.login(talkClient, email, password, {
+            await nw.global.login.login(talkClient, email, password, {
                 saveEmail,
                 autoLogin,
                 force,
@@ -74,7 +72,7 @@ export const Login = () => {
         } catch (error) {
             switch (error.status) {
                 case AuthStatusCode.DEVICE_NOT_REGISTERED:
-                    nwGlobal.login.data = {
+                    nw.global.login.data = {
                         email,
                         password,
                         saveEmail,
@@ -87,7 +85,7 @@ export const Login = () => {
                 case AuthStatusCode.ANOTHER_LOGON:
                     let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
 
-                    if (result) nwGlobal.login.login(talkClient, email, password, {
+                    if (result) nw.global.login.login(talkClient, email, password, {
                         saveEmail,
                         autoLogin,
                         force: true,
@@ -102,17 +100,17 @@ export const Login = () => {
     }
 
     const autoLogin = async () => {
-        const autoLogin = await nwGlobal.login.isAutoLogin();
+        const autoLogin = await nw.global.login.isAutoLogin();
 
         if (autoLogin) {
             try {
-                const loginToken = await nwGlobal.login.getAutoLoginToken();
-                const autoLoginEmail = await nwGlobal.login.getAutoLoginEmail();
-                const uuid = await nwGlobal.util.getUUID();
+                const loginToken = await nw.global.login.getAutoLoginToken();
+                const autoLoginEmail = await nw.global.login.getAutoLoginEmail();
+                const uuid = await nw.global.util.getUUID();
 
                 try {
                     await talkClient.logout();
-                    await talkClient.loginToken(autoLoginEmail, loginToken, uuid); //TODO: nwGlobal.login.login 사용해서 loginToken 갱신해야함
+                    await talkClient.loginToken(autoLoginEmail, loginToken, uuid); //TODO: nw.global.login.login 사용해서 loginToken 갱신해야함
                 } catch (reason) {
                     if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
                         let result = window.confirm('이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?');
@@ -131,7 +129,7 @@ export const Login = () => {
         }
     }
 
-    // nwGlobal.global.index = index;
+    // nw.global.global.index = index;
 
     useEffect(() => {
         autoLogin();

@@ -5,7 +5,7 @@ import background from '../../assets/images/background.svg';
 import Kiwi from '../common/kiwi';
 
 const Wrapper = styled.div`margin-top: ${(() => {
-    switch ((nw as any).process.platform) {
+    switch (nw.process.platform) {
         case 'darwin':
         case 'cygwin':
         case 'win32':

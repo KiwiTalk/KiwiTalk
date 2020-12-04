@@ -4,21 +4,19 @@ import styled from 'styled-components';
 import {Redirect} from 'react-router-dom';
 import {AuthStatusCode, TalkClient, WebApiStatusCode} from 'node-kakao';
 
-const nwGlobal = (nw as any).global
-
 const Wrapper = styled.div`
   width: 100%;
   height: 100vh;
   background: linear-gradient(119.36deg, #FFFFFF 0%, #FFFFFF 0.01%, #FFFAE0 100%);
 `;
 
-const talkClient: TalkClient = nwGlobal.talkClient;
+const talkClient: TalkClient = nw.global.talkClient;
 
 const Verify = () => {
     const [redirect, setRedirect] = useState('');
 
     const onSubmit = async (passcode: string) => {
-        const { email, password, saveEmail, autoLogin, force } = nwGlobal.login.data;
+        const { email, password, saveEmail, autoLogin, force } = nw.global.login.data;
 
         try {
             const { status } = await talkClient.Auth.registerDevice(passcode, email, password, true)
@@ -27,8 +25,8 @@ const Verify = () => {
                 case WebApiStatusCode.SUCCESS:
                     alert('인증 성공');
 
-                    await nwGlobal.talkClient.logout();
-                    await nwGlobal.login.login(talkClient, email, password, {
+                    await nw.global.talkClient.logout();
+                    await nw.global.login.login(talkClient, email, password, {
                         saveEmail,
                         autoLogin,
                         force,
@@ -50,7 +48,7 @@ const Verify = () => {
     };
 
     useEffect(() => {
-        talkClient.Auth.requestPasscode(nwGlobal.login.data.email, nwGlobal.login.data.password, true);
+        talkClient.Auth.requestPasscode(nw.global.login.data.email, nw.global.login.data.password, true);
     }, []);
 
     return redirect ? <Redirect to={redirect}/> : (

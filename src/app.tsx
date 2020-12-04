@@ -10,7 +10,7 @@ import Chat from './pages/chat';
 export const App = () => {
     let menubar: JSX.Element | null = null;
 
-    switch ((nw as any).process.platform) {
+    switch (nw.process.platform) {
         case 'darwin':case 'cygwin':case 'win32':
             menubar = <MenuBar/>;
             break;

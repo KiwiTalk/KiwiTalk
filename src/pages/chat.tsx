@@ -15,7 +15,7 @@ box-sizing: border-box;
 display: flex;
 flex-direction: row;
 padding-top: ${(() => {
-    switch ((nw as any).process.platform) {
+    switch (nw.process.platform) {
         case 'darwin':
         case 'cygwin':
         case 'win32':
@@ -26,9 +26,9 @@ padding-top: ${(() => {
 })()}px;
 `;
 
-const talkClient: TalkClient = (nw as any).global.talkClient;
+const talkClient: TalkClient = nw.global.talkClient;
 
-const makeTemplate = (nw as any).global.makeTemplate;
+const makeTemplate = nw.global.chat.makeTemplate;
 
 let records: boolean[] = [];
 
@@ -179,7 +179,7 @@ const Chat = () => {
                 onChange={async (selectedChannel) => {
                     setSelectedChannel(selectedChannel);
                     if (!channelList[selectedChannel]) return;
-                    await (nw as any).global.chat.chatOn(selectedChannel);
+                    await nw.global.chat.chatOn(selectedChannel);
                 }} />
             {
                 channelList[selectedChannel]
