@@ -23,7 +23,7 @@ interface InviteProps {
   inviter: string | null
 }
 
-export const Invite: React.FC<InviteProps> = ({ invitee, inviter }) => {
+export const Invite: React.FC<InviteProps> = ({invitee, inviter}) => {
   return (
     <Wrapper>
       {

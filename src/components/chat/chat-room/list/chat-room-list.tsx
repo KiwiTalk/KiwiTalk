@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
 import {ChatChannel} from 'node-kakao';
 import ChatRoomListItem from './chat-room-list-item';
-import {extractRoomImage, extractRoomName} from '../../utils/room-info-extractor';
+import {
+  extractRoomImage,
+  extractRoomName,
+} from '../../utils/room-info-extractor';
 
 const Wrapper = styled.div`
 width: 309px;

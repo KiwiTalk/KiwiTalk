@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
 import color from '../../../assets/colors/theme';
 
@@ -104,11 +108,19 @@ export interface BubbleProps {
     hasPadding: boolean
 }
 
-const convertTime = (time: Date, use24format = true) => {
+const convertTime = (
+    time: Date,
+    use24format = true,
+) => {
   const hour = time.getHours();
   const minute = time.getMinutes();
 
-  const hourStr = use24format ? hour.toString() : hour < 12 ? `오전 ${hour === 0 ? 12 : hour}` : `오후 ${hour === 12 ? hour : hour - 12}`;
+  const hourStr =
+      use24format ?
+          hour.toString() :
+            hour < 12 ?
+                `오전 ${hour === 0 ? 12 : hour}` :
+                `오후 ${hour === 12 ?hour : hour - 12}`;
 
   return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`;
 };

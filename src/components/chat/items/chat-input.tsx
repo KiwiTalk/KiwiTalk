@@ -1,8 +1,14 @@
 import React, {ChangeEvent, EventHandler, FormEvent} from 'react';
 import styled from 'styled-components';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import IconAttachment from '../../../assets/images/icon_attachment.svg';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import IconEmoji from '../../../assets/images/icon_emoji.svg';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import IconSend from '../../../assets/images/icon_send.svg';
 import ThemeColor from '../../../assets/colors/theme';
 

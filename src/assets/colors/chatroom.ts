@@ -1,5 +1,7 @@
+// eslint-disable-next-line no-unused-vars
 enum ChatRoomColor {
-    BACKGROUND = '#E8E8E8',
+  // eslint-disable-next-line no-unused-vars
+  BACKGROUND = '#E8E8E8',
 }
 
 export default ChatRoomColor;

@@ -1,7 +1,14 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import ProfileMaskF7 from '../../assets/images/profile_mask_F7.svg';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import ProfileMaskFF from '../../assets/images/profile_mask_FF.svg';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+// eslint-disable-next-line max-len
 import ProfileMaskBackground from '../../assets/images/profile_mask_background.svg';
 
 const Wrapper = styled.div`

@@ -1,7 +1,11 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import ProfileDefault from '../../../assets/images/profile_default.svg';
-import ProfileImage, {ProfileImageBackgroundColor} from '../../common/profile-image';
+import ProfileImage, {
+  ProfileImageBackgroundColor,
+} from '../../common/profile-image';
 
 const Wrapper = styled.div`
 display: flex;
@@ -36,8 +40,12 @@ const ChatItem: React.FC<ChatItemProps> = ({
 
   return (
     <Wrapper {...args}>
-      {!isMine && <StyledProfileImage src={profileImageSrc}
-        backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>}
+      {
+        !isMine && <StyledProfileImage src={
+          profileImageSrc as string
+        }
+        backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>
+      }
       <Contents>
         {children}
       </Contents>

@@ -1,18 +1,35 @@
+/* eslint-disable */
+// eslint-disable-next-line no-unused-vars
 enum ThemeColor {
+  // eslint-disable-next-line no-unused-vars
   BACKGROUND1 = '#FAE100',
+  // eslint-disable-next-line no-unused-vars
   BACKGROUND2 = '#FFD400',
+  // eslint-disable-next-line no-unused-vars
   BUTTON = '#1E1E1E',
+  // eslint-disable-next-line no-unused-vars
   BUTTON_HOVER = '#323232',
+  // eslint-disable-next-line no-unused-vars
   GREY_100 = '#000000',
+  // eslint-disable-next-line no-unused-vars
   GREY_200 = '#404040',
+  // eslint-disable-next-line no-unused-vars
   GREY_400 = '#808080',
+  // eslint-disable-next-line no-unused-vars
   GREY_700 = '#D5D5D5',
+  // eslint-disable-next-line no-unused-vars
   GREY_750 = '#F0F0F0',
+  // eslint-disable-next-line no-unused-vars
   GREY_800 = '#F6F6F6',
+  // eslint-disable-next-line no-unused-vars
   GREY_900 = '#FFFFFF',
+  // eslint-disable-next-line no-unused-vars
   BLUE_300 = '#178DB4',
+  // eslint-disable-next-line no-unused-vars
   BLUE_400 = '#37ABD0',
+  // eslint-disable-next-line no-unused-vars
   BLUE_700 = '#8CC4D6',
+  // eslint-disable-next-line no-unused-vars
   RED_400 = '#EB5757'
 }
 
