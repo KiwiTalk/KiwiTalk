@@ -15,6 +15,7 @@ import {PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
+import constants from '../constants';
 
 const Wrapper = styled.div`
 width: 100%;
@@ -23,7 +24,7 @@ box-sizing: border-box;
 display: flex;
 flex-direction: row;
 padding-top: ${(() => {
-    switch (nw.process.platform) {
+    switch (process.platform) {
       case 'darwin':
       case 'cygwin':
       case 'win32':
@@ -34,9 +35,9 @@ padding-top: ${(() => {
   })()}px;
 `;
 
-const talkClient: TalkClient = nw.global.talkClient;
+const talkClient: TalkClient = constants.TalkClient;
 
-const makeTemplate = nw.global.chat.makeTemplate;
+const makeTemplate = constants.ChatModule.makeTemplate;
 
 const records: boolean[] = [];
 

@@ -7,6 +7,14 @@ import iconLogo from '../../../assets/images/logo_text_small.svg';
 import iconMinimize from '../../../assets/images/icon_minimize.svg';
 import iconMaximize from '../../../assets/images/icon_maximize.svg';
 import iconClose from '../../../assets/images/icon_close.svg';
+import isElectron from 'is-electron';
+import {
+  closeWindow,
+  getCurrentWindow,
+  isWindowMaximized,
+  maxUnMaxWindow,
+  minimizeWindow,
+} from '../../../electron';
 
 const Wrapper = styled.div`
   display: flex;
@@ -53,12 +61,15 @@ const Image = styled.img`
   -webkit-user-drag: none;
 `;
 
-const MenuBar = (): JSX.Element => {
+const MenuBar = (): JSX.Element | null => {
+  // eslint-disable-next-line no-unused-vars
   const [isMaximum, setMaximum] = useState(false);
 
-  const win = nw.Window.get();
-  win.once('maximize', () => setMaximum(true));
-  win.once('restore', () => setMaximum(false));
+  if (!isElectron()) return null;
+  const window = getCurrentWindow();
+  const listener = () => setMaximum(isWindowMaximized());
+  window.once('maximize', listener);
+  window.once('unmaximize', listener);
 
   return (
     <Wrapper className={'menu-bar'}>
@@ -68,13 +79,13 @@ const MenuBar = (): JSX.Element => {
         </Button>
       </div>
       <div>
-        <Button onClick={() => win.minimize()}>
+        <Button onClick={() => minimizeWindow()}>
           <Image src={iconMinimize}/>
         </Button>
-        <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
+        <Button onClick={() => maxUnMaxWindow()}>
           <Image src={iconMaximize}/>
         </Button>
-        <CloseButton onClick={() => win.close()}>
+        <CloseButton onClick={() => closeWindow()}>
           <Image src={iconClose}/>
         </CloseButton>
       </div>

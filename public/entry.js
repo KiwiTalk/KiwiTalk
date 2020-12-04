@@ -6,4 +6,4 @@ require('ts-node').register({
   transpileOnly: true,
 });
 
-require('./public/index');
+require('./index');

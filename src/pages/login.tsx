@@ -1,64 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {Redirect} from 'react-router-dom';
 
-import {AuthStatusCode, TalkClient, WebApiStatusCode} from 'node-kakao';
+import {AuthStatusCode, TalkClient} from 'node-kakao';
 
 import LoginBackground from '../components/login/login-background';
 import LoginForm from '../components/login/login-form';
+import constants from '../constants';
 
-import {LoginErrorReason} from '../constants';
-
-const talkClient: TalkClient = nw.global.talkClient;
-
-type LoginOption = {
-    saveEmail: boolean
-    autoLogin: boolean
-    force?: boolean
-}
+const talkClient: TalkClient = constants.TalkClient;
 
 // public 폴더로 이동시 헤더가 수정되서 제대로 작동하지 않음
-
-async function login(
-    client: TalkClient,
-    email: string,
-    password: string,
-    {saveEmail, autoLogin, force}: LoginOption,
-) {
-  return async () => {
-    await nw.global.login.setEmail(saveEmail ? email : '');
-    await nw.global.login.setAutoLogin(autoLogin);
-
-    try {
-      await client.logout();
-      await client.login(email, password, !!force);
-
-      if (autoLogin) {
-        await nw.global.login.setAutoLoginEmail(
-            talkClient.Auth.getLatestAccessData().autoLoginEmail,
-        );
-        await nw.global.login.setAutoLoginToken(
-            talkClient.Auth.generateAutoLoginToken(),
-        );
-      }
-
-      return WebApiStatusCode.SUCCESS;
-    } catch (error) {
-      const status: number = error.status;
-      const reason = LoginErrorReason.get(status);
-      const message = error.message;
-
-      let errorObject = new Error(message);
-      errorObject = {
-        ...error,
-        status,
-        reason,
-      };
-      throw errorObject;
-    }
-  };
-}
-
-nw.global.login.login = login;
 
 // src 폴더안에서 등록해야 제대로 작동함.
 
@@ -73,7 +24,7 @@ export const Login = (): JSX.Element => {
       force = false,
   ) => {
     try {
-      await nw.global.login.login(talkClient, email, password, {
+      await constants.loginFunction(talkClient, email, password, {
         saveEmail,
         autoLogin,
         force,
@@ -84,7 +35,7 @@ export const Login = (): JSX.Element => {
     } catch (error) {
       switch (error.status) {
         case AuthStatusCode.DEVICE_NOT_REGISTERED:
-          nw.global.login.data = {
+          constants.loginData = {
             email,
             password,
             saveEmail,
@@ -100,7 +51,7 @@ export const Login = (): JSX.Element => {
           );
 
           if (result) {
-            nw.global.login.login(talkClient, email, password, {
+            await constants.loginFunction(talkClient, email, password, {
               saveEmail,
               autoLogin,
               force: true,
@@ -127,19 +78,19 @@ export const Login = (): JSX.Element => {
   };
 
   const autoLogin = async () => {
-    const autoLogin = await nw.global.login.isAutoLogin();
+    const autoLogin = await constants.LoginModule.isAutoLogin();
 
     if (autoLogin) {
       try {
-        const loginToken = await nw.global.login.getAutoLoginToken();
+        const loginToken = await constants.LoginModule.getAutoLoginToken();
         if (loginToken !== null) {
-          const autoLoginEmail = await nw.global.login.getAutoLoginEmail();
-          const uuid = await nw.global.util.uuid.getUUID();
+          const autoLoginEmail =
+              await constants.LoginModule.getAutoLoginEmail();
 
           try {
             await talkClient.logout();
-            await talkClient.loginToken(autoLoginEmail, loginToken, uuid);
-            // TODO: nw.global.login.login 사용해서 loginToken 갱신해야함
+            await talkClient.loginToken(autoLoginEmail, loginToken);
+            // TODO: constants.loginFunction 사용해서 loginToken 갱신해야함
           } catch (reason) {
             if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
               const result = window.confirm(
@@ -150,7 +101,6 @@ export const Login = (): JSX.Element => {
                 await talkClient.loginToken(
                     autoLoginEmail,
                     loginToken,
-                    uuid,
                     true,
                 );
               }
@@ -169,8 +119,6 @@ export const Login = (): JSX.Element => {
       }
     }
   };
-
-  // nw.global.global.index = index;
 
   useEffect(() => {
     autoLogin().then();

@@ -7,18 +7,10 @@ import Login from './pages/login';
 import VerifyCode from './pages/verify';
 import Chat from './pages/chat';
 
-export const App = () => {
-  let menubar: JSX.Element | null = null;
-
-  switch (nw.process.platform) {
-    case 'darwin': case 'cygwin': case 'win32':
-      menubar = <MenuBar/>;
-      break;
-  }
-
+export const App = (): JSX.Element => {
   return (
     <div className="App">
-      {menubar}
+      <MenuBar/>
       <HashRouter>
         <Route path={'/'} render={() => <Redirect to={'/index'}/>} exact/>
         <Route path={'/index'} component={Login} exact/>
