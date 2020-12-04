@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import VerifyCode from "../components/verify/verify-code";
+import VerifyCode from '../components/verify/verify-code';
 import styled from 'styled-components';
 import {Redirect} from 'react-router-dom';
 import {AuthStatusCode, TalkClient, WebApiStatusCode} from 'node-kakao';
