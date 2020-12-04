@@ -24,38 +24,35 @@ async function login(
     password: string,
     {saveEmail, autoLogin, force}: LoginOption,
 ) {
-  return async () => {
-    await nw.global.login.setEmail(saveEmail ? email : '');
-    await nw.global.login.setAutoLogin(autoLogin);
+  await nw.global.login.setEmail(saveEmail ? email : '');
+  await nw.global.login.setAutoLogin(autoLogin);
 
-    try {
-      await client.logout();
-      await client.login(email, password, !!force);
-
-      if (autoLogin) {
-        await nw.global.login.setAutoLoginEmail(
-            talkClient.Auth.getLatestAccessData().autoLoginEmail,
-        );
-        await nw.global.login.setAutoLoginToken(
-            talkClient.Auth.generateAutoLoginToken(),
-        );
-      }
-
-      return WebApiStatusCode.SUCCESS;
-    } catch (error) {
-      const status: number = error.status;
-      const reason = LoginErrorReason.get(status);
-      const message = error.message;
-
-      let errorObject = new Error(message);
-      errorObject = {
-        ...error,
-        status,
-        reason,
-      };
-      throw errorObject;
+  try {
+    await client.logout();
+    await client.login(email, password, !!force);
+    if (autoLogin) {
+      await nw.global.login.setAutoLoginEmail(
+          talkClient.Auth.getLatestAccessData().autoLoginEmail,
+      );
+      await nw.global.login.setAutoLoginToken(
+          talkClient.Auth.generateAutoLoginToken(),
+      );
     }
-  };
+
+    return WebApiStatusCode.SUCCESS;
+  } catch (error) {
+    const status: number = error.status;
+    const reason = LoginErrorReason.get(status);
+    const message = error.message;
+
+    let errorObject = new Error(message);
+    errorObject = {
+      ...error,
+      status,
+      reason,
+    };
+    throw errorObject;
+  }
 }
 
 nw.global.login.login = login;
@@ -166,6 +163,7 @@ export const Login = (): JSX.Element => {
         }
       } catch (e) {
         alert('자동로그인에 실패했습니다: ' + e);
+        console.error(e);
       }
     }
   };
