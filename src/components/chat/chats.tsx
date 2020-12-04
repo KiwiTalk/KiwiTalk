@@ -14,7 +14,7 @@ const Content = styled.div`
 display: flex;
 flex-direction: column;
 padding: 0px 19px 8px 42px;
-margin: 8px 8px 89px 0px;
+margin: 8px 8px 64px 0px;
 overflow-y: scroll;
 z-index: 1;
 ::-webkit-scrollbar {

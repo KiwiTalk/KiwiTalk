@@ -37,6 +37,12 @@ const Content = styled.div((props: { isMine: boolean, hasPadding: boolean, hasAu
   flex-direction: column;
   border-radius: 5px;
   overflow: hidden;
+  
+  transition: all 0.25s;
+  
+  :hover {
+    background: ${props.isMine ? color.BLUE_400 : color.GREY_750};
+  }
 
   max-width: 70%;
 `);

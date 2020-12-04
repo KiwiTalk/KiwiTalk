@@ -15,10 +15,21 @@ const Content = styled.span`
 const Expansion = styled.button`
     background-color: rgba(0, 0, 0, 0.1);
     border: none;
+    outline: none;
     border-radius: 9999px;
     color: black;
     padding: 4px;
     margin: 8px;
+    cursor: pointer;
+    
+    transition: all 0.25s;
+    
+    :hover {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    :active {
+        transform: scale(0.95);
+    }
 `;
 
 interface LongChatProps {

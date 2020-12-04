@@ -26,12 +26,16 @@ const Content = styled.span`
     white-space: pre-line;
 `;
 
+const ShortContent = styled.span`
+    color: #424242;
+`;
+
 export function toText (chat: Chat) {
-    return <Content style={{ whiteSpace: 'pre-line' }}>{chat.Text}</Content>
+    return <Content>{chat.Text}</Content>
 }
 
 export function toLongText (chat: Chat) {
-    return <Long chat={chat}></Long>
+    return <Long chat={chat}/>
 }
 
 export function toPhoto (chat: Chat, options = { ratio: -1, limit: [300, 500] }) {
@@ -39,11 +43,11 @@ export function toPhoto (chat: Chat, options = { ratio: -1, limit: [300, 500] })
         attachment = attachment as PhotoAttachment;
 
         return <Photo
-            width={attachment.Width}
-            height={attachment.Height}
-            url={attachment.ImageURL}
-            ratio={options.ratio}
-            limit={options.limit}></Photo>
+          width={attachment.Width}
+          height={attachment.Height}
+          url={attachment.ImageURL}
+          ratio={options.ratio}
+          limit={options.limit}/>
     })
 
     return <div style={{ display: 'flex' }}>{list}</div>
@@ -102,7 +106,7 @@ export function toReply (chat: Chat, chatList: Chat[]) {
     }
 
     if (prevChat != null) {
-        return <Reply prevChat={prevChat} me={chat}></Reply>
+        return <Reply prevChat={prevChat} me={chat} onClick={() => {}}/>
     } else {
         return <span>{chat.Text}</span>
     }
@@ -149,6 +153,28 @@ export function convertChat (chat: Chat, chatList: Chat[]) {
             } catch (err) { console.log(chat.Text, err) }
 
             return <span>{chat.Text}</span>
+        case ChatType.Map:
+        default:
+            return <div>
+                <h5>{chat.Type}</h5>
+                <span>{chat.Text}</span>
+            </div>
+    }
+}
+
+export function convertShortChat(chat: Chat) {
+    switch (chat.Type) {
+        case ChatType.Feed: case ChatType.Text: case ChatType.Reply:
+            return <ShortContent>{`${chat.Text.substring(0, 25)}${chat.Text.length >= 25 ? '...' : ''}`}</ShortContent>
+        case ChatType.Photo: case ChatType.MultiPhoto:
+            return toPhoto(chat, {
+                ratio: 1,
+                limit: [50, 50]
+            })
+        case ChatType.Video:
+            return <ShortContent>동영상</ShortContent>
+        case ChatType.Search:
+            return <ShortContent>{`샵검색: ${chat.Text}`}</ShortContent>
         case ChatType.Map:
         default:
             return <div>

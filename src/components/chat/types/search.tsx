@@ -22,6 +22,12 @@ const SearchItemContainer = styled.div`
   width: 280px;
 
   display: flex;
+  
+  transition: all 0.25s;
+  
+  :hover {
+    transform: scale(1.05);
+  }
 `
 
 const SearchItemTextContainer = styled.div`
