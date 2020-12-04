@@ -184,7 +184,12 @@ const Chat = () => {
             <SidePanel
                 channelList={channelList}
                 accountSettings={accountSettings}
-                onChange={(selectedChannel) => setSelectedChannel(selectedChannel)} />
+                onChange={(selectedChannel) => {
+                    setSelectedChannel(selectedChannel);
+                    if (!channelList[selectedChannel]) return;
+                    let ch = channelList[selectedChannel] as ChatChannel;
+                    ch.chatON();
+                }} />
             {
                 channelList[selectedChannel]
                     ? <ChatRoom
