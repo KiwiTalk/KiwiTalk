@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
+import sizeOf from 'image-size';
 
 import {AttachmentTemplate, ChatType, FileAttachment, PhotoAttachment, TalkClient, VideoAttachment} from 'node-kakao';
-import {RequestResult} from "node-kakao/dist/talk/request/request-result";
+import {RequestResult} from 'node-kakao/dist/talk/request/request-result';
 
-const sizeOf = require('image-size');
 
 export async function makeTemplate(type: any, _path: string): Promise<AttachmentTemplate | undefined> {
     const file = fs.readFileSync(_path);
@@ -13,7 +13,7 @@ export async function makeTemplate(type: any, _path: string): Promise<Attachment
     switch (type) {
         case ChatType.Photo:
             const {width, height} = sizeOf(_path);
-            const photo = await PhotoAttachment.fromBuffer(file, name, width, height);
+            const photo = await PhotoAttachment.fromBuffer(file, name, width ?? 0, height ?? 0);
 
             return new AttachmentTemplate(photo, 'KiwiTalk 사진');
         case ChatType.Video:

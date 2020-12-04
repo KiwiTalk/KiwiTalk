@@ -33,8 +33,8 @@ async function login (
             await client.login(email, password, !!force);
 
             if (autoLogin) {
-                nw.global.login.setAutoLoginEmail(talkClient.Auth.getLatestAccessData().autoLoginEmail);
-                nw.global.login.setAutoLoginToken(talkClient.Auth.generateAutoLoginToken());
+                await nw.global.login.setAutoLoginEmail(talkClient.Auth.getLatestAccessData().autoLoginEmail);
+                await nw.global.login.setAutoLoginToken(talkClient.Auth.generateAutoLoginToken());
             }
 
             resolve(WebApiStatusCode.SUCCESS);
