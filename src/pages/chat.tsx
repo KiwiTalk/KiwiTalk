@@ -179,8 +179,7 @@ const Chat = () => {
                 onChange={async (selectedChannel) => {
                     setSelectedChannel(selectedChannel);
                     if (!channelList[selectedChannel]) return;
-                    let ch = channelList[selectedChannel] as ChatChannel;
-                    await (nw as any).global.chat.chatOn(ch);
+                    await (nw as any).global.chat.chatOn(selectedChannel);
                 }} />
             {
                 channelList[selectedChannel]

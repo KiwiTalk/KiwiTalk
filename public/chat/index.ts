@@ -27,8 +27,8 @@ export async function makeTemplate(type: any, _path: string): Promise<Attachment
     }
 }
 
-export async function chatOn(channel: ChatChannel): Promise<RequestResult<boolean>> {
-    return await channel.chatON();
+export async function chatOn(i: number): Promise<RequestResult<boolean>> {
+    return await (global as any).talkClient.ChatManager.getChannelList()[i].chatON();
 }
 
 export default {
