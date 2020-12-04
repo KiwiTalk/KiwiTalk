@@ -52,19 +52,23 @@ const Chat = () => {
     }
 
     useEffect(() => {
-        //console.log(require("util").inspect(channelList, true, null, true));
         channelList.forEach(async (channel, index) => {
             if (index !== selectedChannel) return;
             if (records[index]) return;
             let LastChat = channel.LastChat as ChatObject;
-            setChatList((prev) => [LastChat]);
-/*
-            let e = talkClient.NetworkManager.Handler as TalkPacketHandler;
+            //setChatList((prev) => [LastChat]);
+
+            let e = talkClient.NetworkManager.Handler as TalkPacketHandler, f = 0;
+            let lastTokenId = channel.LastChat?.LogId as Long;
+            //e.on("MCHATLOGS", (pk) => console.log(pk));
             e.on("SYNCMSG", async (pk: PacketSyncMessageRes) => {
-                let lastTokenId = channel.LastChat, startId = pk.LastTokenId;
-                let update: ChatObject[] = [], chatLog: ChatObject[] = [];
+                if (f) return;
+                f = 1;
+                if (pk.ChatList.length < 1) return;
+                let startId = pk.ChatList[0].prevLogId;
+                let update: ChatObject[] = [];
                 do {
-                    chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result as ChatObject[];
+                    let chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result as ChatObject[];
                     console.log(chatLog);
                     if (chatLog.length > 0) {
                         update.push(...chatLog);
@@ -77,27 +81,9 @@ const Chat = () => {
                 } while (true);
                 setChatList((prev) => [...prev, ...update]);
             });
-            await talkClient.ChatManager.getChatListBetween(channel.Id, Long.fromString("1"), 1, Long.fromString("2"));
-*/
-            records[index] = true;
-            /*let update: ChatObject[] = [];
-            if (firstMessage.ChatList.length) {
-                let startId = (firstMessage.ChatList.shift() as ChatlogStruct).prevLogId;
-                let chatLog: ChatObject[] | null | undefined = [];
-                do {
-                    chatLog = (await talkClient.ChatManager.getChatListFrom(channel.Id, startId)).result;
-                    if (chatLog) {
-                        update.push(...chatLog);
+            await talkClient.ChatManager.getChatListBetween(channel.Id, Long.fromString("1"), 1, lastTokenId);
 
-                        if (chatLog.length > 0 && startId.notEquals(chatLog[chatLog.length - 1].LogId)) {
-                            startId = chatLog[chatLog.length - 1].LogId;
-                            continue;
-                        }
-                    }
-                    break;
-                } while (true);
-                setChatList((prev) => [...prev, ...update]);
-            }*/
+            records[index] = true;
         });
     }, [selectedChannel]);
 
@@ -113,7 +99,6 @@ const Chat = () => {
                 setAccountSettings(settings);
             } catch (error) {
                 alert("오류가 발생했습니다.\n" + error);
-                console.log(require("util").inspect(error, true, null, true));
             }
 
             talkClient.on('message', messageHook);
