@@ -20,7 +20,12 @@ npm i yarn nwjs -g
 ```
 
 * nwjs 설정
- > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-win-x64.zip) 다운로드 후 C:\Users\ `유저명`\ \.nwjs\0.50.1-sdk\ 또는 ~/.nwjs/0.50.1-sdk/ 에 압축 해제
+#### Windows
+ > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-win-x64.zip) 다운로드 후 C:\Users\ `유저명`\ \.nwjs\0.50.1-sdk\ 에 압축 해제
+#### Linux
+ > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-linux-x64.zip) 다운로드 후 ~/.nwjs/0.50.1-sdk/ 에 압축 해제
+#### MacOS
+ > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-osx-x64.zip) 다운로드 후 ~/.nwjs/0.50.1-sdk/ 에 압축 해제
 ```
 nw use 0.50.1-sdk
 ```
