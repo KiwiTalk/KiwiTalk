@@ -68,14 +68,15 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
     autoLogin: false,
   });
 
-  useEffect(() => {
+  // TODO: FIX
+  /*useEffect(() => {
     (async () => {
       const autoLogin = await constants.LoginModule.isAutoLogin();
       const email = await constants.LoginModule.getEmail();
       const saveEmail = !!email;
       setForm({email, autoLogin, saveEmail, password: ''});
     })();
-  }, []);
+  }, []);*/
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     setForm({

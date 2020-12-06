@@ -16,6 +16,7 @@ import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
 import constants from '../constants';
+import { Redirect, useHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
 width: 100%;
@@ -35,18 +36,20 @@ padding-top: ${(() => {
   })()}px;
 `;
 
-const talkClient: TalkClient = constants.TalkClient;
-
 const makeTemplate = constants.ChatModule.makeTemplate;
 
 const records: boolean[] = [];
 
-const Chat = (): JSX.Element => {
+const Chat = (talkClient: TalkClient): JSX.Element => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(-1);
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
   const [chatList, setChatList] = useState<ChatObject[]>([]);
   const [inputText, setInputText] = useState('');
+  
+  if (!talkClient.Logon) {
+    useHistory().push('/index');
+  }
 
   const messageHook = (chat: ChatObject) => {
     setChatList((prev) => [...prev, chat]);

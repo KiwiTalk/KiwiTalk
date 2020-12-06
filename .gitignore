@@ -233,3 +233,4 @@ Temporary Items
 # End of https://www.gitignore.io/api/node,code,webstorm+all,macos
 
 build
+node-webkit-sdk

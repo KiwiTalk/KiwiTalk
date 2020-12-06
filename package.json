@@ -11,51 +11,31 @@
     "nnnlog",
     "sangwon090"
   ],
-  "main": "public/entry.js",
+  "main": "entry.js",
+  "node-remote": "*://localhost",
   "window": {
     "toolbar": false,
-    "icon": "./public/img/android-chrome-512x512.png"
+    "icon": "./src/img/android-chrome-512x512.png"
   },
-  "homepage": "./",
   "scripts": {
-    "start:react": "react-scripts start",
-    "build:react": "react-scripts build",
-    "test:react": "react-scripts test",
-    "eject:react": "react-scripts eject",
-    "start:electron": "electron .",
-    "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:electron\"",
-    "build": "yarn build:react && electron-builder",
+    "start:nw": "node-webkit-sdk/nw . --dev",
+    "start:webpack": "node_modules/.bin/webpack serve --mode=development",
+    "build": "node_modules/.bin/webpack --mode=production",
     "release": "yarn build:react && electron-builder --publish=always"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "dependencies": {
-    "@electron/remote": "^1.0.2",
     "bson": "^4.0.4",
-    "electron-is-dev": "^1.2.0",
+    "css-modules-require-hook": "^4.2.3",
     "image-size": "^0.9.1",
-    "is-electron": "^2.2.0",
     "localforage": "^1.7.3",
     "node-kakao": "^3.1.4",
     "react": "^17.0.0",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "4.0.1",
     "react-spoiler": "^0.4.3",
-    "request-promise": "^4.2.5",
     "styled-components": "^5.1.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.2",
@@ -66,25 +46,29 @@
     "@testing-library/react": "^11.0.2",
     "@testing-library/user-event": "^12.0.2",
     "@types/bson": "^4.0.2",
-    "@types/electron": "^1.6.10",
     "@types/jest": "^26.0.0",
     "@types/node": "^14.0.1",
-    "@types/node-forge": "^0.9.3",
+    "@types/nw.js": "^0.13.11",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.5",
-    "@types/request-promise": "^4.1.46",
     "@types/styled-components": "^5.1.0",
     "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
-    "electron": "^11.0.3",
-    "electron-builder": "^22.9.1",
+    "css-loader": "^5.0.1",
     "eslint": "^7.14.0",
     "eslint-config-google": "^0.14.0",
-    "wait-on": "^5.0.0"
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^4.5.0",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.11",
+    "wait-on": "^5.0.0",
+    "webpack": "^5.10.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
   },
   "build": {
     "appId": "io.github.kiwitalk",
