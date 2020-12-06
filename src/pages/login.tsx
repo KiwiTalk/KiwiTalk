@@ -26,7 +26,7 @@ export const Login = (client: TalkClient): JSX.Element => {
     try {
       if (!token) await client.login(email, password, force);
       else await client.loginToken(email, password, force);
-      await UtilModules.login.setEmail(email);
+      await UtilModules.login.setEmail(saveEmail ? email : '');
       await UtilModules.login.setAutoLoginEmail(client.Auth.getLatestAccessData().autoLoginEmail);
       await UtilModules.login.setAutoLoginToken(client.Auth.generateAutoLoginToken());
 
