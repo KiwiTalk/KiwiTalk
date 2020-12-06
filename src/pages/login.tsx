@@ -7,6 +7,7 @@ import LoginBackground from '../components/login/login-background';
 import LoginForm from '../components/login/login-form';
 import constants from '../constants';
 import VerifyCode from '../components/verify/verify-code';
+import UtilModules from '../utils';
 
 // public 폴더로 이동시 헤더가 수정되서 제대로 작동하지 않음
 
@@ -14,7 +15,7 @@ import VerifyCode from '../components/verify/verify-code';
 
 export const Login = (client: TalkClient): JSX.Element => {
   const [loginData, setLoginData] = useState(
-    { status: -999999, inputData: { email: '', password: '', autoLogin: false } });
+      {status: -999999, inputData: {email: '', password: '', autoLogin: false}});
 
   const onSubmit = async (
       email: string,
@@ -22,11 +23,18 @@ export const Login = (client: TalkClient): JSX.Element => {
       saveEmail: boolean,
       autoLogin: boolean,
       force = false,
+      token = false,
   ) => {
+    await UtilModules.login.setAutoLogin(autoLogin);
+
     let status = -999999;
     try {
-      await client.login(email, password, force);
-      
+      if (!token) await client.login(email, password, force);
+      else await client.loginToken(email, password, force);
+      await UtilModules.login.setEmail(email);
+      await UtilModules.login.setAutoLoginEmail(client.Auth.getLatestAccessData().autoLoginEmail);
+      await UtilModules.login.setAutoLoginToken(client.Auth.generateAutoLoginToken());
+
       status = WebApiStatusCode.SUCCESS;
     } catch (error) {
       status = error.status || -999999;
@@ -34,53 +42,108 @@ export const Login = (client: TalkClient): JSX.Element => {
     }
     console.log('login: ' + status);
 
-    setLoginData({ status, inputData: { email, password, autoLogin } });
-  }
+    setLoginData({status, inputData: {email, password, autoLogin}});
+  };
 
-  switch (loginData.status) {
-    case -999999:
-      break;
+  useEffect(() => {
+    (async () => {
+      const autoLogin = await UtilModules.login.isAutoLogin();
 
-    case WebApiStatusCode.SUCCESS:
-      alert('로그인 성공');
-      useHistory().push('/chat');
-      break;
+      if (autoLogin) {
+        try {
+          const loginToken = await UtilModules.login.getAutoLoginToken();
+          if (loginToken !== null) {
+            const autoLoginEmail = await UtilModules.login.getAutoLoginEmail();
 
-    case AuthStatusCode.DEVICE_NOT_REGISTERED:
-      let email = loginData.inputData.email;
-      let password = loginData.inputData.password;
-      
-      client.Auth.requestPasscode(email, password, true);
-      client.logout();
-      return <VerifyCode {
-        ...{
-          registerDevice: (passcode: string, permanent: boolean) => client.Auth.registerDevice(passcode, email, password, permanent, true),
-          passcodeDone: () => onSubmit(email, password, true, true)} } />;
+            try {
+              await onSubmit(
+                  autoLoginEmail,
+                  loginToken,
+                  true,
+                  true,
+                  false,
+                  true,
+              );
+            } catch (reason) {
+              if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
+                const result = window.confirm(
+                    '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
+                );
+                if (result) {
+                  await onSubmit(
+                      autoLoginEmail,
+                      loginToken,
+                      true,
+                      true,
+                      true,
+                      true,
+                  );
+                }
+              } else {
+                throw reason;
+              }
+            }
 
-    case AuthStatusCode.ANOTHER_LOGON:
-      const result = window.confirm(
-          '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
-      );
-
-      if (result) {
-        client.logout();
-
-        let email = loginData.inputData.email;
-        let password = loginData.inputData.password;
-        onSubmit(email, password, false, true, true);
+            alert('자동로그인 했습니다.');
+          } else {
+            throw new Error('자동로그인에 필요한 데이터가 없습니다.');
+          }
+        } catch (e) {
+          alert('자동로그인에 실패했습니다: ' + e);
+          console.error(e);
+        }
       }
-      break;
+    })();
+  }, []);
 
-    default:
-      alert(`오류가 발생했습니다. 오류 코드: ${status}`);
-      client.logout();
-      setLoginData({ status: -999999, inputData: loginData.inputData });
-      break;
+  useEffect(() => {
+    switch (loginData.status) {
+      case -999999:
+        break;
+
+      case WebApiStatusCode.SUCCESS:
+        alert('로그인 성공');
+        break;
+
+      case AuthStatusCode.DEVICE_NOT_REGISTERED:
+        const email = loginData.inputData.email;
+        const password = loginData.inputData.password;
+
+        client.Auth.requestPasscode(email, password, true);
+        return <VerifyCode {
+          ...{
+            registerDevice: (passcode: string, permanent: boolean) =>
+              client.Auth.registerDevice(passcode, email, password, permanent, true),
+            passcodeDone: () => onSubmit(email, password, true, true)} } />;
+
+      case AuthStatusCode.ANOTHER_LOGON:
+        // eslint-disable-next-line no-case-declarations
+        const result = window.confirm(
+            '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
+        );
+
+        if (result) {
+          const email = loginData.inputData.email;
+          const password = loginData.inputData.password;
+          onSubmit(email, password, false, true, true);
+        }
+        break;
+
+      default:
+        console.log(loginData.status);
+        alert(`오류가 발생했습니다. 오류 코드: ${loginData.status}`);
+        setLoginData({status: -999999, inputData: loginData.inputData});
+        break;
+    }
+  }, [loginData]);
+
+  if (WebApiStatusCode.SUCCESS === loginData.status) {
+    useHistory().push('/chat');
   }
 
   return <LoginBackground>
-          <LoginForm onSubmit={onSubmit}/>
-        </LoginBackground>;
+    <LoginForm onSubmit={onSubmit}/>
+  </LoginBackground>;
 };
 
 export default Login;
