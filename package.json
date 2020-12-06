@@ -19,7 +19,7 @@
     "icon": "img/android-chrome-512x512.png"
   },
   "scripts": {
-    "start:nw": "node-webkit-sdk/nw . --dev",
+    "start:nw": "node_modules/.bin/nwbuild -r . --dev",
     "start:webpack": "node_modules/.bin/webpack serve --mode=development",
     "start": "node_modules/.bin/concurrently \"npm:start:webpack\" \"npm:start:nw\"",
     "build": "node_modules/.bin/webpack --mode=production",
