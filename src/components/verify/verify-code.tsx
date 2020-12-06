@@ -10,7 +10,6 @@ import { AuthApiStruct } from 'node-kakao';
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 100vh;
   padding-left: 47px;
   padding-top: 80px;
   box-sizing: border-box;

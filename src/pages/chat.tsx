@@ -9,14 +9,16 @@ import {
   ChatType,
   MoreSettingsStruct,
   TalkClient,
-  TalkPacketHandler,
 } from 'node-kakao';
-import {PacketSyncMessageReq, PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
+import {
+  PacketSyncMessageReq,
+  PacketSyncMessageRes,
+} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
 import constants from '../constants';
-import { Redirect, useHistory } from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
 
 const Wrapper = styled.div`
 width: 100%;
@@ -60,13 +62,25 @@ const Chat = (talkClient: TalkClient): JSX.Element => {
       if (index !== selectedChannel) return;
       if (records[index]) return;
       console.log(channel.Id.toString());
-      let lastTokenId = (await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>
-        (new PacketSyncMessageReq(channel.Id,
-            Long.fromInt(1), 1, Long.fromInt(2)))).LastTokenId;
+      const lastTokenId = (
+        await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
+            new PacketSyncMessageReq(
+                channel.Id,
+                Long.fromInt(1), 1, Long.fromInt(2),
+            ),
+        )
+      ).LastTokenId;
 
-      let pk = await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>
-        (new PacketSyncMessageReq(channel.Id,
-            Long.fromInt(1), 1, lastTokenId));
+      const pk = await talkClient
+          .NetworkManager
+          .requestPacketRes<PacketSyncMessageRes>(
+              new PacketSyncMessageReq(
+                  channel.Id,
+                  Long.fromInt(1),
+                  1,
+                  lastTokenId,
+              ),
+          );
 
       if (pk.ChatList.length < 1) return;
       let startId = pk.ChatList[0].prevLogId;
@@ -84,7 +98,7 @@ const Chat = (talkClient: TalkClient): JSX.Element => {
         if (chatLog.length > 0) {
           update.push(...chatLog);
           if (
-              chatLog.length > 0 &&
+            chatLog.length > 0 &&
               startId.notEquals(chatLog[chatLog.length - 1].LogId)
           ) {
             startId = chatLog[chatLog.length - 1].LogId;

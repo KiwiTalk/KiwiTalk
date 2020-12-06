@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -6,16 +8,16 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     filename: 'bundle.js',
   },
-  target: ["node", "nwjs"],
+  target: ['node', 'nwjs'],
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: ['.ts', '.tsx', '.js'],
   },
   devServer: {
     contentBase: __dirname,
     publicPath: '/',
     inline: true,
-    host: "localhost",
-    port: 3000
+    host: 'localhost',
+    port: 3000,
   },
   module: {
     rules: [
@@ -36,19 +38,19 @@ module.exports = {
           loader: 'file-loader',
           options: {
             outputPath: 'res',
-          }
+          },
         },
       },
       {
         test: /\.tsx?$/,
-        loader: "ts-loader"
-      }
+        loader: 'ts-loader',
+      },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       inject: true,
-      template: 'index.html'
-    })
+      template: 'index.html',
+    }),
   ],
 };
