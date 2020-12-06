@@ -8,9 +8,19 @@ import chat from './pages/chat';
 import {TalkClient} from 'node-kakao';
 
 export const App = (opts: { client: TalkClient }): JSX.Element => {
+  let menuBar: JSX.Element | null = null;
+
+  switch (process.platform) {
+    case 'darwin':
+    case 'cygwin':
+    case 'win32':
+      menuBar = <MenuBar/>;
+      break;
+  }
+
   return (
     <div className="App">
-      <MenuBar/>
+      {menuBar}
       <HashRouter>
         <Route path={'/'} render={() => <Redirect to={'/index'}/>} exact/>
         <Route path={'/index'} component={
