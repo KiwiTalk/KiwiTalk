@@ -1,4 +1,4 @@
-// Usage: node build.js <platform> [extra_platforms...]
+// Usage: node buildscript.js <platform> [extra_platforms...]
 
 const path = require('path');
 const NwBuilder = require('nw-builder');
