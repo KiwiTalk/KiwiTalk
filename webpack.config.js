@@ -35,7 +35,7 @@ module.exports = {
         use: {
           loader: 'file-loader',
           options: {
-            outputPath: 'build',
+            outputPath: 'res',
           }
         },
       },
