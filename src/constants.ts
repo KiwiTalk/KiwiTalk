@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-unused-vars
-import {TalkClient as NodeKakaoTalkClient, WebApiStatusCode} from 'node-kakao';
-import os from 'os';
 import UtilModules from './utils';
 import ChatModule from './chat-utils';
 

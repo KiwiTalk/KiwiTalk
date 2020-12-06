@@ -26,7 +26,7 @@
     "release": "npm run build && node_modules/.bin/concurrently \"npm:package:win64\" \"npm:package:mac64\" \"npm:package:linux64\"",
     "package:win64": "node buildscript.js win64",
     "package:mac64": "node buildscript.js osx64",
-	"package:linux64": "node buildscript.js linux64"
+    "package:linux64": "node buildscript.js linux64"
   },
   "eslintConfig": {
     "extends": "react-app"
