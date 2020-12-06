@@ -53,9 +53,9 @@ export const Login = (client: TalkClient): JSX.Element => {
       const email = loginData.inputData.email;
       const password = loginData.inputData.password;
 
-      client.Auth.requestPasscode(email, password, true)
-          .then(() => client.logout());
-      return <VerifyCode {
+      client.Auth.requestPasscode(email, password, true);
+      return <LoginBackground>
+        <VerifyCode {
         ...{
           registerDevice: (
               passcode: string,
@@ -68,7 +68,8 @@ export const Login = (client: TalkClient): JSX.Element => {
               true,
           ),
           passcodeDone: () => onSubmit(email, password, true, true),
-        }} />;
+        }} />
+      </LoginBackground>;
     }
 
     case AuthStatusCode.ANOTHER_LOGON: {
@@ -77,8 +78,6 @@ export const Login = (client: TalkClient): JSX.Element => {
       );
 
       if (result) {
-        client.logout();
-
         const email = loginData.inputData.email;
         const password = loginData.inputData.password;
         onSubmit(email, password, false, true, true);
@@ -87,7 +86,6 @@ export const Login = (client: TalkClient): JSX.Element => {
     }
     default:
       alert(`오류가 발생했습니다. 오류 코드: ${status}`);
-      client.logout();
       setLoginData({status: -999999, inputData: loginData.inputData});
       break;
   }
