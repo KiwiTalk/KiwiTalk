@@ -129,7 +129,7 @@ export const Login = (client: TalkClient): JSX.Element => {
   if (WebApiStatusCode.SUCCESS === loginData.status) {
     useHistory().push('/chat');
   } else if (AuthStatusCode.DEVICE_NOT_REGISTERED === loginData.status) {
-    return <VerifyCode {
+    return <LoginBackground><VerifyCode {
       ...{
         registerDevice: (passcode: string, permanent: boolean) =>
           client.Auth.registerDevice(
@@ -138,7 +138,7 @@ export const Login = (client: TalkClient): JSX.Element => {
           ),
         passcodeDone: () => onSubmit(
             loginData.inputData.email, loginData.inputData.password, true, true
-        )} } />;
+        )} } /></LoginBackground>;
   }
 
   return <LoginBackground>
