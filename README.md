@@ -12,3 +12,30 @@
 ## 프론트엔드
 
 - [KiwiTalk UI Mockup](https://www.figma.com/file/4Z6MR3oZK5iSvzyvvuT4DO/KiwiTalk-UI-Mockup?node-id=0%3A1)
+
+## 설치
+* Yarn, nwjs 설치
+```
+npm i yarn nwjs -g
+```
+
+* nwjs 설정
+#### Windows
+ > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-win-x64.zip) 다운로드 후 C:\Users\ `유저명`\ \.nwjs\0.50.1-sdk\ 에 압축 해제
+#### Linux
+ > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-linux-x64.zip) 다운로드 후 ~/.nwjs/0.50.1-sdk/ 에 압축 해제
+#### MacOS
+ > [v0.50.1-sdk.zip](https://dl.nwjs.io/v0.50.1/nwjs-sdk-v0.50.1-osx-x64.zip) 다운로드 후 ~/.nwjs/0.50.1-sdk/ 에 압축 해제
+```
+nw use 0.50.1-sdk
+```
+
+* 모듈 설치
+```
+yarn
+```
+
+* 실행
+```
+yarn start
+```
