@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import Color from '../../assets/colors/theme';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
@@ -6,7 +6,7 @@ import {Link} from 'react-router-dom';
 import Input from '../common/input';
 import Dialpad from '../../assets/images/dialpad.svg';
 import DialpadDisabled from '../../assets/images/dialpad_disabled.svg';
-import { AuthApiStruct } from 'node-kakao';
+import {AuthApiStruct} from 'node-kakao';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -82,15 +82,21 @@ const VerifyCode: React.FC<{
     passcodeDone: () => void
 }> = ({registerDevice, passcodeDone}) => {
   const [passcode, setPasscode] = useState('');
-  if (passcode.length >= 4) {
-    registerDevice(passcode, true)
-    .then((apiStruct) => {
-      passcodeDone();
-    })
-    .catch((err) => {
-      alert(`기기 등록 실패 : ${err}`);
-    })
-  }
+  useEffect(() => {
+    if (passcode.length >= 4) {
+      registerDevice(passcode, true)
+          .then((struct: AuthApiStruct) => {
+            if (struct.status !== 0) {
+              throw new Error(`${struct.status} : ${(struct as any).message || ''}`);
+            }
+            passcodeDone();
+          })
+          .catch((err) => {
+            alert(`기기 등록 실패 : ${err}`);
+          });
+    }
+  }, [passcode]);
+
 
   return (
     <Wrapper>
