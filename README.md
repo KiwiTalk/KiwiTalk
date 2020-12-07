@@ -14,17 +14,13 @@
 - [KiwiTalk UI Mockup](https://www.figma.com/file/4Z6MR3oZK5iSvzyvvuT4DO/KiwiTalk-UI-Mockup?node-id=0%3A1)
 
 ## 실행 (Dev)
-* Yarn 설치
-```
-npm i yarn -g
-```
 
 * 모듈 설치
 ```
-yarn
+npm install
 ```
 
 * 실행
 ```
-yarn start
+npm run start
 ```
