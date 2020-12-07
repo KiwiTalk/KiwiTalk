@@ -9,50 +9,37 @@
     "Scripter36",
     "Su-Yong",
     "nnnlog",
-    "sangwon090"
+    "sangwon090",
+    "storycraft"
   ],
-  "main": "public/entry.js",
+  "main": "entry.js",
+  "node-remote": "*://localhost",
   "window": {
     "toolbar": false,
-    "icon": "./public/img/android-chrome-512x512.png"
+    "icon": "img/android-chrome-512x512.png"
   },
-  "homepage": "./",
   "scripts": {
-    "start:react": "react-scripts start",
-    "build:react": "react-scripts build",
-    "test:react": "react-scripts test",
-    "eject:react": "react-scripts eject",
-    "start:nw": "nw .",
-    "start": "concurrently \"cross-env BROWSER=none yarn start:react\" \"wait-on http://localhost:3000 && yarn start:nw\"",
-    "build": "yarn build:react && nwbuild ."
+    "start:nw": "node_modules/.bin/nwbuild -r . --dev",
+    "start:webpack": "node_modules/.bin/webpack serve --mode=development",
+    "start": "node_modules/.bin/concurrently \"npm:start:webpack\" \"npm:start:nw\"",
+    "build": "node_modules/.bin/webpack --mode=production",
+    "release": "npm run build && node_modules/.bin/concurrently \"npm:package:win64\" \"npm:package:mac64\" \"npm:package:linux64\"",
+    "package:win64": "node buildscript.js win64",
+    "package:mac64": "node buildscript.js osx64",
+    "package:linux64": "node buildscript.js linux64"
   },
   "eslintConfig": {
     "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   },
   "dependencies": {
     "bson": "^4.0.4",
     "image-size": "^0.9.1",
     "localforage": "^1.7.3",
-    "node-kakao": "^3.1.4",
-    "nwjs": "^1.4.4",
+    "node-kakao": "^3.1.5",
     "react": "^17.0.0",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "4.0.1",
     "react-spoiler": "^0.4.3",
-    "request-promise": "^4.2.5",
     "styled-components": "^5.1.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.2",
@@ -65,24 +52,28 @@
     "@types/bson": "^4.0.2",
     "@types/jest": "^26.0.0",
     "@types/node": "^14.0.1",
-    "@types/node-forge": "^0.9.3",
-    "@types/nw.gui": "^0.0.20",
-    "@types/nw.js": "^0.13.9",
+    "@types/nw.js": "^0.13.11",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.5",
-    "@types/request-promise": "^4.1.46",
     "@types/styled-components": "^5.1.0",
     "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
     "concurrently": "^5.2.0",
     "cross-env": "^7.0.2",
+    "css-loader": "^5.0.1",
     "eslint": "^7.14.0",
     "eslint-config-google": "^0.14.0",
-    "nw": "^0.50.0",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^4.5.0",
     "nw-builder": "^3.5.7",
-    "wait-on": "^5.0.0"
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.11",
+    "wait-on": "^5.0.0",
+    "webpack": "^5.10.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
   },
   "build": {
     "appId": "io.github.kiwitalk",
@@ -98,8 +89,5 @@
       ],
       "icon": "public/img/android-chrome-512x512.png"
     }
-  },
-  "chromium-args": "--enable-logging=stderr",
-  "node-remote": "<all_urls>",
-  "user-agent": "KT/3.1.9 Wd/10.0 ko"
+  }
 }

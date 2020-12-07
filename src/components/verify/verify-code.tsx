@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import Color from '../../assets/colors/theme';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
@@ -6,10 +6,10 @@ import {Link} from 'react-router-dom';
 import Input from '../common/input';
 import Dialpad from '../../assets/images/dialpad.svg';
 import DialpadDisabled from '../../assets/images/dialpad_disabled.svg';
+import {AuthApiStruct} from 'node-kakao';
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 100vh;
   padding-left: 47px;
   padding-top: 80px;
   box-sizing: border-box;
@@ -78,18 +78,32 @@ const PreviousLink = styled(Link)`
 `;
 
 const VerifyCode: React.FC<{
-    onSubmit: (passcode: string) => any
-}> = ({onSubmit}) => {
+    registerDevice: (passcode: string, permanent: boolean) => Promise<AuthApiStruct>,
+    passcodeDone: () => void
+}> = ({registerDevice, passcodeDone}) => {
   const [passcode, setPasscode] = useState('');
+  useEffect(() => {
+    if (passcode.length >= 4) {
+      registerDevice(passcode, true)
+          .then((struct: AuthApiStruct) => {
+            if (struct.status !== 0) {
+              throw new Error(`${struct.status} : ${(struct as any).message || ''}`);
+            }
+            passcodeDone();
+          })
+          .catch((err) => {
+            alert(`기기 등록 실패 : ${err}`);
+          });
+    }
+  }, [passcode]);
+
+
   return (
     <Wrapper>
       <TitleWrapper>
         <Logo src={logo} alt={'logo'}/>
       </TitleWrapper>
-      <Form onSubmit={(e) => {
-        onSubmit(passcode);
-        e.preventDefault();
-      }}>
+      <Form>
         <Input placeholder={
           '인증 번호를 입력해주세요.'
         } icon={
@@ -106,9 +120,8 @@ const VerifyCode: React.FC<{
             setPasscode(event.target.value);
           }
         }/>
-        <Button disabled={passcode.length !== 4}>인증하기</Button>
-        <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
       </Form>
+      <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
     </Wrapper>
   );
 };

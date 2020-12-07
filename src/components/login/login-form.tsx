@@ -12,6 +12,7 @@ import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
 
 import CheckBox from '../common/check-box';
 import Input from '../common/input';
+import UtilModules from '../../utils';
 
 const Wrapper = styled.div`
   padding: 50px 0 0 50px;
@@ -67,10 +68,11 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
     autoLogin: false,
   });
 
+  // TODO: FIX
   useEffect(() => {
     (async () => {
-      const autoLogin = await nw.global.login.isAutoLogin();
-      const email = await nw.global.login.getEmail();
+      const autoLogin = await UtilModules.login.isAutoLogin();
+      const email = await UtilModules.login.getEmail();
       const saveEmail = !!email;
       setForm({email, autoLogin, saveEmail, password: ''});
     })();

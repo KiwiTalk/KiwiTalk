@@ -10,9 +10,8 @@ import {
   VideoAttachment,
 } from 'node-kakao';
 
-
 export async function makeTemplate(
-    type: any,
+    type: ChatType,
     _path: string,
 ): Promise<AttachmentTemplate | undefined> {
   const file = fs.readFileSync(_path);

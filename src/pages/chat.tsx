@@ -9,12 +9,16 @@ import {
   ChatType,
   MoreSettingsStruct,
   TalkClient,
-  TalkPacketHandler,
 } from 'node-kakao';
-import {PacketSyncMessageRes} from 'node-kakao/dist/packet/packet-sync-message';
+import {
+  PacketSyncMessageReq,
+  PacketSyncMessageRes,
+} from 'node-kakao/dist/packet/packet-sync-message';
 import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
+import constants from '../constants';
+import {useHistory} from 'react-router-dom';
 
 const Wrapper = styled.div`
 width: 100%;
@@ -23,7 +27,7 @@ box-sizing: border-box;
 display: flex;
 flex-direction: row;
 padding-top: ${(() => {
-    switch (nw.process.platform) {
+    switch (process.platform) {
       case 'darwin':
       case 'cygwin':
       case 'win32':
@@ -34,18 +38,20 @@ padding-top: ${(() => {
   })()}px;
 `;
 
-const talkClient: TalkClient = nw.global.talkClient;
-
-const makeTemplate = nw.global.chat.makeTemplate;
+const makeTemplate = constants.ChatModule.makeTemplate;
 
 const records: boolean[] = [];
 
-const Chat = (): JSX.Element => {
+const Chat = (talkClient: TalkClient): JSX.Element => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(-1);
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
   const [chatList, setChatList] = useState<ChatObject[]>([]);
   const [inputText, setInputText] = useState('');
+
+  if (!talkClient.Logon) {
+    useHistory().push('/index');
+  }
 
   const messageHook = (chat: ChatObject) => {
     setChatList((prev) => [...prev, chat]);
@@ -55,53 +61,54 @@ const Chat = (): JSX.Element => {
     channelList.forEach(async (channel, index) => {
       if (index !== selectedChannel) return;
       if (records[index]) return;
-      // const lastChat = channel.LastChat as ChatObject;
-      // setChatList((prev) => [lastChat]);
+      console.log(channel.Id.toString());
+      const lastTokenId = (
+        await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
+            new PacketSyncMessageReq(
+                channel.Id,
+                Long.fromInt(1), 1, Long.fromInt(2),
+            ),
+        )
+      ).LastTokenId;
 
-      const e = talkClient.NetworkManager.Handler as TalkPacketHandler;
-      let f = 0;
-      const lastTokenId = channel.LastChat?.LogId as Long;
-      // e.on("MCHATLOGS", (pk) => console.log(pk));
-      e.on('SYNCMSG', async (pk: PacketSyncMessageRes) => {
-        if (f) return;
-        f = 1;
-        if (pk.ChatList.length < 1) return;
-        let startId = pk.ChatList[0].prevLogId;
-        const update: ChatObject[] = [];
-        do {
-          const chatLog = (
-              await talkClient
-                  .ChatManager
-                  .getChatListFrom(
-                      channel.Id,
-                      startId,
-                  )
-          ).result as ChatObject[];
-
-          console.log(chatLog);
-          if (chatLog.length > 0) {
-            update.push(...chatLog);
-            if (
-              chatLog.length > 0 &&
-                startId.notEquals(chatLog[chatLog.length - 1].LogId)
-            ) {
-              startId = chatLog[chatLog.length - 1].LogId;
-              continue;
-            }
-          }
-          break;
-          // eslint-disable-next-line no-constant-condition
-        } while (true);
-        setChatList((prev) => [...prev, ...update]);
-      });
-      await talkClient
-          .ChatManager
-          .getChatListBetween(
-              channel.Id,
-              Long.fromString('1'),
-              1,
-              lastTokenId,
+      const pk = await talkClient
+          .NetworkManager
+          .requestPacketRes<PacketSyncMessageRes>(
+              new PacketSyncMessageReq(
+                  channel.Id,
+                  Long.fromInt(1),
+                  1,
+                  lastTokenId,
+              ),
           );
+
+      if (pk.ChatList.length < 1) return;
+      let startId = pk.ChatList[0].prevLogId;
+      const update: ChatObject[] = [];
+      do {
+        const chatLog = (
+            await talkClient
+                .ChatManager
+                .getChatListFrom(
+                    channel.Id,
+                    startId,
+                )
+        ).result as ChatObject[];
+
+        if (chatLog.length > 0) {
+          update.push(...chatLog);
+          if (
+            chatLog.length > 0 &&
+              startId.notEquals(chatLog[chatLog.length - 1].LogId)
+          ) {
+            startId = chatLog[chatLog.length - 1].LogId;
+            continue;
+          }
+        }
+        break;
+        // eslint-disable-next-line no-constant-condition
+      } while (true);
+      setChatList((prev) => [...prev, ...update]);
 
       records[index] = true;
     });

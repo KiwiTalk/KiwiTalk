@@ -46,7 +46,7 @@ export async function setAutoLoginEmail(autoLoginEmail: string): Promise<void> {
 export async function getAutoLoginEmail(): Promise<string> {
   try {
     const autoLoginEmail: string | null =
-        await localForage.getItem('autoLoginEmail');
+            await localForage.getItem('autoLoginEmail');
 
     if (autoLoginEmail) return autoLoginEmail;
     else return '';

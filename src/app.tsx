@@ -3,27 +3,32 @@ import {HashRouter, Redirect, Route} from 'react-router-dom';
 import './app.css';
 
 import MenuBar from './components/common/menu-bar/menu-bar';
-import Login from './pages/login';
-import VerifyCode from './pages/verify';
-import Chat from './pages/chat';
+import login from './pages/login';
+import chat from './pages/chat';
+import {TalkClient} from 'node-kakao';
 
-export const App = () => {
-  let menubar: JSX.Element | null = null;
+export const App = (opts: { client: TalkClient }): JSX.Element => {
+  let menuBar: JSX.Element | null = null;
 
-  switch (nw.process.platform) {
-    case 'darwin': case 'cygwin': case 'win32':
-      menubar = <MenuBar/>;
+  switch (process.platform) {
+    case 'darwin':
+    case 'cygwin':
+    case 'win32':
+      menuBar = <MenuBar/>;
       break;
   }
 
   return (
     <div className="App">
-      {menubar}
+      {menuBar}
       <HashRouter>
         <Route path={'/'} render={() => <Redirect to={'/index'}/>} exact/>
-        <Route path={'/index'} component={Login} exact/>
-        <Route path={'/verify'} component={VerifyCode} exact/>
-        <Route path={'/chat'} component={Chat} exact/>
+        <Route path={'/index'} component={
+          () => login(opts.client)
+        } exact/>
+        <Route path={'/chat'} component={
+          () => chat(opts.client)
+        } exact/>
       </HashRouter>
     </div>
   );

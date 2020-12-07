@@ -53,12 +53,13 @@ const Image = styled.img`
   -webkit-user-drag: none;
 `;
 
-const MenuBar = (): JSX.Element => {
+const MenuBar = (): JSX.Element | null => {
+  // eslint-disable-next-line no-unused-vars
   const [isMaximum, setMaximum] = useState(false);
 
-  const win = nw.Window.get();
-  win.once('maximize', () => setMaximum(true));
-  win.once('restore', () => setMaximum(false));
+  const window = nw.Window.get();
+  window.once('maximize', () => setMaximum(true));
+  window.once('unmaximize',  () => setMaximum(false));
 
   return (
     <Wrapper className={'menu-bar'}>
@@ -68,13 +69,13 @@ const MenuBar = (): JSX.Element => {
         </Button>
       </div>
       <div>
-        <Button onClick={() => win.minimize()}>
+        <Button onClick={() => window.minimize()}>
           <Image src={iconMinimize}/>
         </Button>
-        <Button onClick={() => isMaximum ? win.restore() : win.maximize()}>
+        <Button onClick={() => { if(isMaximum) { window.restore() } else { window.maximize() }}}>
           <Image src={iconMaximize}/>
         </Button>
-        <CloseButton onClick={() => win.close()}>
+        <CloseButton onClick={() => window.close()}>
           <Image src={iconClose}/>
         </CloseButton>
       </div>
