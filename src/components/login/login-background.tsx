@@ -64,7 +64,7 @@ const LoginBackground: React.FC = ({children}) => {
       <Background2/>
       <Kiwi/>
       {children}
-      <VersionText><b>Kiwitalk</b> ver 0.0.1</VersionText>
+      <VersionText><b>KiwiTalk</b> ver 0.0.1</VersionText>
     </Wrapper>
   );
 };
