@@ -85,29 +85,26 @@ const Chat = (talkClient: TalkClient): JSX.Element => {
       if (pk.ChatList.length < 1) return;
       let startId = pk.ChatList[0].prevLogId;
       const update: ChatObject[] = [];
-      do {
-        const chatLog = (
+      let chatLog: ChatObject[] | null | undefined;
+
+      while (
+        (
+          chatLog = (
             await talkClient
                 .ChatManager
                 .getChatListFrom(
                     channel.Id,
                     startId,
                 )
-        ).result as ChatObject[];
-
-        if (chatLog.length > 0) {
-          update.push(...chatLog);
-          if (
-            chatLog.length > 0 &&
-              startId.notEquals(chatLog[chatLog.length - 1].LogId)
-          ) {
-            startId = chatLog[chatLog.length - 1].LogId;
-            continue;
-          }
+          ).result
+        ) && chatLog.length > 0) {
+        update.push(...chatLog);
+        if (
+          startId.notEquals(chatLog[chatLog.length - 1].LogId)
+        ) {
+          startId = chatLog[chatLog.length - 1].LogId;
         }
-        break;
-        // eslint-disable-next-line no-constant-condition
-      } while (true);
+      }
       setChatList((prev) => [...prev, ...update]);
 
       records[index] = true;

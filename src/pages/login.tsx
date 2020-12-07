@@ -10,7 +10,15 @@ import UtilModules from '../utils';
 
 export const Login = (client: TalkClient): JSX.Element => {
   const [loginData, setLoginData] = useState(
-      {status: -999999, inputData: {email: '', password: '', autoLogin: false}});
+      {
+        status: -999999,
+        inputData:
+            {
+              email: '',
+              password: '',
+              autoLogin: false,
+            },
+      });
 
   const onSubmit = async (
       email: string,
@@ -22,13 +30,17 @@ export const Login = (client: TalkClient): JSX.Element => {
   ) => {
     await UtilModules.login.setAutoLogin(autoLogin);
 
-    let status = -999999;
+    let status: number;
     try {
       if (!token) await client.login(email, password, force);
       else await client.loginToken(email, password, force);
       await UtilModules.login.setEmail(saveEmail ? email : '');
-      await UtilModules.login.setAutoLoginEmail(client.Auth.getLatestAccessData().autoLoginEmail);
-      await UtilModules.login.setAutoLoginToken(client.Auth.generateAutoLoginToken());
+      await UtilModules.login.setAutoLoginEmail(
+          client.Auth.getLatestAccessData().autoLoginEmail,
+      );
+      await UtilModules.login.setAutoLoginToken(
+          client.Auth.generateAutoLoginToken(),
+      );
 
       status = WebApiStatusCode.SUCCESS;
     } catch (error) {
@@ -100,14 +112,14 @@ export const Login = (client: TalkClient): JSX.Element => {
         alert('로그인 성공');
         break;
 
-      case AuthStatusCode.DEVICE_NOT_REGISTERED:
+      case AuthStatusCode.DEVICE_NOT_REGISTERED: {
         const email = loginData.inputData.email;
         const password = loginData.inputData.password;
 
         client.Auth.requestPasscode(email, password, true);
         break;
-      case AuthStatusCode.ANOTHER_LOGON:
-        // eslint-disable-next-line no-case-declarations
+      }
+      case AuthStatusCode.ANOTHER_LOGON: {
         const result = window.confirm(
             '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
         );
@@ -118,7 +130,7 @@ export const Login = (client: TalkClient): JSX.Element => {
           onSubmit(email, password, false, true, true);
         }
         break;
-
+      }
       default:
         alert(`오류가 발생했습니다. 오류 코드: ${loginData.status}`);
         setLoginData({status: -999999, inputData: loginData.inputData});
@@ -137,7 +149,7 @@ export const Login = (client: TalkClient): JSX.Element => {
               loginData.inputData.password, permanent, true,
           ),
         passcodeDone: () => onSubmit(
-            loginData.inputData.email, loginData.inputData.password, true, true
+            loginData.inputData.email, loginData.inputData.password, true, true,
         )} } /></LoginBackground>;
   }
 
