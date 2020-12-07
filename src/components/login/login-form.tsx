@@ -2,8 +2,6 @@ import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import Color from '../../assets/colors/theme';
 
-import LoginTitle from './login-title';
-
 import AccountCircle from '../../assets/images/account_circle.svg';
 import AccountCircleDisabled
   from '../../assets/images/account_circle_disabled.svg';
@@ -13,20 +11,6 @@ import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
 import CheckBox from '../common/check-box';
 import Input from '../common/input';
 import UtilModules from '../../utils';
-
-const Wrapper = styled.div`
-  padding: 50px 0 0 50px;
-
-  @media screen and (max-width: 560px) {
-    width: 100vw;
-    height: calc(100vh - 30px);
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-`;
 
 const Button = styled.button`
   width: 100%;
@@ -91,8 +75,6 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
   };
 
   return (
-    <Wrapper>
-      <LoginTitle/>
       <Form onSubmit={onFormSubmit}>
         <Input placeholder={
           '카카오계정 (이메일 또는 전화번호)'
@@ -142,7 +124,6 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
           }
         } />
       </Form>
-    </Wrapper>
   );
 };
 

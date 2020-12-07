@@ -2,7 +2,6 @@ import React, {ChangeEvent, useEffect, useState} from 'react';
 import Color from '../../assets/colors/theme';
 import styled from 'styled-components';
 import logo from '../../assets/images/text_logo.svg';
-import {Link} from 'react-router-dom';
 import Input from '../common/input';
 import Dialpad from '../../assets/images/dialpad.svg';
 import DialpadDisabled from '../../assets/images/dialpad_disabled.svg';
@@ -13,16 +12,6 @@ const Wrapper = styled.div`
   padding-left: 47px;
   padding-top: 80px;
   box-sizing: border-box;
-`;
-
-const TitleWrapper = styled.div`
-  margin-bottom: 50px;
-  color: #000000;
-  user-select: none;
-`;
-
-const Logo = styled.img`
-  -webkit-user-drag: none;
 `;
 
 const Form = styled.form`
@@ -62,7 +51,7 @@ const Button = styled.button`
   }
 `;
 
-const PreviousLink = styled(Link)`
+const PreviousLink = styled.a`
   font-family: NanumBarunGothic;
   font-style: normal;
   font-weight: normal;
@@ -77,33 +66,18 @@ const PreviousLink = styled(Link)`
   user-select: none;
 `;
 
-const VerifyCode: React.FC<{
-    registerDevice: (passcode: string, permanent: boolean) => Promise<AuthApiStruct>,
-    passcodeDone: () => void
-}> = ({registerDevice, passcodeDone}) => {
+const VerifyCodeForm: React.FC<{
+    onSubmit: (passcode: string, permanent: boolean) => void
+}> = ({onSubmit}) => {
   const [passcode, setPasscode] = useState('');
   useEffect(() => {
     if (passcode.length >= 4) {
-      registerDevice(passcode, true)
-          .then((struct: AuthApiStruct) => {
-            if (struct.status !== 0) {
-              throw new Error(`${struct.status} : ${(struct as any).message || ''}`);
-            }
-            passcodeDone();
-          })
-          .catch((err) => {
-            alert(`기기 등록 실패 : ${err}`);
-          });
+      onSubmit(passcode, true);
     }
   }, [passcode]);
 
-
   return (
-    <Wrapper>
-      <TitleWrapper>
-        <Logo src={logo} alt={'logo'}/>
-      </TitleWrapper>
-      <Form>
+    <Form>
         <Input placeholder={
           '인증 번호를 입력해주세요.'
         } icon={
@@ -121,9 +95,7 @@ const VerifyCode: React.FC<{
           }
         }/>
       </Form>
-      <PreviousLink to='/index'>처음으로 돌아가기</PreviousLink>
-    </Wrapper>
   );
 };
 
-export default VerifyCode;
+export default VerifyCodeForm;

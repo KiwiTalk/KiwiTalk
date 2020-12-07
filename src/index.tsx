@@ -21,9 +21,13 @@ axios.defaults.adapter = require('axios/lib/adapters/http');
     xvcSeedList: ['JAYDEN', 'JAYMOND'],
   });
 
+  client.on('disconnected', (reason) => {
+    alert('disconnected. ' + reason);
+  })
+
   ReactDOM.render(
       <React.StrictMode>
-        <App { ...{client} }/>
+        <App { ...{client} } />
       </React.StrictMode>,
       document.getElementById('root'),
   );
