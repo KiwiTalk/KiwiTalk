@@ -1,72 +1,68 @@
 import React, {useContext, useEffect, useState} from 'react';
 
-import {AuthApiStruct, AuthStatusCode, WebApiStatusCode} from 'node-kakao';
+import {AuthStatusCode} from 'node-kakao';
 
 import LoginBackground from '../components/login/login-background';
 import LoginForm from '../components/login/login-form';
-import VerifyCodeForm from '../components/verify/verify-code-form';
 import UtilModules from '../utils';
 import { AppContext } from '../app';
-import styled from 'styled-components';
+import { DeviceRegistration } from '../components/register/device-registration';
 
-const PreviousLink = styled.a`
-  font-family: NanumBarunGothic;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 10px;
-  line-height: 11px;
-  width: 280px;
-  align-items: center;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.45);
-  text-decoration: none;
-  margin-top: 16px;
-  user-select: none;
-`;
+export interface LoginFormData {
+  email: string;
+  password: string;
+  saveEmail: boolean;
+  autoLogin: boolean;
+}
+
+interface LoginData {
+  token: boolean,
+  inputData: LoginFormData;
+}
 
 export const Login = (): JSX.Element => {
-  const [loginData, setLoginData] = useState(
-      {
-        status: -999999,
-        inputData:
-            {
-              email: '',
-              password: '',
-              autoLogin: false,
-            },
-      });
+  const [lastLoginData, setLastLoginData] = useState(null as LoginData | null);
+  const [errorStatus, setErrorStatus] = useState(null as number | null);
 
   let client = useContext(AppContext).client;
 
   const onSubmit = async (
-      email: string,
-      password: string,
-      saveEmail: boolean,
-      autoLogin: boolean,
+      formData: LoginFormData,
       force = false,
       token = false,
   ) => {
-    await UtilModules.login.setAutoLogin(autoLogin);
+    await UtilModules.login.setAutoLogin(formData.autoLogin);
 
-    let status: number;
+    let status: number = 0;
     try {
-      if (!token) await client.login(email, password, force);
-      else await client.loginToken(email, password, force);
-      await UtilModules.login.setEmail(saveEmail ? email : '');
+      if (!token) await client.login(formData.email, formData.password, force);
+      else await client.loginToken(formData.email, formData.password, force);
+      await UtilModules.login.setEmail(formData.saveEmail ? formData.email : '');
       await UtilModules.login.setAutoLoginEmail(
           client.Auth.getLatestAccessData().autoLoginEmail,
       );
       await UtilModules.login.setAutoLoginToken(
           client.Auth.generateAutoLoginToken(),
       );
-
-      status = WebApiStatusCode.SUCCESS;
     } catch (error) {
-      status = error.status || -999999;
+      status = error.status || null;
       console.log(error);
-      
-      setLoginData({status, inputData: {email, password, autoLogin}});
+
+      if (AuthStatusCode.ANOTHER_LOGON === status) {
+        const result = window.confirm(
+          '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
+        );
+  
+        if (result) {
+          console.log(formData, true, token);
+          onSubmit(formData, true, token);
+        }
+      } else {
+        setErrorStatus(status);
+      }
     }
+
+    setLastLoginData({token, inputData: formData});
     console.log('login: ' + status);
   };
 
@@ -80,34 +76,16 @@ export const Login = (): JSX.Element => {
           if (loginToken !== null) {
             const autoLoginEmail = await UtilModules.login.getAutoLoginEmail();
 
-            try {
-              await onSubmit(
-                  autoLoginEmail,
-                  loginToken,
-                  true,
-                  true,
-                  false,
-                  true,
-              );
-            } catch (reason) {
-              if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
-                const result = window.confirm(
-                    '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
-                );
-                if (result) {
-                  await onSubmit(
-                      autoLoginEmail,
-                      loginToken,
-                      true,
-                      true,
-                      true,
-                      true,
-                  );
-                }
-              } else {
-                throw reason;
-              }
-            }
+            await onSubmit(
+              {
+                email: autoLoginEmail,
+                password: loginToken,
+                saveEmail: true,
+                autoLogin: true
+              },
+              false,
+              true,
+            );
 
             alert('자동로그인 했습니다.');
           } else {
@@ -121,63 +99,23 @@ export const Login = (): JSX.Element => {
     })();
   }, []);
 
-  useEffect(() => {
-    switch (loginData.status) {
-      case -999999:
-      case WebApiStatusCode.SUCCESS:
-        break;
+  if (lastLoginData && errorStatus) {
+    let formData = lastLoginData.inputData;
 
-      case AuthStatusCode.DEVICE_NOT_REGISTERED: {
-        const email = loginData.inputData.email;
-        const password = loginData.inputData.password;
-
-        client.Auth.requestPasscode(email, password, true);
-        break;
-      }
-      case AuthStatusCode.ANOTHER_LOGON: {
-        const result = window.confirm(
-            '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
-        );
-
-        if (result) {
-          const email = loginData.inputData.email;
-          const password = loginData.inputData.password;
-          onSubmit(email, password, false, true, true);
-        }
-        break;
-      }
-      default:
-        alert(`오류가 발생했습니다. 오류 코드: ${loginData.status}`);
-        setLoginData({status: -999999, inputData: loginData.inputData});
-        break;
+    if (AuthStatusCode.DEVICE_NOT_REGISTERED === errorStatus) {
+      return <LoginBackground>
+        <DeviceRegistration
+        formData={formData}
+        onRegister={(permanent: boolean) => onSubmit(formData)}
+        goPrevious={() => setErrorStatus(null)}
+        />
+        </LoginBackground>;
     }
-  }, [loginData]);
-
-  if (AuthStatusCode.DEVICE_NOT_REGISTERED === loginData.status) {
-    return <LoginBackground>
-      <VerifyCodeForm onSubmit={(passcode: string, permanent: boolean) => {
-        client.Auth.registerDevice(
-          passcode, loginData.inputData.email,
-          loginData.inputData.password, permanent, true,
-        ).then((struct: AuthApiStruct) => {
-          if (struct.status !== 0) {
-            throw new Error(`${struct.status} : ${(struct as any).message || ''}`);
-          }
-
-          onSubmit(loginData.inputData.email, loginData.inputData.password, true, true);
-        })
-        .catch((err) => {
-          alert(`기기 등록 실패 : ${err}`);
-        });
-      }
-      }/>
-        <PreviousLink onClick={() => setLoginData({status: -999999, inputData: loginData.inputData})}>처음으로 돌아가기</PreviousLink>
-      </LoginBackground>;
   }
 
   return <LoginBackground>
-    <LoginForm onSubmit={onSubmit}/>
-  </LoginBackground>;
+      <LoginForm onSubmit={onSubmit}/>
+    </LoginBackground>;
 };
 
 export default Login;

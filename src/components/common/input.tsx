@@ -8,23 +8,24 @@ border: none;
 margin-left: 10px;
 padding: 0;
 background: none;
+font-size: 12px;
+line-height: 12px;
 
 :focus {
   outline: none;
 }
 
 ::placeholder {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(191, 189, 193, 1);
 }
 `;
 
 const InputWrapper = styled.div`
 width: 100%;
-height: 50px;
+height: 45px;
 display: flex;
 align-items: center;
-margin-bottom: 20px;
+margin-bottom: 12px;
 border-radius: 10px;
 box-sizing: border-box;
 padding: 10px;
