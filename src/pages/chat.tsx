@@ -18,7 +18,6 @@ import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
 import constants from '../constants';
-import {useHistory} from 'react-router-dom';
 import { AppContext } from '../app';
 
 const Wrapper = styled.div`

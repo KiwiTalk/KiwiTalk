@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import {HashRouter, Redirect, Route} from 'react-router-dom';
 import './app.css';
 
 import MenuBar from './components/common/menu-bar/menu-bar';
