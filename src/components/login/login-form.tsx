@@ -10,8 +10,8 @@ import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
 import CheckBox from '../common/check-box';
 import Input from '../common/input';
 import UtilModules from '../../utils';
-import { Button } from '../common/button';
-import { LoginFormData } from '../../pages/login';
+import {Button} from '../common/button';
+import {LoginFormData} from '../../pages/login';
 
 const Form = styled.form`
   width: 280px;
@@ -53,55 +53,59 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
   };
 
   return (
-      <Form onSubmit={onFormSubmit}>
-        <Input placeholder={
-          '카카오계정 (이메일 또는 전화번호)'
-        } icon={
-          AccountCircle
-        } disabledIcon={
-          AccountCircleDisabled
-        } name={
-          'email'
-        } value={
-          form.email
+    <Form onSubmit={onFormSubmit}>
+      <Input placeholder={
+        '카카오계정 (이메일 또는 전화번호)'
+      } icon={
+        AccountCircle
+      } disabledIcon={
+        AccountCircleDisabled
+      } name={
+        'email'
+      } value={
+        form.email
+      }
+      onChange={onChange}/>
+      <Input placeholder={
+        '비밀번호'
+      } type={
+        'password'
+      } icon={
+        VPNKey
+      } disabledIcon={
+        VPNKeyDisabled
+      } name={
+        'password'
+      }
+      value={form.password} onChange={onChange}/>
+      <Button style={
+        {
+          marginTop: '12px',
         }
-        onChange={onChange}/>
-        <Input placeholder={
-          '비밀번호'
-        } type={
-          'password'
-        } icon={
-          VPNKey
-        } disabledIcon={
-          VPNKeyDisabled
-        } name={
-          'password'
+      }>로그인</Button>
+      <CheckBox checked={
+        form.saveEmail
+      } label={
+        '아이디 저장'
+      } onClick={
+        () => setForm({...form, saveEmail: !form.saveEmail})
+      } style={
+        {
+          marginTop: '10px',
         }
-        value={form.password} onChange={onChange}/>
-        <Button>로그인</Button>
-        <CheckBox checked={
-          form.saveEmail
-        } label={
-          '아이디 저장'
-        } onClick={
-          () => setForm({...form, saveEmail: !form.saveEmail})
-        } style={
-          {
-            marginTop: '10px',
-          }
-        } />
-        <CheckBox checked={
-          form.autoLogin
-        } label={
-          '실행 시 자동 로그인'
-        } onClick={
-          () => setForm({...form, autoLogin: !form.autoLogin})
-        } style={
-          {
-            marginTop: '10px',
-          }
-        } />
-      </Form>
+      } />
+      <CheckBox checked={
+        form.autoLogin
+      } label={
+        '실행 시 자동 로그인'
+      } onClick={
+        () => setForm({...form, autoLogin: !form.autoLogin})
+      } style={
+        {
+          marginTop: '10px',
+        }
+      } />
+    </Form>
   );
 };
 

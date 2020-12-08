@@ -2,9 +2,6 @@
 enum ThemeColor {
   BACKGROUND1 = '#FAE100',
   BACKGROUND2 = '#FFD400',
-  BUTTON = '#1E2019',
-  BUTTON_HOVER = '#323232',
-  CHECK_BOX = '#1E2019',
   GREY_100 = '#000000',
   GREY_200 = '#404040',
   GREY_400 = '#808080',
@@ -15,7 +12,16 @@ enum ThemeColor {
   BLUE_300 = '#178DB4',
   BLUE_400 = '#37ABD0',
   BLUE_700 = '#8CC4D6',
-  RED_400 = '#EB5757'
+  RED_400 = '#EB5757',
+  YELLOW = '#FFD400',
+  BLACK = '#1E2019',
+  BLACK_VARIENT1 = '#30323D',
+  BLACK_VARIENT2 = '#4D5061',
+  GREY = '#BFBDC1',
+  GREY_VARIENT1 = '#DFDEE0',
+  GREY_VARIENT2 = '#F2F2F3',
+  WHITE = '#FFFFFF',
+  RED = '#FE5F55',
 }
 
 export default ThemeColor;

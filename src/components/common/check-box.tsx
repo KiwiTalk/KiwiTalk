@@ -18,7 +18,7 @@ const CheckBoxUnchecked = styled.div`
     padding-left: 16px;
     padding-top: 16px;
     border-radius: 2px;
-    border: 1px ${ThemeColor.GREY_100} solid;
+    border: 1px ${ThemeColor.BLACK} solid;
     margin-right: 6px;
 `;
 
@@ -35,7 +35,7 @@ const CheckBoxLabel = styled.span`
     font-weight: normal;
     font-size: 12px;
     line-height: 18px;
-    color: ${ThemeColor.CHECK_BOX};
+    color: ${ThemeColor.BLACK};
 `;
 
 interface CheckBoxProps extends HTMLAttributes<HTMLDivElement> {
