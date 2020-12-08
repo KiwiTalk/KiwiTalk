@@ -4,7 +4,7 @@ import './index.css';
 import App from './app';
 import UtilModules from './utils';
 import * as serviceWorker from './service-worker';
-import {TalkClient} from 'node-kakao';
+import {LocoKickoutType, TalkClient} from 'node-kakao';
 import os from 'os';
 import axios from 'axios';
 
@@ -22,8 +22,13 @@ axios.defaults.adapter = require('axios/lib/adapters/http');
   });
 
   client.on('disconnected', (reason) => {
-    alert('disconnected. ' + reason);
-  })
+    if (
+      reason !== LocoKickoutType.UNKNOWN &&
+        reason !== LocoKickoutType.CHANGE_SERVER
+    ) {
+      alert('disconnected. ' + reason);
+    }
+  });
 
   ReactDOM.render(
       <React.StrictMode>

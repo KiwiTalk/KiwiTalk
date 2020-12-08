@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './app.css';
 
 import MenuBar from './components/common/menu-bar/menu-bar';
@@ -21,9 +21,9 @@ export interface AppTalkContext {
 export const AppContext: React.Context<AppTalkContext> = React.createContext({} as AppTalkContext);
 
 export const App = (opts: { client: TalkClient }) => {
-  let [logon, setLogon] = useState(false);
+  const [logon, setLogon] = useState(false);
 
-  let client = opts.client;
+  const client = opts.client;
 
   let menuBar: JSX.Element | null = null;
 
@@ -35,13 +35,16 @@ export const App = (opts: { client: TalkClient }) => {
       break;
   }
 
-  let loginHandler = () => {
+  const loginHandler = () => {
     alert('로그인 되었습니다.');
     setLogon(true);
   };
 
-  let disconnectedHandler = (reason: LocoKickoutType) => {
-    if (reason === LocoKickoutType.CHANGE_SERVER) {
+  const disconnectedHandler = (reason: LocoKickoutType) => {
+    if (
+      reason === LocoKickoutType.CHANGE_SERVER ||
+        reason === LocoKickoutType.UNKNOWN
+    ) {
       return;
     }
 
@@ -74,6 +77,6 @@ export const App = (opts: { client: TalkClient }) => {
       </AppContext.Provider>
     </div>
   );
-}
+};
 
 export default App;
