@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, FormEvent, useContext, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import SidePanel from '../components/common/side-bar/side-panel';
 import SideBar from '../components/common/side-bar/side-bar';
@@ -18,7 +18,7 @@ import ChatRoom from '../components/chat/chat-room/chat-room';
 import {Long} from 'bson';
 import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
 import constants from '../constants';
-import {useHistory} from 'react-router-dom';
+import { AppContext } from '../app';
 
 const Wrapper = styled.div`
 width: 100%;
@@ -42,16 +42,14 @@ const makeTemplate = constants.ChatModule.makeTemplate;
 
 const records: boolean[] = [];
 
-const Chat = (talkClient: TalkClient): JSX.Element => {
+const Chat = (): JSX.Element => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(-1);
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
   const [chatList, setChatList] = useState<ChatObject[]>([]);
   const [inputText, setInputText] = useState('');
 
-  if (!talkClient.Logon) {
-    useHistory().push('/index');
-  }
+  let talkClient = useContext(AppContext).client;
 
   const messageHook = (chat: ChatObject) => {
     setChatList((prev) => [...prev, chat]);

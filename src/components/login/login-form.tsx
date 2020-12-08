@@ -1,8 +1,5 @@
 import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import Color from '../../assets/colors/theme';
-
-import LoginTitle from './login-title';
 
 import AccountCircle from '../../assets/images/account_circle.svg';
 import AccountCircleDisabled
@@ -13,51 +10,16 @@ import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
 import CheckBox from '../common/check-box';
 import Input from '../common/input';
 import UtilModules from '../../utils';
-
-const Wrapper = styled.div`
-  padding: 50px 0 0 50px;
-
-  @media screen and (max-width: 560px) {
-    width: 100vw;
-    height: calc(100vh - 30px);
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-`;
-
-const Button = styled.button`
-  width: 100%;
-  height: 50px;
-  border: none;
-  margin-top: 4px;
-  background: ${Color.BUTTON};
-  color: #FFFFFF;
-  border-radius: 10px;
-  font-weight: 600;
-  user-select: none;
-
-  :hover {
-    background: ${Color.BUTTON_HOVER};
-  }
-
-  :focus {
-    outline:none;
-  }
-`;
+import { Button } from '../common/button';
+import { LoginFormData } from '../../pages/login';
 
 const Form = styled.form`
-  width: 300px;
+  width: 280px;
   margin-bottom: 50px;
 `;
 
 export type LoginHandler = (
-    email: string,
-    password: string,
-    saveEmail: boolean,
-    autoLogin: boolean
+  formData: LoginFormData
 ) => any;
 
 const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
@@ -66,7 +28,7 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
     password: '',
     saveEmail: false,
     autoLogin: false,
-  });
+  } as LoginFormData);
 
   // TODO: FIX
   useEffect(() => {
@@ -86,13 +48,11 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
   };
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit(form.email, form.password, form.saveEmail, form.autoLogin);
+    onSubmit(form);
     setForm({email: '', password: '', saveEmail: false, autoLogin: false});
   };
 
   return (
-    <Wrapper>
-      <LoginTitle/>
       <Form onSubmit={onFormSubmit}>
         <Input placeholder={
           '카카오계정 (이메일 또는 전화번호)'
@@ -142,7 +102,6 @@ const LoginForm: React.FC<{ onSubmit: LoginHandler }> = ({onSubmit}) => {
           }
         } />
       </Form>
-    </Wrapper>
   );
 };
 

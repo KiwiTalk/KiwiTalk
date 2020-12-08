@@ -35,7 +35,7 @@ const CheckBoxLabel = styled.span`
     font-weight: normal;
     font-size: 12px;
     line-height: 18px;
-    color: ${ThemeColor.GREY_100};
+    color: ${ThemeColor.CHECK_BOX};
 `;
 
 interface CheckBoxProps extends HTMLAttributes<HTMLDivElement> {

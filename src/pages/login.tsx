@@ -1,55 +1,69 @@
-import React, {useEffect, useState} from 'react';
-import {useHistory} from 'react-router-dom';
+import React, {useContext, useEffect, useState} from 'react';
 
-import {AuthStatusCode, TalkClient, WebApiStatusCode} from 'node-kakao';
+import {AuthStatusCode} from 'node-kakao';
 
 import LoginBackground from '../components/login/login-background';
 import LoginForm from '../components/login/login-form';
-import VerifyCode from '../components/verify/verify-code';
 import UtilModules from '../utils';
+import { AppContext } from '../app';
+import { DeviceRegistration } from '../components/register/device-registration';
 
-export const Login = (client: TalkClient): JSX.Element => {
-  const [loginData, setLoginData] = useState(
-      {
-        status: -999999,
-        inputData:
-            {
-              email: '',
-              password: '',
-              autoLogin: false,
-            },
-      });
+export interface LoginFormData {
+  email: string;
+  password: string;
+  saveEmail: boolean;
+  autoLogin: boolean;
+}
+
+interface LoginData {
+  token: boolean,
+  inputData: LoginFormData;
+}
+
+export const Login = (): JSX.Element => {
+  const [lastLoginData, setLastLoginData] = useState(null as LoginData | null);
+  const [errorStatus, setErrorStatus] = useState(null as number | null);
+
+  let client = useContext(AppContext).client;
 
   const onSubmit = async (
-      email: string,
-      password: string,
-      saveEmail: boolean,
-      autoLogin: boolean,
+      formData: LoginFormData,
       force = false,
       token = false,
   ) => {
-    await UtilModules.login.setAutoLogin(autoLogin);
+    await UtilModules.login.setAutoLogin(formData.autoLogin);
 
-    let status: number;
+    let status: number = 0;
     try {
-      if (!token) await client.login(email, password, force);
-      else await client.loginToken(email, password, force);
-      await UtilModules.login.setEmail(saveEmail ? email : '');
+      if (!token) await client.login(formData.email, formData.password, force);
+      else await client.loginToken(formData.email, formData.password, force);
+      await UtilModules.login.setEmail(formData.saveEmail ? formData.email : '');
       await UtilModules.login.setAutoLoginEmail(
           client.Auth.getLatestAccessData().autoLoginEmail,
       );
       await UtilModules.login.setAutoLoginToken(
           client.Auth.generateAutoLoginToken(),
       );
-
-      status = WebApiStatusCode.SUCCESS;
     } catch (error) {
-      status = error.status || -999999;
+      status = error.status || null;
       console.log(error);
-    }
-    console.log('login: ' + status);
 
-    setLoginData({status, inputData: {email, password, autoLogin}});
+      if (AuthStatusCode.ANOTHER_LOGON === status) {
+        const result = window.confirm(
+          '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
+        );
+  
+        if (result) {
+          console.log(formData, true, token);
+          onSubmit(formData, true, token);
+        }
+      } else {
+        setErrorStatus(status);
+      }
+    }
+
+    setLastLoginData({token, inputData: formData});
+    console.log('login: ' + status);
   };
 
   useEffect(() => {
@@ -62,34 +76,16 @@ export const Login = (client: TalkClient): JSX.Element => {
           if (loginToken !== null) {
             const autoLoginEmail = await UtilModules.login.getAutoLoginEmail();
 
-            try {
-              await onSubmit(
-                  autoLoginEmail,
-                  loginToken,
-                  true,
-                  true,
-                  false,
-                  true,
-              );
-            } catch (reason) {
-              if (reason.status === AuthStatusCode.ANOTHER_LOGON) {
-                const result = window.confirm(
-                    '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
-                );
-                if (result) {
-                  await onSubmit(
-                      autoLoginEmail,
-                      loginToken,
-                      true,
-                      true,
-                      true,
-                      true,
-                  );
-                }
-              } else {
-                throw reason;
-              }
-            }
+            await onSubmit(
+              {
+                email: autoLoginEmail,
+                password: loginToken,
+                saveEmail: true,
+                autoLogin: true
+              },
+              false,
+              true,
+            );
 
             alert('자동로그인 했습니다.');
           } else {
@@ -103,59 +99,23 @@ export const Login = (client: TalkClient): JSX.Element => {
     })();
   }, []);
 
-  useEffect(() => {
-    switch (loginData.status) {
-      case -999999:
-        break;
+  if (lastLoginData && errorStatus) {
+    let formData = lastLoginData.inputData;
 
-      case WebApiStatusCode.SUCCESS:
-        alert('로그인 성공');
-        break;
-
-      case AuthStatusCode.DEVICE_NOT_REGISTERED: {
-        const email = loginData.inputData.email;
-        const password = loginData.inputData.password;
-
-        client.Auth.requestPasscode(email, password, true);
-        break;
-      }
-      case AuthStatusCode.ANOTHER_LOGON: {
-        const result = window.confirm(
-            '이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?',
-        );
-
-        if (result) {
-          const email = loginData.inputData.email;
-          const password = loginData.inputData.password;
-          onSubmit(email, password, false, true, true);
-        }
-        break;
-      }
-      default:
-        alert(`오류가 발생했습니다. 오류 코드: ${loginData.status}`);
-        setLoginData({status: -999999, inputData: loginData.inputData});
-        break;
+    if (AuthStatusCode.DEVICE_NOT_REGISTERED === errorStatus) {
+      return <LoginBackground>
+        <DeviceRegistration
+        formData={formData}
+        onRegister={(permanent: boolean) => onSubmit(formData)}
+        goPrevious={() => setErrorStatus(null)}
+        />
+        </LoginBackground>;
     }
-  }, [loginData]);
-
-  if (WebApiStatusCode.SUCCESS === loginData.status) {
-    useHistory().push('/chat');
-  } else if (AuthStatusCode.DEVICE_NOT_REGISTERED === loginData.status) {
-    return <LoginBackground><VerifyCode {
-      ...{
-        registerDevice: (passcode: string, permanent: boolean) =>
-          client.Auth.registerDevice(
-              passcode, loginData.inputData.email,
-              loginData.inputData.password, permanent, true,
-          ),
-        passcodeDone: () => onSubmit(
-            loginData.inputData.email, loginData.inputData.password, true, true,
-        )} } /></LoginBackground>;
   }
 
   return <LoginBackground>
-    <LoginForm onSubmit={onSubmit}/>
-  </LoginBackground>;
+      <LoginForm onSubmit={onSubmit}/>
+    </LoginBackground>;
 };
 
 export default Login;
