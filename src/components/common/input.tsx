@@ -1,36 +1,45 @@
-import React, {InputHTMLAttributes, useState} from 'react';
+import React, { InputHTMLAttributes, useState } from 'react';
 import styled from 'styled-components';
 
 const StyledInput = styled.input`
-width: 100%;
-height: 100%;
-border: none;
-margin-left: 10px;
-padding: 0;
-background: none;
-font-size: 12px;
-line-height: 12px;
+  width: 100%;
+  height: 100%;
+  
+  border: none;
+  background: none;
+  
+  margin-left: 10px;
+  padding: 0;
+  
+  font-size: 12px;
+  line-height: 12px;
+  
+  :focus {
+    outline: none;
+  }
 
-:focus {
-  outline: none;
-}
-
-::placeholder {
-  color: rgba(191, 189, 193, 1);
-}
+  ::placeholder {
+    color: rgba(191, 189, 193, 1);
+  }
 `;
 
 const InputWrapper = styled.div`
-width: 100%;
-height: 45px;
-display: flex;
-align-items: center;
-margin-bottom: 12px;
-border-radius: 10px;
-box-sizing: border-box;
-padding: 10px;
-background: #FFFFFF;
-box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
+  width: 100%;
+  height: 45px;
+  
+  display: flex;
+  align-items: center;
+
+  background: #FFFFFF;
+  
+  margin-bottom: 12px;
+  padding: 10px;
+  
+  border-radius: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
+  
+  transition: all 0.25s;
 `;
 
 const Icon = styled.img`
@@ -56,8 +65,11 @@ const Input: React.FC<InputProps> = ({
   return (
     <InputWrapper>
       <Icon src={focus ? icon : disabledIcon}/>
-      <StyledInput placeholder={placeholder} onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)} {...args}/>
+      <StyledInput
+        placeholder={placeholder}
+        onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)}
+        {...args}/>
     </InputWrapper>
   );
 };

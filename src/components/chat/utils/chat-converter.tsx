@@ -3,14 +3,14 @@ import React from 'react';
 import {
   Chat,
   ChatType,
+  FeedType,
   PhotoAttachment,
   ReplyAttachment,
   ReplyChat as ReplyChatObject,
   VideoAttachment,
-  FeedType,
 } from 'node-kakao';
 
-import Photo, {PhotoChatProps} from '../types/photo';
+import Photo, { PhotoChatProps } from '../types/photo';
 import MultiPhoto from '../types/multi-photo';
 import Search from '../types/search';
 import Reply from '../types/reply';
@@ -21,16 +21,21 @@ import Deleted from '../types/deleted';
 import styled from 'styled-components';
 
 import convertFeed from './feed-converter';
+import { isUrl } from '../../../utils/is-url';
+import Link from '../types/link';
 
 const Content = styled.span`
-    white-space: pre-line;
+  white-space: pre-line;
 `;
 
 const ShortContent = styled.span`
-    color: #424242;
+  color: #424242;
 `;
 
 export function toText(chat: Chat): JSX.Element {
+  if (isUrl(chat.Text)) {
+    return <Link chat={chat}/>;
+  }
   return <Content>{chat.Text}</Content>;
 }
 
@@ -56,7 +61,7 @@ export function toPhoto(
       limit={options.limit}/>;
   });
 
-  return <div style={{display: 'flex'}}>{list}</div>;
+  return <div style={{ display: 'flex' }}>{list}</div>;
 }
 
 export function toPhotos(chat: Chat): JSX.Element {
@@ -72,7 +77,7 @@ export function toPhotos(chat: Chat): JSX.Element {
     } as PhotoChatProps;
   });
 
-  return <MultiPhoto photoChatProps={data} />;
+  return <MultiPhoto photoChatProps={data}/>;
 }
 
 export function toVideo(chat: Chat): JSX.Element {
@@ -83,7 +88,7 @@ export function toVideo(chat: Chat): JSX.Element {
       url={attachment.VideoURL}
       width={attachment.Width}
       height={attachment.Height}
-      duration={attachment.Duration} />;
+      duration={attachment.Duration}/>;
   });
 
   return <div>{list}</div>;
@@ -91,7 +96,7 @@ export function toVideo(chat: Chat): JSX.Element {
 
 export function toSearch(chat: Chat): JSX.Element {
   const list = chat.AttachmentList.map((attachment: any) => {
-    const {Question, ContentType, ContentList} = attachment;
+    const { Question, ContentType, ContentList } = attachment;
 
     return <Search question={Question} type={ContentType} list={ContentList}/>;
   });
@@ -114,7 +119,8 @@ export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
 
   if (prevChat != null) {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return <Reply prevChat={prevChat} me={chat} onClick={() => {}}/>;
+    return <Reply prevChat={prevChat} me={chat} onClick={() => {
+    }}/>;
   } else {
     return <span>{chat.Text}</span>;
   }
@@ -122,7 +128,7 @@ export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
 
 export function toMap(chat: Chat): JSX.Element {
   const list = chat.AttachmentList.map((attachment: any) => {
-    const {Name, Lat, Lng} = attachment;
+    const { Name, Lat, Lng } = attachment;
 
     return <Location name={Name} url={''} latitude={Lat} longitude={Lng}/>;
   });
@@ -159,7 +165,7 @@ export function convertChat(
         const content = JSON.parse(chat.Text);
         console.log(content);
         if (content.feedType !== FeedType.UNDEFINED) {
-          return convertFeed(chat, chatList, {feed: content});
+          return convertFeed(chat, chatList, { feed: content });
         }
       } catch (err) {
         console.log(chat.Text, err);
@@ -177,7 +183,9 @@ export function convertChat(
 
 export function convertShortChat(chat: Chat): JSX.Element {
   switch (chat.Type) {
-    case ChatType.Feed: case ChatType.Text: case ChatType.Reply:
+    case ChatType.Feed:
+    case ChatType.Text:
+    case ChatType.Reply:
       return <ShortContent>{
         `${
           chat.Text.substring(0, 25)
@@ -185,7 +193,8 @@ export function convertShortChat(chat: Chat): JSX.Element {
           chat.Text.length >= 25 ? '...' : ''
         }`
       }</ShortContent>;
-    case ChatType.Photo: case ChatType.MultiPhoto:
+    case ChatType.Photo:
+    case ChatType.MultiPhoto:
       return toPhoto(chat, {
         ratio: 1,
         limit: [50, 50],

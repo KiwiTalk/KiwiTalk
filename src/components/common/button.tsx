@@ -12,6 +12,8 @@ export const Button = styled.button`
   font-weight: 600;
   font-size: 12px;
   user-select: none;
+  
+  transition: all 0.25s;
 
   :hover:enabled {
     background: ${Color.BLACK_VARIENT1};

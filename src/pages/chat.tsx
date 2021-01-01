@@ -8,7 +8,6 @@ import {
   ChatChannel,
   ChatType,
   MoreSettingsStruct,
-  TalkClient,
 } from 'node-kakao';
 import {
   PacketSyncMessageReq,

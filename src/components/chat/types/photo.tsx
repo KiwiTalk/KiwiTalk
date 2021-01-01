@@ -24,7 +24,6 @@ const resize = (
     customRatio = -1,
     limit = [300, 500],
 ) => {
-  console.log(width, height);
   const ratio = customRatio <= 0 ? width / height : customRatio;
   let [w, h] = [width, height];
 
