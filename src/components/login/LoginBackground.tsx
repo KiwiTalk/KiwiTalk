@@ -1,7 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-import KiwiBackground from "../common/kiwi-background";
-import LoginTitle from "./LoginTitle";
+import React from 'react';
+import styled from 'styled-components';
+
+import KiwiBackground from '../common/kiwi-background';
+import LoginTitle from './LoginTitle';
 
 const Wrapper = styled.div`
   padding: 50px 0 0 50px;
@@ -17,13 +18,13 @@ const Wrapper = styled.div`
   }
 `;
 
-const LoginBackground: React.FC = ({children}) => {
+const LoginBackground: React.FC = ({ children }) => {
   return <KiwiBackground>
     <Wrapper>
       <LoginTitle/>
       {children}
     </Wrapper>
-  </KiwiBackground>
+  </KiwiBackground>;
 };
 
 export default LoginBackground;
