@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import ProfileDefault from '../../assets/images/profile_default.svg';
 import IconSettings from '../../assets/images/icon_settings.svg';
 import IconButton from './icon-button';
-import ProfileImage, {ProfileImageBackgroundColor} from './profile-image';
+import ProfileImage from './ProfileImage';
 import color from '../../assets/colors/theme';
-import {MoreSettingsStruct} from 'node-kakao';
+import { MoreSettingsStruct } from 'node-kakao';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -71,8 +71,7 @@ const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
           marginLeft: '25px',
           marginRight: '16px',
         }
-      }
-      backgroundColor={ProfileImageBackgroundColor.GRAY_800}/>
+      }/>
       <UserInfoWrapper>
         <Username>{accountSettings.nickName}</Username>
         <UserEmail>{accountSettings.accountDisplayId}</UserEmail>

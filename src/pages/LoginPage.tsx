@@ -139,8 +139,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
                 false,
                 true,
             );
-
-            alert('자동로그인 했습니다.');
+            // 자동 로그인
           } else {
             setError(Strings.Auth.NO_TOKEN);
           }

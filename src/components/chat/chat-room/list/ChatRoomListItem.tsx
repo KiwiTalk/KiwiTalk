@@ -1,9 +1,9 @@
-import React, { HTMLAttributes, useState } from 'react';
+import React, { HTMLAttributes } from 'react';
 
 import styled from 'styled-components';
 
 import color from '../../../../assets/colors/theme';
-import ProfileImage, { ProfileImageBackgroundColor } from '../../../common/profile-image';
+import ProfileImage from '../../../common/ProfileImage';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -11,6 +11,12 @@ const Wrapper = styled.div`
   padding: 14px 16px;
   box-sizing: border-box;
   cursor: pointer;
+
+  transition: all 0.25s;
+
+  :hover {
+    background: ${color.GREY_700};
+  }
 `;
 
 const Content = styled.div`
@@ -54,12 +60,10 @@ const LastChat = styled.span`
 
 interface ProfileImageSetProps extends HTMLAttributes<HTMLDivElement> {
   urls: string[]
-  backgroundColor: number
 }
 
 const ProfileImageSet: React.FC<ProfileImageSetProps> = ({
   urls,
-  backgroundColor,
 }) => {
   const size = urls.length <= 1 ? 54 : 24;
 
@@ -94,7 +98,6 @@ const ProfileImageSet: React.FC<ProfileImageSetProps> = ({
       <ProfileImage
         key={e}
         src={e}
-        backgroundColor={backgroundColor}
         style={{ width: size, height: size, ...setPosition(i + 1) }}/>
     );
   });
@@ -115,34 +118,22 @@ const ChatRoomListItem: React.FC<ChatListItemProps> = ({
   lastChat,
   selected,
   ...args
-}) => {
-  const [hover, setHover] = useState(false);
-
-  return (
-    <Wrapper style={
-      hover || selected ?
-        { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }
-    }
-             onMouseEnter={
-               () => setHover(true)
-             } onMouseLeave={
-      () => setHover(false)
-    } {...args}>
-      <Content>
-        <ProfileImageSet
-          urls={profileImageSrcArr}
-          backgroundColor={
-            hover || selected ?
-              ProfileImageBackgroundColor.GRAY_800 :
-              ProfileImageBackgroundColor.GRAY_900
-          }/>
-        <Text>
-          <Username>{username}</Username>
-          <LastChat>{lastChat || '\u200b'}</LastChat>
-        </Text>
-      </Content>
-    </Wrapper>
-  );
-};
+}) => (
+  <Wrapper
+    {...args}
+    style={
+      selected ?
+        { background: color.GREY_400 } :
+        {}
+    }>
+    <Content>
+      <ProfileImageSet urls={profileImageSrcArr}/>
+      <Text>
+        <Username>{username}</Username>
+        <LastChat>{lastChat || '\u200b'}</LastChat>
+      </Text>
+    </Content>
+  </Wrapper>
+);
 
 export default ChatRoomListItem;

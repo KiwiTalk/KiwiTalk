@@ -3,7 +3,7 @@ import React, { MouseEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
 import { extractRoomImage, extractRoomName } from '../../utils/room-info-extractor';
-import ChatRoomListItem from './chat-room-list-item';
+import ChatRoomListItem from './ChatRoomListItem';
 
 const Wrapper = styled.div`
   width: 309px;

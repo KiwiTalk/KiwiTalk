@@ -1,9 +1,7 @@
 import React, {HTMLAttributes} from 'react';
 import styled from 'styled-components';
 import ProfileDefault from '../../../assets/images/profile_default.svg';
-import ProfileImage, {
-  ProfileImageBackgroundColor,
-} from '../../common/profile-image';
+import ProfileImage from '../../common/ProfileImage';
 
 const Wrapper = styled.div`
 display: flex;
@@ -41,8 +39,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
       {
         !isMine && <StyledProfileImage src={
           profileImageSrc as string
-        }
-        backgroundColor={ProfileImageBackgroundColor.BACKGROUND}/>
+        } />
       }
       <Contents>
         {children}
