@@ -18,7 +18,7 @@ const BoxWrapper = styled.div`
 `;
 
 const Box = styled.div`
-  width: 300px;
+  width: 100px;
 
   padding: 8px;
   margin: 8px;
@@ -30,7 +30,7 @@ const Box = styled.div`
 `;
 
 const Thumbnail = styled.img`
-  width: 300px;
+  width: 100px;
   height: auto;
   object-fit: contain;
 
@@ -38,7 +38,7 @@ const Thumbnail = styled.img`
 `;
 
 const Text = styled.div`
-  width: 300px;
+  width: 100px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;

@@ -1,8 +1,10 @@
+import { Menu, MenuItem } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
 import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
+import Strings from '../../../constants/Strings';
 import convertTime from '../../../utils/convertTime';
 
 const BubbleTail = styled.img`
@@ -91,6 +93,11 @@ const Unread = styled.span((props: { isMine: boolean }) => `
   color: ${color.BLUE_400};
 `);
 
+interface Coordinate {
+  x: number | null;
+  y: number | null;
+}
+
 export interface BubbleProps {
   hasTail: boolean
   author?: string
@@ -109,6 +116,36 @@ const ChatBubble: React.FC<BubbleProps> = ({
   hasPadding,
 }) => {
   const [hover, setHover] = useState(false);
+  const [state, setState] = useState<Coordinate>({
+    x: null,
+    y: null,
+  });
+
+  const onClose = (type: 'reply' | 'copy' | 'delete' | null = null) => async () => {
+    switch (type) {
+      case 'reply':
+
+        break;
+      case 'copy':
+        break;
+      case 'delete':
+        break;
+    }
+
+    setState({
+      x: null,
+      y: null,
+    });
+  };
+
+  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    setState({
+      x: event.clientX - 2,
+      y: event.clientY - 4,
+    });
+  };
 
   const hasAuthor = !!(!isMine && author);
 
@@ -116,7 +153,8 @@ const ChatBubble: React.FC<BubbleProps> = ({
     <Wrapper
       isMine={isMine}
       onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}>
+      onMouseLeave={() => setHover(false)}
+      onContextMenu={onContextMenu}>
       {
         hasTail ?
           <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> :
@@ -140,6 +178,20 @@ const ChatBubble: React.FC<BubbleProps> = ({
         <Unread isMine={isMine}>{unread}</Unread>
         <Date>{convertTime(time, false)}</Date>
       </HeadWrapper>
+      <Menu
+        keepMounted
+        open={state.y !== null}
+        onClose={onClose()}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          (state.x !== null && state.y !== null) ?
+            { top: state.y, left: state.x } :
+            undefined
+        }>
+        <MenuItem onClick={onClose('reply')}>{Strings.Chat.REPLY}</MenuItem>
+        <MenuItem onClick={onClose('delete')}>{Strings.Chat.DELETE}</MenuItem>
+        <MenuItem onClick={onClose('copy')}>{Strings.Chat.COPY}</MenuItem>
+      </Menu>
     </Wrapper>
   );
 };

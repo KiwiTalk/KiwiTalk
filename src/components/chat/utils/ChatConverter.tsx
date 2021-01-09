@@ -34,10 +34,7 @@ const ShortContent = styled.span`
 `;
 
 export function toText(chat: Chat): JSX.Element {
-  if (isUrl(chat.Text)) {
-    return <Link chat={chat}/>;
-  }
-  return <Content>{chat.Text}</Content>;
+  return <Content>{convertText(chat)}</Content>;
 }
 
 export function toLongText(chat: Chat): JSX.Element {
@@ -45,11 +42,11 @@ export function toLongText(chat: Chat): JSX.Element {
 }
 
 export function toPhoto(
-  chat: Chat,
-  options = {
-    ratio: -1,
-    limit: [300, 500],
-  },
+    chat: Chat,
+    options = {
+      ratio: -1,
+      limit: [300, 500],
+    },
 ): JSX.Element {
   const list = chat.AttachmentList.map((attachment: any) => {
     attachment = attachment as PhotoAttachment;
@@ -108,7 +105,7 @@ export function toSearch(chat: Chat): JSX.Element {
 export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
   let prevChat = null;
   const attachments = (chat as ReplyChatObject)
-    .AttachmentList as ReplyAttachment[];
+      .AttachmentList as ReplyAttachment[];
   const prevId = attachments[0].SourceLogId.toString();
 
   for (const c of chatList) {
@@ -146,10 +143,10 @@ export function toDeletedText(chat: Chat, chatList: Chat[], channel: ChatChannel
 }
 
 export function convertChat(
-  chat: Chat,
-  chatList: Chat[],
-  channel: ChatChannel,
-  passUnknown = false,
+    chat: Chat,
+    chatList: Chat[],
+    channel: ChatChannel,
+    passUnknown = false,
 ): JSX.Element | undefined {
   switch (chat.Type) {
     case ChatType.Feed:
@@ -168,6 +165,7 @@ export function convertChat(
     case ChatType.Reply:
       return toReply(chat, chatList);
     case ChatType.Unknown:
+      console.log(chat);
       if (passUnknown) return <span>{chat.Text}</span>;
 
       try {
@@ -184,8 +182,9 @@ export function convertChat(
     case ChatType.Sticker:
     case ChatType.StickerAni:
     case ChatType.StickerGif:
-      console.log(chat);
       return toEmoticon(chat);
+    case ChatType.File:
+      console.log('file', chat);
       break;
     case ChatType.Map:
       break;
@@ -196,20 +195,6 @@ export function convertChat(
       </div>;
   }
 }
-
-/*
-
-EmoticonAttachment
-* Description
-* Height
-* Name
-* Path
-* Sound
-* StopAt
-* Type
-* Width
-
- */
 
 export function convertShortChat(chat: Chat): JSX.Element {
   switch (chat.Type) {
@@ -240,6 +225,14 @@ export function convertShortChat(chat: Chat): JSX.Element {
         <span>{chat.Text}</span>
       </div>;
   }
+}
+
+export function convertText(chat: Chat): JSX.Element {
+  if (isUrl(chat.Text)) {
+    return <Link chat={chat}/>;
+  }
+
+  return <>{chat.Text}</>;
 }
 
 export default convertChat;

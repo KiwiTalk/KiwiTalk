@@ -1,12 +1,12 @@
-import React, { ChangeEvent, EventHandler, FormEvent } from 'react';
+import { IconButton } from '@material-ui/core';
+import React, { ChangeEvent, EventHandler, FormEvent, useContext } from 'react';
 import styled from 'styled-components';
+import { AppContext } from '../../../App';
 import ThemeColor from '../../../assets/colors/theme';
 
 import IconAttachment from '../../../assets/images/icon_attachment.svg';
 import IconEmoji from '../../../assets/images/icon_emoji.svg';
 import IconSend from '../../../assets/images/icon_send.svg';
-
-import { IconButton } from '@material-ui/core';
 
 
 const Form = styled.form`
@@ -35,7 +35,7 @@ const Input = styled.input`
   font-weight: 500;
   font-size: 16px;
   outline: none;
-  
+
   flex: 1;
 `;
 
@@ -55,19 +55,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ onChange, onSubmit, value }) => {
   return (
     <Form onSubmit={onSubmit}>
       <InputWrapper>
-        <IconButton style={{
-          width: '36px',
-          height: '36px',
-          margin: '6px',
-        }}>
-          <img src={IconAttachment} />
+        <IconButton
+          style={{
+            width: '36px',
+            height: '36px',
+            margin: '6px',
+          }}>
+          <img src={IconAttachment}/>
         </IconButton>
-        <IconButton style={{
-          width: '36px',
-          height: '36px',
-          margin: '6px 0',
-        }}>
-          <img src={IconEmoji} />
+        <IconButton
+          style={{
+            width: '36px',
+            height: '36px',
+            margin: '6px 0',
+          }}>
+          <img src={IconEmoji}/>
         </IconButton>
         <Input onChange={onChange} value={value}/>
         <SendButton
@@ -75,7 +77,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onChange, onSubmit, value }) => {
             margin: '6px',
           }}
           type={'submit'}>
-          <img src={IconSend} />
+          <img src={IconSend}/>
         </SendButton>
       </InputWrapper>
     </Form>

@@ -8,7 +8,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   align-items: flex-end;
   
-  margin: 0 4px;
+  margin: 4px 0;
 `;
 
 const Contents = styled.div`

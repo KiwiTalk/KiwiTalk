@@ -62,6 +62,10 @@ export const Error = {
 
 export const Chat = {
   SEND_FAILED: '메시지를 발송할 수 없습니다.',
+
+  REPLY: '답장',
+  DELETE: '메시지 삭제',
+  COPY: '메시지 복사',
 } as const;
 
 export default {
