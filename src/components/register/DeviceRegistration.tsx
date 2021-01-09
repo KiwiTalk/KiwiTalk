@@ -26,7 +26,7 @@ const Wrapper = styled.div`
 `;
 
 const PreviousLink = styled.a`
-  font-family: NanumBarunGothic, serif;
+  font-family: NanumBarunGothic, sans-serif;
   font-style: normal;
   font-weight: normal;
   font-size: 11px;

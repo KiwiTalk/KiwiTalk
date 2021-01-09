@@ -66,14 +66,14 @@ export const App: React.FC<AppProp> = ({ client }) => {
       <div className="App">
         {menuBar}
         <AppContext.Provider value={{ client }}>
-            <Switch>
-              <Route path={'/'} exact>
-                <Redirect to={'/login'}/>
-              </Route>
-              <Route path={'/login'} component={Login} exact/>
-              <Route path={'/register'} component={Register} exact/>
-              <Route path={'/chat'} component={ChatPage} exact/>
-            </Switch>
+          <Switch>
+            <Route path={'/'} exact>
+              <Redirect to={'/login'}/>
+            </Route>
+            <Route path={'/login'} component={Login} exact/>
+            <Route path={'/register'} component={Register} exact/>
+            <Route path={'/chat'} component={ChatPage} exact/>
+          </Switch>
         </AppContext.Provider>
       </div>
     </Provider>

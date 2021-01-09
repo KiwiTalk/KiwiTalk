@@ -33,7 +33,7 @@ const Text = styled.div`
 `;
 
 const Username = styled.span`
-  font-family: KoPubWorldDotum, serif;
+  font-family: KoPubWorldDotum, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
@@ -46,7 +46,7 @@ const Username = styled.span`
 `;
 
 const LastChat = styled.span`
-  font-family: KoPubWorldDotum, serif;
+  font-family: KoPubWorldDotum, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;

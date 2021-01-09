@@ -1,7 +1,10 @@
+import { Snackbar } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import { Long } from 'bson';
-import { AttachmentTemplate, Chat as ChatObject, ChatChannel, ChatType, MoreSettingsStruct } from 'node-kakao';
+import { Chat as ChatObject, ChatChannel, MoreSettingsStruct } from 'node-kakao';
 import { PacketSyncMessageReq, PacketSyncMessageRes } from 'node-kakao/dist/packet/packet-sync-message';
 import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from '../App';
 import ChatRoom from '../components/chat/chat-room/chat-room';
@@ -9,6 +12,7 @@ import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
 import SideBar from '../components/common/side-bar/side-bar';
 import SidePanel from '../components/common/side-bar/side-panel';
 import constants from '../constants';
+import Strings from '../constants/Strings';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -32,7 +36,20 @@ const makeTemplate = constants.ChatModule.makeTemplate;
 
 const records: boolean[] = [];
 
+interface AlertData {
+  isShow: boolean;
+  message: string;
+  type: 'success' | 'info' | 'warning' | 'error' | undefined;
+}
+
 const ChatPage = (): JSX.Element => {
+  // const { id } = useParams();
+
+  const [snack, setSnack] = useState<AlertData>({
+    isShow: false,
+    message: '',
+    type: undefined,
+  });
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(-1);
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
@@ -53,23 +70,23 @@ const ChatPage = (): JSX.Element => {
       console.log(channel.Id.toString());
       const { LastTokenId: lastTokenId } = (
         await client.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
-          new PacketSyncMessageReq(
-            channel.Id,
-            Long.fromInt(1), 1, Long.fromInt(2),
-          ),
+            new PacketSyncMessageReq(
+                channel.Id,
+                Long.fromInt(1), 1, Long.fromInt(2),
+            ),
         )
       );
 
       const pk = await client
-        .NetworkManager
-        .requestPacketRes<PacketSyncMessageRes>(
-          new PacketSyncMessageReq(
-            channel.Id,
-            Long.fromInt(1),
-            1,
-            lastTokenId,
-          ),
-        );
+          .NetworkManager
+          .requestPacketRes<PacketSyncMessageRes>(
+              new PacketSyncMessageReq(
+                  channel.Id,
+                  Long.fromInt(1),
+                  1,
+                  lastTokenId,
+              ),
+          );
 
       if (pk.ChatList.length < 1) return;
       let startId = pk.ChatList[0].prevLogId;
@@ -80,11 +97,11 @@ const ChatPage = (): JSX.Element => {
         (
           chatLog = (
             await client
-              .ChatManager
-              .getChatListFrom(
-                channel.Id,
-                startId,
-              )
+                .ChatManager
+                .getChatListFrom(
+                    channel.Id,
+                    startId,
+                )
           ).result
         ) && chatLog.length > 0) {
         update.push(...chatLog);
@@ -103,9 +120,9 @@ const ChatPage = (): JSX.Element => {
   useEffect(() => {
     (async () => {
       const list: ChatChannel[] = client.ChannelManager.getChannelList()
-        .map((chatChannel) =>
-          client.ChannelManager.get(chatChannel.Id),
-        ) as ChatChannel[];
+          .map((chatChannel) =>
+            client.ChannelManager.get(chatChannel.Id),
+          ) as ChatChannel[];
 
       setChannelList(list);
 
@@ -131,62 +148,19 @@ const ChatPage = (): JSX.Element => {
     if (inputText.length <= 0) return;
 
     try {
-      if (inputText[0] === '/') {
-        const cmd = inputText.split(/\s/g);
-        switch (cmd[0]) {
-          case '/photo': {
-            const template = await makeTemplate(ChatType.Photo, cmd[1]);
-            const result = await channel.sendTemplate(
-              template as AttachmentTemplate,
-            );
-            if (result == null) {
-              throw new Error();
-            }
-
-            setInputText('');
-            messageHook(result);
-            break;
-          }
-          case '/video': {
-            const template = await makeTemplate(ChatType.Video, cmd[1]);
-            const result = await channel.sendTemplate(
-              template as AttachmentTemplate,
-            );
-            if (result == null) {
-              throw new Error();
-            }
-
-            setInputText('');
-
-            messageHook(result);
-            break;
-          }
-          case '/file': {
-            const template = await makeTemplate(ChatType.File, cmd[1]);
-            const result = await channel.sendTemplate(
-              template as AttachmentTemplate,
-            );
-            if (result == null) {
-              throw new Error();
-            }
-
-            setInputText('');
-
-            messageHook(result);
-            break;
-          }
-        }
-      } else {
-        const result = await channel.sendText(inputText);
-        if (result == null) {
-          throw new Error();
-        }
-        setInputText('');
-
-        messageHook(result);
+      const result = await channel.sendText(inputText);
+      if (result == null) {
+        throw new Error();
       }
+      setInputText('');
+
+      messageHook(result);
     } catch (error) {
-      alert(`메시지 발송 중 오류 발생 ${error}`);
+      setSnack({
+        isShow: true,
+        message: `${Strings.Chat.SEND_FAILED}\n${error}`,
+        type: 'error',
+      });
     }
   };
 
@@ -219,6 +193,24 @@ const ChatPage = (): JSX.Element => {
             inputValue={inputText}/> :
           <EmptyChatRoom/>
       }
+      <Snackbar
+        open={snack.isShow}
+        autoHideDuration={2000}
+        onClose={() => setSnack({
+          isShow: false,
+          message: snack.message,
+          type: snack.type,
+        })}>
+        <Alert
+          onClose={() => setSnack({
+            isShow: false,
+            message: snack.message,
+            type: snack.type,
+          })}
+          severity={snack.type}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Wrapper>
   );
 };

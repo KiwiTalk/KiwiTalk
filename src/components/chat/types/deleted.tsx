@@ -1,7 +1,7 @@
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 
-import {Chat} from 'node-kakao';
+import { Chat, ChatChannel } from 'node-kakao';
 
 import convertChat from '../utils/chat-converter';
 
@@ -35,12 +35,13 @@ const blur = (element: any, isBlur: boolean) => {
 };
 
 interface DeletedTextProps {
-    chat: Chat
-    chatList: Chat[]
+    chat: Chat;
+    chatList: Chat[];
+    channel: ChatChannel;
 }
 
-export const Deleted: React.FC<DeletedTextProps> = ({chat, chatList}) => {
-  const content = convertChat(chat, chatList);
+export const Deleted: React.FC<DeletedTextProps> = ({ chat, chatList, channel }) => {
+  const content = convertChat(chat, chatList, channel, true);
   const target = useRef(null);
 
   let isBlurred = true;

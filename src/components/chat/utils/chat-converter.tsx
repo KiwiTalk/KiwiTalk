@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  Chat,
+  Chat, ChatChannel,
   ChatType,
   FeedType,
   PhotoAttachment,
@@ -136,17 +136,19 @@ export function toMap(chat: Chat): JSX.Element {
   return <div>{list}</div>;
 }
 
-export function toDeletedText(chat: Chat, chatList: Chat[]): JSX.Element {
-  return <Deleted chat={chat} chatList={chatList}/>;
+export function toDeletedText(chat: Chat, chatList: Chat[], channel: ChatChannel): JSX.Element {
+  return <Deleted chat={chat} chatList={chatList} channel={channel}/>;
 }
 
 export function convertChat(
     chat: Chat,
     chatList: Chat[],
+    channel: ChatChannel,
+    passUnknown = false,
 ): JSX.Element | undefined {
   switch (chat.Type) {
     case ChatType.Feed:
-      return convertFeed(chat, chatList);
+      return convertFeed(chat, chatList, channel);
     case ChatType.Text:
       if (chat.Text.length > 500) return toLongText(chat);
       else return toText(chat);
@@ -161,14 +163,16 @@ export function convertChat(
     case ChatType.Reply:
       return toReply(chat, chatList);
     case ChatType.Unknown:
+      if (passUnknown) return <span>{chat.Text}</span>;
+
       try {
         const content = JSON.parse(chat.Text);
-        console.log(content);
+
         if (content.feedType !== FeedType.UNDEFINED) {
-          return convertFeed(chat, chatList, { feed: content });
+          return convertFeed(chat, chatList, channel, { feed: content });
         }
       } catch (err) {
-        console.log(chat.Text, err);
+        return toDeletedText(chat, chatList, channel);
       }
 
       return <span>{chat.Text}</span>;

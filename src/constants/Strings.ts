@@ -1,7 +1,7 @@
 export const Common = {
   OK: '확인',
   CLOSE: '닫기',
-};
+} as const;
 
 export const Auth = {
   LOGIN: '로그인',
@@ -60,8 +60,13 @@ export const Error = {
   SERVER_ERROR: 'Internal Error',
 } as const;
 
+export const Chat = {
+  SEND_FAILED: '메시지를 발송할 수 없습니다.',
+} as const;
+
 export default {
   Common,
   Auth,
   Error,
+  Chat,
 };

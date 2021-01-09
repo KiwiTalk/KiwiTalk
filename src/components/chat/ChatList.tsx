@@ -8,6 +8,7 @@ import ChatBubble from './items/ChatBubble';
 import ChatItem from './items/ChatItem';
 
 import convertChat, { toDeletedText } from './utils/chat-converter';
+import { toDeletedAt } from './utils/feed-converter';
 
 const Content = styled.div`
   display: flex;
@@ -58,18 +59,20 @@ interface BubbleProps {
   chat: Chat;
 }
 
-const getContent = (chat: Chat, chatList: Chat[]) => {
+const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
   if (chat.Type === ChatType.Feed) {
     try {
       const text = JSON.parse(chat.Text);
+
       if (text.feedType === FeedType.DELETE_TO_ALL) {
-        return toDeletedText(chat, chatList);
+        console.log('deleted', chat);
+        return toDeletedAt(chat.getFeed(), chat, chatList, channel);
       }
     } catch {
     }
   }
 
-  return convertChat(chat, chatList);
+  return convertChat(chat, chatList, channel);
 };
 
 class ChatList extends React.Component<ChatListProps> {
@@ -139,7 +142,7 @@ class ChatList extends React.Component<ChatListProps> {
           chat,
         });
       } else {
-        list.push(getContent(chat, this.props.chatList));
+        list.push(getContent(chat, this.props.chatList, this.props.channel));
       }
 
       this.nextWithAuthor = false;
@@ -162,7 +165,7 @@ class ChatList extends React.Component<ChatListProps> {
                     isMine={bubble.isMine}
                     hasPadding={bubble.hasPadding}>
                     {
-                      getContent(bubble.chat, this.props.chatList)
+                      getContent(bubble.chat, this.props.chatList, this.props.channel)
                     }
                   </ChatBubble>
                 );
@@ -179,7 +182,6 @@ class ChatList extends React.Component<ChatListProps> {
 
       index++;
     }
-
 
     return (
       <Content onScroll={this.handleScroll.bind(this)}>

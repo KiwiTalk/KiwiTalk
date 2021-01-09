@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
@@ -113,10 +113,15 @@ const ChatBubble: React.FC<BubbleProps> = ({
   children,
   hasPadding,
 }) => {
+  const [hover, setHover] = useState(false);
+
   const hasAuthor = !!(!isMine && author);
 
   return (
-    <Wrapper isMine={isMine}>
+    <Wrapper
+      isMine={isMine}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}>
       {
         hasTail ?
           <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> :
@@ -133,7 +138,10 @@ const ChatBubble: React.FC<BubbleProps> = ({
         }
         {children}
       </Content>
-      <HeadWrapper>
+      <HeadWrapper
+        style={{
+          opacity: hover ? 1 : 0,
+        }}>
         <Unread isMine={isMine}>{unread}</Unread>
         <Date>{convertTime(time, false)}</Date>
       </HeadWrapper>
