@@ -1,27 +1,27 @@
-import React, {HTMLAttributes} from 'react';
+import React, { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import ProfileImage from '../../common/ProfileImage';
 
 const Wrapper = styled.div`
-display: flex;
-flex-direction: row;
-align-items: flex-end;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
 `;
 
 const Contents = styled.div`
-display: flex;
-flex-direction: column;
-flex: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
 const StyledProfileImage = styled(ProfileImage)`
-margin-right: 15px;
+  margin-right: 15px;
 `;
 
 export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
-    isMine: boolean;
-    profileImageSrc?: string;
+  isMine: boolean;
+  profileImageSrc?: string;
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({
@@ -30,16 +30,12 @@ const ChatItem: React.FC<ChatItemProps> = ({
   children,
   ...args
 }) => {
-  if (!profileImageSrc) {
-    profileImageSrc = ProfileDefault;
-  }
+  const src = profileImageSrc ?? ProfileDefault;
 
   return (
     <Wrapper {...args}>
       {
-        !isMine && <StyledProfileImage src={
-          profileImageSrc as string
-        } />
+        !isMine && <StyledProfileImage src={src}/>
       }
       <Contents>
         {children}

@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import color from '../../../assets/colors/theme';
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
 import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
-import color from '../../../assets/colors/theme';
+import convertTime from '../../../utils/convertTime';
 
 const BubbleTail = styled.img`
   margin-bottom: 5px;
@@ -24,9 +25,9 @@ const Wrapper = styled.div((props: { isMine: boolean }) => `
 `);
 
 const Content = styled.div((props: {
-    isMine: boolean,
-    hasPadding: boolean,
-    hasAuthor: boolean
+  isMine: boolean,
+  hasPadding: boolean,
+  hasAuthor: boolean
 }) => `
   background: ${props.isMine ? color.BLUE_700 : color.GREY_900};
   ${props.hasPadding ? `padding: 8px 8px 8px 8px;` : ''}
@@ -59,13 +60,13 @@ const Author = styled.span((props: { hasPadding: boolean }) => `
   line-height: 17px;
   color: ${color.BLUE_300};
   padding: ${
-    props.hasPadding ? '0' : '8'
+  props.hasPadding ? '0' : '8'
 }px ${
-    props.hasPadding ? '0' : '8'
+  props.hasPadding ? '0' : '8'
 }px ${
-    props.hasPadding ? '0' : '8'
+  props.hasPadding ? '0' : '8'
 }px ${
-    props.hasPadding ? '0' : '8'
+  props.hasPadding ? '0' : '8'
 }px;
 `);
 
@@ -96,30 +97,13 @@ const Unread = styled.span((props: { isMine: boolean }) => `
 `);
 
 export interface BubbleProps {
-    hasTail: boolean
-    author?: string
-    time: Date
-    unread: number
-    isMine: boolean
-    hasPadding: boolean
+  hasTail: boolean
+  author?: string
+  time: Date
+  unread: number
+  isMine: boolean
+  hasPadding: boolean
 }
-
-const convertTime = (
-    time: Date,
-    use24format = true,
-) => {
-  const hour = time.getHours();
-  const minute = time.getMinutes();
-
-  const hourStr =
-      use24format ?
-          hour.toString() :
-            hour < 12 ?
-                `오전 ${hour === 0 ? 12 : hour}` :
-                `오후 ${hour === 12 ?hour : hour - 12}`;
-
-  return `${hourStr}:${minute < 10 ? `0${minute}` : minute}`;
-};
 
 const ChatBubble: React.FC<BubbleProps> = ({
   hasTail,
@@ -130,18 +114,22 @@ const ChatBubble: React.FC<BubbleProps> = ({
   hasPadding,
 }) => {
   const hasAuthor = !!(!isMine && author);
+
   return (
     <Wrapper isMine={isMine}>
       {
-          hasTail ?
-              <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> :
-              <FakeTail/>
+        hasTail ?
+          <BubbleTail src={isMine ? bubbleTailMine : bubbleTail}/> :
+          <FakeTail/>
       }
-      <Content isMine={isMine} hasAuthor={hasAuthor} hasPadding={hasPadding}>
+      <Content
+        isMine={isMine}
+        hasAuthor={hasAuthor}
+        hasPadding={hasPadding}>
         {
-            hasAuthor ?
-                <Author hasPadding={hasPadding}>{author}</Author> :
-                hasPadding
+          hasAuthor ?
+            <Author hasPadding={hasPadding}>{author}</Author> :
+            hasPadding
         }
         {children}
       </Content>

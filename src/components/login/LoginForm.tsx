@@ -1,19 +1,20 @@
+import { Checkbox, FormControlLabel } from '@material-ui/core';
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 import styled from 'styled-components';
-
-import Strings from '../../constants/Strings';
-import UtilModules from '../../utils';
-import CheckBox from '../common/check-box';
-import Input from '../common/input';
-
-import { LoginFormData } from '../../pages/LoginPage';
-import { Button } from '../common/button';
 
 import AccountCircle from '../../assets/images/account_circle.svg';
 import AccountCircleDisabled from '../../assets/images/account_circle_disabled.svg';
 import VPNKey from '../../assets/images/vpn_key.svg';
 import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
+
+import Strings from '../../constants/Strings';
+
+import { LoginFormData } from '../../pages/LoginPage';
+import UtilModules from '../../utils';
+import { Button } from '../common/button';
+import CheckBox from '../common/CheckBox';
+import Input from '../common/input';
 
 const Form = styled.form`
   width: 280px;
@@ -67,13 +68,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     event.preventDefault();
 
     await onSubmit({
-      email,
-      password,
-      saveEmail,
-      autoLogin,
-    },
-    false,
-    false,
+        email,
+        password,
+        saveEmail,
+        autoLogin,
+      },
+      false,
+      false,
     );
   };
 

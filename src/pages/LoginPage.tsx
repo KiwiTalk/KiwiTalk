@@ -91,11 +91,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
         break;
       case LoginResultType.FAILED:
         setError(
-            `${Strings.Auth.REASON} ${
-              result.value?.message ??
-            LoginErrorReason.get(result.value?.status) ??
-            Strings.Error.UNDEFINED
-            }`);
+            result.value?.message ??
+            LoginErrorReason[result.value?.status] ??
+            Strings.Error.UNKNOWN,
+        );
         break;
     }
   };
@@ -151,22 +150,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
     })();
   }, []);
 
-  /*
-  if (lastLoginData && errorStatus) {
-    const { inputData } = lastLoginData;
-
-    if (AuthStatusCode.DEVICE_NOT_REGISTERED === errorStatus) {
-      return <LoginBackground>
-        <DeviceRegistration
-          formData={inputData}
-          onRegister={(permanent: boolean) => onSubmit(inputData)}
-          goPrevious={() => setErrorStatus(null)}
-        />
-      </LoginBackground>;
-    }
-  }
-  */
-
   return <LoginBackground>
     <LoginForm onSubmit={onSubmit}/>
     <Dialog
@@ -177,7 +160,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          {Strings.Auth.REASON} {LoginErrorReason.get(reason)}
+          {Strings.Auth.REASON} {LoginErrorReason[reason]}
         </DialogContentText>
       </DialogContent>
     </Dialog>

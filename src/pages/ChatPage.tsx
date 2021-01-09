@@ -208,6 +208,7 @@ const ChatPage = (): JSX.Element => {
         channelList[selectedChannel] ?
           <ChatRoom
             channel={channelList[selectedChannel]}
+            selectedChannel={selectedChannel}
             chatList={
               chatList.filter(
                   (chat) => chat.Channel.Id.toString() === channelList[selectedChannel].Id.toString(),
