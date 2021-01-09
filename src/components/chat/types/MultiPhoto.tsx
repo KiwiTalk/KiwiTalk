@@ -1,4 +1,5 @@
-import React from 'react';
+import { Backdrop } from '@material-ui/core';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import Photo, {PhotoChatProps} from './Photo';
@@ -60,12 +61,8 @@ function fitData(length: number, index: number) {
 }
 
 export const MultiPhoto: React.FC<MultiPhotoChatProps> = ({photoChatProps}) => {
-  const style = {
-    width: 'auto',
-  };
-
   return (
-    <Wrapper style={style}>
+    <Wrapper style={{ width: 'auto' }}>
       {
         photoChatProps.map((data: PhotoChatProps, i: number) => {
           const isTwo = (

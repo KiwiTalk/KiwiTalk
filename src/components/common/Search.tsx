@@ -1,43 +1,46 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import IconSearch from '../../assets/images/icon_search.svg';
-import IconNewChat from '../../assets/images/icon_new_chat.svg';
-import IconButton from './IconButton';
+import { IconButton } from '@material-ui/core';
 import color from '../../assets/colors/theme';
 
+import IconSearch from '../../assets/images/icon_search.svg';
+import IconNewChat from '../../assets/images/icon_new_chat.svg';
+
 const Wrapper = styled.div`
-  width: 309px;
-  height: 53px;
+  height: 52px;
   display: flex;
   flex-direction: row;
   align-items: center;
   background: ${color.GREY_900};
+  
+  padding: 0 12px;
 `;
 
 const SearchInputWrapper = styled.div`
-  width: 246px;
   height: 32px;
   position: relative;
   background: ${color.GREY_800};
-  border-radius: 5px;
-  margin-left: 12px;
-  margin-right: 12px;
+  border-radius: 6px;
+  margin-right: 4px;
+  
+  display: flex;
+  
+  flex: 1;
 `;
 
 const SearchInput = styled.input`
-  width: 161px;
-  height: 32px;
-  padding-left: 16px;
+  height: 28px;
+  padding: 4px;
+  outline: none;
   border: none;
   background: none;
+  
+  flex: 1;
 `;
 
 const Icon = styled.img`
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  left: 211px;
-  top: 8px;
+  width: 16px;
+  height: 16px;
   -webkit-user-drag: none;
 `;
 
@@ -60,16 +63,13 @@ const Search: React.FC<SearchProps> = ({onChange, onSearch}) => {
             if (onSearch) onSearch(search);
           }
         }}/>
-        <Icon src={IconSearch}/>
+        <IconButton style={{ width: '32px', height: '32px' }}>
+          <Icon src={IconSearch}/>
+        </IconButton>
       </SearchInputWrapper>
-      <IconButton background={
-        IconNewChat
-      } style={
-        {
-          width: '24px',
-          height: '24px',
-        }
-      }/>
+      <IconButton>
+        <Icon src={IconNewChat} />
+      </IconButton>
     </Wrapper>
   );
 };

@@ -36,6 +36,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     <Background>
       <Header title={title}/>
       <ChatList channel={channel} chatList={chatList} selectedChannel={selectedChannel}/>
+      <div style={{ flex: 1 }}/>
       <ChatInput
         onChange={onInputChange}
         onSubmit={onSubmit}

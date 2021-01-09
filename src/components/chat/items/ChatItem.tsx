@@ -7,6 +7,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-end;
+  
+  margin: 0 4px;
 `;
 
 const Contents = styled.div`
@@ -16,7 +18,7 @@ const Contents = styled.div`
 `;
 
 const StyledProfileImage = styled(ProfileImage)`
-  margin-right: 15px;
+  margin-right: 8px;
 `;
 
 export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {

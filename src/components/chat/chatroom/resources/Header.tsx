@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import IconButton from '../../../common/IconButton';
+import { IconButton } from '@material-ui/core';
+
+import color from '../../../../assets/colors/theme';
+
 import IconExternal from '../../../../assets/images/icon_external.svg';
 import IconMenu from '../../../../assets/images/icon_menu.svg';
 import IconNotification from '../../../../assets/images/icon_notification.svg';
 import IconSearch from '../../../../assets/images/icon_search.svg';
-import color from '../../../../assets/colors/theme';
 
 const Wrapper = styled.div`
   display: flex;
@@ -14,11 +16,13 @@ const Wrapper = styled.div`
 `;
 
 const Title = styled.span`
+  height: 36px;
+  
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: 500;
-  font-size: 24px;
-  line-height: 37px;
+  font-size: 18px;
+  line-height: 36px;
   color: ${color.GREY_100};
   padding: 8px 16px;
   flex: 1;
@@ -30,12 +34,16 @@ const Title = styled.span`
 const IconButtonWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  width: 182px;
-  justify-content: space-between;
+  justify-content: right;
   align-items: center;
-  padding: 0px 10px;
-  margin-right: 16px;
   box-sizing: border-box;
+  
+  margin-right: 8px;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  width: 36px;
+  height: 36px;
 `;
 
 interface ChatroomHeaderProps {
@@ -47,10 +55,18 @@ const Header: React.FC<ChatroomHeaderProps> = ({title}) => {
     <Wrapper>
       <Title>{title}</Title>
       <IconButtonWrapper>
-        <IconButton background={IconNotification}/>
-        <IconButton background={IconSearch}/>
-        <IconButton background={IconExternal}/>
-        <IconButton background={IconMenu}/>
+        <StyledIconButton>
+          <img src={IconNotification} />
+        </StyledIconButton>
+        <StyledIconButton>
+          <img src={IconSearch} />
+        </StyledIconButton>
+        <StyledIconButton>
+          <img src={IconExternal} />
+        </StyledIconButton>
+        <StyledIconButton>
+          <img src={IconMenu} />
+        </StyledIconButton>
       </IconButtonWrapper>
     </Wrapper>
   );

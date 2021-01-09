@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   min-width: 0;
 `;
 
-const Background: React.FC = ({children}) => {
+const Background: React.FC = ({ children }) => {
   return (
     <Wrapper>
       <Kiwi/>

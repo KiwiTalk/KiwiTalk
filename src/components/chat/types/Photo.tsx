@@ -1,4 +1,5 @@
-import React from 'react';
+import { Backdrop } from '@material-ui/core';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -7,15 +8,17 @@ const Wrapper = styled.div`
 `;
 
 const Image = styled.img`
+  cursor: pointer;
+  
   display: block;
 `;
 
 export interface PhotoChatProps {
-    width: number,
-    height: number,
-    url: string,
-    ratio: number,
-    limit: number[],
+  width: number,
+  height: number,
+  url: string,
+  ratio: number,
+  limit: number[],
 }
 
 const resize = (
@@ -39,12 +42,15 @@ const resize = (
 };
 
 export const Photo: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
+  const [url, setUrl] = useState('');
+
   const [w, h] = resize(data.width, data.height, data.ratio, data.limit);
+
   return (
-    <Wrapper style={{width: w + 'px', height: h + 'px'}}>
-      <Image src={
-        data.url
-      } style={
+    <Wrapper style={{ width: w + 'px', height: h + 'px' }}>
+      <Image
+        src={data.url}
+        style={
           data.width / data.height < 1 ? {
             width: '100%',
             height: 'auto',
@@ -52,7 +58,22 @@ export const Photo: React.FC<PhotoChatProps> = (data: PhotoChatProps) => {
             width: 'auto',
             height: '100%',
           }
-      }/>
+        }
+        onClick={() => setUrl(data.url)}/>
+      <Backdrop
+        style={{
+          zIndex: 1000,
+          background: 'rgba(0, 0, 0, 0.7)',
+        }}
+        open={url !== ''}
+        onClick={() => setUrl('')}>
+        <img
+          style={{
+            maxHeight: '90vh',
+            maxWidth: '90vw',
+          }}
+          src={url}/>
+      </Backdrop>
     </Wrapper>
   );
 };

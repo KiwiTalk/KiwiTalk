@@ -6,9 +6,7 @@ import color from '../../../../assets/colors/theme';
 import ProfileImage from '../../../common/ProfileImage';
 
 const Wrapper = styled.div`
-  width: 309px;
-  height: 86px;
-  padding: 14px 16px;
+  padding: 12px;
   box-sizing: border-box;
   cursor: pointer;
 
@@ -123,7 +121,7 @@ const ChatRoomListItem: React.FC<ChatListItemProps> = ({
     {...args}
     style={
       selected ?
-        { background: color.GREY_400 } :
+        { background: color.GREY_700 } :
         {}
     }>
     <Content>

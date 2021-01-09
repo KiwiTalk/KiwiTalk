@@ -7,14 +7,13 @@ import ChatBubble from './items/ChatBubble';
 
 import ChatItem from './items/ChatItem';
 
-import convertChat, { toDeletedText } from './utils/ChatConverter';
+import convertChat from './utils/ChatConverter';
 import { toDeletedAt } from './utils/FeedConverter';
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0px 19px 8px 42px;
-  margin: 8px 8px 64px 0px;
+  padding: 16px;
   overflow-y: scroll;
   z-index: 1;
 

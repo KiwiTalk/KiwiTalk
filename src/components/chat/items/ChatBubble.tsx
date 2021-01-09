@@ -20,7 +20,7 @@ const Wrapper = styled.div((props: { isMine: boolean }) => `
   display: flex;
   flex-direction: ${props.isMine ? 'row-reverse' : 'row'};
   align-items: flex-end;
-  margin-top: 7px;
+  margin-top: 4px;
   justify-content: 'flex-start';
 `);
 
@@ -35,20 +35,16 @@ const Content = styled.div((props: {
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 25px;
+  font-size: 14px;
+  line-height: 18px;
   color: ${color.GREY_100};
   display: flex;
   flex-direction: column;
-  border-radius: 5px;
+  border-radius: 6px;
   overflow: hidden;
   
   transition: all 0.25s;
   
-  :hover {
-    background: ${props.isMine ? color.BLUE_400 : color.GREY_750};
-  }
-
   max-width: 70%;
 `);
 
@@ -79,9 +75,9 @@ const Date = styled.span`
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 25px;
-  margin: 0px 12px;
+  font-size: 12px;
+  line-height: 14px;
+  margin: 0px 8px;
   color: ${color.GREY_400};
 `;
 
@@ -89,9 +85,8 @@ const Unread = styled.span((props: { isMine: boolean }) => `
   font-family: KoPubWorldDotum;
   font-style: normal;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 11px;
-  margin: 0px 12px;
+  font-size: 12px;
+  margin: 0px 8px;
   text-align: ${props.isMine ? 'right' : 'left'};
   color: ${color.BLUE_400};
 `);

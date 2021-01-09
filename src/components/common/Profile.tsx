@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ProfileDefault from '../../assets/images/profile_default.svg';
 import IconSettings from '../../assets/images/icon_settings.svg';
-import IconButton from './IconButton';
+import { IconButton } from '@material-ui/core';
 import ProfileImage from './ProfileImage';
 import color from '../../assets/colors/theme';
 import { MoreSettingsStruct } from 'node-kakao';
@@ -48,14 +48,13 @@ const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
   if (!accountSettings) {
     return (
       <Wrapper>
-        <IconButton background={
-          IconSettings
-        } style={
-          {
-            width: '24px',
-            height: '24px',
-          }
-        }/>
+        <IconButton
+          style={{
+            width: '36px',
+            height: '36px',
+          }}>
+          <img src={IconSettings} />
+        </IconButton>
       </Wrapper>
     );
   }
@@ -76,15 +75,14 @@ const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
         <Username>{accountSettings.nickName}</Username>
         <UserEmail>{accountSettings.accountDisplayId}</UserEmail>
       </UserInfoWrapper>
-      <IconButton background={
-        IconSettings
-      } style={
-        {
+      <IconButton
+        style={{
           width: '24px',
           height: '24px',
-          marginRight: '32px',
-        }
-      }/>
+          marginRight: '16px',
+        }}>
+        <img src={IconSettings} />
+      </IconButton>
     </Wrapper>
   );
 };

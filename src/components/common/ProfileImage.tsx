@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import ProfileMask from '../../assets/images/profile_mask.svg';
 
 const Wrapper = styled.div`
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   position: relative;
   user-select: none;
 `;
