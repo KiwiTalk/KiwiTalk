@@ -3,8 +3,8 @@ const os = require('os');
 
 const setting = {
   frame: true,
-  width: 800,
-  height: 600,
+  width: 1280,
+  height: 800,
   show_in_taskbar: true,
   new_instance: false,
   title: 'KiwiTalk',
