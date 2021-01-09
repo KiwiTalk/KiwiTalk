@@ -74,7 +74,7 @@ const MenuBar = (): JSX.Element => {
 
   const window = nw.Window.get();
   window.once('maximize', () => setMaximum(true));
-  window.once('unmaximize', () => setMaximum(false));
+  window.once('restore', () => setMaximum(false));
 
   return (
     <Wrapper className={'menu-bar'}>
