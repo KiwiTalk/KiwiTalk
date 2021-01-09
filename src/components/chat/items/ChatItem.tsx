@@ -30,7 +30,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
   children,
   ...args
 }) => {
-  const src = profileImageSrc ?? ProfileDefault;
+  const src = profileImageSrc ? profileImageSrc : ProfileDefault;
 
   return (
     <Wrapper {...args}>

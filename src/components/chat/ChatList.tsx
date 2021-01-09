@@ -157,6 +157,7 @@ class ChatList extends React.Component<ChatListProps> {
                     key={bubble.key}
                     hasTail={bubble.hasTail}
                     time={bubble.time}
+                    author={bubble.author}
                     unread={bubble.unread}
                     isMine={bubble.isMine}
                     hasPadding={bubble.hasPadding}>
