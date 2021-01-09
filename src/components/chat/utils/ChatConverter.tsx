@@ -1,7 +1,6 @@
-import React from 'react';
-
 import {
-  Chat, ChatChannel,
+  Chat,
+  ChatChannel,
   ChatType,
   FeedType,
   PhotoAttachment,
@@ -9,20 +8,22 @@ import {
   ReplyChat as ReplyChatObject,
   VideoAttachment,
 } from 'node-kakao';
-
-import Photo, { PhotoChatProps } from '../types/photo';
-import MultiPhoto from '../types/multi-photo';
-import Search from '../types/search';
-import Reply from '../types/reply';
-import Location from '../types/location';
-import Video from '../types/video';
-import Long from '../types/long';
-import Deleted from '../types/deleted';
+import React from 'react';
 import styled from 'styled-components';
+import { isUrl } from '../../../utils/isUrl';
+import Deleted from '../types/Deleted';
+import Emoticon from '../types/Emoticon';
+import Link from '../types/Link';
+import Location from '../types/Location';
+import Long from '../types/Long';
+import MultiPhoto from '../types/MultiPhoto';
 
-import convertFeed from './feed-converter';
-import { isUrl } from '../../../utils/is-url';
-import Link from '../types/link';
+import Photo, { PhotoChatProps } from '../types/Photo';
+import Reply from '../types/Reply';
+import Search from '../types/Search';
+import Video from '../types/Video';
+
+import convertFeed from './FeedConverter';
 
 const Content = styled.span`
   white-space: pre-line;
@@ -44,11 +45,11 @@ export function toLongText(chat: Chat): JSX.Element {
 }
 
 export function toPhoto(
-    chat: Chat,
-    options = {
-      ratio: -1,
-      limit: [300, 500],
-    },
+  chat: Chat,
+  options = {
+    ratio: -1,
+    limit: [300, 500],
+  },
 ): JSX.Element {
   const list = chat.AttachmentList.map((attachment: any) => {
     attachment = attachment as PhotoAttachment;
@@ -107,7 +108,7 @@ export function toSearch(chat: Chat): JSX.Element {
 export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
   let prevChat = null;
   const attachments = (chat as ReplyChatObject)
-      .AttachmentList as ReplyAttachment[];
+    .AttachmentList as ReplyAttachment[];
   const prevId = attachments[0].SourceLogId.toString();
 
   for (const c of chatList) {
@@ -136,15 +137,19 @@ export function toMap(chat: Chat): JSX.Element {
   return <div>{list}</div>;
 }
 
+export function toEmoticon(chat: Chat): JSX.Element {
+  return <Emoticon chat={chat}/>;
+}
+
 export function toDeletedText(chat: Chat, chatList: Chat[], channel: ChatChannel): JSX.Element {
   return <Deleted chat={chat} chatList={chatList} channel={channel}/>;
 }
 
 export function convertChat(
-    chat: Chat,
-    chatList: Chat[],
-    channel: ChatChannel,
-    passUnknown = false,
+  chat: Chat,
+  chatList: Chat[],
+  channel: ChatChannel,
+  passUnknown = false,
 ): JSX.Element | undefined {
   switch (chat.Type) {
     case ChatType.Feed:
@@ -176,7 +181,14 @@ export function convertChat(
       }
 
       return <span>{chat.Text}</span>;
+    case ChatType.Sticker:
+    case ChatType.StickerAni:
+    case ChatType.StickerGif:
+      console.log(chat);
+      return toEmoticon(chat);
+      break;
     case ChatType.Map:
+      break;
     default:
       return <div>
         <h5>{chat.Type}</h5>
@@ -184,6 +196,20 @@ export function convertChat(
       </div>;
   }
 }
+
+/*
+
+EmoticonAttachment
+* Description
+* Height
+* Name
+* Path
+* Sound
+* StopAt
+* Type
+* Width
+
+ */
 
 export function convertShortChat(chat: Chat): JSX.Element {
   switch (chat.Type) {

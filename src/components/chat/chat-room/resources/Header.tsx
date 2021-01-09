@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import IconButton from '../../../common/icon-button';
+import IconButton from '../../../common/IconButton';
 import IconExternal from '../../../../assets/images/icon_external.svg';
 import IconMenu from '../../../../assets/images/icon_menu.svg';
 import IconNotification from '../../../../assets/images/icon_notification.svg';

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import styled from 'styled-components';
 import IconSearch from '../../assets/images/icon_search.svg';
 import IconNewChat from '../../assets/images/icon_new_chat.svg';
-import IconButton from './icon-button';
+import IconButton from './IconButton';
 import color from '../../assets/colors/theme';
 
 const Wrapper = styled.div`

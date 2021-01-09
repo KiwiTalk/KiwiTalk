@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Chat } from 'node-kakao';
-import getMetadata from '../../../utils/get-metadata';
+import getMetadata from '../../../utils/getMetadata';
 
 const Wrapper = styled.div`
   display: flex;

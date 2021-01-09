@@ -10,7 +10,7 @@ import VerifyCodeForm from './VerifyCodeForm';
 import { Dialog, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { AppContext } from '../../App';
 import { LoginFormData } from '../../pages/LoginPage';
-import { Button } from '../common/button';
+import { Button } from '../common/Button';
 
 const SelectionWrapper = styled.div`
   width: 280px;

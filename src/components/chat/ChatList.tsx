@@ -7,8 +7,8 @@ import ChatBubble from './items/ChatBubble';
 
 import ChatItem from './items/ChatItem';
 
-import convertChat, { toDeletedText } from './utils/chat-converter';
-import { toDeletedAt } from './utils/feed-converter';
+import convertChat, { toDeletedText } from './utils/ChatConverter';
+import { toDeletedAt } from './utils/FeedConverter';
 
 const Content = styled.div`
   display: flex;

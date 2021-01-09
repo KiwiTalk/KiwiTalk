@@ -3,8 +3,8 @@ import React from 'react';
 import { Chat, ChatChannel, FeedMemberStruct, FeedType } from 'node-kakao';
 import DeletedAt from '../types/DeletedAt';
 
-import Invite from '../types/invite';
-import Leave from '../types/leave';
+import Invite from '../types/Invite';
+import Leave from '../types/Leave';
 
 export function toInvite(feed: any, chat: Chat): JSX.Element {
   if (feed.inviter) {

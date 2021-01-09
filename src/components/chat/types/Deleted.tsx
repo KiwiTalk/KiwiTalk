@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Chat, ChatChannel } from 'node-kakao';
 
-import convertChat from '../utils/chat-converter';
+import convertChat from '../utils/ChatConverter';
 
 const Wrapper = styled.div`
   display: flex;

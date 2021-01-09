@@ -1,5 +1,5 @@
 import uuid from './uuid';
-import login from './auto-login';
+import login from './autoLogin';
 
 export default {
   uuid,

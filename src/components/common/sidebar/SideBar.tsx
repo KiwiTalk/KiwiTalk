@@ -5,7 +5,7 @@ import IconChats from '../../../assets/images/icon_chats.svg';
 import IconProfilesDisabled
   from '../../../assets/images/icon_profiles_disabled.svg';
 import IconChatsDisabled from '../../../assets/images/icon_chats_disabled.svg';
-import IconButton from '../icon-button';
+import IconButton from '../IconButton';
 import color from '../../../assets/colors/theme';
 
 const Wrapper = styled.div`

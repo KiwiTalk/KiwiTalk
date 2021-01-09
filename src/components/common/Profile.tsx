@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ProfileDefault from '../../assets/images/profile_default.svg';
 import IconSettings from '../../assets/images/icon_settings.svg';
-import IconButton from './icon-button';
+import IconButton from './IconButton';
 import ProfileImage from './ProfileImage';
 import color from '../../assets/colors/theme';
 import { MoreSettingsStruct } from 'node-kakao';

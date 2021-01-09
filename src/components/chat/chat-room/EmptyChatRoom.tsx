@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import ChatRoomColor from '../../../assets/colors/chatroom';
 
-import Kiwi from '../../common/kiwi';
+import Kiwi from '../../common/Kiwi';
 
 const Wrapper = styled.div`
   position: relative;

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ThemeColor from '../../assets/colors/theme';
 import background from '../../assets/images/background.svg';
-import Kiwi from './kiwi';
+import Kiwi from './Kiwi';
 
 const Wrapper = styled.div`margin-top: ${(() => {
   switch (process.platform) {

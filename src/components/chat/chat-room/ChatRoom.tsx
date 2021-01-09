@@ -1,10 +1,10 @@
 import { Chat, ChatChannel } from 'node-kakao';
 import React, { ChangeEvent, EventHandler, FormEvent, useEffect, useState, } from 'react';
 import ChatList from '../ChatList';
-import ChatInput from '../items/chat-input';
-import { extractRoomName } from '../utils/room-info-extractor';
-import Background from './resources/background';
-import Header from './resources/header';
+import ChatInput from '../items/ChatInput';
+import { extractRoomName } from '../utils/RoomInfoExtractor';
+import Background from './resources/Background';
+import Header from './resources/Header';
 
 export interface ChatRoomProps {
   channel: ChatChannel;

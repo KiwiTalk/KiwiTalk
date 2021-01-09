@@ -6,7 +6,7 @@ import Dial from '../../assets/images/dialpad.svg';
 import DialDisabled from '../../assets/images/dialpad_disabled.svg';
 import Strings from '../../constants/Strings';
 
-import Input from '../common/input';
+import Input from '../common/Input';
 
 const Form = styled.form`
   width: 280px;

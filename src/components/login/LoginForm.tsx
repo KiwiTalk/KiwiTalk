@@ -1,4 +1,3 @@
-import { Checkbox, FormControlLabel } from '@material-ui/core';
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 import styled from 'styled-components';
@@ -12,9 +11,9 @@ import Strings from '../../constants/Strings';
 
 import { LoginFormData } from '../../pages/LoginPage';
 import UtilModules from '../../utils';
-import { Button } from '../common/button';
+import { Button } from '../common/Button';
 import CheckBox from '../common/CheckBox';
-import Input from '../common/input';
+import Input from '../common/Input';
 
 const Form = styled.form`
   width: 280px;
@@ -68,13 +67,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     event.preventDefault();
 
     await onSubmit({
-        email,
-        password,
-        saveEmail,
-        autoLogin,
-      },
-      false,
-      false,
+      email,
+      password,
+      saveEmail,
+      autoLogin,
+    },
+    false,
+    false,
     );
   };
 

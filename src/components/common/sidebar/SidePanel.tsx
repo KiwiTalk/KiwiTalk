@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import Search from '../search';
+import Search from '../Search';
 import ChatRoomList from '../../chat/chat-room/list/ChatRoomList';
-import Profile from '../profile';
+import Profile from '../Profile';
 import {ChatChannel, MoreSettingsStruct} from 'node-kakao';
 
 const Wrapper = styled.div`

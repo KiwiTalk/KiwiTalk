@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Photo, {PhotoChatProps} from './photo';
+import Photo, {PhotoChatProps} from './Photo';
 
 const Wrapper = styled.div`
   display: grid;

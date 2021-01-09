@@ -6,7 +6,7 @@ import IconEmoji from '../../../assets/images/icon_emoji.svg';
 import IconSend from '../../../assets/images/icon_send.svg';
 import ThemeColor from '../../../assets/colors/theme';
 
-import IconButton from '../../common/icon-button';
+import IconButton from '../../common/IconButton';
 
 
 const Form = styled.form`

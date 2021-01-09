@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
-import MenuBar from './components/common/menu-bar/menu-bar';
+import MenuBar from './components/common/menubar/MenuBar';
 import ChatPage from './pages/ChatPage';
 import Register from './pages/DeviceRegisterPage';
 import Login from './pages/LoginPage';

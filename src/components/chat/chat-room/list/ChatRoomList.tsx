@@ -2,7 +2,7 @@ import { ChatChannel } from 'node-kakao';
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
-import { extractRoomImage, extractRoomName } from '../../utils/room-info-extractor';
+import { extractRoomImage, extractRoomName } from '../../utils/RoomInfoExtractor';
 import ChatRoomListItem from './ChatRoomListItem';
 
 const Wrapper = styled.div`

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Kiwi from '../../../common/kiwi';
+import Kiwi from '../../../common/Kiwi';
 import ChatRoomColor from '../../../../assets/colors/chatroom';
 
 const Wrapper = styled.div`

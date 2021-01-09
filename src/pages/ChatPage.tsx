@@ -7,10 +7,10 @@ import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from '
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from '../App';
-import ChatRoom from '../components/chat/chat-room/chat-room';
-import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
-import SideBar from '../components/common/side-bar/side-bar';
-import SidePanel from '../components/common/side-bar/side-panel';
+import ChatRoom from '../components/chat/chat-room/ChatRoom';
+import EmptyChatRoom from '../components/chat/chat-room/EmptyChatRoom';
+import SideBar from '../components/common/sidebar/SideBar';
+import SidePanel from '../components/common/sidebar/SidePanel';
 import constants from '../constants';
 import Strings from '../constants/Strings';
 

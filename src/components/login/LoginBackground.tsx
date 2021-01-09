@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import KiwiBackground from '../common/kiwi-background';
+import KiwiBackground from '../common/KiwiBackground';
 import LoginTitle from './LoginTitle';
 
 const Wrapper = styled.div`
