@@ -19,6 +19,8 @@ export const Auth = {
 
   DEVICE_REGISTRATION_FAILED: '기기를 등록하지 못하였습니다.',
   LOGIN_FAILED: '로그인을 할 수 없습니다',
+  AUTO_LOGIN_FAILED: '자동 로그인을 할 수 없습니다',
+  NO_TOKEN: '자동로그인에 필요한 데이터를 찾을 수 없습니다.',
 
   KAKAO_ACCOUNT: '카카오계정 (이메일 또는 전화번호)',
   SAVE_ID: '아이디 저장',

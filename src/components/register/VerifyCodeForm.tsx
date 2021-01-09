@@ -16,7 +16,7 @@ const Form = styled.form`
 `;
 
 interface VerifyCodeFormProps {
-  onSubmit: (passcode: string) => void;
+  onSubmit: (passcode: string) => Promise<void>;
 }
 
 const VerifyCodeForm: React.FC<VerifyCodeFormProps> = ({ onSubmit }) => {
@@ -24,6 +24,7 @@ const VerifyCodeForm: React.FC<VerifyCodeFormProps> = ({ onSubmit }) => {
     const { value } = event.target;
 
     if (value.length >= 4) {
+      console.log(onSubmit);
       onSubmit(value);
     }
   };

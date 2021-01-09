@@ -1,9 +1,9 @@
-import React, {HTMLAttributes, useState} from 'react';
+import React, { HTMLAttributes, useState } from 'react';
+
 import styled from 'styled-components';
-import ProfileImage, {
-  ProfileImageBackgroundColor,
-} from '../../../common/profile-image';
+
 import color from '../../../../assets/colors/theme';
+import ProfileImage, { ProfileImageBackgroundColor } from '../../../common/profile-image';
 
 const Wrapper = styled.div`
   width: 309px;
@@ -27,7 +27,7 @@ const Text = styled.div`
 `;
 
 const Username = styled.span`
-  font-family: KoPubWorldDotum;
+  font-family: KoPubWorldDotum, serif;
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
@@ -40,7 +40,7 @@ const Username = styled.span`
 `;
 
 const LastChat = styled.span`
-  font-family: KoPubWorldDotum;
+  font-family: KoPubWorldDotum, serif;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
@@ -51,13 +51,6 @@ const LastChat = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
-
-interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {
-  profileImageSrcArr: string[]
-  username: string
-  lastChat: string
-  selected: boolean
-}
 
 interface ProfileImageSetProps extends HTMLAttributes<HTMLDivElement> {
   urls: string[]
@@ -97,15 +90,24 @@ const ProfileImageSet: React.FC<ProfileImageSetProps> = ({
   };
 
   const list = urls.map((e, i) => {
-    return <ProfileImage
-      key={e}
-      src={e}
-      backgroundColor={backgroundColor}
-      style={{width: size, height: size, ...setPosition(i + 1)}} />;
+    return (
+      <ProfileImage
+        key={e}
+        src={e}
+        backgroundColor={backgroundColor}
+        style={{ width: size, height: size, ...setPosition(i + 1) }}/>
+    );
   });
 
-  return <div style={{display: 'grid', gridGap: '3px'}}>{list}</div>;
+  return <div style={{ display: 'grid', gridGap: '3px' }}>{list}</div>;
 };
+
+interface ChatListItemProps extends HTMLAttributes<HTMLDivElement> {
+  profileImageSrcArr: string[]
+  username: string
+  lastChat: string
+  selected: boolean
+}
 
 const ChatRoomListItem: React.FC<ChatListItemProps> = ({
   profileImageSrcArr,
@@ -115,14 +117,15 @@ const ChatRoomListItem: React.FC<ChatListItemProps> = ({
   ...args
 }) => {
   const [hover, setHover] = useState(false);
+
   return (
     <Wrapper style={
       hover || selected ?
-          {backgroundColor: '#F7F7F7'} : {backgroundColor: '#FFFFFF'}
+        { backgroundColor: '#F7F7F7' } : { backgroundColor: '#FFFFFF' }
     }
-    onMouseEnter={
-      () => setHover(true)
-    } onMouseLeave={
+             onMouseEnter={
+               () => setHover(true)
+             } onMouseLeave={
       () => setHover(false)
     } {...args}>
       <Content>
@@ -130,8 +133,8 @@ const ChatRoomListItem: React.FC<ChatListItemProps> = ({
           urls={profileImageSrcArr}
           backgroundColor={
             hover || selected ?
-                ProfileImageBackgroundColor.GRAY_800 :
-                ProfileImageBackgroundColor.GRAY_900
+              ProfileImageBackgroundColor.GRAY_800 :
+              ProfileImageBackgroundColor.GRAY_900
           }/>
         <Text>
           <Username>{username}</Username>

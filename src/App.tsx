@@ -2,11 +2,10 @@ import { LocoKickoutType, TalkClient } from 'node-kakao';
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom';
-import { PersistGate } from 'redux-persist/integration/react';
 import './App.css';
 
 import MenuBar from './components/common/menu-bar/menu-bar';
-import Chat from './pages/chat';
+import ChatPage from './pages/ChatPage';
 import Register from './pages/DeviceRegisterPage';
 import Login from './pages/LoginPage';
 import configureStore from './store';
@@ -23,7 +22,7 @@ export interface AppTalkContext {
   client: TalkClient
 }
 
-const { store, persistor } = configureStore();
+const store = configureStore();
 
 export const AppContext = React.createContext({} as AppTalkContext);
 
@@ -31,6 +30,20 @@ export const App: React.FC<AppProp> = ({ client }) => {
   const history = useHistory();
 
   useEffect(() => {
+    const loginHandler = () => {
+      console.log(history);
+      history.push('/chat');
+    };
+
+    const disconnectedHandler = (reason: LocoKickoutType) => {
+      if (
+        reason === LocoKickoutType.CHANGE_SERVER ||
+        reason === LocoKickoutType.UNKNOWN
+      ) return;
+
+      history.push('/login', { reason });
+    };
+
     client.on('login', loginHandler);
     client.on('disconnected', disconnectedHandler);
 
@@ -43,52 +56,26 @@ export const App: React.FC<AppProp> = ({ client }) => {
   let menuBar: JSX.Element | null = null;
 
   switch (process.platform) {
-    case 'darwin':
-    case 'cygwin':
-    case 'win32':
+    case 'darwin': case 'cygwin': case 'win32':
       menuBar = <MenuBar/>;
       break;
   }
 
-  const loginHandler = () => {
-    history.push('/chat');
-  };
-
-  const disconnectedHandler = (reason: LocoKickoutType) => {
-    if (
-      reason === LocoKickoutType.CHANGE_SERVER ||
-      reason === LocoKickoutType.UNKNOWN
-    ) {
-      return;
-    }
-
-    history.push({
-      pathname: '/login',
-      state: {
-        reason,
-      },
-    });
-  };
-
   return (
     <Provider store={store}>
-      <PersistGate persistor={persistor}>
-        <div className="App">
-          {menuBar}
-          <AppContext.Provider value={{ client }}>
-            <BrowserRouter>
-              <Switch>
-                <Route path={'/'} exact>
-                  <Redirect to={'/login'}/>
-                </Route>
-                <Route path={'/login'} component={Login} exact/>
-                <Route path={'/register'} component={Register} exact/>
-                <Route path={'/chat'} component={Chat} exact/>
-              </Switch>
-            </BrowserRouter>
-          </AppContext.Provider>
-        </div>
-      </PersistGate>
+      <div className="App">
+        {menuBar}
+        <AppContext.Provider value={{ client }}>
+            <Switch>
+              <Route path={'/'} exact>
+                <Redirect to={'/login'}/>
+              </Route>
+              <Route path={'/login'} component={Login} exact/>
+              <Route path={'/register'} component={Register} exact/>
+              <Route path={'/chat'} component={ChatPage} exact/>
+            </Switch>
+        </AppContext.Provider>
+      </div>
     </Provider>
   );
 };

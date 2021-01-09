@@ -1,20 +1,19 @@
-import React, { ChangeEvent, FormEvent, MouseEvent } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+
 import styled from 'styled-components';
+
+import Strings from '../../constants/Strings';
+import UtilModules from '../../utils';
+import CheckBox from '../common/check-box';
+import Input from '../common/input';
+
+import { LoginFormData } from '../../pages/LoginPage';
+import { Button } from '../common/button';
 
 import AccountCircle from '../../assets/images/account_circle.svg';
 import AccountCircleDisabled from '../../assets/images/account_circle_disabled.svg';
 import VPNKey from '../../assets/images/vpn_key.svg';
 import VPNKeyDisabled from '../../assets/images/vpn_key_disabled.svg';
-
-import Strings from '../../constants/Strings';
-import { ReducerType } from '../../reducers';
-import { setLoginOption, setPassword } from '../../reducers/auth';
-import { setEmail } from '../../utils/auto-login';
-import { Button } from '../common/button';
-
-import CheckBox from '../common/check-box';
-import Input from '../common/input';
 
 const Form = styled.form`
   width: 280px;
@@ -22,32 +21,33 @@ const Form = styled.form`
 `;
 
 export interface LoginFormProps {
-  onSubmit: (force?: boolean, token?: boolean) => Promise<void>;
+  onSubmit: (formData: LoginFormData, force?: boolean, token?: boolean) => Promise<void>;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
-  const dispatch = useDispatch();
-  const auth = useSelector((state: ReducerType) => state.auth);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [saveEmail, setSaveEmail] = useState(false);
+  const [autoLogin, setAutoLogin] = useState(false);
 
-  /*
-  // TODO: FIX
   useEffect(() => {
     (async () => {
-      const autoLogin = await UtilModules.login.isAutoLogin();
       const email = await UtilModules.login.getEmail();
-      const saveEmail = !!email;
+      const autoLogin = await UtilModules.login.isAutoLogin();
 
-      setForm({ email, autoLogin, saveEmail, password: '' });
+      setEmail(email);
+      setSaveEmail(!!email);
+      setAutoLogin(autoLogin);
     })();
   }, []);
-*/
+
   const onChange = (key: string) => ({ target }: ChangeEvent<HTMLInputElement>) => {
     switch (key) {
       case 'email':
-        dispatch(setEmail(target.value));
+        setEmail(target.value);
         break;
       case 'password':
-        dispatch(setPassword(target.value));
+        setPassword(target.value);
         break;
     }
   };
@@ -55,21 +55,26 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const onOptionChange = (key: string) => () => {
     switch (key) {
       case 'saveEmail':
-        dispatch(setLoginOption({
-          saveEmail: !auth.saveEmail,
-        }));
+        setSaveEmail(!saveEmail);
         break;
       case 'authLogin':
-        dispatch(setLoginOption({
-          autoLogin: !auth.autoLogin,
-        }));
+        setAutoLogin(!autoLogin);
         break;
     }
   };
 
-  const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit();
+
+    await onSubmit({
+      email,
+      password,
+      saveEmail,
+      autoLogin,
+    },
+    false,
+    false,
+    );
   };
 
   return (
@@ -79,7 +84,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         icon={AccountCircle}
         disabledIcon={AccountCircleDisabled}
         name={'email'}
-        value={auth.email}
+        value={email}
         onChange={onChange('email')}/>
       <Input
         placeholder={Strings.Auth.PASSWORD}
@@ -87,19 +92,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         icon={VPNKey}
         disabledIcon={VPNKeyDisabled}
         name={'password'}
-        value={auth.password}
+        value={password}
         onChange={onChange('password')}/>
       <Button style={{ marginTop: '12px' }}>
         {Strings.Auth.LOGIN}
       </Button>
       <CheckBox
         style={{ marginTop: '10px' }}
-        checked={auth.saveEmail}
+        checked={saveEmail}
         label={Strings.Auth.SAVE_ID}
         onClick={onOptionChange('saveEmail')}/>
       <CheckBox
         style={{ marginTop: '10px' }}
-        checked={auth.autoLogin}
+        checked={autoLogin}
         label={Strings.Auth.USE_AUTO_LOGIN}
         onClick={onOptionChange('authLogin')}/>
     </Form>

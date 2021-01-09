@@ -1,9 +1,10 @@
-import React, {HTMLAttributes} from 'react';
+import React, { HTMLAttributes } from 'react';
+
 import styled from 'styled-components';
+
 import ProfileMaskF7 from '../../assets/images/profile_mask_F7.svg';
 import ProfileMaskFF from '../../assets/images/profile_mask_FF.svg';
-import ProfileMaskBackground
-  from '../../assets/images/profile_mask_background.svg';
+import ProfileMaskBackground from '../../assets/images/profile_mask_background.svg';
 
 const Wrapper = styled.div`
   width: 54px;
@@ -53,8 +54,12 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
 }) => {
   return (
     <Wrapper {...args}>
-      <Image src={src}/>
-      <Image src={getBackground(backgroundColor)}/>
+      <Image
+        style={{
+          mask: `url(${ProfileMaskFF}) exclude`,
+        }}
+        src={src}/>
+      {/*<Image src={getBackground(backgroundColor)}/>*/}
     </Wrapper>
   );
 };

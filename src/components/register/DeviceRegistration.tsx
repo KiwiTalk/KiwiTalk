@@ -45,13 +45,7 @@ export enum RegisterType {
   PERMANENT
 }
 
-interface DeviceRegistrationProps {
-  onRegister: (permanent?: boolean) => void;
-}
-
-export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
-  onRegister,
-}) => {
+export const DeviceRegistration: React.FC = () => {
   const history = useHistory();
   const auth = useSelector((state: ReducerType) => state.auth);
 
@@ -71,17 +65,18 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
     const registerDevice = async (permanent: boolean, passcode: string) => {
       try {
         const struct = await client.Auth.registerDevice(
-          passcode,
-          auth.email,
-          auth.password,
-          permanent,
-          true,
+            passcode,
+            auth.email,
+            auth.password,
+            permanent,
+            true,
         );
 
         if (struct.status !== 0) throw new Error(struct.status);
 
-        onRegister(permanent);
+        history.push('/login');
       } catch (err) {
+        console.log(err);
         setError(err.toString());
       }
     };

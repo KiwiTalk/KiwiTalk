@@ -4,7 +4,8 @@ import { LocoKickoutType, TalkClient } from 'node-kakao';
 import os from 'os';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import { BrowserRouter } from 'react-router-dom';
+import App, { AppContext } from './App';
 import Configs from './constants/Configs';
 
 import './index.css';
@@ -32,7 +33,9 @@ axios.defaults.adapter = require('axios/lib/adapters/http');
 
   ReactDOM.render(
       <React.StrictMode>
-        <App {...{ client }} />
+        <BrowserRouter>
+          <App {...{ client }} />
+        </BrowserRouter>
       </React.StrictMode>,
       document.getElementById('root'),
   );

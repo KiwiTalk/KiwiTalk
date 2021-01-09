@@ -1,31 +1,22 @@
-import React, {ChangeEvent, FormEvent, useContext, useEffect, useState} from 'react';
+import { Long } from 'bson';
+import { AttachmentTemplate, Chat as ChatObject, ChatChannel, ChatType, MoreSettingsStruct } from 'node-kakao';
+import { PacketSyncMessageReq, PacketSyncMessageRes } from 'node-kakao/dist/packet/packet-sync-message';
+import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import SidePanel from '../components/common/side-bar/side-panel';
-import SideBar from '../components/common/side-bar/side-bar';
-import {
-  AttachmentTemplate,
-  Chat as ChatObject,
-  ChatChannel,
-  ChatType,
-  MoreSettingsStruct,
-} from 'node-kakao';
-import {
-  PacketSyncMessageReq,
-  PacketSyncMessageRes,
-} from 'node-kakao/dist/packet/packet-sync-message';
-import ChatRoom from '../components/chat/chat-room/chat-room';
-import {Long} from 'bson';
-import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
-import constants from '../constants';
 import { AppContext } from '../App';
+import ChatRoom from '../components/chat/chat-room/chat-room';
+import EmptyChatRoom from '../components/chat/chat-room/empty-chat-room';
+import SideBar from '../components/common/side-bar/side-bar';
+import SidePanel from '../components/common/side-bar/side-panel';
+import constants from '../constants';
 
 const Wrapper = styled.div`
-width: 100%;
-height: 100vh;
-box-sizing: border-box;
-display: flex;
-flex-direction: row;
-padding-top: ${(() => {
+  width: 100%;
+  height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  padding-top: ${(() => {
     switch (process.platform) {
       case 'darwin':
       case 'cygwin':
@@ -41,14 +32,14 @@ const makeTemplate = constants.ChatModule.makeTemplate;
 
 const records: boolean[] = [];
 
-const Chat = (): JSX.Element => {
+const ChatPage = (): JSX.Element => {
   const [channelList, setChannelList] = useState<ChatChannel[]>([]);
   const [selectedChannel, setSelectedChannel] = useState(-1);
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
   const [chatList, setChatList] = useState<ChatObject[]>([]);
   const [inputText, setInputText] = useState('');
 
-  let talkClient = useContext(AppContext).client;
+  const { client } = useContext(AppContext);
 
   const messageHook = (chat: ChatObject) => {
     setChatList((prev) => [...prev, chat]);
@@ -58,26 +49,27 @@ const Chat = (): JSX.Element => {
     channelList.forEach(async (channel, index) => {
       if (index !== selectedChannel) return;
       if (records[index]) return;
-      console.log(channel.Id.toString());
-      const lastTokenId = (
-        await talkClient.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
-            new PacketSyncMessageReq(
-                channel.Id,
-                Long.fromInt(1), 1, Long.fromInt(2),
-            ),
-        )
-      ).LastTokenId;
 
-      const pk = await talkClient
-          .NetworkManager
-          .requestPacketRes<PacketSyncMessageRes>(
-              new PacketSyncMessageReq(
-                  channel.Id,
-                  Long.fromInt(1),
-                  1,
-                  lastTokenId,
-              ),
-          );
+      console.log(channel.Id.toString());
+      const { LastTokenId: lastTokenId } = (
+        await client.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
+          new PacketSyncMessageReq(
+            channel.Id,
+            Long.fromInt(1), 1, Long.fromInt(2),
+          ),
+        )
+      );
+
+      const pk = await client
+        .NetworkManager
+        .requestPacketRes<PacketSyncMessageRes>(
+          new PacketSyncMessageReq(
+            channel.Id,
+            Long.fromInt(1),
+            1,
+            lastTokenId,
+          ),
+        );
 
       if (pk.ChatList.length < 1) return;
       let startId = pk.ChatList[0].prevLogId;
@@ -87,12 +79,12 @@ const Chat = (): JSX.Element => {
       while (
         (
           chatLog = (
-            await talkClient
-                .ChatManager
-                .getChatListFrom(
-                    channel.Id,
-                    startId,
-                )
+            await client
+              .ChatManager
+              .getChatListFrom(
+                channel.Id,
+                startId,
+              )
           ).result
         ) && chatLog.length > 0) {
         update.push(...chatLog);
@@ -110,21 +102,21 @@ const Chat = (): JSX.Element => {
 
   useEffect(() => {
     (async () => {
-      const list: ChatChannel[] = talkClient.ChannelManager.getChannelList()
-          .map((chatChannel) =>
-            talkClient.ChannelManager.get(chatChannel.Id),
-          ) as ChatChannel[];
+      const list: ChatChannel[] = client.ChannelManager.getChannelList()
+        .map((chatChannel) =>
+          client.ChannelManager.get(chatChannel.Id),
+        ) as ChatChannel[];
 
       setChannelList(list);
 
       try {
-        const settings = await talkClient.Auth.requestMoreSettings();
+        const settings = await client.Auth.requestMoreSettings();
         setAccountSettings(settings);
       } catch (error) {
         alert('오류가 발생했습니다.\n' + error);
       }
 
-      talkClient.on('message', messageHook);
+      client.on('message', messageHook);
     })();
   }, []);
 
@@ -145,7 +137,7 @@ const Chat = (): JSX.Element => {
           case '/photo': {
             const template = await makeTemplate(ChatType.Photo, cmd[1]);
             const result = await channel.sendTemplate(
-                template as AttachmentTemplate,
+              template as AttachmentTemplate,
             );
             if (result == null) {
               throw new Error();
@@ -158,7 +150,7 @@ const Chat = (): JSX.Element => {
           case '/video': {
             const template = await makeTemplate(ChatType.Video, cmd[1]);
             const result = await channel.sendTemplate(
-                template as AttachmentTemplate,
+              template as AttachmentTemplate,
             );
             if (result == null) {
               throw new Error();
@@ -172,7 +164,7 @@ const Chat = (): JSX.Element => {
           case '/file': {
             const template = await makeTemplate(ChatType.File, cmd[1]);
             const result = await channel.sendTemplate(
-                template as AttachmentTemplate,
+              template as AttachmentTemplate,
             );
             if (result == null) {
               throw new Error();
@@ -200,30 +192,34 @@ const Chat = (): JSX.Element => {
 
   return (
     <Wrapper>
-      <SideBar />
+      <SideBar/>
       <SidePanel
         channelList={channelList}
         accountSettings={accountSettings}
-        onChange={async (selectedChannel) => {
-          setSelectedChannel(selectedChannel);
-          if (!channelList[selectedChannel]) return;
-          await channelList[selectedChannel].chatON();
-        }} />{
+        onChange={
+          async (selectedChannel) => {
+            setSelectedChannel(selectedChannel);
+
+            if (!channelList[selectedChannel]) return;
+            await channelList[selectedChannel].chatON();
+          }
+        }/>
+      {
         channelList[selectedChannel] ?
-            <ChatRoom
-              channel={channelList[selectedChannel]}
-              chatList={
-                chatList.filter(
-                    (chat) => chat.Channel.Id.toString() ===
-                          channelList[selectedChannel].Id.toString(),
-                )
-              }
-              onInputChange={onChange}
-              onSubmit={onSubmit} inputValue={inputText} /> :
-            <EmptyChatRoom />
+          <ChatRoom
+            channel={channelList[selectedChannel]}
+            chatList={
+              chatList.filter(
+                  (chat) => chat.Channel.Id.toString() === channelList[selectedChannel].Id.toString(),
+              )
+            }
+            onInputChange={onChange}
+            onSubmit={onSubmit}
+            inputValue={inputText}/> :
+          <EmptyChatRoom/>
       }
     </Wrapper>
   );
 };
 
-export default Chat;
+export default ChatPage;
