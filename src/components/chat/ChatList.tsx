@@ -1,8 +1,12 @@
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
-import React, { createRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
+import Strings from '../../constants/Strings';
+import KakaoManager from '../../KakaoManager';
+import { ReducerType } from '../../reducers';
 import ChatBubble from './items/ChatBubble';
 
 import ChatItem from './items/ChatItem';
@@ -47,17 +51,6 @@ export interface ChatListProps {
   selectedChannel: number;
 }
 
-interface BubbleProps {
-  key: string;
-  hasTail: boolean;
-  unread: number;
-  author: string;
-  isMine: boolean;
-  time: Date;
-  hasPadding: boolean;
-  chat: Chat;
-}
-
 const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
   if (chat.Type === ChatType.Feed) {
     try {
@@ -68,19 +61,105 @@ const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
         return toDeletedAt(chat.getFeed(), chat, chatList, channel);
       }
     } catch {
+      return <div>{Strings.Error.UNKNOWN}</div>;
     }
   }
 
-  return convertChat(chat, chatList, channel);
+  return convertChat(chat, chatList, channel) ?? <div>{Strings.Error.UNKNOWN}</div>;
 };
 
+
+const ChatList = () => {
+  const { select } = useSelector((state: ReducerType) => state.chat);
+
+  const chatList = KakaoManager.chatList.get(select) ?? [];
+  const channel = KakaoManager.getChannel(select);
+
+  const list = [];
+
+  let bubbles = [];
+  let nextWithAuthor = true;
+  let index = 0;
+  for (const chat of chatList) {
+    const isMine = (chat.Sender === undefined) || chat.Sender?.isClientUser();
+
+    let willSenderChange = chatList.length - 1 === index;
+    if (isMine) willSenderChange ||= !chatList[index + 1].Sender?.isClientUser();
+    else willSenderChange ||= chatList[index + 1].Sender?.Id.equals(chat.Sender?.Id);
+
+    const sendDate = new Date(chat.SendTime * 1000);
+
+    if (chat.Type !== ChatType.Feed) {
+      bubbles.push({
+        key: chat.LogId.toString(),
+        hasTail: willSenderChange && ChatTypeWithTail.includes(chat.Type),
+        unread: 1,
+        author: nextWithAuthor ?
+          channel.getUserInfo(chat.Sender)?.Nickname ?? '' :
+          '',
+        isMine,
+        time: sendDate,
+        hasPadding: ChatTypeWithPadding.includes(chat.Type),
+        chat,
+      });
+    } else {
+      list.push(getContent(chat, chatList, channel));
+    }
+
+    nextWithAuthor = false;
+
+    if (willSenderChange && bubbles.length > 0) {
+      const chatItem = (
+        <ChatItem
+          isMine={isMine}
+          profileImageSrc={channel.getUserInfo(chat.Sender)?.ProfileImageURL}
+          key={chat.LogId.toString()}>
+          {
+            bubbles.map((bubble) => {
+              return (
+                <ChatBubble
+                  key={bubble.key}
+                  hasTail={bubble.hasTail}
+                  time={bubble.time}
+                  author={bubble.author}
+                  unread={bubble.unread}
+                  isMine={bubble.isMine}
+                  hasPadding={bubble.hasPadding}>
+                  {
+                    getContent(bubble.chat, chatList, channel)
+                  }
+                </ChatBubble>
+              );
+            })
+          }
+        </ChatItem>
+      );
+
+      bubbles = [];
+      nextWithAuthor = true;
+
+      list.push(chatItem);
+    }
+
+    index++;
+  }
+
+  // onScroll={this.handleScroll.bind(this)}
+  // <div ref={this.refScrollEnd}/>
+  return (
+    <Content>
+      {list}
+    </Content>
+  );
+};
+/*
 class ChatList extends React.Component<ChatListProps> {
   private bubbles: BubbleProps[] = [];
   private nextWithAuthor = true;
   private isScroll = false;
 
   private refScrollEnd = createRef() as any;
-
+/*
   shouldComponentUpdate(nextProps: ChatListProps, nextState: any): boolean {
     return (
       this.props.chatList.length !== nextProps.chatList.length &&
@@ -93,7 +172,7 @@ class ChatList extends React.Component<ChatListProps> {
       this.props.selectedChannel !== nextProps.selectedChannel
     );
   }
-
+* /
   componentDidUpdate(): void {
     this.isScroll = this.props.chatList[this.props.chatList.length - 1]
         ?.Sender
@@ -116,9 +195,9 @@ class ChatList extends React.Component<ChatListProps> {
 
   render(): JSX.Element {
     const list = [];
-    const arr = this.props.chatList;
+    const chatList = KakaoManager.chatList.get(select);
     let index = 0;
-    for (const chat of this.props.chatList) {
+    for (const chat of chatList) {
       const isMine = (chat.Sender === undefined) || chat.Sender?.isClientUser();
 
       let willSenderChange = arr.length - 1 === index;
@@ -190,5 +269,5 @@ class ChatList extends React.Component<ChatListProps> {
     );
   }
 }
-
+*/
 export default ChatList;

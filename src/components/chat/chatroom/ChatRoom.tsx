@@ -1,5 +1,8 @@
 import { Chat, ChatChannel } from 'node-kakao';
 import React, { ChangeEvent, EventHandler, FormEvent, useEffect, useState, } from 'react';
+import { useSelector } from 'react-redux';
+import KakaoManager from '../../../KakaoManager';
+import { ReducerType } from '../../../reducers';
 import ChatList from '../ChatList';
 import ChatInput from '../items/ChatInput';
 import { extractRoomName } from '../utils/RoomInfoExtractor';
@@ -7,40 +10,26 @@ import Background from './resources/Background';
 import Header from './resources/Header';
 
 export interface ChatRoomProps {
-  channel: ChatChannel;
-  chatList: Chat[];
-  selectedChannel: number;
-  onInputChange: EventHandler<ChangeEvent<HTMLInputElement>>;
-  onSubmit: EventHandler<FormEvent>;
-  inputValue: string;
 }
 
-const ChatRoom: React.FC<ChatRoomProps> = ({
-  channel,
-  chatList,
-  selectedChannel,
-  onInputChange,
-  onSubmit,
-  inputValue,
-}) => {
+const ChatRoom: React.FC<ChatRoomProps> = () => {
   const [title, setTitle] = useState('');
+  const { select } = useSelector((state: ReducerType) => state.chat);
 
   useEffect(() => {
-    const userInfoList = channel.getUserInfoList();
+    const channel = KakaoManager.getChannel(select);
+    const userInfoList = channel?.getUserInfoList();
     const name = extractRoomName(channel, userInfoList);
 
     setTitle(name);
-  }, [channel]);
+  }, [select]);
 
   return (
     <Background>
       <Header title={title}/>
-      <ChatList channel={channel} chatList={chatList} selectedChannel={selectedChannel}/>
+      <ChatList />
       <div style={{ flex: 1 }}/>
-      <ChatInput
-        onChange={onInputChange}
-        onSubmit={onSubmit}
-        value={inputValue}/>
+      <ChatInput />
     </Background>
   );
 };

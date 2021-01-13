@@ -4,6 +4,7 @@ import { Long } from 'bson';
 import { Chat as ChatObject, ChatChannel, MoreSettingsStruct } from 'node-kakao';
 import { PacketSyncMessageReq, PacketSyncMessageRes } from 'node-kakao/dist/packet/packet-sync-message';
 import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from '../App';
@@ -13,6 +14,8 @@ import SideBar from '../components/common/sidebar/SideBar';
 import SidePanel from '../components/common/sidebar/SidePanel';
 import constants from '../constants';
 import Strings from '../constants/Strings';
+import KakaoManager from '../KakaoManager';
+import { ReducerType } from '../reducers';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -43,155 +46,53 @@ interface AlertData {
 }
 
 const ChatPage = (): JSX.Element => {
-  // const { id } = useParams();
-
+  const { select } = useSelector((state: ReducerType) => state.chat);
   const [snack, setSnack] = useState<AlertData>({
     isShow: false,
     message: '',
     type: undefined,
   });
-  const [channelList, setChannelList] = useState<ChatChannel[]>([]);
-  const [selectedChannel, setSelectedChannel] = useState(-1);
+  const [empty, setEmpty] = useState(true);
+
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
-  const [chatList, setChatList] = useState<ChatObject[]>([]);
-  const [inputText, setInputText] = useState('');
 
   const { client } = useContext(AppContext);
 
-  const messageHook = (chat: ChatObject) => {
-    setChatList((prev) => [...prev, chat]);
-  };
-
-  useEffect(() => {
-    channelList.forEach(async (channel, index) => {
-      if (index !== selectedChannel) return;
-      if (records[index]) return;
-
-      console.log(channel.Id.toString());
-      const { LastTokenId: lastTokenId } = (
-        await client.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
-            new PacketSyncMessageReq(
-                channel.Id,
-                Long.fromInt(1), 1, Long.fromInt(2),
-            ),
-        )
-      );
-
-      const pk = await client
-          .NetworkManager
-          .requestPacketRes<PacketSyncMessageRes>(
-              new PacketSyncMessageReq(
-                  channel.Id,
-                  Long.fromInt(1),
-                  1,
-                  lastTokenId,
-              ),
-          );
-
-      if (pk.ChatList.length < 1) return;
-      let startId = pk.ChatList[0].prevLogId;
-      const update: ChatObject[] = [];
-      let chatLog: ChatObject[] | null | undefined;
-
-      while (
-        (
-          chatLog = (
-            await client
-                .ChatManager
-                .getChatListFrom(
-                    channel.Id,
-                    startId,
-                )
-          ).result
-        ) && chatLog.length > 0) {
-        update.push(...chatLog);
-        if (
-          startId.notEquals(chatLog[chatLog.length - 1].LogId)
-        ) {
-          startId = chatLog[chatLog.length - 1].LogId;
-        }
-      }
-      setChatList((prev) => [...prev, ...update]);
-
-      records[index] = true;
-    });
-  }, [selectedChannel]);
+  KakaoManager.init(client).then();
 
   useEffect(() => {
     (async () => {
-      const list: ChatChannel[] = client.ChannelManager.getChannelList()
-          .map((chatChannel) =>
-            client.ChannelManager.get(chatChannel.Id),
-          ) as ChatChannel[];
-
-      setChannelList(list);
-
       try {
         const settings = await client.Auth.requestMoreSettings();
         setAccountSettings(settings);
       } catch (error) {
-        alert('오류가 발생했습니다.\n' + error);
+        setSnack({
+          isShow: true,
+          message: `${Strings.Error.UNKNOWN}\n${error.toString()}`,
+          type: 'error',
+        });
       }
-
-      client.on('message', messageHook);
     })();
-  }, []);
+  });
 
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputText(event.target.value);
-  };
-
-  const onSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    const channel = channelList[selectedChannel];
-    if (!channel?.Id) return;
-    if (inputText.length <= 0) return;
-
+  useEffect(() => {
     try {
-      const result = await channel.sendText(inputText);
-      if (result == null) {
-        throw new Error();
-      }
-      setInputText('');
+      KakaoManager.getChannel(select);
 
-      messageHook(result);
-    } catch (error) {
-      setSnack({
-        isShow: true,
-        message: `${Strings.Chat.SEND_FAILED}\n${error}`,
-        type: 'error',
-      });
+      setEmpty(false);
+    } catch {
+      return;
     }
-  };
+  }, [select]);
 
   return (
     <Wrapper>
       <SideBar/>
-      <SidePanel
-        channelList={channelList}
-        accountSettings={accountSettings}
-        onChange={
-          async (selectedChannel) => {
-            setSelectedChannel(selectedChannel);
-
-            if (!channelList[selectedChannel]) return;
-            await channelList[selectedChannel].chatON();
-          }
-        }/>
+      <SidePanel accountSettings={accountSettings} />
       {
-        channelList[selectedChannel] ?
-          <ChatRoom
-            channel={channelList[selectedChannel]}
-            selectedChannel={selectedChannel}
-            chatList={
-              chatList.filter(
-                  (chat) => chat.Channel.Id.toString() === channelList[selectedChannel].Id.toString(),
-              )
-            }
-            onInputChange={onChange}
-            onSubmit={onSubmit}
-            inputValue={inputText}/> :
-          <EmptyChatRoom/>
+        empty ?
+          <EmptyChatRoom/> :
+          <ChatRoom />
       }
       <Snackbar
         open={snack.isShow}

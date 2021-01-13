@@ -1,7 +1,11 @@
 import { ChatChannel } from 'node-kakao';
 import React, { MouseEventHandler, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
+import KakaoManager from '../../../../KakaoManager';
+import { ReducerType } from '../../../../reducers';
+import { selectChannel } from '../../../../reducers/chat';
 import { extractRoomImage, extractRoomName } from '../../utils/RoomInfoExtractor';
 import ChatRoomListItem from './ChatRoomListItem';
 
@@ -20,8 +24,6 @@ const Wrapper = styled.div`
 `;
 
 interface ChatListProps {
-  channelList: ChatChannel[]
-  onChange?: (index: number) => any;
 }
 
 interface AsyncComponentProps {
@@ -57,23 +59,23 @@ const AsyncComponent: React.FC<AsyncComponentProps> = ({
   return component;
 };
 
-const ChatRoomList: React.FC<ChatListProps> = ({ channelList, onChange }) => {
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+const ChatRoomList: React.FC<ChatListProps> = () => {
+  const dispatch = useDispatch();
+  const { select } = useSelector((state: ReducerType) => state.chat);
+
+  const onClick = (id: string) => () => {
+    dispatch(selectChannel(id));
+  };
 
   return (
     <Wrapper>
       {
-        channelList.map((channel, index) => (
+        KakaoManager.channelList.map((channel, index) => (
           <AsyncComponent
             key={`channel-${channel.Id.toString()}`}
             channel={channel}
-            selected={selectedIndex === index}
-            onClick={
-              () => {
-                setSelectedIndex(index);
-                onChange && onChange(index);
-              }
-            }/>
+            selected={channel.Id.equals(select)}
+            onClick={onClick(channel.Id.toString())}/>
         ))
       }
     </Wrapper>

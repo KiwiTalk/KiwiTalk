@@ -7,7 +7,7 @@ export interface ChatReducerType {
 const slice = createSlice({
   name: '@chat',
   initialState: {
-    select: '',
+    select: '0',
   },
   reducers: {
     selectChannel: (state, action) => {

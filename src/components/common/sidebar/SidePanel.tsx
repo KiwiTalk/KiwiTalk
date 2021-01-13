@@ -13,22 +13,16 @@ const Wrapper = styled.div`
 `;
 
 interface SidePanelProps {
-    channelList: ChatChannel[]
     accountSettings?: MoreSettingsStruct
-    onChange?: (index: number) => any;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({
-  channelList,
   accountSettings,
-  onChange,
 }) => {
   return (
     <Wrapper>
       <Search/>
-      <ChatRoomList
-        channelList={channelList}
-        onChange={onChange}/>
+      <ChatRoomList />
       <Profile accountSettings={accountSettings}/>
     </Wrapper>
   );

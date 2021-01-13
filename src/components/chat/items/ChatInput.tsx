@@ -1,5 +1,5 @@
 import { IconButton } from '@material-ui/core';
-import React, { ChangeEvent, EventHandler, FormEvent, useContext } from 'react';
+import React, { ChangeEvent, EventHandler, FormEvent, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../../../App';
 import ThemeColor from '../../../assets/colors/theme';
@@ -45,13 +45,19 @@ const SendButton = styled(IconButton)`
   margin: 6px;
 `;
 
-export interface ChatInputProps {
-  onChange: EventHandler<ChangeEvent<HTMLInputElement>>
-  onSubmit: EventHandler<FormEvent>
-  value: string
-}
+export interface ChatInputProps {}
 
-const ChatInput: React.FC<ChatInputProps> = ({ onChange, onSubmit, value }) => {
+const ChatInput: React.FC<ChatInputProps> = () => {
+  const [value, setValue] = useState('');
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
+  const onSubmit = () => {
+    return;
+  };
+
   return (
     <Form onSubmit={onSubmit}>
       <InputWrapper>

@@ -23,11 +23,13 @@ const StyledProfileImage = styled(ProfileImage)`
 
 export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
   isMine: boolean;
+  profileVisible?: boolean;
   profileImageSrc?: string;
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({
   isMine,
+  profileVisible,
   profileImageSrc,
   children,
   ...args
@@ -37,7 +39,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
   return (
     <Wrapper {...args}>
       {
-        !isMine && <StyledProfileImage src={src}/>
+        (profileVisible ?? true) && !isMine ? <StyledProfileImage src={src}/> : null
       }
       <Contents>
         {children}
