@@ -67,12 +67,12 @@ export const App: React.FC<AppProp> = ({ client }) => {
         {menuBar}
         <AppContext.Provider value={{ client }}>
           <Switch>
-            <Route path={'/'} exact>
-              <Redirect to={'/login'}/>
-            </Route>
             <Route path={'/login'} component={Login} exact/>
             <Route path={'/register'} component={Register} exact/>
             <Route path={'/chat'} component={ChatPage} exact/>
+            <Route path={'*'}>
+              <Redirect to={'/login'}/>
+            </Route>
           </Switch>
         </AppContext.Provider>
       </div>

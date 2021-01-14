@@ -26,7 +26,7 @@ if (nw.App.argv.includes('--dev')) {
   );
 } else {
   nw.Window.open(
-      'build/index.html',
+      'index.html',
       setting,
   );
 }
