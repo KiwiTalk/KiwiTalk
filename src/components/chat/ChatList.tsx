@@ -1,10 +1,11 @@
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
-import React, { useMemo } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import ThemeColor from '../../assets/colors/theme';
 import Strings from '../../constants/Strings';
+import useMessage from '../../hooks/useMessage';
 import KakaoManager from '../../KakaoManager';
 import { ReducerType } from '../../reducers';
 import ChatBubble from './items/ChatBubble';
@@ -65,6 +66,31 @@ const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
 const ChatList = (): JSX.Element => {
   const select = useSelector((state: ReducerType) => state.chat.select);
   const chatList = KakaoManager.chatList.get(select) ?? [];
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const [isScroll, setScroll] = useState(true);
+
+  const newMessage = useMessage(select);
+
+
+  useEffect(() => {
+    if (isScroll || newMessage?.Sender.isClientUser()) {
+      bottomRef?.current?.scrollIntoView({
+        behavior: 'smooth',
+      });
+
+      setScroll(true);
+    }
+  }, [newMessage]);
+
+  const onScroll = (event: any) => {
+    const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638);
+    if (num < 600 && !isScroll) setScroll(true);
+    else if (num >= 600 && isScroll) {
+      setScroll(false);
+    }
+  };
+
   return useMemo(() => {
     const channel = KakaoManager.getChannel(select);
 
@@ -137,11 +163,10 @@ const ChatList = (): JSX.Element => {
       index++;
     }
 
-    // onScroll={this.handleScroll.bind(this)}
-    // <div ref={this.refScrollEnd}/>
     return (
-      <Content>
+      <Content onScroll={onScroll}>
         {list}
+        <div ref={bottomRef}/>
       </Content>
     );
   }, [select, chatList[chatList.length - 1] ? chatList[chatList.length - 1].LogId.toString() : '']);

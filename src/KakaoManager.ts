@@ -2,11 +2,12 @@ import { Chat, ChatChannel, ChatUser, Long, TalkClient } from 'node-kakao';
 import { PacketSyncMessageReq, PacketSyncMessageRes } from 'node-kakao/dist/packet/packet-sync-message';
 
 /* eslint-disable no-unused-vars */
-enum ChannelEventType {
-  ADD
+export enum ChannelEventType {
+  ADD,
+  LEAVE,
 }
 
-enum ChatEventType {
+export enum ChatEventType {
   ADD
 }
 
@@ -17,13 +18,13 @@ type ChatEvent = (type: ChatEventType, chat: Chat, channel: ChatChannel) => void
 
 export default class KakaoManager {
   static channelList: ChatChannel[] = [];
-  static chatList: Map<string, Chat[]> = new Map();
+  static chatList = new Map<string, Chat[]>();
+
+  static channelEvents = new Map<string, ChannelEvent>();
+  static chatEvents = new Map<string, ChatEvent>();
 
   private static isInit = false;
   private static client: TalkClient;
-
-  private static channelEvents: ChannelEvent[];
-  private static chatEvents: ChatEvent[];
 
   static async init(client: TalkClient): Promise<void> {
     if (this.isInit) return;
@@ -40,6 +41,10 @@ export default class KakaoManager {
       const chatList = this.chatList.get(channelId);
 
       chatList?.push(chat);
+
+      this.chatEvents.forEach(
+          (value) => value(ChatEventType.ADD, chat, this.getChannel(channelId)),
+      );
     });
 
     this.client.on('user_join', (_, user: ChatUser) => {
@@ -49,11 +54,15 @@ export default class KakaoManager {
             ({ Id }) => this.channelList.every(({ Id: oldId }) => Id.notEquals(oldId)),
         );
 
+        this.channelList = newChannelList;
+
         for (const channel of addedChannels) {
           this.initChat(channel.Id);
-        }
 
-        this.channelList = newChannelList;
+          this.channelEvents.forEach(
+              (value) => value(ChannelEventType.ADD, channel),
+          );
+        }
       }
     });
 
@@ -66,6 +75,10 @@ export default class KakaoManager {
 
         for (const channel of removedChannels) {
           this.chatList.set(channel.Id.toString(), []);
+
+          this.channelEvents.forEach(
+              (value) => value(ChannelEventType.LEAVE, channel),
+          );
         }
       }
     });
@@ -126,63 +139,3 @@ export default class KakaoManager {
     return channel;
   }
 }
-
-/*
-
-
-  useEffect(() => {
-    channelList.forEach(async (channel, index) => {
-      if (index !== selectedChannel) return;
-      if (records[index]) return;
-
-      console.log(channel.Id.toString());
-      const { LastTokenId: lastTokenId } = (
-        await client.NetworkManager.requestPacketRes<PacketSyncMessageRes>(
-            new PacketSyncMessageReq(
-                channel.Id,
-                Long.fromInt(1), 1, Long.fromInt(2),
-            ),
-        )
-      );
-
-      const pk = await client
-          .NetworkManager
-          .requestPacketRes<PacketSyncMessageRes>(
-              new PacketSyncMessageReq(
-                  channel.Id,
-                  Long.fromInt(1),
-                  1,
-                  lastTokenId,
-              ),
-          );
-
-      if (pk.ChatList.length < 1) return;
-      let startId = pk.ChatList[0].prevLogId;
-      const update: ChatObject[] = [];
-      let chatLog: ChatObject[] | null | undefined;
-
-      while (
-        (
-          chatLog = (
-            await client
-                .ChatManager
-                .getChatListFrom(
-                    channel.Id,
-                    startId,
-                )
-          ).result
-        ) && chatLog.length > 0) {
-        update.push(...chatLog);
-        if (
-          startId.notEquals(chatLog[chatLog.length - 1].LogId)
-        ) {
-          startId = chatLog[chatLog.length - 1].LogId;
-        }
-      }
-      setChatList((prev) => [...prev, ...update]);
-
-      records[index] = true;
-    });
-  }, [selectedChannel]);
-
-*/
