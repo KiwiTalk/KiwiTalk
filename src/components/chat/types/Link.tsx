@@ -67,12 +67,12 @@ export const Link: React.FC<LinkTextProps> = ({ chat }) => {
   const [list, setList] = useState<LinkData[]>([]);
 
   const text = chat.Text;
-  const urls = Array.from(
+  const urls = (Array.from(
       new Set([
         text.match(/(\w)+:\/\/[\w.:/?&\-+=%]+/g),
         text.match(/[\w:/?&\-+=%]+(\.[\w:/?&\-+=%]+)+/g),
       ].flat().filter((it) => !!it)),
-  );
+  ) as string[]).map((url) => url.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'));
 
   useEffect(() => {
     Promise.all(
