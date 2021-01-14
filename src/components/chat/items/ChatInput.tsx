@@ -1,13 +1,18 @@
 import { IconButton } from '@material-ui/core';
-import React, { ChangeEvent, EventHandler, FormEvent, useContext, useState } from 'react';
+import { Chat } from 'node-kakao';
+import React, { ChangeEvent, FormEvent, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { ChatResultType, sendChat } from '../../../actions/chat';
 import { AppContext } from '../../../App';
 import ThemeColor from '../../../assets/colors/theme';
 
 import IconAttachment from '../../../assets/images/icon_attachment.svg';
 import IconEmoji from '../../../assets/images/icon_emoji.svg';
 import IconSend from '../../../assets/images/icon_send.svg';
-
+import KakaoManager from '../../../KakaoManager';
+import { ReducerType } from '../../../reducers';
+import { clearInput, setText } from '../../../reducers/chat';
 
 const Form = styled.form`
   width: 100%;
@@ -45,17 +50,37 @@ const SendButton = styled(IconButton)`
   margin: 6px;
 `;
 
-export interface ChatInputProps {}
-
-const ChatInput: React.FC<ChatInputProps> = () => {
-  const [value, setValue] = useState('');
+const ChatInput: React.FC = () => {
+  const dispatch = useDispatch();
+  const { input, select } = useSelector((state: ReducerType) => state.chat);
+  const { client } = useContext(AppContext);
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value);
+    dispatch(setText(event.target.value));
   };
 
-  const onSubmit = () => {
-    return;
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    const result = await sendChat(
+        {
+          client,
+          channel: KakaoManager.getChannel(select),
+          chatList: KakaoManager.chatList.get(select) ?? [],
+        },
+        input,
+    );
+
+    if (result.type === ChatResultType.SUCCESS) {
+      const chat = result.value as Chat;
+
+      const channelId = chat.Channel.Id.toString();
+      const chatList = KakaoManager.chatList.get(channelId);
+
+      chatList?.push(chat);
+
+      dispatch(clearInput());
+    }
   };
 
   return (
@@ -77,7 +102,7 @@ const ChatInput: React.FC<ChatInputProps> = () => {
           }}>
           <img src={IconEmoji}/>
         </IconButton>
-        <Input onChange={onChange} value={value}/>
+        <Input onChange={onChange} value={input.text}/>
         <SendButton
           style={{
             margin: '6px',

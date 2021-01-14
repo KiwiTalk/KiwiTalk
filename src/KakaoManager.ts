@@ -19,7 +19,7 @@ export default class KakaoManager {
   static channelList: ChatChannel[] = [];
   static chatList: Map<string, Chat[]> = new Map();
 
-  private static isInit: boolean = false;
+  private static isInit = false;
   private static client: TalkClient;
 
   private static channelEvents: ChannelEvent[];

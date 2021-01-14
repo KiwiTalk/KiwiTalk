@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import KakaoManager from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
 import ChatList from '../ChatList';
+import ChatNotice from '../ChatNotice';
 import ChatInput from '../items/ChatInput';
 import { extractRoomName } from '../utils/RoomInfoExtractor';
 import Background from './resources/Background';
@@ -27,6 +28,7 @@ const ChatRoom: React.FC<ChatRoomProps> = () => {
   return (
     <Background>
       <Header title={title}/>
+      <ChatNotice />
       <ChatList />
       <div style={{ flex: 1 }}/>
       <ChatInput />

@@ -1,10 +1,12 @@
 import { Menu, MenuItem } from '@material-ui/core';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
 import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
 import Strings from '../../../constants/Strings';
+import { setReply } from '../../../reducers/chat';
 import convertTime from '../../../utils/convertTime';
 
 const BubbleTail = styled.img`
@@ -99,6 +101,7 @@ interface Coordinate {
 }
 
 export interface BubbleProps {
+  chatId: string;
   hasTail: boolean
   author?: string
   time: Date
@@ -108,6 +111,7 @@ export interface BubbleProps {
 }
 
 const ChatBubble: React.FC<BubbleProps> = ({
+  chatId,
   hasTail,
   author,
   time, unread,
@@ -115,6 +119,8 @@ const ChatBubble: React.FC<BubbleProps> = ({
   children,
   hasPadding,
 }) => {
+  const dispatch = useDispatch();
+
   const [hover, setHover] = useState(false);
   const [state, setState] = useState<Coordinate>({
     x: null,
@@ -124,7 +130,7 @@ const ChatBubble: React.FC<BubbleProps> = ({
   const onClose = (type: 'reply' | 'copy' | 'delete' | null = null) => async () => {
     switch (type) {
       case 'reply':
-
+        dispatch(setReply(chatId));
         break;
       case 'copy':
         break;
