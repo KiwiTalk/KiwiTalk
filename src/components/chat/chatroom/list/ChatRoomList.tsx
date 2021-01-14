@@ -3,6 +3,7 @@ import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../../assets/colors/theme';
+import useChannel from '../../../../hooks/useChannel';
 import KakaoManager from '../../../../KakaoManager';
 import { ReducerType } from '../../../../reducers';
 import { selectChannel } from '../../../../reducers/chat';
@@ -63,6 +64,8 @@ const ChatRoomList: React.FC<ChatListProps> = () => {
   const dispatch = useDispatch();
   const { select } = useSelector((state: ReducerType) => state.chat);
 
+  useChannel('update-channel');
+
   const onClick = (id: string) => () => {
     dispatch(selectChannel(id));
   };
@@ -70,7 +73,7 @@ const ChatRoomList: React.FC<ChatListProps> = () => {
   return (
     <Wrapper>
       {
-        KakaoManager.channelList.map((channel, index) => (
+        KakaoManager.channelList.map((channel) => (
           <AsyncComponent
             key={`channel-${channel.Id.toString()}`}
             channel={channel}

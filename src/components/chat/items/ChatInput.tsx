@@ -10,7 +10,7 @@ import ThemeColor from '../../../assets/colors/theme';
 import IconAttachment from '../../../assets/images/icon_attachment.svg';
 import IconEmoji from '../../../assets/images/icon_emoji.svg';
 import IconSend from '../../../assets/images/icon_send.svg';
-import KakaoManager from '../../../KakaoManager';
+import KakaoManager, { ChatEventType } from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
 import { clearInput, setText } from '../../../reducers/chat';
 
@@ -78,6 +78,10 @@ const ChatInput: React.FC = () => {
       const chatList = KakaoManager.chatList.get(channelId);
 
       chatList?.push(chat);
+
+      KakaoManager.chatEvents.forEach(
+          (value) => value(ChatEventType.ADD, chat, KakaoManager.getChannel(channelId)),
+      );
 
       dispatch(clearInput());
     }

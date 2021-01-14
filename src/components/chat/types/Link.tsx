@@ -97,7 +97,7 @@ export const Link: React.FC<LinkTextProps> = ({ chat }) => {
         {
           textList.map((resource, i) => {
             if (i <= textList.length) {
-              return <span>
+              return <span key={`link-span-${urls[i]}-${i}`}>
                 {resource}
                 <a style={{
                   color: '#00A4FF',
@@ -113,7 +113,7 @@ export const Link: React.FC<LinkTextProps> = ({ chat }) => {
       <BoxWrapper>
         {
           list.map(({ image, title, description, url }) => {
-            return <Box>
+            return <Box key={`link-${title}-${url}`}>
               {image ? <Thumbnail src={image}/> : null}
               {title ? <Text>{title}</Text> : null}
               {description ? <Description>{description}</Description> : null}
