@@ -94,7 +94,7 @@ const ProfileImageSet: React.FC<ProfileImageSetProps> = ({
   const list = urls.map((e, i) => {
     return (
       <ProfileImage
-        key={e}
+        key={i}
         src={e}
         style={{ width: size, height: size, ...setPosition(i + 1) }}/>
     );

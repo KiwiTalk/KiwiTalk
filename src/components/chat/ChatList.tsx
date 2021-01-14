@@ -1,5 +1,5 @@
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -62,89 +62,89 @@ const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
   return convertChat(chat, chatList, channel) ?? <div>{Strings.Error.UNKNOWN}</div>;
 };
 
-const ChatList = () => {
-  const { select } = useSelector((state: ReducerType) => state.chat);
-
+const ChatList = (): JSX.Element => {
+  const select = useSelector((state: ReducerType) => state.chat.select);
   const chatList = KakaoManager.chatList.get(select) ?? [];
-  const channel = KakaoManager.getChannel(select);
+  return useMemo(() => {
+    const channel = KakaoManager.getChannel(select);
 
-  const list = [];
+    const list = [];
 
-  let bubbles = [];
-  let nextWithAuthor = true;
-  let index = 0;
-  for (const chat of chatList) {
-    const isMine = (chat.Sender === undefined) || chat.Sender?.isClientUser();
+    let bubbles = [];
+    let nextWithAuthor = true;
+    let index = 0;
+    for (const chat of chatList) {
+      const isMine = chat.Sender.isClientUser();
 
-    let willSenderChange = chatList.length - 1 === index;
-    if (isMine) willSenderChange ||= !chatList[index + 1].Sender?.isClientUser();
-    else willSenderChange ||= chatList[index + 1].Sender?.Id.equals(chat.Sender?.Id);
+      const willSenderChange = chatList.length - 1 === index ||
+    !chatList[index + 1].Sender.Id.equals(chat.Sender.Id);
 
-    const sendDate = new Date(chat.SendTime * 1000);
+      const sendDate = new Date(chat.SendTime * 1000);
 
-    if (chat.Type !== ChatType.Feed) {
-      bubbles.push({
-        key: chat.LogId.toString(),
-        hasTail: willSenderChange && ChatTypeWithTail.includes(chat.Type),
-        unread: 1,
-        author: nextWithAuthor ?
+      if (chat.Type !== ChatType.Feed) {
+        bubbles.push({
+          key: chat.LogId.toString(),
+          hasTail: willSenderChange && ChatTypeWithTail.includes(chat.Type),
+          unread: 1,
+          author: nextWithAuthor ?
           channel.getUserInfo(chat.Sender)?.Nickname ?? '' :
           '',
-        isMine,
-        time: sendDate,
-        hasPadding: ChatTypeWithPadding.includes(chat.Type),
-        chat,
-      });
-    } else {
-      list.push(getContent(chat, chatList, channel));
+          isMine,
+          time: sendDate,
+          hasPadding: ChatTypeWithPadding.includes(chat.Type),
+          chat,
+        });
+      } else {
+        list.push(getContent(chat, chatList, channel));
+      }
+
+      nextWithAuthor = false;
+
+      if (willSenderChange && bubbles.length > 0) {
+        const chatItem = (
+          <ChatItem
+            isMine={isMine}
+            profileImageSrc={channel.getUserInfo(chat.Sender)?.ProfileImageURL}
+            key={chat.LogId.toString()}>
+            {
+              bubbles.map((bubble) => {
+                return (
+                  <ChatBubble
+                    chatId={bubble.key}
+                    key={bubble.key}
+                    hasTail={bubble.hasTail}
+                    time={bubble.time}
+                    author={bubble.author}
+                    unread={bubble.unread}
+                    isMine={bubble.isMine}
+                    hasPadding={bubble.hasPadding}>
+                    {
+                      getContent(bubble.chat, chatList, channel)
+                    }
+                  </ChatBubble>
+                );
+              })
+            }
+          </ChatItem>
+        );
+
+        bubbles = [];
+        nextWithAuthor = true;
+
+        list.push(chatItem);
+      }
+
+      index++;
     }
 
-    nextWithAuthor = false;
-
-    if (willSenderChange && bubbles.length > 0) {
-      const chatItem = (
-        <ChatItem
-          isMine={isMine}
-          profileImageSrc={channel.getUserInfo(chat.Sender)?.ProfileImageURL}
-          key={chat.LogId.toString()}>
-          {
-            bubbles.map((bubble) => {
-              return (
-                <ChatBubble
-                  chatId={bubble.key}
-                  key={bubble.key}
-                  hasTail={bubble.hasTail}
-                  time={bubble.time}
-                  author={bubble.author}
-                  unread={bubble.unread}
-                  isMine={bubble.isMine}
-                  hasPadding={bubble.hasPadding}>
-                  {
-                    getContent(bubble.chat, chatList, channel)
-                  }
-                </ChatBubble>
-              );
-            })
-          }
-        </ChatItem>
-      );
-
-      bubbles = [];
-      nextWithAuthor = true;
-
-      list.push(chatItem);
-    }
-
-    index++;
-  }
-
-  // onScroll={this.handleScroll.bind(this)}
-  // <div ref={this.refScrollEnd}/>
-  return (
-    <Content>
-      {list}
-    </Content>
-  );
+    // onScroll={this.handleScroll.bind(this)}
+    // <div ref={this.refScrollEnd}/>
+    return (
+      <Content>
+        {list}
+      </Content>
+    );
+  }, [select, chatList[chatList.length - 1] ? chatList[chatList.length - 1].LogId.toString() : '']);
 };
 /*
 class ChatList extends React.Component<ChatListProps> {
