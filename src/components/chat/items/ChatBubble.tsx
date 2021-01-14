@@ -110,7 +110,7 @@ export interface BubbleProps {
   hasPadding: boolean
 }
 
-const ChatBubble: React.FC<BubbleProps> = ({
+const ChatBubble: React.FC<BubbleProps> = React.memo(({
   chatId,
   hasTail,
   author,
@@ -200,6 +200,15 @@ const ChatBubble: React.FC<BubbleProps> = ({
       </Menu>
     </Wrapper>
   );
-};
+}, (prevProps, nextProps) => {
+  if (prevProps.chatId !== nextProps.chatId) return false;
+  if (prevProps.hasTail !== nextProps.hasTail) return false;
+  if (prevProps.author !== nextProps.author) return false;
+  if (prevProps.time.getTime() !== nextProps.time.getTime()) return false;
+  if (prevProps.unread !== nextProps.unread) return false;
+  if (prevProps.isMine !== nextProps.isMine) return false;
+  if (prevProps.hasPadding !== nextProps.hasPadding) return false;
+  return true;
+});
 
 export default ChatBubble;
