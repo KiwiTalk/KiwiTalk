@@ -58,10 +58,9 @@ const ChatPage = (): JSX.Element => {
 
   const { client } = useContext(AppContext);
 
-  KakaoManager.init(client).then();
-
   useEffect(() => {
     (async () => {
+      KakaoManager.init(client);
       try {
         const settings = await client.Auth.requestMoreSettings();
         setAccountSettings(settings);
@@ -73,7 +72,7 @@ const ChatPage = (): JSX.Element => {
         });
       }
     })();
-  });
+  }, []);
 
   useEffect(() => {
     try {
