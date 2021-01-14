@@ -131,7 +131,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
             await onSubmit(
                 {
                   email: autoLoginEmail,
-                  password: auth.password,
+                  password: loginToken,
                   saveEmail: true,
                   autoLogin: autoLogin,
                 },
