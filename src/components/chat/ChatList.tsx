@@ -1,4 +1,4 @@
-import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
+import { Chat, ChatChannel, ChatType, ChannelMetaType, FeedType } from 'node-kakao';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -13,6 +13,12 @@ import ChatItem from './items/ChatItem';
 
 import convertChat from './utils/ChatConverter';
 import { toDeletedAt } from './utils/FeedConverter';
+
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const Content = styled.div`
   display: flex;
@@ -31,6 +37,26 @@ const Content = styled.div`
     background: ${ThemeColor.GREY_400};
     border-radius: 3px;
   }
+`;
+
+const NoticeAccordion = styled(Accordion)`
+  position: absolute;
+  z-index: 2;
+  width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 3px 6px;
+`;
+
+const NoticeAccordionSummary = styled(AccordionSummary)`
+  .MuiAccordionSummary-content {
+  
+    width: calc(100% - 36px);
+  }
+`;
+
+const NoticeTypography = styled(Typography)`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const ChatTypeWithTail = [
@@ -68,6 +94,34 @@ const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
   return convertChat(chat, chatList, channel) ?? <div>{Strings.Error.UNKNOWN}</div>;
 };
 
+const getNotice = (channel: ChatChannel) => {
+  const noticeContent = channel.getChannelMeta(ChannelMetaType.NOTICE)?.content;
+
+  if(noticeContent != undefined) {
+    const [noticeSummary, setNoticeSummary] = useState('공지 ' + noticeContent);
+
+    const expandNotice = (isExpanded: boolean) => {
+      if(isExpanded) {
+        setNoticeSummary('공지');
+      } else {
+        setNoticeSummary('공지 ' + noticeContent);
+      }
+    }
+
+    return (
+      <NoticeAccordion onChange={(event, expanded) => { expandNotice(expanded) }}>
+        <NoticeAccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <NoticeTypography>{noticeSummary}</NoticeTypography>
+        </NoticeAccordionSummary>
+        <AccordionDetails>
+          <Typography>{noticeContent}</Typography>
+        </AccordionDetails>
+      </NoticeAccordion>
+      );
+  } else {
+    return;
+  }
+}
 
 const ChatList = () => {
   const { select } = useSelector((state: ReducerType) => state.chat);
@@ -76,6 +130,7 @@ const ChatList = () => {
   const channel = KakaoManager.getChannel(select);
 
   const list = [];
+  const notice = getNotice(channel);
 
   let bubbles = [];
   let nextWithAuthor = true;
@@ -148,6 +203,7 @@ const ChatList = () => {
   // <div ref={this.refScrollEnd}/>
   return (
     <Content>
+      {notice}
       {list}
     </Content>
   );
@@ -262,10 +318,10 @@ class ChatList extends React.Component<ChatListProps> {
     }
 
     return (
-      <Content onScroll={this.handleScroll.bind(this)}>
-        {list}
-        <div ref={this.refScrollEnd}/>
-      </Content>
+        <Content onScroll={this.handleScroll.bind(this)}>
+          {list}
+          <div ref={this.refScrollEnd}/>
+        </Content>
     );
   }
 }
