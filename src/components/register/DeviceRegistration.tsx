@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useHistory } from 'react-router-dom';
@@ -9,7 +9,6 @@ import { ReducerType } from '../../reducers';
 import VerifyCodeForm from './VerifyCodeForm';
 import { Dialog, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { AppContext } from '../../App';
-import { LoginFormData } from '../../pages/LoginPage';
 import { Button } from '../common/Button';
 
 const SelectionWrapper = styled.div`
@@ -41,7 +40,9 @@ const PreviousLink = styled.a`
 `;
 
 export enum RegisterType {
+  // eslint-disable-next-line no-unused-vars
   ONCE,
+  // eslint-disable-next-line no-unused-vars
   PERMANENT
 }
 
@@ -58,10 +59,12 @@ export const DeviceRegistration: React.FC = () => {
     <Button onClick={() => setRegisterType(RegisterType.ONCE)}>1회용 인증 받기</Button>
   </SelectionWrapper>;
 
+  useEffect(() => {
+    if (registerType !== null) client.Auth.requestPasscode(auth.email, auth.password, true);
+  }, [registerType]);
+
   let form = defaultForm;
   if (registerType !== null) {
-    client.Auth.requestPasscode(auth.email, auth.password, true);
-
     const registerDevice = async (permanent: boolean, passcode: string) => {
       try {
         const struct = await client.Auth.registerDevice(
