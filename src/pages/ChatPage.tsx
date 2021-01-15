@@ -55,10 +55,17 @@ const ChatPage = (): JSX.Element => {
   const [empty, setEmpty] = useState(true);
 
   const [accountSettings, setAccountSettings] = useState<MoreSettingsStruct>();
+  const [isFull, setFull] = useState(window.innerWidth > 650);
+
+  const onSize = () => {
+    setFull(window.innerWidth > 650);
+  };
 
   const { client } = useContext(AppContext);
 
   useEffect(() => {
+    window.addEventListener('resize', onSize);
+
     (async () => {
       KakaoManager.init(client);
       try {
@@ -72,6 +79,8 @@ const ChatPage = (): JSX.Element => {
         });
       }
     })();
+
+    return () => window.removeEventListener('resize', onSize);
   }, []);
 
   useEffect(() => {
@@ -87,7 +96,11 @@ const ChatPage = (): JSX.Element => {
   return (
     <Wrapper>
       <SideBar/>
-      <SidePanel accountSettings={accountSettings} />
+      {
+        isFull ?
+          <SidePanel accountSettings={accountSettings} /> :
+          null
+      }
       {
         empty ?
           <EmptyChatRoom/> :

@@ -8,6 +8,8 @@ const setting = {
   show_in_taskbar: true,
   new_instance: false,
   title: 'KiwiTalk',
+  min_width: 360,
+  min_height: 460,
 };
 
 switch (os.platform()) {
