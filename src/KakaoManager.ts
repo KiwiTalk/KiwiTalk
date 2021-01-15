@@ -1,4 +1,4 @@
-import { Chat, ChatChannel, ChatUser, Long, TalkClient } from 'node-kakao';
+import { Chat, ChatChannel, ChatUser, DeleteAllFeed, FeedChat, Long, TalkClient } from 'node-kakao';
 import { PacketSyncMessageReq, PacketSyncMessageRes } from 'node-kakao/dist/packet/packet-sync-message';
 
 /* eslint-disable no-unused-vars */
@@ -35,6 +35,28 @@ export default class KakaoManager {
     for (const channel of this.channelList) {
       await this.initChat(channel.Id);
     }
+
+    this.client.on('feed', (feed: FeedChat) => {
+      const channelId = feed.Channel.Id.toString();
+      const chatList = this.chatList.get(channelId);
+
+      chatList?.push(feed);
+
+      this.chatEvents.forEach(
+          (value) => value(ChatEventType.ADD, feed, this.getChannel(channelId)),
+      );
+    });
+
+    this.client.on('message_deleted', (feed: FeedChat<DeleteAllFeed>) => {
+      const channelId = feed.Channel.Id.toString();
+      const chatList = this.chatList.get(channelId);
+
+      chatList?.push(feed);
+
+      this.chatEvents.forEach(
+          (value) => value(ChatEventType.ADD, feed, this.getChannel(channelId)),
+      );
+    });
 
     this.client.on('message', (chat: Chat) => {
       const channelId = chat.Channel.Id.toString();

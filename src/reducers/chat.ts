@@ -52,6 +52,10 @@ const slice = createSlice({
       state.input.files.push(action.payload);
     },
 
+    addFiles: (state, action) => {
+      state.input.files.push(...action.payload);
+    },
+
     clearFile: (state) => {
       state.input.files = [];
     },
@@ -68,6 +72,7 @@ export const {
   clearInput,
   setText,
   addFile,
+  addFiles,
   clearFile,
   setReply,
 } = slice.actions;

@@ -1,7 +1,7 @@
 import { IconButton } from '@material-ui/core';
 import { Close, Reply } from '@material-ui/icons';
 import { Chat } from 'node-kakao';
-import React, { ChangeEvent, FormEvent, useContext } from 'react';
+import React, { ChangeEvent, FormEvent, useContext, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ChatResultType, sendChat } from '../../../actions/chat';
@@ -14,7 +14,7 @@ import IconSend from '../../../assets/images/icon_send.svg';
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import KakaoManager, { ChatEventType } from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
-import { clearInput, setReply, setText } from '../../../reducers/chat';
+import { addFiles, clearInput, setReply, setText } from '../../../reducers/chat';
 import ProfileImage from '../../common/ProfileImage';
 import { convertShortChat } from '../utils/ChatConverter';
 
@@ -94,12 +94,18 @@ const ChatInput: React.FC = () => {
   const { input, select } = useSelector((state: ReducerType) => state.chat);
   const { client } = useContext(AppContext);
 
+  const fileRef = useRef<HTMLInputElement>(null);
+
   const channel = KakaoManager.getChannel(select);
   const replyChat = KakaoManager.chatList.get(select)
       ?.find(({ LogId }) => LogId.equals(input.reply ?? 0));
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch(setText(event.target.value));
+  };
+
+  const onFileClick = () => {
+    fileRef.current?.click();
   };
 
   const removeReply = () => {
@@ -134,12 +140,16 @@ const ChatInput: React.FC = () => {
     }
   };
 
+  const onFile = (event: ChangeEvent<HTMLInputElement>) => {
+    // dispatch(addFiles(Array.from(event.target.files ?? [])));
+  };
+
   return (
     <Wrapper>
       <ReplyContainer style={{
         visibility: input.reply ? 'visible' : 'hidden',
       }}>
-        <Reply style={{ margin: 8, marginRight: 0, }}/>
+        <Reply style={{ margin: 8, marginRight: 0 }}/>
         <ProfileImage
           style={{ width: 24, height: 24, margin: 8 }}
           src={
@@ -156,13 +166,19 @@ const ChatInput: React.FC = () => {
         </IconButton>
       </ReplyContainer>
       <Form onSubmit={onSubmit}>
+        <input
+          ref={fileRef}
+          type="file"
+          style={{ visibility: 'hidden', width: 0 }}
+          onChange={onFile}/>
         <InputWrapper>
           <IconButton
             style={{
               width: '36px',
               height: '36px',
               margin: '6px',
-            }}>
+            }}
+            onClick={onFileClick}>
             <img src={IconAttachment}/>
           </IconButton>
           <IconButton

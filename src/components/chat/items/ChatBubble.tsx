@@ -1,11 +1,13 @@
 import { Menu, MenuItem } from '@material-ui/core';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
 import bubbleTail from '../../../assets/images/bubble_tail.svg';
 import bubbleTailMine from '../../../assets/images/bubble_tail_mine.svg';
 import Strings from '../../../constants/Strings';
+import KakaoManager from '../../../KakaoManager';
+import { ReducerType } from '../../../reducers';
 import { setReply } from '../../../reducers/chat';
 import convertTime from '../../../utils/convertTime';
 
@@ -121,6 +123,8 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
 }) => {
   const dispatch = useDispatch();
 
+  const { select } = useSelector((state: ReducerType) => state.chat);
+
   const [hover, setHover] = useState(false);
   const [state, setState] = useState<Coordinate>({
     x: null,
@@ -134,7 +138,11 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
         break;
       case 'copy':
         break;
-      case 'delete':
+      case 'delete': {
+        const chat = KakaoManager.chatList.get(select)?.find(({ LogId }) => LogId.equals(chatId));
+
+        chat?.delete().then();
+      }
         break;
     }
 
