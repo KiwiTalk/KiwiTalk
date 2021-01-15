@@ -1,5 +1,5 @@
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -20,6 +20,7 @@ const Content = styled.div`
   flex-direction: column;
   padding: 16px;
   overflow-y: scroll;
+  overflow-x: hidden;
   z-index: 1;
 
   ::-webkit-scrollbar {
