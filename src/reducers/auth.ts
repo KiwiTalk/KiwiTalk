@@ -4,6 +4,8 @@ export interface AuthReducerType {
   uuid: string;
   email: string;
   password: string;
+  saveEmail: boolean;
+  autoLogin: boolean;
 }
 
 const slice = createSlice({
@@ -12,6 +14,8 @@ const slice = createSlice({
     uuid: '',
     email: '',
     password: '',
+    saveEmail: false,
+    autoLogin: false,
   },
   reducers: {
     setEmail(state, action) {
@@ -21,12 +25,22 @@ const slice = createSlice({
     setPassword(state, action) {
       state.password = action.payload;
     },
+
+    setSaveEmail(state, action) {
+      state.saveEmail = action.payload;
+    },
+
+    setAutoLogin(state, action) {
+      state.autoLogin = action.payload;
+    },
   },
 });
 
 export const {
   setEmail,
   setPassword,
+  setSaveEmail,
+  setAutoLogin,
 } = slice.actions;
 
 export default slice.reducer;

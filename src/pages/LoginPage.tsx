@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { Button, Dialog, DialogActions,
+  DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -11,7 +12,7 @@ import LoginForm from '../components/login/LoginForm';
 import { LoginErrorReason } from '../constants/AuthConstants';
 import Strings from '../constants/Strings';
 import { ReducerType } from '../reducers';
-import { setEmail, setPassword } from '../reducers/auth';
+import { setEmail, setPassword, setSaveEmail, setAutoLogin } from '../reducers/auth';
 import UtilModules from '../utils';
 
 export interface LoginFormData {
@@ -19,11 +20,6 @@ export interface LoginFormData {
   password: string;
   saveEmail: boolean;
   autoLogin: boolean;
-}
-
-interface LoginData {
-  token: boolean;
-  inputData: LoginFormData;
 }
 
 interface LoginPageProps {
@@ -37,11 +33,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
 
   const [reason, setLogout] = useState(initReason ?? 0);
   const [error, setError] = useState('');
-  const [forceLogin, setForceLogin] = useState({
-    isShow: false,
-    saveEmail: false,
-    autoLogin: false,
-  });
+  const [forceLogin, setForceLogin] = useState(false);
 
   const { client } = useContext(AppContext);
 
@@ -68,26 +60,23 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
 
     switch (result.type) {
       case LoginResultType.SUCCESS:
-        await dispatch(setEmail(email));
-        await dispatch(setPassword(password));
-
         history.push('/chat');
         break;
       case LoginResultType.NEED_REGISTER:
-        await dispatch(setEmail(email));
-        await dispatch(setPassword(password));
+        dispatch(setEmail(email));
+        dispatch(setPassword(password));
+        dispatch(setSaveEmail(saveEmail));
+        dispatch(setAutoLogin(autoLogin));
 
         history.push('/register');
         break;
       case LoginResultType.NEED_FORCE_LOGIN:
-        await dispatch(setEmail(email));
-        await dispatch(setPassword(password));
+        dispatch(setEmail(email));
+        dispatch(setPassword(password));
+        dispatch(setSaveEmail(saveEmail));
+        dispatch(setAutoLogin(autoLogin));
 
-        setForceLogin({
-          isShow: true,
-          saveEmail,
-          autoLogin,
-        });
+        setForceLogin(true);
         break;
       case LoginResultType.FAILED:
         setError(
@@ -100,18 +89,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
   };
 
   const onForceLogin = async () => {
-    setForceLogin({
-      isShow: false,
-      saveEmail: forceLogin.saveEmail,
-      autoLogin: forceLogin.autoLogin,
-    });
+    setForceLogin(false);
 
     await onSubmit(
         {
           email: auth.email,
           password: auth.password,
-          saveEmail: forceLogin.saveEmail,
-          autoLogin: forceLogin.autoLogin,
+          saveEmail: auth.saveEmail,
+          autoLogin: auth.autoLogin,
         },
         true,
         false,
@@ -138,7 +123,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
                 false,
                 true,
             );
-            // 자동 로그인
+            // 자동 로그인 */
           } else {
             setError(Strings.Auth.NO_TOKEN);
           }
@@ -146,6 +131,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
           setError(`${Strings.Auth.AUTO_LOGIN_FAILED}\n${Strings.Auth.REASON} ${e.toString()}`);
           console.error(e);
         }
+      }
+
+      if (auth.email !== '') {
+        await onSubmit(
+            {
+              email: auth.email,
+              password: auth.password,
+              saveEmail: auth.saveEmail,
+              autoLogin: auth.autoLogin,
+            },
+            false,
+            false,
+        );
       }
     })();
   }, []);
@@ -182,13 +180,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
       </DialogActions>
     </Dialog>
     <Dialog
-      open={forceLogin.isShow}
+      open={forceLogin}
       onClose={
-        () => setForceLogin({
-          isShow: false,
-          saveEmail: forceLogin.saveEmail,
-          autoLogin: forceLogin.autoLogin,
-        })
+        () => setForceLogin(false)
       }>
       <DialogTitle>
         {Strings.Auth.Result.ANOTHER_DEVICE}
@@ -199,11 +193,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setForceLogin({
-          isShow: false,
-          saveEmail: forceLogin.saveEmail,
-          autoLogin: forceLogin.autoLogin,
-        })} color="primary">
+        <Button onClick={() => setForceLogin(false)} color="primary">
           {Strings.Common.CLOSE}
         </Button>
         <Button onClick={onForceLogin} color="primary">
