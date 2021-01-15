@@ -1,4 +1,5 @@
 import { IconButton } from '@material-ui/core';
+import { Close, Reply } from '@material-ui/icons';
 import { Chat } from 'node-kakao';
 import React, { ChangeEvent, FormEvent, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,9 +11,19 @@ import ThemeColor from '../../../assets/colors/theme';
 import IconAttachment from '../../../assets/images/icon_attachment.svg';
 import IconEmoji from '../../../assets/images/icon_emoji.svg';
 import IconSend from '../../../assets/images/icon_send.svg';
+import ProfileDefault from '../../../assets/images/profile_default.svg';
 import KakaoManager, { ChatEventType } from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
-import { clearInput, setText } from '../../../reducers/chat';
+import { clearInput, setReply, setText } from '../../../reducers/chat';
+import ProfileImage from '../../common/ProfileImage';
+import { convertShortChat } from '../utils/ChatConverter';
+
+import color from '../../../assets/colors/theme';
+
+const Wrapper = styled.div`
+  position: relative;
+  z-index: 50;
+`;
 
 const Form = styled.form`
   width: 100%;
@@ -50,13 +61,49 @@ const SendButton = styled(IconButton)`
   margin: 6px;
 `;
 
+const ReplyContainer = styled.div`
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+
+  height: 40px;
+  
+  display: flex;
+  flex-flow: row;
+  
+  background: rgba(255, 255, 255, 0.7);
+`;
+
+const ReplyContent = styled.div`
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  
+  flex: 1;
+`;
+
+const Author = styled.div`
+  color: ${color.BLUE_300};
+  
+  margin-right: 4px;
+`;
+
 const ChatInput: React.FC = () => {
   const dispatch = useDispatch();
   const { input, select } = useSelector((state: ReducerType) => state.chat);
   const { client } = useContext(AppContext);
 
+  const channel = KakaoManager.getChannel(select);
+  const replyChat = KakaoManager.chatList.get(select)
+      ?.find(({ LogId }) => LogId.equals(input.reply ?? 0));
+
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     dispatch(setText(event.target.value));
+  };
+
+  const removeReply = () => {
+    dispatch(setReply(null));
   };
 
   const onSubmit = async (event: FormEvent) => {
@@ -88,34 +135,55 @@ const ChatInput: React.FC = () => {
   };
 
   return (
-    <Form onSubmit={onSubmit}>
-      <InputWrapper>
-        <IconButton
-          style={{
-            width: '36px',
-            height: '36px',
-            margin: '6px',
-          }}>
-          <img src={IconAttachment}/>
+    <Wrapper>
+      <ReplyContainer style={{
+        visibility: input.reply ? 'visible' : 'hidden',
+      }}>
+        <Reply style={{ margin: 8, marginRight: 0, }}/>
+        <ProfileImage
+          style={{ width: 24, height: 24, margin: 8 }}
+          src={
+            replyChat != null ?
+              channel.getUserInfo(replyChat.Sender)?.ProfileImageURL :
+              ProfileDefault
+          } />
+        <ReplyContent>
+          <Author>{replyChat && channel.getUserInfo(replyChat.Sender)?.Nickname}</Author>
+          {replyChat && convertShortChat(replyChat, { size: 24 })}
+        </ReplyContent>
+        <IconButton onClick={removeReply}>
+          <Close/>
         </IconButton>
-        <IconButton
-          style={{
-            width: '36px',
-            height: '36px',
-            margin: '6px 0',
-          }}>
-          <img src={IconEmoji}/>
-        </IconButton>
-        <Input onChange={onChange} value={input.text}/>
-        <SendButton
-          style={{
-            margin: '6px',
-          }}
-          type={'submit'}>
-          <img src={IconSend}/>
-        </SendButton>
-      </InputWrapper>
-    </Form>
+      </ReplyContainer>
+      <Form onSubmit={onSubmit}>
+        <InputWrapper>
+          <IconButton
+            style={{
+              width: '36px',
+              height: '36px',
+              margin: '6px',
+            }}>
+            <img src={IconAttachment}/>
+          </IconButton>
+          <IconButton
+            style={{
+              width: '36px',
+              height: '36px',
+              margin: '6px 0',
+            }}>
+            <img src={IconEmoji}/>
+          </IconButton>
+          <Input onChange={onChange} value={input.text}/>
+          <SendButton
+            style={{
+              margin: '6px',
+            }}
+            type={'submit'}>
+            <img src={IconSend}/>
+          </SendButton>
+        </InputWrapper>
+      </Form>
+    </Wrapper>
   );
 };
 

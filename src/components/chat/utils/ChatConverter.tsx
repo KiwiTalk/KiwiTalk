@@ -196,7 +196,7 @@ export function convertChat(
   }
 }
 
-export function convertShortChat(chat: Chat): JSX.Element {
+export function convertShortChat(chat: Chat, { size } = { size: 50 }): JSX.Element {
   switch (chat.Type) {
     case ChatType.Feed:
     case ChatType.Text:
@@ -212,7 +212,7 @@ export function convertShortChat(chat: Chat): JSX.Element {
     case ChatType.MultiPhoto:
       return toPhoto(chat, {
         ratio: 1,
-        limit: [50, 50],
+        limit: [size, size],
       });
     case ChatType.Video:
       return <ShortContent>동영상</ShortContent>;
