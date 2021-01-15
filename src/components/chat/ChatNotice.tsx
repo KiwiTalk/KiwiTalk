@@ -31,27 +31,22 @@ const NoticeTypography = styled(Typography)`
 `;
 
 export const ChatNotice = (): JSX.Element | null => {
-  const { select } = useSelector((state: ReducerType) => state.chat);
+  const select = useSelector((state: ReducerType) => state.chat.select);
 
   const noticeContent = KakaoManager
       .getChannel(select)
       .getChannelMeta(ChannelMetaType.NOTICE)
       ?.content;
 
-  const [noticeSummary, setNoticeSummary] = useState('공지 ' + noticeContent);
-
-  const expandNotice = (isExpanded: boolean) => {
-    if (isExpanded) setNoticeSummary('공지');
-    else setNoticeSummary('공지 ' + noticeContent);
-  };
+  const [isExpanded, setExpanded] = useState(false);
 
   if (noticeContent) {
     return (
-      <NoticeAccordion onChange={(event, expanded) => {
-        expandNotice(expanded);
+      <NoticeAccordion expanded={isExpanded} onChange={(event, expanded) => {
+        setExpanded(expanded);
       }}>
         <NoticeAccordionSummary expandIcon={<ExpandMore />}>
-          <NoticeTypography>{noticeSummary}</NoticeTypography>
+          <NoticeTypography>{isExpanded ? '공지' : `공지: ${noticeContent}`}</NoticeTypography>
         </NoticeAccordionSummary>
         <AccordionDetails>
           <Typography>{noticeContent}</Typography>

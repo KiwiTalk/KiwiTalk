@@ -5,6 +5,7 @@ import ChatRoomColor from '../../../../assets/colors/chatroom';
 
 const Wrapper = styled.div`
   position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   background: ${ChatRoomColor.BACKGROUND};
