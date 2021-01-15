@@ -106,11 +106,11 @@ export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
   let prevChat = null;
   const attachments = (chat as ReplyChatObject)
       .AttachmentList as ReplyAttachment[];
-  const prevId = attachments[0].SourceLogId.toString();
+  const prevId = attachments[0].SourceLogId;
 
-  for (const c of chatList) {
-    if (c.LogId.toString() === prevId.toString()) {
-      prevChat = c;
+  for (let i = chatList.indexOf(chat); i >= 0; i--) {
+    if (chatList[i].LogId.equals(prevId)) {
+      prevChat = chatList[i];
       break;
     }
   }
