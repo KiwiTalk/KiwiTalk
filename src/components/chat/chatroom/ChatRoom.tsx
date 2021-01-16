@@ -1,5 +1,4 @@
-import { Chat, ChatChannel } from 'node-kakao';
-import React, { ChangeEvent, EventHandler, FormEvent, useEffect, useState, } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import KakaoManager from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
@@ -10,10 +9,7 @@ import { extractRoomName } from '../utils/RoomInfoExtractor';
 import Background from './resources/Background';
 import Header from './resources/Header';
 
-export interface ChatRoomProps {
-}
-
-const ChatRoom: React.FC<ChatRoomProps> = () => {
+const ChatRoom: React.FC = () => {
   const [title, setTitle] = useState('');
   const { select } = useSelector((state: ReducerType) => state.chat);
 

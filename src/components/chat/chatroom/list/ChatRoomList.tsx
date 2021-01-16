@@ -24,9 +24,6 @@ const Wrapper = styled.div`
   }
 `;
 
-interface ChatListProps {
-}
-
 interface AsyncComponentProps {
   channel: ChatChannel,
   selected: boolean,
@@ -60,7 +57,7 @@ const AsyncComponent: React.FC<AsyncComponentProps> = ({
   return component;
 };
 
-const ChatRoomList: React.FC<ChatListProps> = () => {
+const ChatRoomList: React.FC = () => {
   const dispatch = useDispatch();
   const { select } = useSelector((state: ReducerType) => state.chat);
 

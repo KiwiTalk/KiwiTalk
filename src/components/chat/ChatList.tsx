@@ -1,5 +1,7 @@
+import { CircularProgress } from '@material-ui/core';
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -66,13 +68,15 @@ const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
 
 const ChatList = (): JSX.Element => {
   const select = useSelector((state: ReducerType) => state.chat.select);
-  const chatList = KakaoManager.chatList.get(select) ?? [];
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const [isScroll, setScroll] = useState(true);
+  const [list, setList] = useState<{ index: number; value: JSX.Element[] }>({
+    index: 0,
+    value: [],
+  });
 
   const newMessage = useMessage(select);
-
 
   useEffect(() => {
     if (isScroll || newMessage?.Sender.isClientUser()) {
@@ -84,27 +88,18 @@ const ChatList = (): JSX.Element => {
     }
   }, [newMessage]);
 
-  const onScroll = (event: any) => {
-    const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638);
-    if (num < 600 && !isScroll) setScroll(true);
-    else if (num >= 600 && isScroll) {
-      setScroll(false);
-    }
-  };
-
-  return useMemo(() => {
+  const renderItem = (startAt: number, select: string) => {
+    const chatList = KakaoManager.chatList.get(select) ?? [];
     const channel = KakaoManager.getChannel(select);
 
-    const list = [];
-
-    let bubbles = [];
+    const bubbles = [];
     let nextWithAuthor = true;
-    let index = 0;
-    for (const chat of chatList) {
+    for (let i = startAt; ; i++) {
+      const chat = chatList[i];
       const isMine = chat.Sender.isClientUser();
 
-      const willSenderChange = chatList.length - 1 === index ||
-    !chatList[index + 1].Sender.Id.equals(chat.Sender.Id);
+      const willSenderChange = chatList.length - 1 === i ||
+        !chatList[i + 1].Sender.Id.equals(chat.Sender.Id);
 
       const sendDate = new Date(chat.SendTime * 1000);
 
@@ -114,15 +109,18 @@ const ChatList = (): JSX.Element => {
           hasTail: willSenderChange && ChatTypeWithTail.includes(chat.Type),
           unread: 1,
           author: nextWithAuthor ?
-          channel.getUserInfo(chat.Sender)?.Nickname ?? '' :
-          '',
+            channel.getUserInfo(chat.Sender)?.Nickname ?? '' :
+            '',
           isMine,
           time: sendDate,
           hasPadding: ChatTypeWithPadding.includes(chat.Type),
           chat,
         });
       } else {
-        list.push(getContent(chat, chatList, channel));
+        return {
+          index: i,
+          value: getContent(chat, chatList, channel),
+        };
       }
 
       nextWithAuthor = false;
@@ -155,139 +153,71 @@ const ChatList = (): JSX.Element => {
           </ChatItem>
         );
 
-        bubbles = [];
-        nextWithAuthor = true;
-
-        list.push(chatItem);
+        return {
+          index: i,
+          value: chatItem,
+        };
       }
+    }
+  };
 
-      index++;
+  useEffect(() => {
+    let result = 0;
+    const array = [];
+    for (let i = 0; i < 20; i++) {
+      const { index: _index, value } = renderItem(result + 1, select);
+      console.log('init set', _index);
+
+      result = _index;
+      array.push(value);
     }
 
-    return (
-      <Content onScroll={onScroll}>
-        {list}
-        <div ref={bottomRef}/>
-      </Content>
-    );
-  }, [select, chatList[chatList.length - 1] ? chatList[chatList.length - 1].LogId.toString() : '']);
-};
-/*
-class ChatList extends React.Component<ChatListProps> {
-  private bubbles: BubbleProps[] = [];
-  private nextWithAuthor = true;
-  private isScroll = false;
+    console.log('diff', result, (KakaoManager.chatList.get(select)?.length ?? 0));
 
-  private refScrollEnd = createRef() as any;
-/*
-  shouldComponentUpdate(nextProps: ChatListProps, nextState: any): boolean {
-    return (
-      this.props.chatList.length !== nextProps.chatList.length &&
-      this.props.channel.Id.toString() === nextProps
-          .chatList[nextProps.chatList.length - 1]
-          ?.Channel
-          ?.Id
-          ?.toString()
-    ) || (
-      this.props.selectedChannel !== nextProps.selectedChannel
-    );
-  }
-* /
-  componentDidUpdate(): void {
-    this.isScroll = this.props.chatList[this.props.chatList.length - 1]
-        ?.Sender
-        ?.isClientUser() ? true : this.isScroll;
+    setList({
+      index: result,
+      value: array,
+    });
+  }, [select]);
 
-    if (this.isScroll) {
-      this.refScrollEnd.current.scrollIntoView({
-        behavior: 'smooth',
-      });
+  const fetchData = () => {
+    const { index: i, value } = renderItem(list.index + 1, select);
+
+    console.log('prev', list.index, 'next', list.index + i);
+
+    setList({
+      index: i + 1,
+      value: list.value.concat(value),
+    });
+  };
+
+  /*
+  const onScroll = (event: any) => {
+    const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638);
+    if (num < 600 && !isScroll) setScroll(true);
+    else if (num >= 600 && isScroll) {
+      setScroll(false);
     }
-  }
-
-  handleScroll(event: any): void {
-    const num = Math.abs(
-        event.target.scrollHeight - event.target.scrollTop - 638,
-    );
-
-    this.isScroll = num <= 600;
-  }
-
-  render(): JSX.Element {
-    const list = [];
-    const chatList = KakaoManager.chatList.get(select);
-    let index = 0;
-    for (const chat of chatList) {
-      const isMine = (chat.Sender === undefined) || chat.Sender?.isClientUser();
-
-      let willSenderChange = arr.length - 1 === index;
-      if (isMine) willSenderChange ||= !arr[index + 1].Sender?.isClientUser();
-      else willSenderChange ||= arr[index + 1].Sender?.Id.toString() !== chat.Sender?.Id.toString();
-
-      const sendDate = new Date(chat.SendTime * 1000);
-
-      if (chat.Type !== ChatType.Feed) {
-        this.bubbles.push({
-          key: chat.LogId.toString(),
-          hasTail: willSenderChange && ChatTypeWithTail.includes(chat.Type),
-          unread: 1,
-          author: this.nextWithAuthor ?
-            this.props.channel.getUserInfo(chat.Sender)?.Nickname ?? '' :
-            '',
-          isMine,
-          time: sendDate,
-          hasPadding: ChatTypeWithPadding.includes(chat.Type),
-          chat,
-        });
-      } else {
-        list.push(getContent(chat, this.props.chatList, this.props.channel));
-      }
-
-      this.nextWithAuthor = false;
-
-      if (willSenderChange && this.bubbles.length > 0) {
-        const chatItem = (
-          <ChatItem
-            isMine={isMine}
-            profileImageSrc={this.props.channel.getUserInfo(chat.Sender)?.ProfileImageURL}
-            key={chat.LogId.toString()}>
-            {
-              this.bubbles.map((bubble) => {
-                return (
-                  <ChatBubble
-                    key={bubble.key}
-                    hasTail={bubble.hasTail}
-                    time={bubble.time}
-                    author={bubble.author}
-                    unread={bubble.unread}
-                    isMine={bubble.isMine}
-                    hasPadding={bubble.hasPadding}>
-                    {
-                      getContent(bubble.chat, this.props.chatList, this.props.channel)
-                    }
-                  </ChatBubble>
-                );
-              })
-            }
-          </ChatItem>
-        );
-
-        this.bubbles = [];
-        this.nextWithAuthor = true;
-
-        list.push(chatItem);
-      }
-
-      index++;
-    }
-
-    return (
-        <Content onScroll={this.handleScroll.bind(this)}>
-          {list}
-          <div ref={this.refScrollEnd}/>
-        </Content>
-    );
-  }
-}
+  };
 */
+  //  onScroll={onScroll}
+  // <div ref={bottomRef}/>
+
+  return (
+    <>
+      <Content id={'chat-list-parent'}>
+        <InfiniteScroll
+          scrollableTarget={'chat-list-parent'}
+          dataLength={list.value.length}
+          next={fetchData}
+          hasMore={list.index < (KakaoManager.chatList.get(select)?.length ?? 0)}
+          loader={<CircularProgress/>}
+          endMessage={<div>끝났어요!</div>}>
+          {list.value}
+        </InfiniteScroll>
+      </Content>
+    </>
+  );
+};
+
 export default ChatList;
