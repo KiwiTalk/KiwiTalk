@@ -1,7 +1,7 @@
 import { IconButton } from '@material-ui/core';
 import { Close, Reply } from '@material-ui/icons';
 import { Chat } from 'node-kakao';
-import React, { ChangeEvent, FormEvent, useContext, useRef } from 'react';
+import React, { ChangeEvent, FormEvent, useContext, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ChatResultType, sendChat } from '../../../actions/chat';
@@ -14,7 +14,7 @@ import IconSend from '../../../assets/images/icon_send.svg';
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import KakaoManager, { ChatEventType } from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
-import { addFiles, clearInput, setReply, setText } from '../../../reducers/chat';
+import { addFiles, clearInput, setReply } from '../../../reducers/chat';
 import ProfileImage from '../../common/ProfileImage';
 import { convertShortChat } from '../utils/ChatConverter';
 
@@ -92,6 +92,7 @@ const Author = styled.div`
 const ChatInput: React.FC = () => {
   const dispatch = useDispatch();
   const { input, select } = useSelector((state: ReducerType) => state.chat);
+  const [text, setInputText] = useState('');
   const { client } = useContext(AppContext);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -101,7 +102,7 @@ const ChatInput: React.FC = () => {
       ?.find(({ LogId }) => LogId.equals(input.reply ?? 0));
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    dispatch(setText(event.target.value));
+    setInputText(event.target.value);
   };
 
   const onFileClick = () => {
@@ -121,7 +122,11 @@ const ChatInput: React.FC = () => {
           channel: KakaoManager.getChannel(select),
           chatList: KakaoManager.chatList.get(select) ?? [],
         },
-        input,
+        {
+          text,
+          files: input.files,
+          reply: input.reply,
+        },
     );
 
     if (result.type === ChatResultType.SUCCESS) {
@@ -136,6 +141,7 @@ const ChatInput: React.FC = () => {
           (value) => value(ChatEventType.ADD, chat, KakaoManager.getChannel(channelId)),
       );
 
+      setInputText('');
       dispatch(clearInput());
     }
   };
@@ -189,7 +195,7 @@ const ChatInput: React.FC = () => {
             }}>
             <img src={IconEmoji}/>
           </IconButton>
-          <Input onChange={onChange} value={input.text}/>
+          <Input onChange={onChange} value={text}/>
           <SendButton
             style={{
               margin: '6px',

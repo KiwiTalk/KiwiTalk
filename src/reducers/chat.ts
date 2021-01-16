@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit';
 export interface ChatReducerType {
   select: string;
   input: {
-    text: string;
     files: File[];
     reply: string | null;
   }
@@ -12,7 +11,6 @@ export interface ChatReducerType {
 const initialState: ChatReducerType = {
   select: '0',
   input: {
-    text: '',
     files: [],
     reply: null,
   },
@@ -31,21 +29,15 @@ const slice = createSlice({
     setInput: (state, action) => {
       const { text, files, reply } = action.payload;
 
-      if (text) state.input.text = text;
       if (files) state.input.files = files;
       if (reply) state.input.reply = reply;
     },
 
     clearInput: (state) => {
       state.input = {
-        text: '',
         files: [],
         reply: null,
       };
-    },
-
-    setText: (state, action) => {
-      state.input.text = action.payload;
     },
 
     addFile: (state, action) => {
@@ -70,7 +62,6 @@ export const {
   selectChannel,
   setInput,
   clearInput,
-  setText,
   addFile,
   addFiles,
   clearFile,

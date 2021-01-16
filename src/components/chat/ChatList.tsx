@@ -96,6 +96,13 @@ const ChatList = (): JSX.Element => {
     let nextWithAuthor = true;
     for (let i = startAt; ; i++) {
       const chat = chatList[i];
+      if (!chat) {
+        return {
+          index: i,
+          value: null,
+        };
+      }
+
       const isMine = chat.Sender.isClientUser();
 
       const willSenderChange = chatList.length - 1 === i ||
@@ -166,13 +173,12 @@ const ChatList = (): JSX.Element => {
     const array = [];
     for (let i = 0; i < 20; i++) {
       const { index: _index, value } = renderItem(result + 1, select);
-      console.log('init set', _index);
 
       result = _index;
+      if (!value) break;
+
       array.push(value);
     }
-
-    console.log('diff', result, (KakaoManager.chatList.get(select)?.length ?? 0));
 
     setList({
       index: result,
@@ -181,13 +187,20 @@ const ChatList = (): JSX.Element => {
   }, [select]);
 
   const fetchData = () => {
-    const { index: i, value } = renderItem(list.index + 1, select);
+    let result = list.index;
+    const array = [];
+    for (let i = 0; i < 20; i++) {
+      const { index: _index, value } = renderItem(result + 1, select);
 
-    console.log('prev', list.index, 'next', list.index + i);
+      result = _index;
+      if (!value) break;
+
+      array.push(value);
+    }
 
     setList({
-      index: i + 1,
-      value: list.value.concat(value),
+      index: result,
+      value: list.value.concat(array),
     });
   };
 
@@ -207,6 +220,7 @@ const ChatList = (): JSX.Element => {
     <>
       <Content id={'chat-list-parent'}>
         <InfiniteScroll
+          style={{ overflow: 'hidden' }}
           scrollableTarget={'chat-list-parent'}
           dataLength={list.value.length}
           next={fetchData}
