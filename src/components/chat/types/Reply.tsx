@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import {Chat} from 'node-kakao';
+import { Chat } from 'node-kakao';
 
-import {convertShortChat} from '../utils/ChatConverter';
+import { convertShortChat } from '../utils/ChatConverter';
 
 import color from '../../../assets/colors/theme';
 

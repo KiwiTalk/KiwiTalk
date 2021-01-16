@@ -1,7 +1,7 @@
 import { LocoKickoutType, TalkClient } from 'node-kakao';
 import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Redirect, Route, Switch, useHistory } from 'react-router-dom';
+import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
 import MenuBar from './components/common/menubar/MenuBar';

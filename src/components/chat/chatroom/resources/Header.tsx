@@ -50,7 +50,7 @@ interface ChatroomHeaderProps {
     title: string
 }
 
-const Header: React.FC<ChatroomHeaderProps> = ({title}) => {
+const Header: React.FC<ChatroomHeaderProps> = ({ title }) => {
   return (
     <Wrapper>
       <Title>{title}</Title>

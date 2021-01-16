@@ -1,11 +1,8 @@
 import { Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { Long } from 'bson';
-import { Chat as ChatObject, ChatChannel, MoreSettingsStruct } from 'node-kakao';
-import { PacketSyncMessageReq, PacketSyncMessageRes } from 'node-kakao/dist/packet/packet-sync-message';
-import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import { MoreSettingsStruct } from 'node-kakao';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { AppContext } from '../App';
 import ChatRoom from '../components/chat/chatroom/ChatRoom';
@@ -67,7 +64,7 @@ const ChatPage = (): JSX.Element => {
     window.addEventListener('resize', onSize);
 
     (async () => {
-      KakaoManager.init(client);
+      await KakaoManager.init(client);
       try {
         const settings = await client.Auth.requestMoreSettings();
         setAccountSettings(settings);

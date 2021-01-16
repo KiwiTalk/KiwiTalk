@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import ThemeColor from '../../../assets/colors/theme';
 
@@ -81,7 +81,7 @@ const MenuBar = (): JSX.Element => {
       <Button>
         <Image src={iconLogo}/>
       </Button>
-      <div style={{flex: 1}}></div>
+      <div style={{ flex: 1 }}></div>
       <ButtonWrapper>
         <Button onClick={() => window.minimize()}>
           <Image src={iconMinimize}/>

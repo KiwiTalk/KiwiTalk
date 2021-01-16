@@ -44,7 +44,7 @@ interface ProfileProps {
     accountSettings?: MoreSettingsStruct
 }
 
-const Profile: React.FC<ProfileProps> = ({accountSettings}) => {
+const Profile: React.FC<ProfileProps> = ({ accountSettings }) => {
   if (!accountSettings) {
     return (
       <Wrapper>

@@ -22,7 +22,7 @@ interface FileProps {
   member: string
 }
 
-export const File: React.FC<FileProps> = ({ member}) => {
+export const File: React.FC<FileProps> = ({ member }) => {
   return (
     <Wrapper>
       <Content>{member}님이 나갔습니다.</Content>

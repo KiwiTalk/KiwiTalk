@@ -39,7 +39,7 @@ export const Video: React.FC<VideoChatProps> = (data: VideoChatProps) => {
         (() => {
           const [w, h] = resize(data.width, data.height);
 
-          return <video style={{width: w + 'px', height: h + 'px'}}>
+          return <video style={{ width: w + 'px', height: h + 'px' }}>
             <source src={data.url}/>
           </video>;
         })()

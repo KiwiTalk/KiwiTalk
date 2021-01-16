@@ -1,12 +1,9 @@
 import {
   Chat,
   ChatChannel,
-  ChatType, ReplyAttachment, ReplyContentTemplate,
-  ChatAttachment,
-  SizedMediaItemTemplate,
+  ChatType, ReplyAttachment, SizedMediaItemTemplate,
   TalkClient, AttachmentTemplate,
 } from 'node-kakao';
-import KakaoManager from '../KakaoManager';
 
 export interface ChatContext {
   client: TalkClient;

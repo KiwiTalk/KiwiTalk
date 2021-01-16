@@ -1,8 +1,7 @@
-import { Backdrop } from '@material-ui/core';
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import Photo, {PhotoChatProps} from './Photo';
+import Photo, { PhotoChatProps } from './Photo';
 
 const Wrapper = styled.div`
   display: grid;
@@ -60,7 +59,7 @@ function fitData(length: number, index: number) {
   return model;
 }
 
-export const MultiPhoto: React.FC<MultiPhotoChatProps> = ({photoChatProps}) => {
+export const MultiPhoto: React.FC<MultiPhotoChatProps> = ({ photoChatProps }) => {
   return (
     <Wrapper style={{ width: 'auto' }}>
       {

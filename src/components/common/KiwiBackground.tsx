@@ -57,7 +57,7 @@ bottom: 10px;
 font-size: 8px;
 `;
 
-const KiwiBackground: React.FC = ({children}) => {
+const KiwiBackground: React.FC = ({ children }) => {
   return (
     <Wrapper>
       <Background1/>

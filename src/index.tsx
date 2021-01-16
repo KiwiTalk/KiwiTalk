@@ -5,7 +5,7 @@ import os from 'os';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import App, { AppContext } from './App';
+import App from './App';
 import Configs from './constants/Configs';
 
 import './index.css';

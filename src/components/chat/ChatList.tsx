@@ -1,6 +1,6 @@
 import { CircularProgress } from '@material-ui/core';
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';

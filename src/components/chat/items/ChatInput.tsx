@@ -14,7 +14,7 @@ import IconSend from '../../../assets/images/icon_send.svg';
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import KakaoManager, { ChatEventType } from '../../../KakaoManager';
 import { ReducerType } from '../../../reducers';
-import { addFiles, clearInput, setReply } from '../../../reducers/chat';
+import { clearInput, setReply } from '../../../reducers/chat';
 import ProfileImage from '../../common/ProfileImage';
 import { convertShortChat } from '../utils/ChatConverter';
 

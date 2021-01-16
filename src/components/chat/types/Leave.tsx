@@ -22,7 +22,7 @@ interface LeaveProps {
     member: string
 }
 
-export const Leave: React.FC<LeaveProps> = ({member}) => {
+export const Leave: React.FC<LeaveProps> = ({ member }) => {
   return (
     <Wrapper>
       <Content>{member}님이 나갔습니다.</Content>

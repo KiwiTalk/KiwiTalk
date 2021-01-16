@@ -215,8 +215,7 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
   if (prevProps.time.getTime() !== nextProps.time.getTime()) return false;
   if (prevProps.unread !== nextProps.unread) return false;
   if (prevProps.isMine !== nextProps.isMine) return false;
-  if (prevProps.hasPadding !== nextProps.hasPadding) return false;
-  return true;
+  return prevProps.hasPadding === nextProps.hasPadding;
 });
 
 export default ChatBubble;
