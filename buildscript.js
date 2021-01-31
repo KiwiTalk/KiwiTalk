@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const NwBuilder = require('nw-builder');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const Utils = require('./node_modules/nw-builder/lib/utils');
+const Utils = require('nw-builder/lib/utils');
 
 NwBuilder.prototype.checkFiles = function() {
   return Utils.getFileList(this.options.files)
