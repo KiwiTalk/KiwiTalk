@@ -15,6 +15,10 @@ const NoticeAccordion = styled(Accordion)`
   z-index: 2;
   width: 100%;
   box-shadow: rgba(0, 0, 0, 0.5) 0 3px 6px;
+
+  &.MuiAccordion-root.Mui-expanded {
+    margin-top: 1px;
+  }
 `;
 
 const NoticeAccordionSummary = styled(AccordionSummary)`
