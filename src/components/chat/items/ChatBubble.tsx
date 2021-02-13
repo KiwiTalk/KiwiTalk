@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
@@ -163,6 +163,23 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
 
   const hasAuthor = !!(!isMine && author);
 
+  const menu = useMemo(() => (
+    <Menu
+      keepMounted
+      open={state.y !== null}
+      onClose={onClose()}
+      anchorReference="anchorPosition"
+      anchorPosition={
+        (state.x !== null && state.y !== null) ?
+          { top: state.y, left: state.x } :
+          undefined
+      }>
+      <MenuItem onClick={onClose('reply')}>{Strings.Chat.REPLY}</MenuItem>
+      <MenuItem onClick={onClose('delete')}>{Strings.Chat.DELETE}</MenuItem>
+      <MenuItem onClick={onClose('copy')}>{Strings.Chat.COPY}</MenuItem>
+    </Menu>
+  ), [state]);
+
   return (
     <Wrapper
       isMine={isMine}
@@ -192,20 +209,9 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
         <Unread isMine={isMine}>{unread}</Unread>
         <Date>{convertTime(time, false)}</Date>
       </HeadWrapper>
-      <Menu
-        keepMounted
-        open={state.y !== null}
-        onClose={onClose()}
-        anchorReference="anchorPosition"
-        anchorPosition={
-          (state.x !== null && state.y !== null) ?
-            { top: state.y, left: state.x } :
-            undefined
-        }>
-        <MenuItem onClick={onClose('reply')}>{Strings.Chat.REPLY}</MenuItem>
-        <MenuItem onClick={onClose('delete')}>{Strings.Chat.DELETE}</MenuItem>
-        <MenuItem onClick={onClose('copy')}>{Strings.Chat.COPY}</MenuItem>
-      </Menu>
+      {
+        menu
+      }
     </Wrapper>
   );
 }, (prevProps, nextProps) => {
