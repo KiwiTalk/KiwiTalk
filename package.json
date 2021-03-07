@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "bson": "^4.0.4",
-    "image-size": "^0.9.1",
+    "image-size": "^0.9.4",
     "localforage": "^1.7.3",
     "node-kakao": "^3.1.10",
     "open-graph-scraper": "^4.7.1",
