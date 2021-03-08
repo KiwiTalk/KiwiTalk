@@ -32,7 +32,7 @@
     "extends": "react-app"
   },
   "dependencies": {
-    "bson": "^4.0.4",
+    "bson": "^4.2.3",
     "image-size": "^0.9.4",
     "localforage": "^1.7.3",
     "node-kakao": "^3.1.10",
