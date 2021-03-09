@@ -66,7 +66,7 @@
     "eslint": "^7.21.0",
     "eslint-config-google": "^0.14.0",
     "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.2.0",
+    "html-webpack-plugin": "^5.3.1",
     "nw-builder": "^3.5.7",
     "os-tmpdir": "^2.0.0",
     "style-loader": "^2.0.0",
