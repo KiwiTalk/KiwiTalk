@@ -36,7 +36,7 @@
     "image-size": "^0.9.4",
     "localforage": "^1.7.3",
     "node-kakao": "^3.1.10",
-    "open-graph-scraper": "^4.7.1",
+    "open-graph-scraper": "^4.8.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.1",
     "react-spoiler": "^0.4.3",
