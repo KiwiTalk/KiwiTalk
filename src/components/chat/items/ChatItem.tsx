@@ -1,4 +1,4 @@
-import React, { HTMLAttributes } from 'react';
+import React, { HTMLAttributes, useMemo } from 'react';
 import styled from 'styled-components';
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import ProfileImage from '../../common/ProfileImage';
@@ -35,11 +35,12 @@ const ChatItem: React.FC<ChatItemProps> = ({
   ...args
 }) => {
   const src = profileImageSrc ? profileImageSrc : ProfileDefault;
+  const profile = useMemo(() => <StyledProfileImage src={src} />, []);
 
   return (
     <Wrapper {...args}>
       {
-        (profileVisible ?? true) && !isMine ? <StyledProfileImage src={src}/> : null
+        (profileVisible ?? true) && !isMine ? profile : null
       }
       <Contents>
         {children}

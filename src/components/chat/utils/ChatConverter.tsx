@@ -165,7 +165,6 @@ export function convertChat(
     case ChatType.Reply:
       return toReply(chat, chatList);
     case ChatType.Unknown:
-      console.log(chat);
       if (passUnknown) return <span>{chat.Text}</span>;
 
       try {
@@ -184,7 +183,6 @@ export function convertChat(
     case ChatType.StickerGif:
       return toEmoticon(chat);
     case ChatType.File:
-      console.log('file', chat);
       break;
     case ChatType.Map:
       break;

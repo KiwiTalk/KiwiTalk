@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from '@material-ui/core';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
@@ -23,6 +23,8 @@ const FakeTail = styled.div`
 `;
 
 const Wrapper = styled.div((props: { isMine: boolean }) => `
+  width: fit-content;
+  align-self: ${props.isMine ? 'flex-end' : 'flex-start'};
   display: flex;
   flex-direction: ${props.isMine ? 'row-reverse' : 'row'};
   align-items: flex-end;
@@ -97,11 +99,6 @@ const Unread = styled.span((props: { isMine: boolean }) => `
   color: ${color.BLUE_400};
 `);
 
-interface Coordinate {
-  x: number | null;
-  y: number | null;
-}
-
 export interface BubbleProps {
   chatId: string;
   hasTail: boolean
@@ -125,13 +122,11 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
 
   const { select } = useSelector((state: ReducerType) => state.chat);
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
-  const [state, setState] = useState<Coordinate>({
-    x: null,
-    y: null,
-  });
+  const [open, setOpen] = useState(false);
 
-  const onClose = (type: 'reply' | 'copy' | 'delete' | null = null) => async () => {
+  const onClose = useCallback((type: 'reply' | 'copy' | 'delete' | null = null) => async () => {
     switch (type) {
       case 'reply':
         dispatch(setReply(chatId));
@@ -146,42 +141,33 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
         break;
     }
 
-    setState({
-      x: null,
-      y: null,
-    });
-  };
+    setOpen(false);
+  }, [chatId]);
 
-  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+  const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
 
-    setState({
-      x: event.clientX - 2,
-      y: event.clientY - 4,
-    });
-  };
+    setOpen(true);
+  }, []);
 
   const hasAuthor = !!(!isMine && author);
 
   const menu = useMemo(() => (
     <Menu
       keepMounted
-      open={state.y !== null}
+      open={open}
       onClose={onClose()}
-      anchorReference="anchorPosition"
-      anchorPosition={
-        (state.x !== null && state.y !== null) ?
-          { top: state.y, left: state.x } :
-          undefined
-      }>
+      anchorEl={wrapperRef.current}
+    >
       <MenuItem onClick={onClose('reply')}>{Strings.Chat.REPLY}</MenuItem>
       <MenuItem onClick={onClose('delete')}>{Strings.Chat.DELETE}</MenuItem>
       <MenuItem onClick={onClose('copy')}>{Strings.Chat.COPY}</MenuItem>
     </Menu>
-  ), [state]);
+  ), [wrapperRef.current, open, onClose]);
 
   return (
     <Wrapper
+      ref={wrapperRef}
       isMine={isMine}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

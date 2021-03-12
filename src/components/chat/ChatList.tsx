@@ -1,5 +1,5 @@
 import { Chat, ChatChannel, ChatType, FeedType } from 'node-kakao';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -157,7 +157,7 @@ const ChatList = (): JSX.Element => {
 
   const newMessage = useMessage(select);
 
-  const init = () => {
+  const init = useCallback(() => {
     const result: number[] = [];
     const array = [];
     for (let i = 0; i < 20; i++) {
@@ -176,7 +176,7 @@ const ChatList = (): JSX.Element => {
       index: result,
       value: array,
     });
-  };
+  }, [select]);
 
   useEffect(init, []);
   useEffect(init, [select]);
@@ -220,10 +220,10 @@ const ChatList = (): JSX.Element => {
     }
   }, [newMessage]);
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     const result = list.index;
     const array = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const { index: _index, value } = renderItem(
           result.reduce((pre, cur) => pre + cur, 0) + 1,
           select,
@@ -239,16 +239,16 @@ const ChatList = (): JSX.Element => {
       index: result,
       value: list.value.concat(array),
     });
-  };
+  }, [list, select]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onScroll = (event: any) => {
+  const onScroll = useCallback((event: any) => {
     const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638);
     if (num < 600 && !isScroll) setScroll(true);
     else if (num >= 600 && isScroll) {
       setScroll(false);
     }
-  };
+  }, []);
 
   return (
     <>

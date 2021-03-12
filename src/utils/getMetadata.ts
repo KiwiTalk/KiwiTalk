@@ -15,7 +15,7 @@ export async function getMetadata(url: string) {
   return {
     title: value?.result?.ogTitle ?? '',
     url: value?.result?.ogUrl ?? '',
-    image: value?.result.ogImage?.url ?? '',
+    image: value?.result.ogImage ?? '',
     description: value?.result?.ogDescription ?? '',
   };
 }
