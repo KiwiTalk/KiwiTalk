@@ -54,7 +54,6 @@ const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
       const text = JSON.parse(chat.Text);
 
       if (text.feedType === FeedType.DELETE_TO_ALL) {
-        console.log('deleted', chat);
         return toDeletedAt(chat.getFeed(), chat, chatList, channel);
       }
     } catch {
@@ -154,6 +153,7 @@ const ChatList = (): JSX.Element => {
     index: [],
     value: [],
   });
+  const [end, setEnd] = useState(false);
 
   const newMessage = useMessage(select);
 
@@ -182,33 +182,43 @@ const ChatList = (): JSX.Element => {
   useEffect(init, [select]);
 
   useEffect(() => {
-    console.log('update', newMessage);
-    console.log('is new',
-      list.index.reduce((pre, cur) => pre + cur, 0) <
-      (KakaoManager.chatList.get(select)?.length ?? 0))
-    const { index: _index, value } = renderItem(
-        list.index.slice(0, -1).reduce((pre, cur) => pre + cur, 0) + 1,
-        select,
-    );
+    let startAt = list.index.slice(0, -1).reduce((pre, cur) => pre + cur, 0) + 1;
 
-    if (!value) return;
+    const newIndex = list.index.slice(0, -1);
+    const result = list.value.slice(0, -1);
+    for (;;) {
+      const item = renderItem(
+          startAt,
+          select,
+      );
 
-    const newIndex = list.index;
-    const result = list.value;
-    if (value) result[result.length - 1] = value;
-    if (_index) newIndex[result.length - 1] = _index;
+      if (!item.value) {
+        setEnd(true);
 
-    console.log('before force update!', list.value.length);
-    setList({
-      index: newIndex,
-      value: result,
-    });
+        break;
+      }
 
-    return () => {
-      console.log('force update!', list.value.length);
+      startAt += item.index;
+      result.push(item.value);
+      newIndex.push(item.index);
+    }
+
+    if (end) {
+      setList({
+        index: newIndex,
+        value: result,
+      });
+    }
+    if (isScroll) {
+      const target = bottomRef.current?.getScrollableTarget();
+      if (target) {
+        target.scrollTo({
+          top: target.scrollHeight * 2,
+          behavior: 'smooth',
+        });
+      }
     }
   }, [newMessage]);
-
 
   const fetchData = () => {
     const result = list.index;
@@ -231,6 +241,7 @@ const ChatList = (): JSX.Element => {
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onScroll = (event: any) => {
     const num = Math.abs(event.target.scrollHeight - event.target.scrollTop - 638);
     if (num < 600 && !isScroll) setScroll(true);
