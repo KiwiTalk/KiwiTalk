@@ -4,10 +4,6 @@
 
 **카카오톡 재구현 프로젝트 (React & nw.js)**
 
-## 처음 오신 분들을 위해
-
-현재 개발은 [refactoring](https://github.com/KiwiTalk/KiwiTalk/tree/refactoring) branch에서 진행되고 있습니다.
-
 ## 백엔드
 
 - [node-kakao](https://github.com/storycraft/node-kakao)
