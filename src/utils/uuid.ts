@@ -1,4 +1,4 @@
-import {v4} from 'uuid';
+import { v4 } from 'uuid';
 import localForage from 'localforage';
 
 export function createNewUUID(): string {
