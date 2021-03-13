@@ -52,6 +52,7 @@ export function toPhoto(
     attachment = attachment as PhotoAttachment;
 
     return <Photo
+      key={attachment.ImageURL}
       width={attachment.Width}
       height={attachment.Height}
       url={attachment.ImageURL}
@@ -83,6 +84,7 @@ export function toVideo(chat: Chat): JSX.Element {
     attachment = attachment as VideoAttachment;
 
     return <Video
+      key={attachment.VideoURL}
       url={attachment.VideoURL}
       width={attachment.Width}
       height={attachment.Height}
@@ -104,8 +106,7 @@ export function toSearch(chat: Chat): JSX.Element {
 
 export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
   let prevChat = null;
-  const attachments = (chat as ReplyChatObject)
-      .AttachmentList as ReplyAttachment[];
+  const attachments = (chat as ReplyChatObject).AttachmentList as ReplyAttachment[];
   const prevId = attachments[0].SourceLogId;
 
   for (let i = chatList.indexOf(chat); i >= 0; i--) {

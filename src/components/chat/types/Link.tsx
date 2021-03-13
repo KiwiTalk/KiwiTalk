@@ -72,7 +72,7 @@ export const Link: React.FC<LinkTextProps> = ({ chat }) => {
         text.match(/(\w)+:\/\/[\w.:/?&\-+=%]+/g),
         text.match(/[\w:/?&\-+=%]+(\.[\w:/?&\-+=%]+)+/g),
       ].flat().filter((it) => !!it)),
-  ) as string[]).map((url) => url.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'));
+  ) as string[]);
 
   useEffect(() => {
     Promise.all(
@@ -90,7 +90,8 @@ export const Link: React.FC<LinkTextProps> = ({ chat }) => {
     });
   }, []);
 
-  const textList = text.split(new RegExp(urls.join('|')));
+  const regexUrls = urls.map((url) => url.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1'));
+  const textList = text.split(new RegExp(regexUrls.join('|')));
   return (
     <Wrapper>
       <div>

@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from '@material-ui/core';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import color from '../../../assets/colors/theme';
@@ -97,11 +97,6 @@ const Unread = styled.span((props: { isMine: boolean }) => `
   color: ${color.BLUE_400};
 `);
 
-interface Coordinate {
-  x: number | null;
-  y: number | null;
-}
-
 export interface BubbleProps {
   chatId: string;
   hasTail: boolean
@@ -122,16 +117,14 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
   hasPadding,
 }) => {
   const dispatch = useDispatch();
-
   const { select } = useSelector((state: ReducerType) => state.chat);
+  const chatList = KakaoManager.chatList.get(select);
 
+  const contentRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
-  const [state, setState] = useState<Coordinate>({
-    x: null,
-    y: null,
-  });
+  const [open, setOpen] = useState(false);
 
-  const onClose = (type: 'reply' | 'copy' | 'delete' | null = null) => async () => {
+  const onClose = useCallback((type: 'reply' | 'copy' | 'delete' | null = null) => async () => {
     switch (type) {
       case 'reply':
         dispatch(setReply(chatId));
@@ -139,46 +132,35 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
       case 'copy':
         break;
       case 'delete': {
-        const chat = KakaoManager.chatList.get(select)?.find(({ LogId }) => LogId.equals(chatId));
+        const chat = chatList?.find(({ LogId }) => LogId.equals(chatId));
 
         chat?.delete().then();
       }
         break;
     }
 
-    setState({
-      x: null,
-      y: null,
-    });
-  };
+    setOpen(false);
+  }, [chatList]);
 
-  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+  const onContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
 
-    setState({
-      x: event.clientX - 2,
-      y: event.clientY - 4,
-    });
-  };
+    setOpen(true);
+  }, []);
 
   const hasAuthor = !!(!isMine && author);
 
   const menu = useMemo(() => (
     <Menu
       keepMounted
-      open={state.y !== null}
+      open={open}
       onClose={onClose()}
-      anchorReference="anchorPosition"
-      anchorPosition={
-        (state.x !== null && state.y !== null) ?
-          { top: state.y, left: state.x } :
-          undefined
-      }>
+      anchorEl={contentRef.current}>
       <MenuItem onClick={onClose('reply')}>{Strings.Chat.REPLY}</MenuItem>
       <MenuItem onClick={onClose('delete')}>{Strings.Chat.DELETE}</MenuItem>
       <MenuItem onClick={onClose('copy')}>{Strings.Chat.COPY}</MenuItem>
     </Menu>
-  ), [state]);
+  ), [contentRef, open, onClose]);
 
   return (
     <Wrapper
@@ -192,6 +174,7 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
           <FakeTail/>
       }
       <Content
+        ref={contentRef}
         isMine={isMine}
         hasAuthor={hasAuthor}
         hasPadding={hasPadding}>

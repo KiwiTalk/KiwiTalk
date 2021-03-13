@@ -20,6 +20,7 @@ const Emoticon: React.FC<EmoticonProps> = ({ chat }) => {
           };
 
           return <img
+            key={attachment.getEmoticonURL()}
             src={attachment.getEmoticonURL()}
             width={attachment.Width > 0 ? attachment.Width : '150px'}
             height={attachment.Height > 0 ? attachment.Height : '150px'}
