@@ -1,4 +1,4 @@
-# _KiwiTalk_ [![CodeFactor](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk/badge?s=c3981bac3a87fe9d0f0c5fdb854efd203b389649)](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk)
+# _KiwiTalk_ [![CodeFactor](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk/badge?s=c3981bac3a87fe9d0f0c5fdb854efd203b389649)](https://www.codefactor.io/repository/github/kiwitalk/kiwitalk) [![DeepScan grade](https://deepscan.io/api/teams/13288/projects/16289/branches/346077/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=13288&pid=16289&bid=346077)
 
 <img src="https://user-images.githubusercontent.com/39073901/87921235-3f69a180-cab5-11ea-9122-eaa5fd912ac4.gif"/>
 
