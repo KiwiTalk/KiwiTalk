@@ -80,7 +80,7 @@
     "os-tmpdir": "^2.0.0",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.0.18",
-    "wait-on": "^5.2.1",
+    "wait-on": "^5.2.2",
     "webpack": "^5.26.3",
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.2"
