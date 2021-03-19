@@ -107,7 +107,9 @@ export const Link: React.FC<LinkTextProps> = ({ chat }) => {
                 }}>{urls[i]}</a>
               </span>;
             }
-            return <span>{resource}</span>;
+            return <span key={`link-span-resource-${i}`}>
+              {resource}
+            </span>;
           })
         }
       </div>

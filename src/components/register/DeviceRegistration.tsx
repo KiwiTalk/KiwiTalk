@@ -94,7 +94,6 @@ export const DeviceRegistration: React.FC = () => {
         break;
 
       default:
-        form = defaultForm;
         setRegisterType(null);
         break;
     }

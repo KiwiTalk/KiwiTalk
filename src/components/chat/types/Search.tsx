@@ -76,7 +76,9 @@ export const Search: React.FC<SearchChatProps> = (chat: SearchChatProps) => {
     <Wrapper>
       <Header>#{chat.question}</Header>
       {
-        chat.list.map((data) => <SearchItemContainer>
+        chat.list.map((data, i) => <SearchItemContainer
+          key={`search-item-${chat.question}-$i`}
+        >
           {
             (() => {
               if (data.Text === undefined) {

@@ -72,10 +72,13 @@ export const MultiPhoto: React.FC<MultiPhotoChatProps> = ({ photoChatProps }) =>
                 (photoChatProps.length % 3 === 2) && (i <= 1)
               );
 
-          return <div style={{
-            display: 'grid-item',
-            ...fitData(photoChatProps.length, i),
-          }}>
+          return <div
+            key={`multiphoto-${data.url}-$i`}
+            style={{
+              display: 'grid-item',
+              ...fitData(photoChatProps.length, i),
+            }}
+          >
             <Photo
               width={data.width}
               height={data.height}
