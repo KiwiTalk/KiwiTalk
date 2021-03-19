@@ -61,7 +61,7 @@ const Profile: React.FC<ProfileProps> = ({ accountSettings }) => {
   return (
     <Wrapper>
       <ProfileImage src={
-        accountSettings?.profileImageUrl || ProfileDefault
+        accountSettings?.profileImageUrl ?? ProfileDefault
       }
       style={
         {

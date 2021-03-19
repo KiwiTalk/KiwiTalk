@@ -98,7 +98,10 @@ export function toSearch(chat: Chat): JSX.Element {
   const list = chat.AttachmentList.map((attachment: any) => {
     const { Question, ContentType, ContentList } = attachment;
 
-    return <Search question={Question} type={ContentType} list={ContentList}/>;
+    return <Search
+      question={Question}
+      type={ContentType}
+      list={ContentList}/>;
   });
 
   return <div>{list}</div>;
@@ -127,9 +130,14 @@ export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
 
 export function toMap(chat: Chat): JSX.Element {
   const list = chat.AttachmentList.map((attachment: any) => {
-    const { Name, Lat, Lng } = attachment;
+    const { Name, Lat, Lng, A } = attachment;
 
-    return <Location name={Name} url={''} latitude={Lat} longitude={Lng}/>;
+    return <Location
+      key={A}
+      name={Name}
+      url={''}
+      latitude={Lat}
+      longitude={Lng}/>;
   });
 
   return <div>{list}</div>;
