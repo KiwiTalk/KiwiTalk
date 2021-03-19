@@ -8,7 +8,7 @@ interface EmoticonProps {
 const Emoticon: React.FC<EmoticonProps> = ({ chat }) => {
   return <>
     {
-      chat.AttachmentList.map((attachment) => {
+      chat.AttachmentList.map((attachment, i) => {
         if (attachment instanceof EmoticonAttachment) {
           const playSound = async () => {
             if (attachment.Sound) {
@@ -20,7 +20,7 @@ const Emoticon: React.FC<EmoticonProps> = ({ chat }) => {
           };
 
           return <img
-            key={attachment.getEmoticonURL()}
+            key={`emoticon-${attachment.getEmoticonURL()}`}
             src={attachment.getEmoticonURL()}
             width={attachment.Width > 0 ? attachment.Width : '150px'}
             height={attachment.Height > 0 ? attachment.Height : '150px'}
@@ -28,7 +28,7 @@ const Emoticon: React.FC<EmoticonProps> = ({ chat }) => {
             onLoad={playSound}/>;
         }
 
-        return <div/>;
+        return <div key={`emoticon-$i`}/>;
       })
     }
   </>;

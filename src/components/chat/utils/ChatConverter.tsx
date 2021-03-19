@@ -95,10 +95,11 @@ export function toVideo(chat: Chat): JSX.Element {
 }
 
 export function toSearch(chat: Chat): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
+  const list = chat.AttachmentList.map((attachment: any, i) => {
     const { Question, ContentType, ContentList } = attachment;
 
     return <Search
+      key={`search-${chat.LogId.toString()}-$i`}
       question={Question}
       type={ContentType}
       list={ContentList}/>;
