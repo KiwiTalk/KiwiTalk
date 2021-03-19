@@ -22,8 +22,8 @@ export function extractRoomImage(
 
     if (!imageUrl[0]) {
       imageUrl = userInfoList
-          ?.slice(0, 4)
-          ?.map((e) => e.ProfileImageURL || ProfileDefault);
+          .slice(0, 4)
+          .map((e) => e.ProfileImageURL ?? ProfileDefault);
     }
   }
 
@@ -44,7 +44,7 @@ export function extractRoomName(
     });
 
     if (!result) {
-      result = userInfoList?.map((userInfo) => userInfo.Nickname)?.join(', ');
+      result = userInfoList.map((userInfo) => userInfo.Nickname).join(', ');
     }
   }
 
