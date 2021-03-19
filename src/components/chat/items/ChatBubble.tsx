@@ -119,8 +119,8 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
   hasPadding,
 }) => {
   const dispatch = useDispatch();
-
   const { select } = useSelector((state: ReducerType) => state.chat);
+  const chatList = KakaoManager.chatList.get(select);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
@@ -134,7 +134,7 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
       case 'copy':
         break;
       case 'delete': {
-        const chat = KakaoManager.chatList.get(select)?.find(({ LogId }) => LogId.equals(chatId));
+        const chat = chatList?.find(({ LogId }) => LogId.equals(chatId));
 
         chat?.delete().then();
       }
@@ -178,6 +178,7 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
           <FakeTail/>
       }
       <Content
+        ref={contentRef}
         isMine={isMine}
         hasAuthor={hasAuthor}
         hasPadding={hasPadding}>

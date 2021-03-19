@@ -8,7 +8,7 @@ import {
 
 export function extractRoomImage(
     channel: ChatChannel,
-    userInfoList: UserInfo[],
+    userInfoList?: UserInfo[],
 ): string[] {
   let imageUrl = [channel.RoomImageURL];
 
@@ -23,7 +23,7 @@ export function extractRoomImage(
     if (!imageUrl[0]) {
       imageUrl = userInfoList
           .slice(0, 4)
-          .map((e) => e.ProfileImageURL || ProfileDefault);
+          .map((e) => e.ProfileImageURL ?? ProfileDefault);
     }
   }
 
@@ -32,7 +32,7 @@ export function extractRoomImage(
 
 export function extractRoomName(
     channel: ChatChannel,
-    userInfoList: UserInfo[],
+    userInfoList?: UserInfo[],
 ): string {
   let result = channel.Name;
 

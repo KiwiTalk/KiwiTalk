@@ -1,9 +1,9 @@
-import get from 'open-graph-scraper';
+import get, { OpenGraphImage } from 'open-graph-scraper';
 
 export async function getMetadata(url: string) {
   const value = await get({ url });
 
-  if (value.error) {
+  if (value?.error) {
     return {
       title: '',
       url: '',
@@ -15,7 +15,7 @@ export async function getMetadata(url: string) {
   return {
     title: value?.result?.ogTitle ?? '',
     url: value?.result?.ogUrl ?? '',
-    image: value?.result.ogImage ?? '',
+    image: (value?.result?.ogImage as OpenGraphImage)?.url ?? '',
     description: value?.result?.ogDescription ?? '',
   };
 }
