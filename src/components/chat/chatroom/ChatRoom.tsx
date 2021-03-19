@@ -15,8 +15,7 @@ const ChatRoom: React.FC = () => {
 
   useEffect(() => {
     const channel = KakaoManager.getChannel(select);
-    const userInfoList = channel?.getUserInfoList();
-    const name = extractRoomName(channel, userInfoList);
+    const name = extractRoomName(channel, channel.getUserInfoList());
 
     setTitle(name);
   }, [select]);
