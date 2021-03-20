@@ -25,12 +25,14 @@ export interface ChatItemProps extends HTMLAttributes<HTMLDivElement> {
   isMine: boolean;
   profileVisible?: boolean;
   profileImageSrc?: string;
+  ignoreSize?: boolean;
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({
   isMine,
   profileVisible,
   profileImageSrc,
+  ignoreSize,
   children,
   ...args
 }) => {
@@ -39,9 +41,26 @@ const ChatItem: React.FC<ChatItemProps> = ({
   return (
     <Wrapper {...args}>
       {
-        (profileVisible ?? true) && !isMine ? <StyledProfileImage src={src}/> : null
+        (profileVisible ?? true) && !isMine ?
+          <StyledProfileImage
+            src={src}
+            style={
+              ignoreSize ? {
+                position: 'absolute',
+              } : {}
+            }
+          /> :
+        null
       }
-      <Contents>
+      <Contents
+        style={
+          !profileVisible || ignoreSize ?
+            {
+              marginLeft: 48 + 8,
+            } :
+            {}
+        }
+      >
         {children}
       </Contents>
     </Wrapper>
