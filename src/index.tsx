@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LocoKickoutType, TalkClient } from 'node-kakao';
+import { AuthApiClient, OAuthApiClient, ServiceApiClient, TalkClient } from 'node-kakao';
 
 import os from 'os';
 import React from 'react';
@@ -12,35 +12,21 @@ import './index.css';
 
 import * as serviceWorker from './service-worker';
 import UtilModules from './utils';
+import { KnownKickoutType } from 'node-kakao/dist/packet/chat';
 
 // Fix axios#552
 // always use Node.js adapter;
 axios.defaults.adapter = require('axios/lib/adapters/http');
 
 (async () => {
-  const uuid = await UtilModules.uuid.getUUID();
-
-  const client = new TalkClient(os.hostname(), uuid, Configs.CLIENT);
-
-  client.on('disconnected', (reason) => {
-    if (
-      reason !== LocoKickoutType.UNKNOWN &&
-      reason !== LocoKickoutType.CHANGE_SERVER
-    ) {
-      alert('disconnected. ' + reason);
-    }
-  });
-
   ReactDOM.render(
       <React.StrictMode>
         <BrowserRouter>
-          <App {...{ client }} />
+          <App />
         </BrowserRouter>
       </React.StrictMode>,
       document.getElementById('root'),
   );
-
-  console.log(client);
 
   serviceWorker.unregister();
 })();

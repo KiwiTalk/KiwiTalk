@@ -1,6 +1,6 @@
 import { Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { MoreSettingsStruct } from 'node-kakao';
+import { } from 'node-kakao';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -32,10 +32,6 @@ const Wrapper = styled.div`
   })()}px;
 `;
 
-const makeTemplate = constants.ChatModule.makeTemplate;
-
-const records: boolean[] = [];
-
 interface AlertData {
   isShow: boolean;
   message: string;
@@ -58,15 +54,17 @@ const ChatPage = (): JSX.Element => {
     setFull(window.innerWidth > 650);
   };
 
-  const { client } = useContext(AppContext);
+  const { client, authClient } = useContext(AppContext);
 
   useEffect(() => {
     window.addEventListener('resize', onSize);
 
     (async () => {
+      if (!client || !authClient) return;
+
       await KakaoManager.init(client);
       try {
-        const settings = await client.Auth.requestMoreSettings();
+        const settings = await authClient.requestMoreSettings();
         setAccountSettings(settings);
       } catch (error) {
         setSnack({

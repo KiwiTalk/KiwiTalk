@@ -1,14 +1,11 @@
 import {
-  Chat,
-  ChatChannel,
-  ChatType, ReplyAttachment, SizedMediaItemTemplate,
-  TalkClient, AttachmentTemplate,
+  ChatBuilder, Chatlog, KnownChatType, MediaUploadTemplate, ReplyContent, TalkChannel, TalkClient,
 } from 'node-kakao';
 
 export interface ChatContext {
   client: TalkClient;
-  channel: ChatChannel;
-  chatList: Chat[];
+  channel: TalkChannel;
+  chatList: Chatlog[];
 }
 
 export interface ChatValue {
@@ -36,17 +33,17 @@ export async function sendChat(
     }: ChatValue,
 ): Promise<ChatResult> {
   if (files.length > 0) {
-    const images: SizedMediaItemTemplate[] = [];
+    const images: MediaUploadTemplate[] = [];
 
     for (const file of files) {
       const type = convertType(file.type);
       const data = Buffer.from(new Uint8Array(await file.arrayBuffer()));
 
       switch (type) {
-        case ChatType.Photo: case ChatType.Video: {
+        case KnownChatType.PHOTO: case KnownChatType.VIDEO: {
           const { width, height } = await getFileSize(file);
 
-          if (type === ChatType.Photo) {
+          if (type === KnownChatType.PHOTO) {
             images.push({
               name: file.name,
               data,
@@ -55,46 +52,52 @@ export async function sendChat(
             });
           }
 
-          await channel.sendMedia({
-            name: file.name,
-            data,
-            type,
-            width,
-            height,
-          });
+          await channel.sendMedia(
+              type,
+              {
+                name: file.name,
+                data,
+                width,
+                height,
+              },
+          );
         }
           break;
         default:
-          await channel.sendMedia({
-            name: file.name,
-            data,
-            type,
-          });
+          await channel.sendMedia(
+              type,
+              {
+                name: file.name,
+                data,
+              },
+          );
           break;
       }
     }
 
     if (images.length === 1) {
-      await channel.sendMedia({
-        type: ChatType.Photo,
-        ...images[0],
-      });
+      await channel.sendMedia(
+          KnownChatType.PHOTO,
+          {
+            ...images[0],
+          },
+      );
     } else {
-      await channel.sendMedia({
-        type: ChatType.MultiPhoto,
-        mediaList: images,
-      });
+      await channel.sendMultiMedia(
+          KnownChatType.MULTIPHOTO,
+          images,
+      );
     }
   }
 
   if (reply) {
-    const replyChat = chatList.find(({ LogId }) => LogId.equals(reply));
+    const replyChat = chatList.find(({ logId }) => logId.equals(reply));
 
     if (replyChat) {
-      const replyContent = ReplyAttachment.fromChat(replyChat);
-      const template = new AttachmentTemplate(replyContent, text);
+      const builder = new ChatBuilder().append(new ReplyContent(replyChat));
+      const newChat = builder.build(KnownChatType.REPLY);
 
-      const result = await channel.sendTemplate(template);
+      const result = await channel.sendChat(newChat);
 
       return {
         type: ChatResultType.SUCCESS,
@@ -107,7 +110,7 @@ export async function sendChat(
     }
   }
 
-  const result = await channel.sendText(text);
+  const result = await channel.sendChat(text);
 
   if (result) {
     return {
@@ -134,15 +137,21 @@ async function getFileSize(file: File): Promise<{ width: number, height: number 
   });
 }
 
-type ConvertResultType = ChatType.Photo | ChatType.Video | ChatType.Text | ChatType.Audio | ChatType.File;
+type ConvertResultType = (
+  KnownChatType.PHOTO |
+  KnownChatType.VIDEO |
+  KnownChatType.TEXT |
+  KnownChatType.AUDIO |
+  KnownChatType.FILE
+);
 function convertType(mimeType: string): ConvertResultType {
   const [type] = mimeType.split('/');
 
   switch (type) {
-    case 'image': return ChatType.Photo;
-    case 'video': return ChatType.Video;
-    case 'text': return ChatType.Text;
-    case 'audio': return ChatType.Audio;
-    default: return ChatType.File;
+    case 'image': return KnownChatType.PHOTO;
+    case 'video': return KnownChatType.VIDEO;
+    case 'text': return KnownChatType.TEXT;
+    case 'audio': return KnownChatType.AUDIO;
+    default: return KnownChatType.FILE;
   }
 }

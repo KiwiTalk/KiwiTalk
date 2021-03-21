@@ -1,6 +1,6 @@
-import { LocoKickoutType, TalkClient } from 'node-kakao';
+import { AuthApiClient, TalkClient } from 'node-kakao';
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
@@ -9,49 +9,93 @@ import ChatPage from './pages/ChatPage';
 import Register from './pages/DeviceRegisterPage';
 import Login from './pages/LoginPage';
 import configureStore from './store';
-
-export interface AppProp {
-  client: TalkClient
-}
-
-export interface AppState {
-  logon: boolean
-}
+import { KnownKickoutType } from 'node-kakao/dist/packet/chat';
+import UtilModules from './utils';
+import Configs from './constants/Configs';
+import { ReducerType } from './reducers';
+import { initAuthClient, initTalkClient } from './reducers/client';
+import * as os from 'os';
 
 export interface AppTalkContext {
-  client: TalkClient
+  client?: TalkClient;
+  authClient?: AuthApiClient;
 }
 
 const store = configureStore();
 
-export const AppContext = React.createContext({} as AppTalkContext);
+export const AppContext = React.createContext<AppTalkContext>({});
 
-export const App: React.FC<AppProp> = ({ client }) => {
+export const App = (): JSX.Element => {
+  const {
+    talkClient,
+    authClient,
+    serviceClient,
+  } = useSelector<ReducerType>((state) => state.client);
+  const dispatch = useDispatch();
   const history = useHistory();
 
+  // talkClient register
   useEffect(() => {
-    const loginHandler = () => {
-      console.log(history);
-      history.push('/chat');
-    };
+    if (!talkClient) {
+      const client = new TalkClient(Configs.CLIENT);
 
-    const disconnectedHandler = (reason: LocoKickoutType) => {
-      if (
-        reason === LocoKickoutType.CHANGE_SERVER ||
-        reason === LocoKickoutType.UNKNOWN
-      ) return;
+      dispatch(initTalkClient(client));
+    }
+  }, [talkClient]);
+
+  // authClient register
+  useEffect(() => {
+    if (!authClient) {
+      (async () => {
+        const uuid = await UtilModules.uuid.getUUID();
+
+        const client = await AuthApiClient.create(
+            os.hostname(),
+            uuid,
+            Configs.CLIENT,
+        );
+
+        dispatch(initAuthClient(client));
+      })();
+    }
+  }, [authClient]);
+
+  // serviceClient register
+  useEffect(() => {
+    if (!authClient) {
+      (async () => {
+        const uuid = await UtilModules.uuid.getUUID();
+
+        const client = await AuthApiClient.create(
+            os.hostname(),
+            uuid,
+            Configs.CLIENT,
+        );
+
+        dispatch(initAuthClient(client));
+      })();
+    }
+  }, [authClient]);
+
+  client.on('disconnected', (reason) => {
+    if (reason !== KnownKickoutType.CHANGE_SERVER) {
+      alert('disconnected. ' + reason);
+    }
+  });
+
+  useEffect(() => {
+    const disconnectedHandler = (reason: KnownKickoutType) => {
+      if (reason === KnownKickoutType.CHANGE_SERVER) return;
 
       history.push('/login', { reason });
     };
 
-    client.on('login', loginHandler);
     client.on('disconnected', disconnectedHandler);
 
     return () => {
-      client.off('login', loginHandler);
       client.off('disconnected', disconnectedHandler);
     };
-  });
+  }, []);
 
   let menuBar: JSX.Element | null = null;
 
@@ -65,7 +109,12 @@ export const App: React.FC<AppProp> = ({ client }) => {
     <Provider store={store}>
       <div className="App">
         {menuBar}
-        <AppContext.Provider value={{ client }}>
+        <AppContext.Provider
+          value={{
+            client,
+            authClient,
+          }}
+        >
           <Switch>
             <Route path={'/login'} component={Login} exact/>
             <Route path={'/register'} component={Register} exact/>

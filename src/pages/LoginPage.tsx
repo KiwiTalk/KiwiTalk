@@ -35,7 +35,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
   const [error, setError] = useState('');
   const [forceLogin, setForceLogin] = useState(false);
 
-  const { client } = useContext(AppContext);
+  const { client, authClient } = useContext(AppContext);
 
   const onSubmit = async ({
     email,
@@ -46,8 +46,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
   force = false,
   token = false,
   ) => {
+    if (!authClient) return;
+
     const result = await login(
-        { client },
+        { client: authClient },
         {
           email,
           password,
