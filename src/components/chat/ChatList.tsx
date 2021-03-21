@@ -130,7 +130,7 @@ const ChatList = (): JSX.Element => {
       data={chatList}
       itemContent={render}
       rangeChanged={onRangeChange}
-      initialTopMostItemIndex={chatList?.length ?? 0}
+      initialTopMostItemIndex={chatList.length ?? 0}
       components={{
         List: React.forwardRef((props, ref) => (
           <Wrapper {...props} ref={ref} />
