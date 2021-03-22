@@ -39,7 +39,7 @@
     "bson": "^4.2.3",
     "image-size": "^0.9.7",
     "localforage": "^1.7.3",
-    "node-kakao": "^4.1.0",
+    "node-kakao": "^4.1.1",
     "open-graph-scraper": "^4.8.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.1",
