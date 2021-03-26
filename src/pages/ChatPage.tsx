@@ -1,6 +1,6 @@
 import { Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { } from 'node-kakao';
+import { MoreSettingsStruct } from 'node-kakao/dist/api/struct';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -9,7 +9,6 @@ import ChatRoom from '../components/chat/chatroom/ChatRoom';
 import EmptyChatRoom from '../components/chat/chatroom/EmptyChatRoom';
 import SideBar from '../components/common/sidebar/SideBar';
 import SidePanel from '../components/common/sidebar/SidePanel';
-import constants from '../constants';
 import Strings from '../constants/Strings';
 import KakaoManager from '../KakaoManager';
 import { ReducerType } from '../reducers';
@@ -54,18 +53,22 @@ const ChatPage = (): JSX.Element => {
     setFull(window.innerWidth > 650);
   };
 
-  const { client, authClient } = useContext(AppContext);
+  const { talkClient, serviceClient } = useContext(AppContext);
 
   useEffect(() => {
     window.addEventListener('resize', onSize);
 
     (async () => {
-      if (!client || !authClient) return;
+      if (!talkClient || !serviceClient) return;
 
-      await KakaoManager.init(client);
+      await KakaoManager.init(talkClient);
       try {
-        const settings = await authClient.requestMoreSettings();
-        setAccountSettings(settings);
+        const settings = await serviceClient.requestMoreSettings();
+        if (settings.success) {
+          setAccountSettings(settings.result);
+        } else {
+          throw settings;
+        }
       } catch (error) {
         setSnack({
           isShow: true,

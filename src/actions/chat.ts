@@ -1,5 +1,13 @@
 import {
-  ChatBuilder, Chatlog, KnownChatType, MediaUploadTemplate, ReplyContent, TalkChannel, TalkClient,
+  Chat,
+  ChatBuilder,
+  Chatlog,
+  KnownChatType,
+  Long,
+  MediaUploadTemplate,
+  ReplyContent,
+  TalkChannel,
+  TalkClient,
 } from 'node-kakao';
 
 export interface ChatContext {
@@ -21,7 +29,7 @@ export enum ChatResultType {
 
 export interface ChatResult {
   type: ChatResultType;
-  value?: any;
+  value?: { chatlog: Chatlog, channelId: Long };
 }
 
 export async function sendChat(
@@ -90,19 +98,14 @@ export async function sendChat(
     }
   }
 
+  let chat: Chat | undefined;
+
   if (reply) {
     const replyChat = chatList.find(({ logId }) => logId.equals(reply));
 
     if (replyChat) {
       const builder = new ChatBuilder().append(new ReplyContent(replyChat));
-      const newChat = builder.build(KnownChatType.REPLY);
-
-      const result = await channel.sendChat(newChat);
-
-      return {
-        type: ChatResultType.SUCCESS,
-        value: result,
-      };
+      chat = builder.build(KnownChatType.REPLY);
     } else {
       return {
         type: ChatResultType.FAILED,
@@ -110,18 +113,21 @@ export async function sendChat(
     }
   }
 
-  const result = await channel.sendChat(text);
+  const sendChatResult = await channel.sendChat(chat ?? text);
 
-  if (result) {
+  if (sendChatResult.success) {
     return {
       type: ChatResultType.SUCCESS,
-      value: result,
+      value: {
+        chatlog: sendChatResult.result,
+        channelId: channel.channelId,
+      },
+    };
+  } else {
+    return {
+      type: ChatResultType.FAILED,
     };
   }
-
-  return {
-    type: ChatResultType.FAILED,
-  };
 }
 
 async function getFileSize(file: File): Promise<{ width: number, height: number }> {

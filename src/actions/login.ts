@@ -1,4 +1,7 @@
-import { AuthApiClient, KnownAuthStatusCode, } from 'node-kakao';
+import {
+  AuthApiClient, CommandResultFailed, KnownAuthStatusCode, TalkClient,
+} from 'node-kakao';
+import { LoginData } from 'node-kakao/dist/api';
 import UtilModules from '../utils';
 
 export interface LoginForm {
@@ -9,7 +12,8 @@ export interface LoginForm {
 }
 
 export interface LoginContext {
-  client: AuthApiClient;
+  talkClient: TalkClient;
+  authClient: AuthApiClient;
 }
 
 export enum LoginResultType {
@@ -21,11 +25,15 @@ export enum LoginResultType {
 
 export interface LoginResult {
   type: LoginResultType;
-  value?: any;
+  succeed?: LoginData;
+  failed?: CommandResultFailed;
 }
 
 export async function login(
-    { client }: LoginContext,
+    {
+      talkClient,
+      authClient,
+    }: LoginContext,
     {
       email,
       password,
@@ -39,9 +47,19 @@ export async function login(
 
   let status = 0;
   try {
-    if (!token) await client.login({ email, password, forced });
-    else await client.loginToken({ email, password, forced, autowithlock: false });
+    const loginResult = await (async () => {
+      if (!token) {
+        return await authClient.login({ email, password, forced });
+      } else {
+        return await authClient.loginToken({ email, password, forced, autowithlock: false });
+      }
+    })();
 
+    if (!loginResult.success) {
+      throw loginResult;
+    }
+
+    await talkClient.login(loginResult.result);
     await UtilModules.login.setEmail(saveEmail ? email : '');
     /*
     await UtilModules.login.setAutoLoginEmail(
@@ -54,6 +72,7 @@ export async function login(
 
     return {
       type: LoginResultType.SUCCESS,
+      succeed: loginResult.result,
     };
   } catch (error) {
     status = error.status ?? KnownAuthStatusCode.LOGIN_FAILED;
@@ -71,7 +90,7 @@ export async function login(
       default:
         return {
           type: LoginResultType.FAILED,
-          value: error,
+          failed: error,
         };
     }
   }

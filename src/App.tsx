@@ -1,4 +1,4 @@
-import { AuthApiClient, TalkClient } from 'node-kakao';
+import { AuthApiClient, ServiceApiClient, TalkClient } from 'node-kakao';
 import React, { useEffect } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
@@ -17,8 +17,9 @@ import { initAuthClient, initTalkClient } from './reducers/client';
 import * as os from 'os';
 
 export interface AppTalkContext {
-  client?: TalkClient;
+  talkClient?: TalkClient;
   authClient?: AuthApiClient;
+  serviceClient?: ServiceApiClient;
 }
 
 const store = configureStore();
@@ -29,8 +30,7 @@ export const App = (): JSX.Element => {
   const {
     talkClient,
     authClient,
-    serviceClient,
-  } = useSelector<ReducerType>((state) => state.client);
+  } = useSelector((state: ReducerType) => state.client);
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -60,24 +60,7 @@ export const App = (): JSX.Element => {
     }
   }, [authClient]);
 
-  // serviceClient register
-  useEffect(() => {
-    if (!authClient) {
-      (async () => {
-        const uuid = await UtilModules.uuid.getUUID();
-
-        const client = await AuthApiClient.create(
-            os.hostname(),
-            uuid,
-            Configs.CLIENT,
-        );
-
-        dispatch(initAuthClient(client));
-      })();
-    }
-  }, [authClient]);
-
-  client.on('disconnected', (reason) => {
+  talkClient?.on('disconnected', (reason: string | KnownKickoutType) => {
     if (reason !== KnownKickoutType.CHANGE_SERVER) {
       alert('disconnected. ' + reason);
     }
@@ -90,10 +73,10 @@ export const App = (): JSX.Element => {
       history.push('/login', { reason });
     };
 
-    client.on('disconnected', disconnectedHandler);
+    talkClient?.on('disconnected', disconnectedHandler);
 
     return () => {
-      client.off('disconnected', disconnectedHandler);
+      talkClient?.off('disconnected', disconnectedHandler);
     };
   }, []);
 
@@ -111,7 +94,7 @@ export const App = (): JSX.Element => {
         {menuBar}
         <AppContext.Provider
           value={{
-            client,
+            talkClient,
             authClient,
           }}
         >
