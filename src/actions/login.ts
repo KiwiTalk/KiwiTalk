@@ -49,9 +49,9 @@ export async function login(
   try {
     const loginResult = await (async () => {
       if (!token) {
-        return await authClient.login({ email, password, forced });
+        return authClient.login({ email, password, forced });
       } else {
-        return await authClient.loginToken({ email, password, forced, autowithlock: false });
+        return authClient.loginToken({ email, password, forced, autowithlock: false });
       }
     })();
 
