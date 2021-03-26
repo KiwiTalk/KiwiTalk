@@ -2,12 +2,12 @@ import ProfileDefault from '../../../assets/images/profile_default.svg';
 import {
   ChannelMetaStruct,
   ChannelMetaType,
-  ChatChannel,
+  TalkChannel,
   UserInfo,
 } from 'node-kakao';
 
 export function extractRoomImage(
-    channel: ChatChannel,
+    channel: TalkChannel,
     userInfoList?: UserInfo[],
 ): string[] {
   let imageUrl = [channel.RoomImageURL];
@@ -31,7 +31,7 @@ export function extractRoomImage(
 }
 
 export function extractRoomName(
-    channel: ChatChannel,
+    channel: TalkChannel,
     userInfoList?: UserInfo[],
 ): string {
   let result = channel.Name;

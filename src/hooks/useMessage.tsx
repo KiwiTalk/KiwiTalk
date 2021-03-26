@@ -7,7 +7,7 @@ export function useMessage(channelId: string): Chat | null {
 
   KakaoManager.chatEvents.set(channelId, (type, chat, channel) => {
     if (type === ChatEventType.ADD) {
-      if (channel.Id.equals(channelId)) {
+      if (channel.channelId.equals(channelId)) {
         setState(chat);
       }
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Chat, ChatChannel, FeedMemberStruct, FeedType } from 'node-kakao';
+import { Chat, TalkChannel, FeedType, KnownFeedType } from 'node-kakao';
 import DeletedAt from '../types/DeletedAt';
 
 import Invite from '../types/Invite';
@@ -30,7 +30,7 @@ export function toDeletedAt(
     feed: any,
     chat: Chat,
     chatList: Chat[],
-    channel: ChatChannel,
+    channel: TalkChannel,
 ): JSX.Element {
   const findChat = chatList.find((c) => c.LogId.toString() === feed.logId.toString());
 
@@ -44,7 +44,7 @@ export function toDeletedAt(
 export function convertFeed(
     chat: Chat,
     chatList: Chat[],
-    channel: ChatChannel,
+    channel: TalkChannel,
     options = {
       feed: null,
     },
@@ -52,14 +52,14 @@ export function convertFeed(
   const feed = options.feed == null ? chat.getFeed() : options.feed;
 
   switch (feed?.feedType) {
-    case FeedType.DELETE_TO_ALL:
+    case KnownFeedType.DELETE_TO_ALL:
       return toDeletedAt(feed, chat, chatList, channel);
-    case FeedType.INVITE: case FeedType.OPENLINK_JOIN:
+    case KnownFeedType.INVITE: case KnownFeedType.OPENLINK_JOIN:
       return toInvite(feed, chat);
-    case FeedType.LEAVE: case FeedType.LOCAL_LEAVE: case FeedType.SECRET_LEAVE:
+    case KnownFeedType.LEAVE: case KnownFeedType.LOCAL_LEAVE: case KnownFeedType.SECRET_LEAVE:
       return toLeave(feed, chat);
     default:
-      return <span>{chat.Text}</span>;
+      return <span>{chat.text}</span>;
   }
 }
 

@@ -8,7 +8,7 @@ interface EmoticonProps {
 const Emoticon: React.FC<EmoticonProps> = ({ chat }) => {
   return <>
     {
-      chat.AttachmentList.map((attachment, i) => {
+      chat.attachment. .AttachmentList.map((attachment, i) => {
         if (attachment instanceof EmoticonAttachment) {
           const playSound = async () => {
             if (attachment.Sound) {

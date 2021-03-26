@@ -1,4 +1,4 @@
-import { Chat, ChatChannel } from 'node-kakao';
+import { Chat, TalkChannel } from 'node-kakao';
 import React from 'react';
 import styled from 'styled-components';
 import convertChat from '../utils/ChatConverter';
@@ -43,7 +43,7 @@ interface DeletedAtProps {
   sender?: string;
   chat?: Chat;
   chatList: Chat[];
-  channel: ChatChannel;
+  channel: TalkChannel;
 }
 
 export const DeletedAt: React.FC<DeletedAtProps> = ({ sender, chat, chatList, channel }) => {

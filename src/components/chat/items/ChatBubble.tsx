@@ -131,11 +131,7 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
         break;
       case 'copy':
         break;
-      case 'delete': {
-        const chat = chatList?.find(({ LogId }) => LogId.equals(chatId));
-
-        chat?.delete().then();
-      }
+      case 'delete':
         break;
     }
 

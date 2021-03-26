@@ -1,4 +1,4 @@
-import { Chat, ChatChannel, ChatType, FeedType, Long } from 'node-kakao';
+import { Chat, TalkChannel, ChatType, FeedType, Long } from 'node-kakao';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -44,7 +44,7 @@ const ChatTypeWithPadding = [
   ChatType.Reply,
 ];
 
-const getContent = (chat: Chat, chatList: Chat[], channel: ChatChannel) => {
+const getContent = (chat: Chat, chatList: Chat[], channel: TalkChannel) => {
   if (chat.Type === ChatType.Feed) {
     try {
       const text = JSON.parse(chat.Text);
