@@ -11,7 +11,7 @@ import {
 } from 'node-kakao';
 
 export interface ChatContext {
-  client: TalkClient;
+  talkClient: TalkClient;
   channel: TalkChannel;
   chatList: Chatlog[];
 }
@@ -33,7 +33,7 @@ export interface ChatResult {
 }
 
 export async function sendChat(
-    { client, channel, chatList }: ChatContext,
+    { talkClient, channel, chatList }: ChatContext,
     {
       text,
       files,

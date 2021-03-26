@@ -98,7 +98,7 @@ const ChatInput: React.FC = () => {
 
   const channel = KakaoManager.getChannel(select);
   const replyChat = KakaoManager.chatList.get(select)
-      ?.find(({ LogId }) => LogId.equals(input.reply ?? 0));
+      ?.find(({ logId }) => logId.equals(input.reply ?? 0));
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputText(event.target.value);
@@ -115,6 +115,8 @@ const ChatInput: React.FC = () => {
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
+    if (!talkClient) return;
+
     const result = await sendChat(
         {
           talkClient,
@@ -128,7 +130,7 @@ const ChatInput: React.FC = () => {
         },
     );
 
-    if (result.type === ChatResultType.SUCCESS && result?.value) {
+    if (result.type === ChatResultType.SUCCESS && result.value) {
       const chat = result.value;
 
       const channelId = chat.channelId.toString();
@@ -159,11 +161,11 @@ const ChatInput: React.FC = () => {
           style={{ width: 24, height: 24, margin: 8 }}
           src={
             replyChat != null ?
-              channel.getUserInfo(replyChat.Sender)?.ProfileImageURL :
+              channel.getUserInfo(replyChat.sender)?.fullProfileURL :
               ProfileDefault
           } />
         <ReplyContent>
-          <Author>{replyChat && channel.getUserInfo(replyChat.Sender)?.Nickname}</Author>
+          <Author>{replyChat && channel.getUserInfo(replyChat.sender)?.nickname}</Author>
           {replyChat && convertShortChat(replyChat, { size: 24 })}
         </ReplyContent>
         <IconButton onClick={removeReply}>

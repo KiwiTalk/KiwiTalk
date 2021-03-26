@@ -19,7 +19,7 @@ type ChatEvent = (type: ChatEventType, chat: Chat, channel: TalkChannel) => void
 
 export default class KakaoManager {
   static channelList: TalkChannel[] = [];
-  static chatList = new Map<string, Chat[]>();
+  static chatList = new Map<string, Chatlog[]>();
 
   static channelEvents = new Map<string, ChannelEvent>();
   static chatEvents = new Map<string, ChatEvent>();
@@ -77,7 +77,9 @@ export default class KakaoManager {
       const channelId = channel.channelId.toString();
       const chatList = this.chatList.get(channelId);
 
-      chatList?.push(chat);
+      if (channel.info.lastChatLog && chat.logId === channel.info.lastChatLogId) {
+        chatList?.push(channel.info.lastChatLog);
+      }
 
       this.chatEvents.forEach(
           (value) => value(ChatEventType.ADD, chat, this.getChannel(channelId)),
@@ -109,7 +111,7 @@ export default class KakaoManager {
   static async initChat(channel: TalkChannel): Promise<void> {
     if (!channel.info.lastChatLog) return;
     let startId = channel.info.lastChatLogId;
-    const update: Chat[] = [];
+    const update: Chatlog[] = [];
     let chatLog: Chatlog[];
 
     const getChatLog = async (startId: Long): Promise<Chatlog[]> => {
