@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chat, EmoticonAttachment, KnownChatType, KnownPostItemType } from 'node-kakao';
+import { Chat, EmoticonAttachment, KnownPostItemType } from 'node-kakao';
 
 interface EmoticonProps {
   chat: Chat;
