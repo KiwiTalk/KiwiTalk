@@ -52,7 +52,7 @@ export const DeviceRegistration: React.FC = () => {
 
   const [registerType, setRegisterType] = useState<RegisterType | null>(null);
   const [error, setError] = useState('');
-  const { client } = useContext(AppContext);
+  const { authClient } = useContext(AppContext);
 
   const defaultForm = <SelectionWrapper>
     <Button onClick={() => setRegisterType(RegisterType.PERMANENT)}>내 PC 인증 받기</Button>
@@ -60,22 +60,32 @@ export const DeviceRegistration: React.FC = () => {
   </SelectionWrapper>;
 
   useEffect(() => {
-    if (registerType !== null) client.Auth.requestPasscode(auth.email, auth.password, true);
+    if (registerType !== null) {
+      authClient?.requestPasscode({
+        email: auth.email,
+        password: auth.password,
+        forced: true,
+      });
+    }
   }, [registerType]);
 
   let form = defaultForm;
   if (registerType !== null) {
     const registerDevice = async (permanent: boolean, passcode: string) => {
       try {
-        const struct = await client.Auth.registerDevice(
+        const struct = await authClient?.registerDevice(
+            {
+              email: auth.email,
+              password: auth.password,
+              forced: true,
+            },
             passcode,
-            auth.email,
-            auth.password,
             permanent,
-            true,
         );
 
-        if (struct.status !== 0) throw new Error(struct.status);
+        if (struct?.status !== 0 || struct?.success === false) {
+          throw new Error(String(struct?.status));
+        }
 
         history.push('/login');
       } catch (err) {

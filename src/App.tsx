@@ -9,12 +9,15 @@ import ChatPage from './pages/ChatPage';
 import Register from './pages/DeviceRegisterPage';
 import Login from './pages/LoginPage';
 import configureStore from './store';
-import { KnownKickoutType } from 'node-kakao/dist/packet/chat';
+import { packet } from 'node-kakao';
 import UtilModules from './utils';
 import Configs from './constants/Configs';
 import { ReducerType } from './reducers';
 import { initAuthClient, initTalkClient } from './reducers/client';
 import * as os from 'os';
+
+type KickoutType = packet.chat.KickoutType;
+const KnownKickoutType = packet.chat.KnownKickoutType;
 
 export interface AppTalkContext {
   talkClient?: TalkClient;
@@ -60,14 +63,14 @@ export const App = (): JSX.Element => {
     }
   }, [authClient]);
 
-  talkClient?.on('disconnected', (reason: string | KnownKickoutType) => {
+  talkClient?.on('disconnected', (reason: string | KickoutType) => {
     if (reason !== KnownKickoutType.CHANGE_SERVER) {
       alert('disconnected. ' + reason);
     }
   });
 
   useEffect(() => {
-    const disconnectedHandler = (reason: KnownKickoutType) => {
+    const disconnectedHandler = (reason: KickoutType) => {
       if (reason === KnownKickoutType.CHANGE_SERVER) return;
 
       history.push('/login', { reason });

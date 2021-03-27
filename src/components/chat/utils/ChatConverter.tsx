@@ -111,7 +111,7 @@ export function toSearch(chat: Chatlog): JSX.Element {
   }}</div>;
 }*/
 
-export function toReply(chat: Chatlog, chatList: Chatlog[]): JSX.Element {
+export function toReply(chat: Chatlog, chatList: Chatlog[], channel: TalkChannel): JSX.Element {
   let prevChat = null;
   if (chat.attachment) {
     const attachment = chat.attachment as ReplyAttachment;
@@ -127,7 +127,7 @@ export function toReply(chat: Chatlog, chatList: Chatlog[]): JSX.Element {
 
   if (prevChat !== null) {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return <Reply prevChat={prevChat} me={chat} onClick={() => {
+    return <Reply prevChat={prevChat} me={chat} channel={channel} onClick={() => {
     }}/>;
   } else {
     return <span>{chat.text}</span>;
@@ -180,7 +180,7 @@ export function convertChat(
     case KnownChatType.VIDEO:
       return toVideo(chat);
     case KnownChatType.REPLY:
-      return toReply(chat, chatList);
+      return toReply(chat, chatList, channel);
     case KnownChatType.STICKER:
     case KnownChatType.STICKERANI:
     case KnownChatType.STICKERGIF:

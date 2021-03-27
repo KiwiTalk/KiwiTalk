@@ -1,4 +1,4 @@
-import { Chat, TalkChannel } from 'node-kakao';
+import { Chatlog, TalkChannel } from 'node-kakao';
 import React from 'react';
 import styled from 'styled-components';
 import convertChat from '../utils/ChatConverter';
@@ -41,8 +41,8 @@ const InnerContent = styled.span`
 
 interface DeletedAtProps {
   sender?: string;
-  chat?: Chat;
-  chatList: Chat[];
+  chat?: Chatlog;
+  chatList: Chatlog[];
   channel: TalkChannel;
 }
 

@@ -1,30 +1,18 @@
 import ProfileDefault from '../../../assets/images/profile_default.svg';
 import {
-  ChannelMetaStruct,
-  ChannelMetaType,
   TalkChannel,
-  UserInfo,
 } from 'node-kakao';
 
 export function extractRoomImage(
     channel: TalkChannel,
-    userInfoList?: UserInfo[],
 ): string[] {
-  let imageUrl = [channel.RoomImageURL];
+  let imageUrl: string[] = []; // [channel.info .get .RoomImageURL];
+  const userList = Array.from(channel.getAllUserInfo());
 
-  if (!channel.RoomImageURL) {
-    channel.ChannelMetaList.forEach((meta: ChannelMetaStruct) => {
-      if (meta.type === ChannelMetaType.PROFILE) {
-        const content = JSON.parse(meta.content);
-        imageUrl = [content.imageUrl];
-      }
-    });
-
-    if (!imageUrl[0]) {
-      imageUrl = userInfoList
-          .slice(0, 4)
-          .map((e) => e.ProfileImageURL ?? ProfileDefault);
-    }
+  if (imageUrl.length === 0) {
+    imageUrl = userList
+        ?.slice(0, 4)
+        ?.map((e) => e.profileURL ?? ProfileDefault) ?? [];
   }
 
   return imageUrl;
@@ -32,20 +20,17 @@ export function extractRoomImage(
 
 export function extractRoomName(
     channel: TalkChannel,
-    userInfoList?: UserInfo[],
 ): string {
-  let result = channel.Name;
+  let result = channel.getName();
+  const userList = channel.getAllUserInfo();
 
   if (!result) {
-    channel.ChannelMetaList.forEach((meta: ChannelMetaStruct) => {
-      if (meta.type === ChannelMetaType.TITLE) {
-        result = meta.content as string;
-      }
-    });
-
-    if (!result) {
-      result = userInfoList.map((userInfo) => userInfo.Nickname).join(', ');
+    const list = [];
+    for (const user of userList) {
+      list.push(user.nickname);
     }
+
+    result = list.join(', ');
   }
 
   return result;

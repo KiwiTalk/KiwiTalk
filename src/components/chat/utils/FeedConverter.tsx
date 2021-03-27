@@ -56,22 +56,22 @@ export function convertFeed(
     },
 ): JSX.Element | undefined {
   const feedPair = KakaoManager.feedList.get(chat);
-  const feed = options.feed == null ? feedPair?.first : options.feed;
+  const feed = options.feed == null ? feedPair?.[0] : options.feed;
 
   switch (feed?.feedType) {
     case KnownFeedType.DELETE_TO_ALL:
       return toDeletedAt(feed, chat, chatList, channel);
     case KnownFeedType.INVITE:
     case KnownFeedType.OPENLINK_JOIN:
-      if (feedPair && feedPair.second) {
-        return toInvite(feedPair.second, feed as InviteFeed);
+      if (feedPair && feedPair[1]) {
+        return toInvite(feedPair[1], feed as InviteFeed);
       }
       break;
     case KnownFeedType.LEAVE:
     case KnownFeedType.LOCAL_LEAVE:
     case KnownFeedType.SECRET_LEAVE:
-      if (feedPair && feedPair.second) {
-        return toLeave(feedPair.second);
+      if (feedPair && feedPair[1]) {
+        return toLeave(feedPair[1]);
       }
       break;
     default:

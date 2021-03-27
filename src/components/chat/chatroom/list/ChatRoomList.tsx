@@ -38,10 +38,8 @@ const AsyncComponent: React.FC<AsyncComponentProps> = ({
   const [component, setComponent] = useState<JSX.Element>(<div/>);
 
   useEffect(() => {
-    const userInfoList = Array.from(channel.getAllUserInfo());
-
-    const name = extractRoomName(channel, userInfoList);
-    const profileImages = extractRoomImage(channel, userInfoList);
+    const name = extractRoomName(channel);
+    const profileImages = extractRoomImage(channel);
 
     setComponent(
         <ChatRoomListItem

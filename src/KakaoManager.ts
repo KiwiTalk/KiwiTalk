@@ -3,7 +3,6 @@ import {
   ChatFeeds,
   Chatlog, Long, TalkChannel, TalkClient,
 } from 'node-kakao';
-import { Pair } from 'ts-pair';
 
 /* eslint-disable no-unused-vars */
 export enum ChannelEventType {
@@ -23,7 +22,7 @@ type ChatEvent = (type: ChatEventType, chat: Chatlog, channel: TalkChannel) => v
 export default class KakaoManager {
   static channelList: TalkChannel[] = [];
   static chatList = new Map<string, Chatlog[]>();
-  static feedList = new Map<Chatlog, Pair<ChatFeeds, ChannelUserInfo | undefined>>();
+  static feedList = new Map<Chatlog, [ChatFeeds, ChannelUserInfo | undefined]>();
 
   static channelEvents = new Map<string, ChannelEvent>();
   static chatEvents = new Map<string, ChatEvent>();
@@ -52,7 +51,7 @@ export default class KakaoManager {
       const chatList = this.chatList.get(channelId);
 
       chatList?.push(feedLog);
-      this.feedList.set(feedLog, new Pair(feed, user));
+      this.feedList.set(feedLog, [feed, user]);
 
       this.chatEvents.forEach(
           (value) => value(ChatEventType.ADD, feedLog, this.getChannel(channelId)),
