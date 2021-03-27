@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chat, EmoticonAttachment } from 'node-kakao';
+import { Chat, EmoticonAttachment, KnownChatType, KnownPostItemType } from 'node-kakao';
 
 interface EmoticonProps {
   chat: Chat;
@@ -8,28 +8,34 @@ interface EmoticonProps {
 const Emoticon: React.FC<EmoticonProps> = ({ chat }) => {
   return <>
     {
-      chat.attachment. .AttachmentList.map((attachment, i) => {
-        if (attachment instanceof EmoticonAttachment) {
-          const playSound = async () => {
-            if (attachment.Sound) {
-              const url = `http://item-kr.talk.kakao.co.kr/dw/${attachment.Sound}`;
-              const sound = new Audio(url);
+      ((attachment) => {
+        if (attachment) {
+          if (chat.type === KnownPostItemType.EMOTICON) {
+            const emoticonAttachment = attachment as EmoticonAttachment;
 
-              await sound.play();
+            if (emoticonAttachment.width && emoticonAttachment.height) {
+              const playSound = async () => {
+                if (emoticonAttachment.sound) {
+                  const url = `http://item-kr.talk.kakao.co.kr/dw/${emoticonAttachment.sound}`;
+                  const sound = new Audio(url);
+
+                  await sound.play();
+                }
+              };
+
+              return <img
+                key={`emoticon-${emoticonAttachment.path}`}
+                src={emoticonAttachment.path}
+                width={emoticonAttachment.width > 0 ? emoticonAttachment.width : '150px'}
+                height={emoticonAttachment.height > 0 ? emoticonAttachment.height : '150px'}
+                onClick={playSound}
+                onLoad={playSound}/>;
             }
-          };
-
-          return <img
-            key={`emoticon-${attachment.getEmoticonURL()}`}
-            src={attachment.getEmoticonURL()}
-            width={attachment.Width > 0 ? attachment.Width : '150px'}
-            height={attachment.Height > 0 ? attachment.Height : '150px'}
-            onClick={playSound}
-            onLoad={playSound}/>;
+          }
         }
 
         return <div key={`emoticon-$i`}/>;
-      })
+      })(chat.attachment)
     }
   </>;
 };

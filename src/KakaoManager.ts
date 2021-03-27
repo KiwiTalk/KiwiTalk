@@ -1,6 +1,9 @@
 import {
-  Chat, Chatlog, Long, TalkChannel, TalkClient,
+  ChannelUserInfo,
+  ChatFeeds,
+  Chatlog, Long, TalkChannel, TalkClient,
 } from 'node-kakao';
+import { Pair } from 'ts-pair';
 
 /* eslint-disable no-unused-vars */
 export enum ChannelEventType {
@@ -15,11 +18,12 @@ export enum ChatEventType {
 /* eslint-enable no-unused-vars */
 
 type ChannelEvent = (type: ChannelEventType, channel: TalkChannel) => void;
-type ChatEvent = (type: ChatEventType, chat: Chat, channel: TalkChannel) => void;
+type ChatEvent = (type: ChatEventType, chat: Chatlog, channel: TalkChannel) => void;
 
 export default class KakaoManager {
   static channelList: TalkChannel[] = [];
   static chatList = new Map<string, Chatlog[]>();
+  static feedList = new Map<Chatlog, Pair<ChatFeeds, ChannelUserInfo | undefined>>();
 
   static channelEvents = new Map<string, ChannelEvent>();
   static chatEvents = new Map<string, ChatEvent>();
@@ -38,52 +42,65 @@ export default class KakaoManager {
       await this.initChat(channel);
     }
 
-    const handleFeedLog = (feedLog: Chatlog, channel: TalkChannel) => {
+    const handleFeedLog = (
+        feedLog: Chatlog,
+        channel: TalkChannel,
+        feed: ChatFeeds,
+        user?: ChannelUserInfo,
+    ) => {
       const channelId = channel.channelId.toString();
       const chatList = this.chatList.get(channelId);
 
       chatList?.push(feedLog);
+      this.feedList.set(feedLog, new Pair(feed, user));
 
       this.chatEvents.forEach(
           (value) => value(ChatEventType.ADD, feedLog, this.getChannel(channelId)),
       );
     };
 
-    this.client.on('channel_kicked', (kickedLog, channel) => {
-      handleFeedLog(kickedLog, channel);
+    this.client.on('channel_kicked', (kickedLog, channel, feed) => {
+      handleFeedLog(kickedLog, channel, feed);
     });
 
-    this.client.on('channel_link_deleted', (feedLog, channel) => {
-      handleFeedLog(feedLog, channel);
+    this.client.on('channel_link_deleted', (feedLog, channel, feed) => {
+      handleFeedLog(feedLog, channel, feed);
     });
 
-    this.client.on('message_hidden', (hideLog, channel) => {
-      handleFeedLog(hideLog, channel);
+    this.client.on('message_hidden', (hideLog, channel, feed) => {
+      handleFeedLog(hideLog, channel, feed);
     });
 
-    this.client.on('user_left', (leftLog, channel) => {
-      handleFeedLog(leftLog, channel);
+    this.client.on('user_left', (leftLog, channel, user, feed) => {
+      handleFeedLog(leftLog, channel, feed, user);
     });
 
-    this.client.on('user_join', (joinLog, channel) => {
-      handleFeedLog(joinLog, channel);
+    this.client.on('user_join', (joinLog, channel, user, feed) => {
+      handleFeedLog(joinLog, channel, feed, user);
     });
 
-    this.client.on('chat_deleted', (feedChatlog, channel) => {
-      handleFeedLog(feedChatlog, channel);
+    this.client.on('chat_deleted', (feedChatlog, channel, feed) => {
+      handleFeedLog(feedChatlog, channel, feed);
     });
 
     this.client.on('chat_event', (channel, author, type, count, chat) => {
       const channelId = channel.channelId.toString();
       const chatList = this.chatList.get(channelId);
 
-      if (channel.info.lastChatLog && chat.logId === channel.info.lastChatLogId) {
+      if (
+        channel.info.lastChatLog &&
+        chat.logId === channel.info.lastChatLogId
+      ) {
         chatList?.push(channel.info.lastChatLog);
-      }
 
-      this.chatEvents.forEach(
-          (value) => value(ChatEventType.ADD, chat, this.getChannel(channelId)),
-      );
+        this.chatEvents.forEach(
+            (value) => {
+              if (channel.info.lastChatLog) {
+                value(ChatEventType.ADD, channel.info.lastChatLog, this.getChannel(channelId));
+              }
+            },
+        );
+      }
     });
 
     this.client.on('channel_join', (channel) => {

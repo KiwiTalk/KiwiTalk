@@ -4,7 +4,9 @@ import {
   KnownChatType,
   PhotoAttachment,
   ReplyAttachment,
-  VideoAttachment, Chatlog,
+  VideoAttachment,
+  MultiPhotoAttachment,
+  MapAttachment,
 } from 'node-kakao';
 import React from 'react';
 import styled from 'styled-components';
@@ -18,7 +20,7 @@ import MultiPhoto from '../types/MultiPhoto';
 
 import Photo, { PhotoChatProps } from '../types/Photo';
 import Reply from '../types/Reply';
-import Search from '../types/Search';
+// import Search from '../types/Search';
 import Video from '../types/Video';
 
 import convertFeed from './FeedConverter';
@@ -46,79 +48,84 @@ export function toPhoto(
       limit: [300, 500],
     },
 ): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
-    attachment = attachment as PhotoAttachment;
-
-    return <Photo
-      key={attachment.ImageURL}
-      width={attachment.Width}
-      height={attachment.Height}
-      url={attachment.ImageURL}
-      ratio={options.ratio}
-      limit={options.limit}/>;
-  });
-
-  return <div style={{ display: 'flex' }}>{list}</div>;
+  return <div style={{ display: 'flex' }}>{() => {
+    if (chat.attachment) {
+      const attachment = chat.attachment as PhotoAttachment;
+      return <Photo
+        key={attachment.thumbnailUrl}
+        width={attachment.thumbnailWidth}
+        height={attachment.thumbnailHeight}
+        url={attachment.thumbnailUrl}
+        ratio={options.ratio}
+        limit={options.limit}/>;
+    }
+  }}</div>;
 }
 
 export function toPhotos(chat: Chatlog): JSX.Element {
-  const data = chat.AttachmentList.map((attachment: any) => {
-    attachment = attachment as PhotoAttachment;
-
-    return {
-      width: attachment.Width,
-      height: attachment.Height,
-      url: attachment.ImageURL,
-      ratio: -1,
-      limit: [200, 200],
-    } as PhotoChatProps;
-  });
-
-  return <MultiPhoto photoChatProps={data}/>;
+  return <MultiPhoto photoChatProps={(() => {
+    if (chat.attachment) {
+      const photoAttachment = chat.attachment as MultiPhotoAttachment;
+      return photoAttachment.kl.map((key, i) => {
+        return {
+          width: photoAttachment.wl[i],
+          height: photoAttachment.hl[i],
+          url: key,
+          ratio: -1,
+          limit: [200, 200],
+        } as PhotoChatProps;
+      });
+    } else {
+      return [];
+    }
+  })()}/>;
 }
 
 export function toVideo(chat: Chatlog): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
-    attachment = attachment as VideoAttachment;
+  return <div>{() => {
+    if (chat.attachment) {
+      const attachment = chat.attachment as VideoAttachment;
 
-    return <Video
-      key={attachment.VideoURL}
-      url={attachment.VideoURL}
-      width={attachment.Width}
-      height={attachment.Height}
-      duration={attachment.Duration}/>;
-  });
-
-  return <div>{list}</div>;
+      return <Video
+        key={attachment.tk}
+        url={attachment.tk}
+        width={attachment.w}
+        height={attachment.h}
+        duration={attachment.d}/>;
+    }
+  }}</div>;
 }
 
+/*
 export function toSearch(chat: Chatlog): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any, i) => {
-    const { Question, ContentType, ContentList } = attachment;
+  return <div>{() => {
+    if (chat.attachment) {
+      const { Question, ContentType, ContentList } = chat.attachment as SharpAttachment;
 
-    return <Search
-      key={`search-${chat.logId.toString()}-$i`}
-      question={Question}
-      type={ContentType}
-      list={ContentList}/>;
-  });
-
-  return <div>{list}</div>;
-}
+      return <Search
+        key={`search-${chat.logId.toString()}-$i`}
+        question={Question}
+        type={ContentType}
+        list={ContentList}/>;
+    }
+  }}</div>;
+}*/
 
 export function toReply(chat: Chatlog, chatList: Chatlog[]): JSX.Element {
   let prevChat = null;
-  const attachments = (chat as ReplyChatObject).AttachmentList as ReplyAttachment[];
-  const prevId = attachments[0].SourceLogId;
+  if (chat.attachment) {
+    const attachment = chat.attachment as ReplyAttachment;
+    const prevId = attachment.src_logId;
 
-  for (let i = chatList.indexOf(chat); i >= 0; i--) {
-    if (chatList[i].logId.equals(prevId)) {
-      prevChat = chatList[i];
-      break;
+    for (let i = chatList.indexOf(chat); i >= 0; i--) {
+      if (chatList[i].logId.equals(prevId)) {
+        prevChat = chatList[i];
+        break;
+      }
     }
   }
 
-  if (prevChat != null) {
+  if (prevChat !== null) {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     return <Reply prevChat={prevChat} me={chat} onClick={() => {
     }}/>;
@@ -128,25 +135,29 @@ export function toReply(chat: Chatlog, chatList: Chatlog[]): JSX.Element {
 }
 
 export function toMap(chat: Chatlog): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
-    const { Name, Lat, Lng, A } = attachment;
+  return <div>{() => {
+    if (chat.attachment) {
+      const { lat, lng, a } = chat.attachment as MapAttachment;
 
-    return <Location
-      key={A}
-      name={Name}
-      url={''}
-      latitude={Lat}
-      longitude={Lng}/>;
-  });
-
-  return <div>{list}</div>;
+      return <Location
+        key={a}
+        name={a}
+        url={''}
+        latitude={lat}
+        longitude={lng}/>;
+    }
+  }}</div>;
 }
 
 export function toEmoticon(chat: Chatlog): JSX.Element {
   return <Emoticon chat={chat}/>;
 }
 
-export function toDeletedText(chat: Chatlog, chatList: Chatlog[], channel: TalkChannel): JSX.Element {
+export function toDeletedText(
+    chat: Chatlog,
+    chatList: Chatlog[],
+    channel: TalkChannel,
+): JSX.Element {
   return <Deleted chat={chat} chatList={chatList} channel={channel}/>;
 }
 
@@ -168,8 +179,6 @@ export function convertChat(
       return toPhotos(chat);
     case KnownChatType.VIDEO:
       return toVideo(chat);
-    case KnownChatType.SEARCH:
-      return toSearch(chat);
     case KnownChatType.REPLY:
       return toReply(chat, chatList);
     case KnownChatType.STICKER:
@@ -181,6 +190,7 @@ export function convertChat(
       break;
     case KnownChatType.MAP:
       break;
+    case KnownChatType.SEARCH: // return toSearch(chat);
     default:
       return <div>
         <h5>{chat.type}</h5>

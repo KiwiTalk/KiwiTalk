@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Chat, Chatlog } from 'node-kakao';
+import { Chatlog } from 'node-kakao';
 
 import { convertShortChat } from '../utils/ChatConverter';
 
