@@ -14,7 +14,7 @@ export function extractRoomImage(
   if (imageUrl.length === 0) {
     imageUrl = Array.from(channel.getAllUserInfo())
         .slice(0, 4)
-        .map((e) => e.profileURL ?? ProfileDefault) ?? [];
+        .map((e) => e.profileURL ?? ProfileDefault);
   }
 
   return imageUrl;
