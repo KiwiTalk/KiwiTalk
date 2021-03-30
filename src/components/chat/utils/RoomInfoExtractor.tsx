@@ -7,11 +7,12 @@ import { KnownChannelMetaType } from 'node-kakao/dist/channel/meta';
 export function extractRoomImage(
     channel: TalkChannel,
 ): string[] {
-  let imageUrl: string[] = [channel.info.metaMap[KnownChannelMetaType.PROFILE].content];
-  const userList = Array.from(channel.getAllUserInfo());
+  let imageUrl: string[] = [
+    channel.info.metaMap[KnownChannelMetaType.PROFILE].content,
+  ];
 
   if (imageUrl.length === 0) {
-    imageUrl = userList
+    imageUrl = Array.from(channel.getAllUserInfo())
         .slice(0, 4)
         .map((e) => e.profileURL ?? ProfileDefault) ?? [];
   }
