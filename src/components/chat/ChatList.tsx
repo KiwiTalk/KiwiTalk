@@ -50,7 +50,7 @@ const getContent = (chat: Chatlog, chatList: Chatlog[], channel: TalkChannel) =>
       const text = JSON.parse(chat.text);
 
       if (text.feedType === KnownFeedType.DELETE_TO_ALL) {
-        // return toDeletedAt(chat.attachment, chat, chatList, channel);
+        return toDeletedAt(text.feed, chat, chatList, channel);
       }
     } catch {
       return <div>{Strings.Error.UNKNOWN}</div>;

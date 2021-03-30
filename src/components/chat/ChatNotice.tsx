@@ -3,12 +3,12 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import { ExpandMore } from '@material-ui/icons';
 import Typography from '@material-ui/core/Typography';
-// import { ChannelMetaType } from 'node-kakao';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import KakaoManager from '../../KakaoManager';
 import { ReducerType } from '../../reducers';
+import { KnownChannelMetaType } from 'node-kakao/dist/channel/meta';
 
 const NoticeAccordion = styled(Accordion)`
   position: absolute;
@@ -37,12 +37,11 @@ const NoticeTypography = styled(Typography)`
 export const ChatNotice = (): JSX.Element | null => {
   const select = useSelector((state: ReducerType) => state.chat.select);
 
-  const noticeContent = 'v4에선 안되는듯 왜지';
-/*KakaoManager
+  const noticeContent = KakaoManager
       .getChannel(select)
-      .getChannelMeta(ChannelMetaType.NOTICE)
-      ?.content;
- */
+      .info
+      .metaMap[KnownChannelMetaType.NOTICE]
+      .content;
 
   const [isExpanded, setExpanded] = useState(false);
 
