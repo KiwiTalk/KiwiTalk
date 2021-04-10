@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import KakaoManager from '../../KakaoManager';
 import { ReducerType } from '../../reducers';
-import { KnownChannelMetaType } from 'node-kakao/dist/channel/meta';
+// import { KnownChannelMetaType } from 'node-kakao/dist/channel/meta';
 
 const NoticeAccordion = styled(Accordion)`
   position: absolute;
@@ -40,7 +40,7 @@ export const ChatNotice = (): JSX.Element | null => {
   const noticeContent = KakaoManager
       .getChannel(select)
       .info
-      .metaMap[KnownChannelMetaType.NOTICE]
+      .metaMap[1 /* KnownChannelMetaType.NOTICE */]
       .content;
 
   const [isExpanded, setExpanded] = useState(false);

@@ -2,13 +2,13 @@ import ProfileDefault from '../../../assets/images/profile_default.svg';
 import {
   TalkChannel,
 } from 'node-kakao';
-import { KnownChannelMetaType } from 'node-kakao/dist/channel/meta';
+// import { KnownChannelMetaType } from 'node-kakao/dist/channel/meta';
 
 export function extractRoomImage(
     channel: TalkChannel,
 ): string[] {
   let imageUrl: string[] = [
-    channel.info.metaMap[KnownChannelMetaType.PROFILE].content,
+    channel.info.metaMap[4 /* KnownChannelMetaType.PROFILE */].content,
   ];
 
   if (imageUrl.length === 0) {

@@ -1,6 +1,6 @@
 import { AuthApiClient, ServiceApiClient, TalkClient } from 'node-kakao';
 import React, { useEffect } from 'react';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
@@ -8,7 +8,6 @@ import MenuBar from './components/common/menubar/MenuBar';
 import ChatPage from './pages/ChatPage';
 import Register from './pages/DeviceRegisterPage';
 import Login from './pages/LoginPage';
-import configureStore from './store';
 import { packet } from 'node-kakao';
 import UtilModules from './utils';
 import Configs from './constants/Configs';
@@ -25,11 +24,10 @@ export interface AppTalkContext {
   serviceClient?: ServiceApiClient;
 }
 
-const store = configureStore();
-
 export const AppContext = React.createContext<AppTalkContext>({});
 
 export const App = (): JSX.Element => {
+  window.__dirname = window.location.origin;
   const {
     talkClient,
     authClient,
@@ -92,26 +90,25 @@ export const App = (): JSX.Element => {
   }
 
   return (
-    <Provider store={store}>
-      <div className="App">
-        {menuBar}
-        <AppContext.Provider
-          value={{
-            talkClient,
-            authClient,
-          }}
-        >
-          <Switch>
-            <Route path={'/login'} component={Login} exact/>
-            <Route path={'/register'} component={Register} exact/>
-            <Route path={'/chat'} component={ChatPage} exact/>
-            <Route path={'*'}>
-              <Redirect to={'/login'}/>
-            </Route>
-          </Switch>
-        </AppContext.Provider>
-      </div>
-    </Provider>
+
+    <div className="App">
+      {menuBar}
+      <AppContext.Provider
+        value={{
+          talkClient,
+          authClient,
+        }}
+      >
+        <Switch>
+          <Route path={'/login'} component={Login} exact/>
+          <Route path={'/register'} component={Register} exact/>
+          <Route path={'/chat'} component={ChatPage} exact/>
+          <Route path={'*'}>
+            <Redirect to={'/login'}/>
+          </Route>
+        </Switch>
+      </AppContext.Provider>
+    </div>
   );
 };
 
