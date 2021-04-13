@@ -71,7 +71,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
         useEffect(() => {
           if (!serviceClient) {
             (async () => {
-              if (result?.succeed) {
+              if (result.succeed) {
                 const serviceApiClient = await ServiceApiClient.create(result.succeed);
                 dispatch(initServiceClient(serviceApiClient));
               }
