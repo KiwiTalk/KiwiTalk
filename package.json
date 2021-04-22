@@ -71,7 +71,7 @@
     "@typescript-eslint/parser": "^4.22.0",
     "concurrently": "^6.0.2",
     "cross-env": "^7.0.2",
-    "css-loader": "^5.2.1",
+    "css-loader": "^5.2.4",
     "eslint": "^7.24.0",
     "eslint-config-google": "^0.14.0",
     "file-loader": "^6.2.0",
