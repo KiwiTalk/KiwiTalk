@@ -72,7 +72,7 @@
     "concurrently": "^6.0.2",
     "cross-env": "^7.0.2",
     "css-loader": "^5.2.4",
-    "eslint": "^7.24.0",
+    "eslint": "^7.25.0",
     "eslint-config-google": "^0.14.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.1",
