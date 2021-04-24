@@ -79,7 +79,7 @@
     "nw-builder": "^3.5.7",
     "os-tmpdir": "^2.0.0",
     "style-loader": "^2.0.0",
-    "ts-loader": "^9.1.0",
+    "ts-loader": "^9.1.1",
     "wait-on": "^5.3.0",
     "webpack": "^5.35.0",
     "webpack-cli": "^4.6.0",
