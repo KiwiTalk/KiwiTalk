@@ -46,7 +46,7 @@
     "react-redux": "^7.2.2",
     "react-router-dom": "^5.2.0",
     "react-spoiler": "^0.4.3",
-    "react-virtuoso": "^1.5.14",
+    "react-virtuoso": "^1.8.6",
     "styled-components": "^5.1.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3",
