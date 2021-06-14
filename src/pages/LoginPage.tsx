@@ -68,16 +68,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
     switch (result.type) {
       case LoginResultType.SUCCESS: {
         // serviceClient register
-        useEffect(() => {
-          if (!serviceClient) {
-            (async () => {
-              if (result.succeed) {
-                const serviceApiClient = await ServiceApiClient.create(result.succeed);
-                dispatch(initServiceClient(serviceApiClient));
-              }
-            })();
-          }
-        }, [serviceClient]);
+        if (!serviceClient) {
+          await (async () => {
+            if (result.succeed) {
+              const serviceApiClient = await ServiceApiClient.create(result.succeed);
+              dispatch(initServiceClient(serviceApiClient));
+            }
+          })();
+        }
         history.push('/chat');
         break;
       }

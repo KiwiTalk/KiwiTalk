@@ -27,8 +27,6 @@ export interface AppTalkContext {
 export const AppContext = React.createContext<AppTalkContext>({});
 
 export const App = (): JSX.Element => {
-  // console.log(window.location.origin);
-  // window.__dirname = window.location.origin;
   const {
     talkClient,
     authClient,
@@ -54,7 +52,7 @@ export const App = (): JSX.Element => {
         const client = await AuthApiClient.create(
             os.hostname(),
             uuid,
-            Configs.CLIENT,
+            Configs.OAUTH_CLIENT,
         );
 
         dispatch(initAuthClient(client));
