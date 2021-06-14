@@ -27,7 +27,8 @@ export interface AppTalkContext {
 export const AppContext = React.createContext<AppTalkContext>({});
 
 export const App = (): JSX.Element => {
-  window.__dirname = window.location.origin;
+  // console.log(window.location.origin);
+  // window.__dirname = window.location.origin;
   const {
     talkClient,
     authClient,
