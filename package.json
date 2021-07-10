@@ -37,7 +37,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.59",
     "@reduxjs/toolkit": "^1.6.0",
-    "bson": "^4.4.0",
+    "bson": "^4.4.1",
     "image-size": "^1.0.0",
     "localforage": "^1.7.3",
     "node-kakao": "^4.3.0",
