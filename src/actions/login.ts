@@ -1,4 +1,7 @@
-import { AuthStatusCode, TalkClient } from 'node-kakao';
+import {
+  AuthApiClient, CommandResultFailed, KnownAuthStatusCode, TalkClient,
+} from 'node-kakao';
+import { LoginData } from 'node-kakao/dist/api';
 import UtilModules from '../utils';
 
 export interface LoginForm {
@@ -9,7 +12,8 @@ export interface LoginForm {
 }
 
 export interface LoginContext {
-  client: TalkClient;
+  talkClient: TalkClient;
+  authClient: AuthApiClient;
 }
 
 export enum LoginResultType {
@@ -21,55 +25,72 @@ export enum LoginResultType {
 
 export interface LoginResult {
   type: LoginResultType;
-  value?: any;
+  succeed?: LoginData;
+  failed?: CommandResultFailed;
 }
 
 export async function login(
-    { client }: LoginContext,
+    {
+      talkClient,
+      authClient,
+    }: LoginContext,
     {
       email,
       password,
       saveEmail,
       autoLogin,
     }: LoginForm,
-    force = false,
+    forced = false,
     token = false,
 ): Promise<LoginResult> {
   await UtilModules.login.setAutoLogin(autoLogin);
 
   let status = 0;
   try {
-    if (!token) await client.login(email, password, force);
-    else await client.loginToken(email, password, force);
+    const loginResult = await (async () => {
+      if (!token) {
+        return authClient.login({ email, password, forced });
+      } else {
+        return authClient.loginToken({ email, password, forced, autowithlock: false });
+      }
+    })();
 
+    if (!loginResult.success) {
+      throw loginResult;
+    }
+
+    await talkClient.login(loginResult.result);
     await UtilModules.login.setEmail(saveEmail ? email : '');
+    /*
     await UtilModules.login.setAutoLoginEmail(
         client.Auth.getLatestAccessData().autoLoginEmail,
     );
     await UtilModules.login.setAutoLoginToken(
         client.Auth.generateAutoLoginToken(),
     );
+*/
 
     return {
       type: LoginResultType.SUCCESS,
+      succeed: loginResult.result,
     };
   } catch (error) {
-    status = error.status ?? AuthStatusCode.LOGIN_FAILED;
+    status = error.status ?? KnownAuthStatusCode.LOGIN_FAILED;
     console.log(error);
 
     switch (status) {
-      case AuthStatusCode.ANOTHER_LOGON:
+      case KnownAuthStatusCode.ANOTHER_LOGON:
         return {
           type: LoginResultType.NEED_FORCE_LOGIN,
         };
-      case AuthStatusCode.DEVICE_NOT_REGISTERED:
+      case KnownAuthStatusCode.DEVICE_NOT_REGISTERED:
         return {
           type: LoginResultType.NEED_REGISTER,
         };
       default:
         return {
           type: LoginResultType.FAILED,
-          value: error,
+          failed: error,
         };
     }
   }

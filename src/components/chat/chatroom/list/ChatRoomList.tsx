@@ -1,4 +1,4 @@
-import { ChatChannel } from 'node-kakao';
+import { TalkChannel } from 'node-kakao';
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -25,7 +25,7 @@ const Wrapper = styled.div`
 `;
 
 interface AsyncComponentProps {
-  channel: ChatChannel,
+  channel: TalkChannel,
   selected: boolean,
   onClick: MouseEventHandler
 }
@@ -38,15 +38,13 @@ const AsyncComponent: React.FC<AsyncComponentProps> = ({
   const [component, setComponent] = useState<JSX.Element>(<div/>);
 
   useEffect(() => {
-    const userInfoList = channel.getUserInfoList();
-
-    const name = extractRoomName(channel, userInfoList);
-    const profileImages = extractRoomImage(channel, userInfoList);
+    const name = extractRoomName(channel);
+    const profileImages = extractRoomImage(channel);
 
     setComponent(
         <ChatRoomListItem
-          key={channel.Id.toString()}
-          lastChat={channel.LastChat ? channel.LastChat.Text : ''}
+          key={channel.channelId.toString()}
+          lastChat={channel.info.lastChatLog ? channel.info.lastChatLog.text ?? '' : ''}
           profileImageSrcArr={profileImages}
           username={name}
           selected={selected}
@@ -72,10 +70,10 @@ const ChatRoomList: React.FC = () => {
       {
         KakaoManager.channelList.map((channel) => (
           <AsyncComponent
-            key={`channel-${channel.Id.toString()}`}
+            key={`channel-${channel.channelId.toString()}`}
             channel={channel}
-            selected={channel.Id.equals(select)}
-            onClick={onClick(channel.Id.toString())}/>
+            selected={channel.channelId.equals(select)}
+            onClick={onClick(channel.channelId.toString())}/>
         ))
       }
     </Wrapper>

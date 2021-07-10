@@ -66,7 +66,7 @@ export interface LinkTextProps {
 export const Link: React.FC<LinkTextProps> = ({ chat }) => {
   const [list, setList] = useState<LinkData[]>([]);
 
-  const text = chat.Text;
+  const text = chat.text ?? '';
   const urls = (Array.from(
       new Set([
         text.match(/(\w)+:\/\/[\w.:/?&\-+=%]+/g),

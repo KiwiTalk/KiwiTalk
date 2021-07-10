@@ -1,4 +1,4 @@
-export function convertTime(time: Date, use24format = true) {
+export function convertTime(time: Date, use24format = true): string {
   const hour = time.getHours();
   const minute = time.getMinutes();
 

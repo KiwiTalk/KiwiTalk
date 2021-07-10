@@ -20,11 +20,11 @@ const MapItemImage = styled.img`
 interface MapChatProps {
     url: string,
     name: string,
-    longitude: string,
-    latitude: string,
+    longitude: number,
+    latitude: number,
 }
 
-export const Location: React.FC<MapChatProps> = (data: any) => {
+export const Location: React.FC<MapChatProps> = (data: React.PropsWithChildren<MapChatProps>) => {
   return (
     <Wrapper>
       <MapItemImage src={data.url}/>

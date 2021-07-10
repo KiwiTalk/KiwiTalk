@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import IconProfiles from '../../../assets/images/icon_profiles.svg';
 import IconChats from '../../../assets/images/icon_chats.svg';
@@ -29,7 +29,7 @@ interface SideBarProps {
     onChange?: (type: SideBarChangeType) => any;
 }
 
-const SideBar: React.FC<SideBarProps> = ({onChange}) => {
+const SideBar: React.FC<SideBarProps> = ({ onChange }) => {
   const [type, setType] = useState<SideBarChangeType>(0);
   return (
     <Wrapper>

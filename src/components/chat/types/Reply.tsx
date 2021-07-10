@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Chat } from 'node-kakao';
+import { Chatlog, TalkChannel } from 'node-kakao';
 
 import { convertShortChat } from '../utils/ChatConverter';
 
@@ -52,28 +52,27 @@ const Content = styled.div`
 `;
 
 interface ReplyChatProps {
-  me: Chat,
-  prevChat: Chat, // Chat
+  me: Chatlog,
+  prevChat: Chatlog,
+  channel: TalkChannel;
   onClick: () => void;
 }
 
 export const Reply: React.FC<ReplyChatProps> = (chat: ReplyChatProps) => {
   const content = convertShortChat(chat.prevChat);
-  const isMyChat =
-      chat.me.Sender.Id.toString() ===
-      chat.me.Channel.Client.ClientUser.Id.toString();
+  const isMyChat = true; // TODO
 
   return (
     <Wrapper isMine={isMyChat}>
       <ReplyTarget isMine={isMyChat} onClick={chat.onClick}>
         <Author isMine={false}>{
           `${
-            chat.me.Channel.getUserInfo(chat.prevChat.Sender)?.Nickname
+            chat.channel.getUserInfo(chat.prevChat.sender)?.nickname
           }에게 답장`
         }</Author>
         {content}
       </ReplyTarget>
-      <Content>{chat.me.Text}</Content>
+      <Content>{chat.me.text}</Content>
     </Wrapper>
   );
 };

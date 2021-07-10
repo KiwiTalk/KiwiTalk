@@ -81,7 +81,7 @@ const MenuBar = (): JSX.Element => {
       <Button>
         <Image src={iconLogo}/>
       </Button>
-      <div style={{ flex: 1 }}></div>
+      <div style={{ flex: 1 }}/>
       <ButtonWrapper>
         <Button onClick={() => window.minimize()}>
           <Image src={iconMinimize}/>

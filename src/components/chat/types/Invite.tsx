@@ -19,17 +19,25 @@ const Content = styled.span`
 `;
 
 interface InviteProps {
-  invitee: string
+  invitee: string | string[]
   inviter: string | null
 }
 
 export const Invite: React.FC<InviteProps> = ({ invitee, inviter }) => {
+  let message: string;
+
+  if (Array.isArray(invitee)) {
+    message = `${invitee.join('님, ')}님이 ${invitee}님을 초대하였습니다.`;
+  } else if (inviter !== null) {
+    message = `${invitee}님이 ${invitee}님을 초대하였습니다.`;
+  } else {
+    message = `${invitee}님이 들어왔습니다.`;
+  }
+
   return (
     <Wrapper>
       {
-        inviter == null ?
-            <Content>{invitee}님이 들어왔습니다.</Content> :
-            <Content>{inviter}님이 {invitee}님을 초대하였습니다.</Content>
+        <Content>{message}</Content>
       }
     </Wrapper>
   );
