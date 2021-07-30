@@ -82,7 +82,7 @@
     "nw-builder": "^3.5.7",
     "os-tmpdir": "^2.0.0",
     "style-loader": "^3.2.1",
-    "ts-loader": "^9.2.3",
+    "ts-loader": "^9.2.4",
     "wait-on": "^6.0.0",
     "webpack": "^5.47.1",
     "webpack-cli": "^4.7.2",
