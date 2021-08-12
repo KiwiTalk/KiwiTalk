@@ -70,7 +70,7 @@
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^4.28.5",
     "@typescript-eslint/parser": "^4.28.5",
-    "concurrently": "^6.2.0",
+    "concurrently": "^6.2.1",
     "cross-env": "^7.0.2",
     "css-loader": "^6.2.0",
     "esbuild": "^0.12.19",
