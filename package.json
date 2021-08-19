@@ -39,7 +39,7 @@
     "@reduxjs/toolkit": "^1.6.1",
     "bson": "^4.4.1",
     "image-size": "^1.0.0",
-    "localforage": "^1.7.3",
+    "localforage": "^1.10.0",
     "node-kakao": "^4.4.0",
     "open-graph-scraper": "^4.9.1",
     "react": "^17.0.2",
