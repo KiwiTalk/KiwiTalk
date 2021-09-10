@@ -84,7 +84,7 @@
     "style-loader": "^3.2.1",
     "ts-loader": "^9.2.5",
     "wait-on": "^6.0.0",
-    "webpack": "^5.52.0",
+    "webpack": "^5.52.1",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.2.0"
   },
