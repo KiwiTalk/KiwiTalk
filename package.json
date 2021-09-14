@@ -86,7 +86,7 @@
     "wait-on": "^6.0.0",
     "webpack": "^5.52.1",
     "webpack-cli": "^4.8.0",
-    "webpack-dev-server": "^4.2.0"
+    "webpack-dev-server": "^4.2.1"
   },
   "build": {
     "appId": "io.github.kiwitalk",
