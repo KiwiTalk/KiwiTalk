@@ -58,7 +58,7 @@
     "@testing-library/react": "^12.1.0",
     "@testing-library/user-event": "^13.2.1",
     "@types/bson": "^4.2.0",
-    "@types/jest": "^27.0.1",
+    "@types/jest": "^27.0.2",
     "@types/node": "^16.9.2",
     "@types/nw.js": "^0.13.14",
     "@types/open-graph-scraper": "^4.8.1",
