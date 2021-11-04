@@ -81,7 +81,7 @@
     "html-webpack-plugin": "^5.4.0",
     "nw-builder": "^3.5.7",
     "os-tmpdir": "^2.0.0",
-    "style-loader": "^3.3.0",
+    "style-loader": "^3.3.1",
     "ts-loader": "^9.2.6",
     "wait-on": "^6.0.0",
     "webpack": "^5.59.1",
