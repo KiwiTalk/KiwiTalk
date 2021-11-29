@@ -64,7 +64,6 @@ export const DeviceRegistration: React.FC = () => {
       authClient?.requestPasscode({
         email: auth.email,
         password: auth.password,
-        forced: true,
       });
     }
   }, [registerType]);
@@ -77,7 +76,6 @@ export const DeviceRegistration: React.FC = () => {
             {
               email: auth.email,
               password: auth.password,
-              forced: true,
             },
             passcode,
             permanent,
@@ -89,8 +87,10 @@ export const DeviceRegistration: React.FC = () => {
 
         history.push('/login');
       } catch (err) {
-        console.log(err);
-        setError(err.toString());
+        if (err instanceof Error) {
+          setError(err.toString());
+        }
+        console.error(err);
       }
     };
 

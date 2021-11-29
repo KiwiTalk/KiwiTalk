@@ -145,7 +145,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
             setError(Strings.Auth.NO_TOKEN);
           }
         } catch (e) {
-          setError(`${Strings.Auth.AUTO_LOGIN_FAILED}\n${Strings.Auth.REASON} ${e.toString()}`);
+          if (e instanceof Error) {
+            setError(`${Strings.Auth.AUTO_LOGIN_FAILED}\n${Strings.Auth.REASON} ${e.toString()}`);
+          }
           console.error(e);
         }
       }

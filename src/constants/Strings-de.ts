@@ -11,7 +11,8 @@ export const Auth = {
   LOGIN_MESSAGE: 'Du wurdest angemeldet.',
   LOGOUT_MESSAGE: 'Du wurdest abgemeldet.',
 
-  FORCE_LOGIN: 'Ein anderes Gerät ist bereits verbunden. \nMöchtest du die bereits bestehende Verbindung trennen?',
+  FORCE_LOGIN: 'Ein anderes Gerät ist bereits verbunden. \n' +
+      'Möchtest du die bereits bestehende Verbindung trennen?',
 
   REASON: 'Grund: ',
 
@@ -43,7 +44,8 @@ export const Error = {
   BLOCK_ACCOUNT: 'Der Account ist gesperrt.',
   INVALID_ACCESS_TOKEN: 'Der Zugangstoken ist ungültig.',
   INVALID_LOGIN_TOKEN: 'Der Anmeldungstoken ist ungültig.',
-  BLOCK_USER_INTERACTION: 'Es wurde versucht, eine Nachricht an einen blockierten Freund zu senden.',
+  BLOCK_USER_INTERACTION: 'Es wurde versucht, ' +
+      'eine Nachricht an einen blockierten Freund zu senden.',
   INVALID_CHATROOM: 'Der Chatraum existiert nicht.',
   INVALID_PARAM: 'Parameter ist ungültig.',
   INVALID_METHOD: 'Methode ist ungültig.',
@@ -51,7 +53,8 @@ export const Error = {
   TOO_MANY_REQUEST: 'Die maximale Anzahl von autorisierungsversuchen wurde überschritten.',
   INVALID_PASSCODE: 'Der Passcode ist falsch.',
   NOT_ENCODED: 'Die UUID ist nicht in Base64 kodiert.',
-  MAXIMUM_DEVICE: 'Die maximale Anzahl von autorisierbaren Geräten wurde überschritten. Es können maximal 5 Geräte autorisiert werden.',
+  MAXIMUM_DEVICE: 'Die maximale Anzahl von autorisierbaren Geräten wurde überschritten. ' +
+      'Es können maximal 5 Geräte autorisiert werden.',
   ANOTHER_LOGON: 'Ein anderer Client ist bereits angemeldet.',
   UNAUTHORIZED_DEVICE: 'Das Gerät ist nicht autorisiert.',
   INVALID_USER: 'Der Benutzer ist ungültig.',

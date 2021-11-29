@@ -17,9 +17,13 @@ export interface LoginContext {
 }
 
 export enum LoginResultType {
+  // eslint-disable-next-line no-unused-vars
   SUCCESS,
+  // eslint-disable-next-line no-unused-vars
   FAILED,
+  // eslint-disable-next-line no-unused-vars
   NEED_REGISTER,
+  // eslint-disable-next-line no-unused-vars
   NEED_FORCE_LOGIN,
 }
 
@@ -49,9 +53,9 @@ export async function login(
   try {
     const loginResult = await (async () => {
       if (!token) {
-        return authClient.login({ email, password, forced });
+        return authClient.login({ email, password });
       } else {
-        return authClient.loginToken({ email, password, forced, autowithlock: false });
+        return authClient.loginToken({ email, password, autowithlock: false });
       }
     })();
 
@@ -74,7 +78,7 @@ export async function login(
       type: LoginResultType.SUCCESS,
       succeed: loginResult.result,
     };
-  } catch (error) {
+  } catch (error: any) {
     status = error.status ?? KnownAuthStatusCode.LOGIN_FAILED;
     console.log(error);
 

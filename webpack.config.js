@@ -17,9 +17,11 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js'],
   },
   devServer: {
-    contentBase: __dirname,
-    publicPath: '/',
-    inline: true,
+    devMiddleware: {
+      publicPath: '/',
+      serverSideRender: true,
+    },
+    static: __dirname,
     host: 'localhost',
     port: 3000,
   },

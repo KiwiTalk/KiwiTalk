@@ -23,7 +23,9 @@ export interface ChatValue {
 }
 
 export enum ChatResultType {
+  // eslint-disable-next-line no-unused-vars
   SUCCESS,
+  // eslint-disable-next-line no-unused-vars
   FAILED,
 }
 

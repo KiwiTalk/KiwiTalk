@@ -69,7 +69,7 @@ const ChatPage = (): JSX.Element => {
         } else {
           throw settings;
         }
-      } catch (error) {
+      } catch (error: any) {
         setSnack({
           isShow: true,
           message: `${Strings.Error.UNKNOWN}\n${error.toString()}`,
