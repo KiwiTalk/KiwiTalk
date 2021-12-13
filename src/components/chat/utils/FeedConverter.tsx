@@ -1,65 +1,81 @@
 import React from 'react';
 
-import { Chat, ChatChannel, FeedMemberStruct, FeedType } from 'node-kakao';
+import {
+  TalkChannel, KnownFeedType, Chatlog, ChatFeeds, ChannelUserInfo, InviteFeed,
+} from 'node-kakao';
 import DeletedAt from '../types/DeletedAt';
 
 import Invite from '../types/Invite';
 import Leave from '../types/Leave';
+import KakaoManager from '../../../KakaoManager';
 
-export function toInvite(feed: any, chat: Chat): JSX.Element {
+export function toInvite(
+    user: ChannelUserInfo,
+    feed: InviteFeed,
+): JSX.Element {
   if (feed.inviter) {
     return <Invite invitee={
-      feed.members.map((e: FeedMemberStruct) => e.nickName)
+      feed.members.map((e) => e.nickName)
     } inviter={
       feed.inviter.nickName
     }/>;
   } else {
     return <Invite invitee={
-      feed.members.map((e: FeedMemberStruct) => e.nickName)
+      user.nickname
     } inviter={
       null
     }/>;
   }
 }
 
-export function toLeave(feed: any, chat: Chat): JSX.Element {
-  return <Leave member={feed.member.nickName}/>;
+export function toLeave(user: ChannelUserInfo): JSX.Element {
+  return <Leave member={user.nickname}/>;
 }
 
 export function toDeletedAt(
-    feed: any,
-    chat: Chat,
-    chatList: Chat[],
-    channel: ChatChannel,
+    feed: ChatFeeds,
+    chat: Chatlog,
+    chatList: Chatlog[],
+    channel: TalkChannel,
 ): JSX.Element {
-  const findChat = chatList.find((c) => c.LogId.toString() === feed.logId.toString());
+  const findChat = chatList.find((c) => c.logId.toString() === chat.logId.toString());
 
   return <DeletedAt
-    sender={channel.getUserInfo(chat.Sender)?.Nickname}
+    sender={channel.getUserInfo(chat.sender)?.nickname}
     chat={findChat}
     chatList={chatList}
     channel={channel}/>;
 }
 
 export function convertFeed(
-    chat: Chat,
-    chatList: Chat[],
-    channel: ChatChannel,
+    chat: Chatlog,
+    chatList: Chatlog[],
+    channel: TalkChannel,
     options = {
       feed: null,
     },
 ): JSX.Element | undefined {
-  const feed = options.feed == null ? chat.getFeed() : options.feed;
+  const feedPair = KakaoManager.feedList.get(chat);
+  const feed = options.feed == null ? feedPair?.[0] : options.feed;
 
   switch (feed?.feedType) {
-    case FeedType.DELETE_TO_ALL:
+    case KnownFeedType.DELETE_TO_ALL:
       return toDeletedAt(feed, chat, chatList, channel);
-    case FeedType.INVITE: case FeedType.OPENLINK_JOIN:
-      return toInvite(feed, chat);
-    case FeedType.LEAVE: case FeedType.LOCAL_LEAVE: case FeedType.SECRET_LEAVE:
-      return toLeave(feed, chat);
+    case KnownFeedType.INVITE:
+    case KnownFeedType.OPENLINK_JOIN:
+      if (feedPair && feedPair[1]) {
+        return toInvite(feedPair[1], feed as InviteFeed);
+      }
+      break;
+    case KnownFeedType.LEAVE:
+    case KnownFeedType.LOCAL_LEAVE:
+    case KnownFeedType.SECRET_LEAVE:
+      if (feedPair && feedPair[1]) {
+        return toLeave(feedPair[1]);
+      }
+      break;
     default:
-      return <span>{chat.Text}</span>;
+      return <span>{chat.text}</span>;
   }
 }
 

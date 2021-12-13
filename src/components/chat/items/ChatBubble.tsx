@@ -119,6 +119,7 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
   const dispatch = useDispatch();
   const { select } = useSelector((state: ReducerType) => state.chat);
   const chatList = KakaoManager.chatList.get(select);
+  const channel = KakaoManager.getChannel(select);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState(false);
@@ -132,11 +133,12 @@ const ChatBubble: React.FC<BubbleProps> = React.memo(({
       case 'copy':
         break;
       case 'delete': {
-        const chat = chatList?.find(({ LogId }) => LogId.equals(chatId));
-
-        chat?.delete().then();
-      }
+        const chat = chatList?.find(({ logId }) => logId.equals(chatId));
+        if (chat) {
+          channel.deleteChat(chat);
+        }
         break;
+      }
     }
 
     setOpen(false);

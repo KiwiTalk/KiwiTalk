@@ -45,11 +45,11 @@ const Icon = styled.img`
 `;
 
 interface SearchProps {
-    onChange?: (text: string) => any
-    onSearch?: (text: string) => any
+    onChange?: (text: string) => unknown
+    onSearch?: (text: string) => unknown
 }
 
-const Search: React.FC<SearchProps> = ({onChange, onSearch}) => {
+const Search: React.FC<SearchProps> = ({ onChange, onSearch }) => {
   const [search, setSearch] = useState('');
   return (
     <Wrapper>

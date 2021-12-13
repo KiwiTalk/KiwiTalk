@@ -5,7 +5,7 @@ import IconSettings from '../../assets/images/icon_settings.svg';
 import { IconButton } from '@material-ui/core';
 import ProfileImage from './ProfileImage';
 import color from '../../assets/colors/theme';
-import { MoreSettingsStruct } from 'node-kakao';
+import { MoreSettingsStruct } from 'node-kakao/dist/api/struct';
 
 const Wrapper = styled.div`
   width: 309px;

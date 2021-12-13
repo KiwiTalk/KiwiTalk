@@ -1,6 +1,5 @@
 import { IconButton } from '@material-ui/core';
 import { Close, Reply } from '@material-ui/icons';
-import { Chat } from 'node-kakao';
 import React, { ChangeEvent, FormEvent, useContext, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -93,13 +92,13 @@ const ChatInput: React.FC = () => {
   const dispatch = useDispatch();
   const { input, select } = useSelector((state: ReducerType) => state.chat);
   const [text, setInputText] = useState('');
-  const { client } = useContext(AppContext);
+  const { talkClient } = useContext(AppContext);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
   const channel = KakaoManager.getChannel(select);
   const replyChat = KakaoManager.chatList.get(select)
-      ?.find(({ LogId }) => LogId.equals(input.reply ?? 0));
+      ?.find(({ logId }) => logId.equals(input.reply ?? 0));
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputText(event.target.value);
@@ -116,9 +115,11 @@ const ChatInput: React.FC = () => {
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
+    if (!talkClient) return;
+
     const result = await sendChat(
         {
-          client,
+          talkClient,
           channel: KakaoManager.getChannel(select),
           chatList: KakaoManager.chatList.get(select) ?? [],
         },
@@ -129,16 +130,16 @@ const ChatInput: React.FC = () => {
         },
     );
 
-    if (result.type === ChatResultType.SUCCESS) {
-      const chat = result.value as Chat;
+    if (result.type === ChatResultType.SUCCESS && result.value) {
+      const chat = result.value;
 
-      const channelId = chat.Channel.Id.toString();
+      const channelId = chat.channelId.toString();
       const chatList = KakaoManager.chatList.get(channelId);
 
-      chatList?.push(chat);
+      chatList?.push(chat.chatlog);
 
       KakaoManager.chatEvents.forEach(
-          (value) => value(ChatEventType.ADD, chat, KakaoManager.getChannel(channelId)),
+          (value) => value(ChatEventType.ADD, chat.chatlog, KakaoManager.getChannel(channelId)),
       );
 
       setInputText('');
@@ -160,11 +161,11 @@ const ChatInput: React.FC = () => {
           style={{ width: 24, height: 24, margin: 8 }}
           src={
             replyChat != null ?
-              channel.getUserInfo(replyChat.Sender)?.ProfileImageURL :
+              channel.getUserInfo(replyChat.sender)?.fullProfileURL :
               ProfileDefault
           } />
         <ReplyContent>
-          <Author>{replyChat && channel.getUserInfo(replyChat.Sender)?.Nickname}</Author>
+          <Author>{replyChat && channel.getUserInfo(replyChat.sender)?.nickname}</Author>
           {replyChat && convertShortChat(replyChat, { size: 24 })}
         </ReplyContent>
         <IconButton onClick={removeReply}>

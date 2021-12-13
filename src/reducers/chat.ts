@@ -27,6 +27,7 @@ const slice = createSlice({
     },
 
     setInput: (state, action) => {
+      // eslint-disable-next-line no-unused-vars
       const { text, files, reply } = action.payload;
 
       if (files) state.input.files = files;

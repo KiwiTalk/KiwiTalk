@@ -1,12 +1,12 @@
 import {
-  Chat,
-  ChatChannel,
-  ChatType,
-  FeedType,
+  Chatlog,
+  TalkChannel,
+  KnownChatType,
   PhotoAttachment,
   ReplyAttachment,
-  ReplyChat as ReplyChatObject,
   VideoAttachment,
+  MultiPhotoAttachment,
+  MapAttachment,
 } from 'node-kakao';
 import React from 'react';
 import styled from 'styled-components';
@@ -20,7 +20,7 @@ import MultiPhoto from '../types/MultiPhoto';
 
 import Photo, { PhotoChatProps } from '../types/Photo';
 import Reply from '../types/Reply';
-import Search from '../types/Search';
+// import Search from '../types/Search';
 import Video from '../types/Video';
 
 import convertFeed from './FeedConverter';
@@ -33,216 +33,209 @@ const ShortContent = styled.span`
   color: #424242;
 `;
 
-export function toText(chat: Chat): JSX.Element {
+export function toText(chat: Chatlog): JSX.Element {
   return <Content>{convertText(chat)}</Content>;
 }
 
-export function toLongText(chat: Chat): JSX.Element {
+export function toLongText(chat: Chatlog): JSX.Element {
   return <Long chat={chat}/>;
 }
 
 export function toPhoto(
-    chat: Chat,
+    chat: Chatlog,
     options = {
       ratio: -1,
       limit: [300, 500],
     },
 ): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
-    attachment = attachment as PhotoAttachment;
-
-    return <Photo
-      key={attachment.ImageURL}
-      width={attachment.Width}
-      height={attachment.Height}
-      url={attachment.ImageURL}
-      ratio={options.ratio}
-      limit={options.limit}/>;
-  });
-
-  return <div style={{ display: 'flex' }}>{list}</div>;
+  return <div style={{ display: 'flex' }}>{() => {
+    if (chat.attachment) {
+      const attachment = chat.attachment as PhotoAttachment;
+      return <Photo
+        key={attachment.thumbnailUrl}
+        width={attachment.thumbnailWidth}
+        height={attachment.thumbnailHeight}
+        url={attachment.thumbnailUrl}
+        ratio={options.ratio}
+        limit={options.limit}/>;
+    }
+  }}</div>;
 }
 
-export function toPhotos(chat: Chat): JSX.Element {
-  const data = chat.AttachmentList.map((attachment: any) => {
-    attachment = attachment as PhotoAttachment;
-
-    return {
-      width: attachment.Width,
-      height: attachment.Height,
-      url: attachment.ImageURL,
-      ratio: -1,
-      limit: [200, 200],
-    } as PhotoChatProps;
-  });
-
-  return <MultiPhoto photoChatProps={data}/>;
+export function toPhotos(chat: Chatlog): JSX.Element {
+  return <MultiPhoto photoChatProps={(() => {
+    if (chat.attachment) {
+      const photoAttachment = chat.attachment as MultiPhotoAttachment;
+      return photoAttachment.kl.map((key, i) => {
+        return {
+          width: photoAttachment.wl[i],
+          height: photoAttachment.hl[i],
+          url: key,
+          ratio: -1,
+          limit: [200, 200],
+        } as PhotoChatProps;
+      });
+    } else {
+      return [];
+    }
+  })()}/>;
 }
 
-export function toVideo(chat: Chat): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
-    attachment = attachment as VideoAttachment;
+export function toVideo(chat: Chatlog): JSX.Element {
+  return <div>{() => {
+    if (chat.attachment) {
+      const attachment = chat.attachment as VideoAttachment;
 
-    return <Video
-      key={attachment.VideoURL}
-      url={attachment.VideoURL}
-      width={attachment.Width}
-      height={attachment.Height}
-      duration={attachment.Duration}/>;
-  });
-
-  return <div>{list}</div>;
+      return <Video
+        key={attachment.tk}
+        url={attachment.tk}
+        width={attachment.w}
+        height={attachment.h}
+        duration={attachment.d}/>;
+    }
+  }}</div>;
 }
 
-export function toSearch(chat: Chat): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any, i) => {
-    const { Question, ContentType, ContentList } = attachment;
+/*
+export function toSearch(chat: Chatlog): JSX.Element {
+  return <div>{() => {
+    if (chat.attachment) {
+      const { Question, ContentType, ContentList } = chat.attachment as SharpAttachment;
 
-    return <Search
-      key={`search-${chat.LogId.toString()}-$i`}
-      question={Question}
-      type={ContentType}
-      list={ContentList}/>;
-  });
+      return <Search
+        key={`search-${chat.logId.toString()}-$i`}
+        question={Question}
+        type={ContentType}
+        list={ContentList}/>;
+    }
+  }}</div>;
+}*/
 
-  return <div>{list}</div>;
-}
-
-export function toReply(chat: Chat, chatList: Chat[]): JSX.Element {
+export function toReply(chat: Chatlog, chatList: Chatlog[], channel: TalkChannel): JSX.Element {
   let prevChat = null;
-  const attachments = (chat as ReplyChatObject).AttachmentList as ReplyAttachment[];
-  const prevId = attachments[0].SourceLogId;
+  if (chat.attachment) {
+    const attachment = chat.attachment as ReplyAttachment;
+    const prevId = attachment.src_logId;
 
-  for (let i = chatList.indexOf(chat); i >= 0; i--) {
-    if (chatList[i].LogId.equals(prevId)) {
-      prevChat = chatList[i];
-      break;
+    for (let i = chatList.indexOf(chat); i >= 0; i--) {
+      if (chatList[i].logId.equals(prevId)) {
+        prevChat = chatList[i];
+        break;
+      }
     }
   }
 
-  if (prevChat != null) {
+  if (prevChat !== null) {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return <Reply prevChat={prevChat} me={chat} onClick={() => {
+    return <Reply prevChat={prevChat} me={chat} channel={channel} onClick={() => {
     }}/>;
   } else {
-    return <span>{chat.Text}</span>;
+    return <span>{chat.text}</span>;
   }
 }
 
-export function toMap(chat: Chat): JSX.Element {
-  const list = chat.AttachmentList.map((attachment: any) => {
-    const { Name, Lat, Lng, A } = attachment;
+export function toMap(chat: Chatlog): JSX.Element {
+  return <div>{() => {
+    if (chat.attachment) {
+      const { lat, lng, a } = chat.attachment as MapAttachment;
 
-    return <Location
-      key={A}
-      name={Name}
-      url={''}
-      latitude={Lat}
-      longitude={Lng}/>;
-  });
-
-  return <div>{list}</div>;
+      return <Location
+        key={a}
+        name={a}
+        url={''}
+        latitude={lat}
+        longitude={lng}/>;
+    }
+  }}</div>;
 }
 
-export function toEmoticon(chat: Chat): JSX.Element {
+export function toEmoticon(chat: Chatlog): JSX.Element {
   return <Emoticon chat={chat}/>;
 }
 
-export function toDeletedText(chat: Chat, chatList: Chat[], channel: ChatChannel): JSX.Element {
+export function toDeletedText(
+    chat: Chatlog,
+    chatList: Chatlog[],
+    channel: TalkChannel,
+): JSX.Element {
   return <Deleted chat={chat} chatList={chatList} channel={channel}/>;
 }
 
 export function convertChat(
-    chat: Chat,
-    chatList: Chat[],
-    channel: ChatChannel,
+    chat: Chatlog,
+    chatList: Chatlog[],
+    channel: TalkChannel,
     passUnknown = false,
 ): JSX.Element | undefined {
-  switch (chat.Type) {
-    case ChatType.Feed:
+  switch (chat.type) {
+    case KnownChatType.FEED:
       return convertFeed(chat, chatList, channel);
-    case ChatType.Text:
-      if (chat.Text.length > 500) return toLongText(chat);
+    case KnownChatType.TEXT:
+      if ((chat.text?.length ?? 0) > 500) return toLongText(chat);
       else return toText(chat);
-    case ChatType.Photo:
+    case KnownChatType.PHOTO:
       return toPhoto(chat);
-    case ChatType.MultiPhoto:
+    case KnownChatType.MULTIPHOTO:
       return toPhotos(chat);
-    case ChatType.Video:
+    case KnownChatType.VIDEO:
       return toVideo(chat);
-    case ChatType.Search:
-      return toSearch(chat);
-    case ChatType.Reply:
-      return toReply(chat, chatList);
-    case ChatType.Unknown:
-      console.log(chat);
-      if (passUnknown) return <span>{chat.Text}</span>;
-
-      try {
-        const content = JSON.parse(chat.Text);
-
-        if (content.feedType !== FeedType.UNDEFINED) {
-          return convertFeed(chat, chatList, channel, { feed: content });
-        }
-      } catch (err) {
-        return toDeletedText(chat, chatList, channel);
-      }
-
-      return <span>{chat.Text}</span>;
-    case ChatType.Sticker:
-    case ChatType.StickerAni:
-    case ChatType.StickerGif:
+    case KnownChatType.REPLY:
+      return toReply(chat, chatList, channel);
+    case KnownChatType.STICKER:
+    case KnownChatType.STICKERANI:
+    case KnownChatType.STICKERGIF:
       return toEmoticon(chat);
-    case ChatType.File:
+    case KnownChatType.FILE:
       console.log('file', chat);
       break;
-    case ChatType.Map:
+    case KnownChatType.MAP:
       break;
+    case KnownChatType.SEARCH: // return toSearch(chat);
     default:
       return <div>
-        <h5>{chat.Type}</h5>
-        <span>{chat.Text}</span>
+        <h5>{chat.type}</h5>
+        <span>{chat.text}</span>
       </div>;
   }
 }
 
-export function convertShortChat(chat: Chat, { size } = { size: 50 }): JSX.Element {
-  switch (chat.Type) {
-    case ChatType.Feed:
-    case ChatType.Text:
-    case ChatType.Reply:
+export function convertShortChat(chat: Chatlog, { size } = { size: 50 }): JSX.Element {
+  switch (chat.type) {
+    case KnownChatType.FEED:
+    case KnownChatType.TEXT:
+    case KnownChatType.REPLY:
       return <ShortContent>{
         `${
-          chat.Text.substring(0, 25)
+          chat.text?.substring(0, 25)
         }${
-          chat.Text.length >= 25 ? '...' : ''
+          (chat.text?.length ?? 0) >= 25 ? '...' : ''
         }`
       }</ShortContent>;
-    case ChatType.Photo:
-    case ChatType.MultiPhoto:
+    case KnownChatType.PHOTO:
+    case KnownChatType.MULTIPHOTO:
       return toPhoto(chat, {
         ratio: 1,
         limit: [size, size],
       });
-    case ChatType.Video:
+    case KnownChatType.VIDEO:
       return <ShortContent>동영상</ShortContent>;
-    case ChatType.Search:
-      return <ShortContent>{`샵검색: ${chat.Text}`}</ShortContent>;
-    case ChatType.Map:
+    case KnownChatType.SEARCH:
+      return <ShortContent>{`샵검색: ${chat.text}`}</ShortContent>;
+    case KnownChatType.MAP:
     default:
       return <div>
-        <h5>{chat.Type}</h5>
-        <span>{chat.Text}</span>
+        <h5>{chat.type}</h5>
+        <span>{chat.text}</span>
       </div>;
   }
 }
 
-export function convertText(chat: Chat): JSX.Element {
-  if (isUrl(chat.Text)) {
+export function convertText(chat: Chatlog): JSX.Element {
+  if (isUrl(chat.text ?? '')) {
     return <Link chat={chat}/>;
   }
 
-  return <>{chat.Text}</>;
+  return <>{chat.text}</>;
 }
 
 export default convertChat;

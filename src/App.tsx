@@ -1,6 +1,6 @@
-import { LocoKickoutType, TalkClient } from 'node-kakao';
+import { AuthApiClient, ServiceApiClient, TalkClient } from 'node-kakao';
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import './App.css';
 
@@ -8,50 +8,77 @@ import MenuBar from './components/common/menubar/MenuBar';
 import ChatPage from './pages/ChatPage';
 import Register from './pages/DeviceRegisterPage';
 import Login from './pages/LoginPage';
-import configureStore from './store';
+import { packet } from 'node-kakao';
+import UtilModules from './utils';
+import Configs from './constants/Configs';
+import { ReducerType } from './reducers';
+import { initAuthClient, initTalkClient } from './reducers/client';
+import * as os from 'os';
 
-export interface AppProp {
-  client: TalkClient
-}
-
-export interface AppState {
-  logon: boolean
-}
+type KickoutType = packet.chat.KickoutType;
+const KnownKickoutType = packet.chat.KnownKickoutType;
 
 export interface AppTalkContext {
-  client: TalkClient
+  talkClient?: TalkClient;
+  authClient?: AuthApiClient;
+  serviceClient?: ServiceApiClient;
 }
 
-const store = configureStore();
+export const AppContext = React.createContext<AppTalkContext>({});
 
-export const AppContext = React.createContext({} as AppTalkContext);
-
-export const App: React.FC<AppProp> = ({ client }) => {
+export const App = (): JSX.Element => {
+  const {
+    talkClient,
+    authClient,
+  } = useSelector((state: ReducerType) => state.client);
+  const dispatch = useDispatch();
   const history = useHistory();
 
+  // talkClient register
   useEffect(() => {
-    const loginHandler = () => {
-      console.log(history);
-      history.push('/chat');
-    };
+    if (!talkClient) {
+      const client = new TalkClient(Configs.CLIENT);
 
-    const disconnectedHandler = (reason: LocoKickoutType) => {
-      if (
-        reason === LocoKickoutType.CHANGE_SERVER ||
-        reason === LocoKickoutType.UNKNOWN
-      ) return;
+      dispatch(initTalkClient(client));
+    }
+  }, [talkClient]);
+
+  // authClient register
+  useEffect(() => {
+    if (!authClient) {
+      (async () => {
+        const uuid = await UtilModules.uuid.getUUID();
+
+        const client = await AuthApiClient.create(
+            os.hostname(),
+            uuid,
+            Configs.OAUTH_CLIENT,
+        );
+
+        dispatch(initAuthClient(client));
+      })();
+    }
+  }, [authClient]);
+
+  talkClient?.on('disconnected', (reason: string | KickoutType) => {
+    if (reason !== KnownKickoutType.CHANGE_SERVER) {
+      alert('disconnected. ' + reason);
+    }
+  });
+
+  useEffect(() => {
+    const disconnectedHandler = (reason: KickoutType) => {
+      if (reason === KnownKickoutType.CHANGE_SERVER) return;
 
       history.push('/login', { reason });
     };
 
-    client.on('login', loginHandler);
-    client.on('disconnected', disconnectedHandler);
+    talkClient?.on('disconnected', disconnectedHandler);
 
     return () => {
-      client.off('login', loginHandler);
-      client.off('disconnected', disconnectedHandler);
+      talkClient?.off('disconnected', disconnectedHandler);
     };
-  });
+  }, []);
 
   let menuBar: JSX.Element | null = null;
 
@@ -62,21 +89,25 @@ export const App: React.FC<AppProp> = ({ client }) => {
   }
 
   return (
-    <Provider store={store}>
-      <div className="App">
-        {menuBar}
-        <AppContext.Provider value={{ client }}>
-          <Switch>
-            <Route path={'/login'} component={Login} exact/>
-            <Route path={'/register'} component={Register} exact/>
-            <Route path={'/chat'} component={ChatPage} exact/>
-            <Route path={'*'}>
-              <Redirect to={'/login'}/>
-            </Route>
-          </Switch>
-        </AppContext.Provider>
-      </div>
-    </Provider>
+
+    <div className="App">
+      {menuBar}
+      <AppContext.Provider
+        value={{
+          talkClient,
+          authClient,
+        }}
+      >
+        <Switch>
+          <Route path={'/login'} component={Login} exact/>
+          <Route path={'/register'} component={Register} exact/>
+          <Route path={'/chat'} component={ChatPage} exact/>
+          <Route path={'*'}>
+            <Redirect to={'/login'}/>
+          </Route>
+        </Switch>
+      </AppContext.Provider>
+    </div>
   );
 };
 

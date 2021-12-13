@@ -1,5 +1,6 @@
 import { Button, Dialog, DialogActions,
   DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { ServiceApiClient } from 'node-kakao';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -13,6 +14,7 @@ import { LoginErrorReason } from '../constants/AuthConstants';
 import Strings from '../constants/Strings';
 import { ReducerType } from '../reducers';
 import { setEmail, setPassword, setSaveEmail, setAutoLogin } from '../reducers/auth';
+import { initServiceClient } from '../reducers/client';
 import UtilModules from '../utils';
 
 export interface LoginFormData {
@@ -35,7 +37,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
   const [error, setError] = useState('');
   const [forceLogin, setForceLogin] = useState(false);
 
-  const { client } = useContext(AppContext);
+  const { talkClient, authClient, serviceClient } = useContext(AppContext);
 
   const onSubmit = async ({
     email,
@@ -46,8 +48,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
   force = false,
   token = false,
   ) => {
+    if (!talkClient || !authClient) return;
+
     const result = await login(
-        { client },
+        {
+          talkClient,
+          authClient,
+        },
         {
           email,
           password,
@@ -59,9 +66,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
     );
 
     switch (result.type) {
-      case LoginResultType.SUCCESS:
+      case LoginResultType.SUCCESS: {
+        // serviceClient register
+        if (!serviceClient) {
+          await (async () => {
+            if (result.succeed) {
+              const serviceApiClient = await ServiceApiClient.create(result.succeed);
+              dispatch(initServiceClient(serviceApiClient));
+            }
+          })();
+        }
         history.push('/chat');
         break;
+      }
       case LoginResultType.NEED_REGISTER:
         dispatch(setEmail(email));
         dispatch(setPassword(password));
@@ -79,11 +96,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
         setForceLogin(true);
         break;
       case LoginResultType.FAILED:
-        setError(
-            result.value?.message ??
-            LoginErrorReason[result.value?.status] ??
-            Strings.Error.UNKNOWN,
-        );
+        if (result.failed?.status) {
+          setError(LoginErrorReason[result.failed.status]);
+        } else {
+          setError(Strings.Error.UNKNOWN);
+        }
         break;
     }
   };
@@ -128,7 +145,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ reason: initReason }) => {
             setError(Strings.Auth.NO_TOKEN);
           }
         } catch (e) {
-          setError(`${Strings.Auth.AUTO_LOGIN_FAILED}\n${Strings.Auth.REASON} ${e.toString()}`);
+          if (e instanceof Error) {
+            setError(`${Strings.Auth.AUTO_LOGIN_FAILED}\n${Strings.Auth.REASON} ${e.toString()}`);
+          }
           console.error(e);
         }
       }
