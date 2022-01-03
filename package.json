@@ -73,7 +73,7 @@
     "concurrently": "^6.5.1",
     "cross-env": "^7.0.2",
     "css-loader": "^6.5.1",
-    "esbuild": "^0.14.7",
+    "esbuild": "^0.14.10",
     "esbuild-loader": "^2.18.0",
     "eslint": "^8.5.0",
     "eslint-config-google": "^0.14.0",
