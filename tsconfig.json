@@ -16,8 +16,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false,
-    "jsx": "react",
+    "noEmit": true,
+    "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true
   },
   "include": [
