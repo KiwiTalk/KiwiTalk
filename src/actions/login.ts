@@ -1,7 +1,7 @@
 import {
   AuthApiClient, CommandResultFailed, KnownAuthStatusCode, TalkClient,
 } from 'node-kakao';
-import { LoginData } from 'node-kakao/dist/api';
+import { LoginData,OAuthCredential } from 'node-kakao';
 import UtilModules from '../utils';
 
 export interface LoginForm {
@@ -29,7 +29,7 @@ export enum LoginResultType {
 
 export interface LoginResult {
   type: LoginResultType;
-  succeed?: LoginData;
+  succeed?: OAuthCredential;
   failed?: CommandResultFailed;
 }
 
@@ -53,7 +53,7 @@ export async function login(
   try {
     const loginResult = await (async () => {
       if (!token) {
-        return authClient.login({ email, password });
+        return authClient.login({ email, password }, forced);
       } else {
         return authClient.loginToken({ email, password, autowithlock: false });
       }

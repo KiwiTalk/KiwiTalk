@@ -1,6 +1,6 @@
 import { Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { MoreSettingsStruct } from 'node-kakao/dist/api/struct';
+import { MoreSettingsStruct } from 'node-kakao/src/api/struct';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';

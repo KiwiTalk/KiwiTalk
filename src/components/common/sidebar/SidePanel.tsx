@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Search from '../Search';
 import ChatRoomList from '../../chat/chatroom/list/ChatRoomList';
 import Profile from '../Profile';
-import { MoreSettingsStruct } from 'node-kakao/dist/api/struct';
+import { MoreSettingsStruct } from 'node-kakao/src/api/struct/account';
 
 const Wrapper = styled.div`
   width: 309px;
