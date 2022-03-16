@@ -16,6 +16,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
   },
+  devtool: 'inline-source-map',
   devServer: {
     devMiddleware: {
       publicPath: '/',
