@@ -6,6 +6,6 @@ import { reducers } from '../reducers';
 export default function configureStore() {
   return _configureStore({
     reducer: reducers,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({serializableCheck: false,}),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false, }),
   });
 }
