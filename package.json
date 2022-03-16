@@ -20,11 +20,11 @@
     "icon": "img/android-chrome-512x512.png"
   },
   "scripts": {
-    "start:nw": "node_modules/.bin/nwbuild -r . --dev",
-    "start:webpack": "node_modules/.bin/webpack serve --mode=development",
-    "start": "node_modules/.bin/concurrently \"npm:start:webpack\" \"npm:start:nw\"",
-    "build": "node_modules/.bin/webpack --mode=production",
-    "release": "npm run build && node_modules/.bin/concurrently \"npm:package:win64\" \"npm:package:mac64\" \"npm:package:linux64\"",
+    "start:nw": "npx nwbuild -r . --dev",
+    "start:webpack": "npx webpack serve --mode=development",
+    "start": "npx concurrently \"npm:start:webpack\" \"npm:start:nw\"",
+    "build": "npx webpack --mode=production",
+    "release": "npm run build && npx \"npm:package:win64\" \"npm:package:mac64\" \"npm:package:linux64\"",
     "package:win64": "node buildscript.js win64",
     "package:mac64": "node buildscript.js osx64",
     "package:linux64": "node buildscript.js linux64"
