@@ -38,7 +38,7 @@
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@reduxjs/toolkit": "^1.7.1",
     "bson": "^4.6.0",
-    "image-size": "^1.0.0",
+    "image-size": "^1.0.1",
     "localforage": "^1.10.0",
     "node-kakao": "^4.3.1",
     "open-graph-scraper": "^4.11.0",
