@@ -68,7 +68,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.25",
     "@types/uuid": "^8.3.4",
-    "@typescript-eslint/eslint-plugin": "^5.22.0",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.22.0",
     "concurrently": "^7.1.0",
     "cross-env": "^7.0.2",
