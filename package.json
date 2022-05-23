@@ -75,7 +75,7 @@
     "css-loader": "^6.7.1",
     "esbuild": "^0.14.38",
     "esbuild-loader": "^2.18.0",
-    "eslint": "^8.14.0",
+    "eslint": "^8.16.0",
     "eslint-config-google": "^0.14.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
