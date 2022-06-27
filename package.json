@@ -37,7 +37,7 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@reduxjs/toolkit": "^1.8.1",
-    "bson": "^4.6.3",
+    "bson": "^4.6.4",
     "image-size": "^1.0.1",
     "localforage": "^1.10.0",
     "node-kakao": "^4.3.1",
@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.1",
+    "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.1.1",
     "@types/bson": "^4.2.0",
     "@types/jest": "^27.4.1",
