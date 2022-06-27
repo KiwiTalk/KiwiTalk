@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.1",
+    "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.1.1",
     "@types/bson": "^4.2.0",
     "@types/jest": "^27.4.1",
@@ -74,7 +74,7 @@
     "cross-env": "^7.0.2",
     "css-loader": "^6.7.1",
     "esbuild": "^0.14.38",
-    "esbuild-loader": "^2.18.0",
+    "esbuild-loader": "^2.19.0",
     "eslint": "^8.14.0",
     "eslint-config-google": "^0.14.0",
     "file-loader": "^6.2.0",
