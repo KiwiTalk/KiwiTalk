@@ -62,7 +62,7 @@
     "@types/node": "^18.6.3",
     "@types/nw.js": "^0.13.15",
     "@types/open-graph-scraper": "^4.8.1",
-    "@types/react": "^18.0.15",
+    "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-redux": "^7.1.24",
     "@types/react-router-dom": "^5.3.3",
