@@ -1,106 +1,30 @@
 {
   "name": "kiwi-talk",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
-  "description": "open kiwi talk",
-  "authors": [
-    "mocha",
-    "JellyBrick",
-    "Scripter36",
-    "Su-Yong",
-    "nnnlog",
-    "sangwon090",
-    "storycraft"
-  ],
-  "main": "entry.js",
-  "node-remote": "*://localhost",
-  "user-agent": "KT/3.2.7 Wd/10.0 ko",
-  "window": {
-    "toolbar": false,
-    "icon": "img/android-chrome-512x512.png"
-  },
+  "description": "Open kiwi talk",
+  "main": "index.js",
   "scripts": {
-    "start:nw": "node_modules/.bin/nwbuild -r . --dev",
-    "start:webpack": "node_modules/.bin/webpack serve --mode=development",
-    "start": "node_modules/.bin/concurrently \"npm:start:webpack\" \"npm:start:nw\"",
-    "build": "node_modules/.bin/webpack --mode=production",
-    "release": "npm run build && node_modules/.bin/concurrently \"npm:package:win64\" \"npm:package:mac64\" \"npm:package:linux64\"",
-    "package:win64": "node buildscript.js win64",
-    "package:mac64": "node buildscript.js osx64",
-    "package:linux64": "node buildscript.js linux64"
+    "build:frontend": ""
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KiwiTalk/kiwitalk.git"
+  },
+  "author": "KiwiTalk contributors",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/KiwiTalk/kiwitalk/issues"
+  },
+  "homepage": "https://github.com/KiwiTalk/kiwitalk",
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.0.5",
+    "eslint": "^8.23.0",
+    "eslint-config-google": "^0.14.0"
   },
   "dependencies": {
-    "@material-ui/core": "^4.12.4",
-    "@material-ui/icons": "^4.11.3",
-    "@material-ui/lab": "^4.0.0-alpha.61",
-    "@reduxjs/toolkit": "^1.8.3",
-    "bson": "^4.6.5",
-    "image-size": "^1.0.2",
-    "localforage": "^1.10.0",
-    "node-kakao": "^4.3.1",
-    "open-graph-scraper": "^4.11.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-redux": "^8.0.2",
-    "react-router-dom": "^5.3.0",
-    "react-spoiler": "^0.4.3",
-    "react-virtuoso": "^2.16.6",
-    "styled-components": "^5.3.5",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.7.4",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^14.3.0",
-    "@types/bson": "^4.2.0",
-    "@types/jest": "^28.1.6",
-    "@types/node": "^18.6.3",
-    "@types/nw.js": "^0.13.15",
-    "@types/open-graph-scraper": "^4.8.1",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
-    "@types/react-redux": "^7.1.24",
-    "@types/react-router-dom": "^5.3.3",
-    "@types/styled-components": "^5.1.25",
-    "@types/uuid": "^8.3.4",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
-    "concurrently": "^7.3.0",
-    "cross-env": "^7.0.2",
-    "css-loader": "^6.7.1",
-    "esbuild": "^0.14.51",
-    "esbuild-loader": "^2.19.0",
-    "eslint": "^8.21.0",
-    "eslint-config-google": "^0.14.0",
-    "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.5.0",
-    "nw-builder": "^3.8.1",
-    "os-tmpdir": "^2.0.0",
-    "style-loader": "^3.3.1",
-    "ts-loader": "^9.3.1",
-    "wait-on": "^6.0.1",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.9.3"
-  },
-  "build": {
-    "appId": "io.github.kiwitalk",
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        }
-      ],
-      "icon": "public/img/android-chrome-512x512.png"
-    }
+    "typescript": "^4.8.2"
   }
 }

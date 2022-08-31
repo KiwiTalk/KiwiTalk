@@ -232,7 +232,7 @@ Temporary Items
 
 # End of https://www.gitignore.io/api/node,code,webstorm+all,macos
 
-build
-cache
-release
+
+/crates/target
+/*/Cargo.lock
 .vscode/extensions.json

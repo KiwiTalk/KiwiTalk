@@ -1,0 +1,23 @@
+[package]
+name = "talk-loco-client"
+version = "0.1.0"
+license = "Apache-2.0"
+keywords = ["talk", "loco"]
+readme = "readme.md"
+description = "Loco client"
+authors = ["KiwiTalk contributors"]
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0" }
+tokio = { version = "1", features = ["rt", "net", "sync"] }
+tokio-util = { version = "0.7.3", features = ["compat"] }
+futures = "0.3.16"
+bson = "2.0.1"
+rustc-hash = "1.1.0"
+talk-loco-command = { path = "../talk-loco-command" }
+loco-protocol = "5.0.0"
+
+[dev-dependencies]
+tokio-native-tls = "0.3.0"
+tokio = { version = "1", features = ["full"] }
