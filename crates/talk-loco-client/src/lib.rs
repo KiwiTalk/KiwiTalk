@@ -117,7 +117,15 @@ struct CommandSessionHandler<S> {
 }
 
 impl<S: AsyncRead + AsyncWrite + Unpin> CommandSessionHandler<S> {
-    pub async fn send_request(
+    pub async fn handle_command(&mut self, command: HandlerCommand) {
+        match command {
+            HandlerCommand::Request(data, response_sender) => {
+                self.send_request(data, response_sender).await
+            }
+        }
+    }
+
+    async fn send_request(
         &mut self,
         data: BsonCommand<Document>,
         response_sender: oneshot::Sender<RequestResult>,
@@ -159,9 +167,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> CommandSessionHandler<S> {
             select! {
                 command = receiver.recv() => {
                     if let Some(command) = command {
-                        match command {
-                            HandlerCommand::Request(data, response_sender) => handler.send_request(data, response_sender).await
-                        }
+                        handler.handle_command(command).await;
                     } else {
                         break;
                     }
