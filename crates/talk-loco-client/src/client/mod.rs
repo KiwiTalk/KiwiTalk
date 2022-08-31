@@ -2,8 +2,6 @@ pub mod booking;
 pub mod checkin;
 pub mod talk;
 
-pub mod media;
-
 use crate::{CommandRequest, LocoCommandSession, RequestError};
 use futures::{ready, Future, FutureExt};
 use serde::{de::DeserializeOwned, Serialize};
