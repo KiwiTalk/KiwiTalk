@@ -95,7 +95,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
 
     pub async fn login<'b>(
         &'b self,
-        method: &LoginMethod<'b>,
+        method: LoginMethod<'b>,
         forced: bool,
     ) -> ApiResult<TalkStatusResponse<LoginData>> {
         let response = match method {
@@ -147,7 +147,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
 
     pub async fn request_passcode<'b>(
         &'b self,
-        account_form: &AccountLoginForm<'b>,
+        account_form: AccountLoginForm<'b>,
     ) -> ApiResult<TalkStatusResponse<()>> {
         let response = self
             .build_auth_request(
@@ -165,7 +165,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
     pub async fn register_device<'b>(
         &'b self,
         passcode: &str,
-        account_form: &AccountLoginForm<'b>,
+        account_form: AccountLoginForm<'b>,
         permanent: bool,
     ) -> ApiResult<TalkStatusResponse<()>> {
         #[derive(Serialize)]

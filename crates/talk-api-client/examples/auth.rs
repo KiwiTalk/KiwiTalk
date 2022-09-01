@@ -48,7 +48,7 @@ async fn main() {
 
     let res = auth_client
         .login(
-            &login_form,
+            login_form,
             // Force login
             true,
         )
