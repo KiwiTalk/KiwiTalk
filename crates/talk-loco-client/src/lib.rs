@@ -1,8 +1,6 @@
 pub mod client;
 
 use std::{
-    error::Error,
-    fmt::Display,
     pin::Pin,
     task::{Context, Poll},
 };
@@ -15,6 +13,7 @@ use talk_loco_command::command::{
     codec::{BsonCommandCodec, ReadError, WriteError},
     BsonCommand, ReadBsonCommand,
 };
+use thiserror::Error;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
@@ -82,28 +81,14 @@ impl Future for CommandRequest {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum RequestError {
-    Write(WriteError),
+    #[error("Could not write to stream")]
+    Write(#[from] WriteError),
+
+    #[error("Could not read from the stream")]
     Read,
 }
-
-impl From<WriteError> for RequestError {
-    fn from(err: WriteError) -> Self {
-        Self::Write(err)
-    }
-}
-
-impl Display for RequestError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            RequestError::Write(err) => err.fmt(f),
-            RequestError::Read => write!(f, "Could not read from the stream"),
-        }
-    }
-}
-
-impl Error for RequestError {}
 
 pub type RequestResult = Result<BsonCommand<Document>, RequestError>;
 pub type BroadcastResult = Result<ReadBsonCommand<Document>, ReadError>;

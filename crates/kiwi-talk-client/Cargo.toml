@@ -7,5 +7,7 @@ repository = "https://github.com/KiwiTalk/kiwitalk"
 edition = "2021"
 
 [dependencies]
-kiwi-talk-db = { path = "../kiwi-talk-db" }
 tokio = { version = "1", features = ["full"] }
+thiserror = "1.0"
+
+kiwi-talk-db = { path = "../kiwi-talk-db" }

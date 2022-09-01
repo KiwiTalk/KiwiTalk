@@ -1,9 +1,7 @@
 use std::{
     borrow::Cow,
-    error::Error,
-    fmt::Display,
     io::{Cursor, Read, Write},
-    string::FromUtf8Error,
+    string::FromUtf8Error
 };
 
 use bson::Document;
@@ -13,81 +11,34 @@ use loco_protocol::command::{
     codec::{CommandCodec, StreamError},
     Command,
 };
+use thiserror::Error;
 
 use super::{BsonCommand, ReadBsonCommand};
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum WriteError {
-    Codec(StreamError),
-    Encode(bson::ser::Error),
+    #[error("Codec stream write error")]
+    Codec(#[from] StreamError),
+
+    #[error("Could not serialize BSON data")]
+    Encode(#[from] bson::ser::Error),
 }
 
-impl From<StreamError> for WriteError {
-    fn from(err: StreamError) -> Self {
-        Self::Codec(err)
-    }
-}
-
-impl From<bson::ser::Error> for WriteError {
-    fn from(err: bson::ser::Error) -> Self {
-        Self::Encode(err)
-    }
-}
-
-impl Display for WriteError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            WriteError::Codec(err) => err.fmt(f),
-            WriteError::Encode(err) => err.fmt(f),
-        }
-    }
-}
-
-impl Error for WriteError {}
-
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ReadError {
-    Stream(StreamError),
+    #[error("Codec stream read error")]
+    Stream(#[from] StreamError),
 
     /// Response command's status is not 0, means the request is corrupted
+    #[error("Command corrupted")]
     Corrupted(Command),
 
-    InvalidMethod(FromUtf8Error),
-    Decode(bson::de::Error),
-}
+    #[error("Invalid header method")]
+    InvalidMethod(#[from] FromUtf8Error),
 
-impl From<StreamError> for ReadError {
-    fn from(err: StreamError) -> Self {
-        Self::Stream(err)
-    }
+    #[error("Could not deserialize BSON data")]
+    Decode(#[from] bson::de::Error),
 }
-
-impl From<FromUtf8Error> for ReadError {
-    fn from(err: FromUtf8Error) -> Self {
-        Self::InvalidMethod(err)
-    }
-}
-
-impl From<bson::de::Error> for ReadError {
-    fn from(err: bson::de::Error) -> Self {
-        Self::Decode(err)
-    }
-}
-
-impl Display for ReadError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ReadError::Stream(err) => err.fmt(f),
-            ReadError::Corrupted(err) => {
-                write!(f, "Read stream corrupted. status: {}", err.header.status)
-            }
-            ReadError::InvalidMethod(err) => err.fmt(f),
-            ReadError::Decode(err) => err.fmt(f),
-        }
-    }
-}
-
-impl Error for ReadError {}
 
 /// [BsonCommand] codec
 #[derive(Debug)]

@@ -5,6 +5,7 @@ pub mod talk;
 use crate::{CommandRequest, LocoCommandSession, RequestError};
 use futures::{ready, Future, FutureExt};
 use serde::{de::DeserializeOwned, Serialize};
+use thiserror::Error;
 use std::{
     marker::PhantomData,
     pin::Pin,
@@ -12,22 +13,13 @@ use std::{
 };
 use talk_loco_command::command::BsonCommand;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ClientRequestError {
-    Request(RequestError),
-    Deserialize(bson::de::Error),
-}
+    #[error("Request failed")]
+    Request(#[from] RequestError),
 
-impl From<RequestError> for ClientRequestError {
-    fn from(err: RequestError) -> Self {
-        Self::Request(err)
-    }
-}
-
-impl From<bson::de::Error> for ClientRequestError {
-    fn from(err: bson::de::Error) -> Self {
-        Self::Deserialize(err)
-    }
+    #[error("Could not deserialize BSON data")]
+    Deserialize(#[from] bson::de::Error),
 }
 
 pub type ClientRequestResult<D> = Result<BsonCommand<D>, ClientRequestError>;
