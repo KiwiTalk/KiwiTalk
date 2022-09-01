@@ -14,8 +14,8 @@ use serde::Serialize;
 
 /// Internal talk api wrapper for authentication
 #[derive(Debug)]
-pub struct TalkAuthClient<Xvc> {
-    pub config: AuthClientConfig<'static>,
+pub struct TalkAuthClient<'a, Xvc> {
+    pub config: AuthClientConfig<'a>,
 
     url: ApiURL,
     xvc_hasher: Xvc,
@@ -23,8 +23,8 @@ pub struct TalkAuthClient<Xvc> {
     client: Client,
 }
 
-impl<Xvc: XVCHasher> TalkAuthClient<Xvc> {
-    pub fn new(config: AuthClientConfig<'static>, xvc_hasher: Xvc) -> Self {
+impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
+    pub fn new(config: AuthClientConfig<'a>, xvc_hasher: Xvc) -> Self {
         Self::new_with_url(
             config,
             ApiURL::new("https", "katalk.kakao.com").unwrap(),
@@ -32,7 +32,7 @@ impl<Xvc: XVCHasher> TalkAuthClient<Xvc> {
         )
     }
 
-    pub fn new_with_url(config: AuthClientConfig<'static>, url: ApiURL, xvc_hasher: Xvc) -> Self {
+    pub fn new_with_url(config: AuthClientConfig<'a>, url: ApiURL, xvc_hasher: Xvc) -> Self {
         Self {
             config,
 
@@ -85,7 +85,7 @@ impl<Xvc: XVCHasher> TalkAuthClient<Xvc> {
         hex::encode(&full_hash[..8])
     }
 
-    fn build_auth_form<'a>(&'a self, email: &'a str, password: &'a str) -> AuthRequestForm<'a> {
+    fn build_auth_form<'b>(&'b self, email: &'b str, password: &'b str) -> AuthRequestForm<'b> {
         AuthRequestForm {
             email,
             password,
@@ -95,9 +95,9 @@ impl<Xvc: XVCHasher> TalkAuthClient<Xvc> {
         }
     }
 
-    pub async fn login<'a>(
-        &'a self,
-        method: &LoginMethod<'a>,
+    pub async fn login<'b>(
+        &'b self,
+        method: &LoginMethod<'b>,
         forced: bool,
     ) -> ApiResult<TalkStatusResponse<LoginData>> {
         let response = match method {
@@ -147,9 +147,9 @@ impl<Xvc: XVCHasher> TalkAuthClient<Xvc> {
         Ok(response.json().await?)
     }
 
-    pub async fn request_passcode<'a>(
-        &'a self,
-        account_form: &AccountLoginForm<'a>,
+    pub async fn request_passcode<'b>(
+        &'b self,
+        account_form: &AccountLoginForm<'b>,
     ) -> ApiResult<TalkStatusResponse<()>> {
         let response = self
             .build_auth_request(
@@ -164,10 +164,10 @@ impl<Xvc: XVCHasher> TalkAuthClient<Xvc> {
         Ok(response.json().await?)
     }
 
-    pub async fn register_device<'a>(
-        &'a self,
+    pub async fn register_device<'b>(
+        &'b self,
         passcode: &str,
-        account_form: &AccountLoginForm<'a>,
+        account_form: &AccountLoginForm<'b>,
         permanent: bool,
     ) -> ApiResult<TalkStatusResponse<()>> {
         #[derive(Serialize)]
