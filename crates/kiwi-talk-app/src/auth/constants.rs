@@ -6,10 +6,13 @@ use talk_api_client::{
 // TODO:: Generate DEVICE_UUID using machine id
 pub const DEVICE_UUID: &str =
     "S2l3aVRhbGtLaXdpVGFsa0tpd2lUYWxrS2l3aVRhbGtLaXdpVGFsa0tpd2lUYWxrS2l3aVRhbGtLaXdpVGFsaw==";
+
+pub const DEFAULT_DEVICE_NAME: &str = "Unknown Device";
+
 // TODO:: Remove
 pub const CONFIG: AuthClientConfig = AuthClientConfig {
     device: AuthDeviceConfig {
-        name: "TODO",
+        name: DEFAULT_DEVICE_NAME,
         model: None,
         uuid: DEVICE_UUID,
     },
