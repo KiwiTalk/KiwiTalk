@@ -1,0 +1,9 @@
+[package]
+name = "kiwi-talk-db"
+version = "0.1.0"
+authors = ["KiwiTalk contributors"]
+license = "Apache-2.0"
+repository = "https://github.com/KiwiTalk/kiwitalk"
+edition = "2021"
+
+[dependencies]
