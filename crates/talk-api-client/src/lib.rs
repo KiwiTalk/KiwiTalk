@@ -6,9 +6,10 @@ pub mod response;
 use std::{error::Error, fmt::Display, ops::Deref, str::FromStr};
 
 use reqwest::Url;
+use serde::{Deserialize, Serialize};
 
 /// Wrapped [reqwest::Url]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApiURL(Url);
 
 impl ApiURL {

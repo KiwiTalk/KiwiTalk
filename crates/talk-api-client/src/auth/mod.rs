@@ -10,7 +10,7 @@ use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult, ApiURL
 
 use self::{resources::LoginData, xvc::XVCHasher};
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// Internal talk api wrapper for authentication
 #[derive(Debug)]
@@ -233,7 +233,7 @@ impl AuthClientConfig<'static> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthDeviceConfig<'a> {
     pub name: Cow<'a, str>,
     pub model: Option<Cow<'a, str>>,
@@ -264,7 +264,7 @@ impl AuthDeviceConfig<'static> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccountLoginForm<'a> {
     pub email: Cow<'a, str>,
     pub password: Cow<'a, str>,
@@ -279,7 +279,7 @@ impl AccountLoginForm<'static> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TokenLoginForm<'a> {
     pub email: Cow<'a, str>,
     pub auto_login_token: Cow<'a, str>,
@@ -301,7 +301,7 @@ impl TokenLoginForm<'static> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LoginMethod<'a> {
     Account(AccountLoginForm<'a>),
     Token(TokenLoginForm<'a>),
