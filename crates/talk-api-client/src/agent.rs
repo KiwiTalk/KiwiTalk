@@ -1,17 +1,15 @@
-use std::borrow::Cow;
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum TalkApiAgent<'a> {
     /// Android agent with os version
-    Android(Cow<'a, str>),
+    Android(&'a str),
 
     /// Win32 agent with os version
-    Win32(Cow<'a, str>),
+    Win32(&'a str),
 
     /// Custom agent
     Custom {
-        agent: Cow<'a, str>,
-        user_agent: Cow<'a, str>,
+        agent: &'a str,
+        user_agent: &'a str,
     },
 }
 

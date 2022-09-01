@@ -1,4 +1,4 @@
-use std::{borrow::Cow, env};
+use std::env;
 
 use talk_api_client::{
     agent::TalkApiAgent,
@@ -8,23 +8,25 @@ use talk_api_client::{
     },
 };
 
-pub const CONFIG: AuthClientConfig = AuthClientConfig::new_const(
-    AuthDeviceConfig::new_const_pc(
+pub const CONFIG: AuthClientConfig = AuthClientConfig {
+    device: AuthDeviceConfig {
         // Device name
-        "TEST_DEVICE",
+        name: "TEST_DEVICE",
+        
+        model: None,
         // Unique id base64 encoded. 62 bytes
-        "OMnpb2Rq6q4goIvDM/yiHxs7ztsaGnNtjdXmFW92SODvof2BwjvJIwbP5cDp4b++fcYCBGQYy6K8Q8jGhZYzV1==",
-    ),
+        uuid: "OMnpb2Rq6q4goIvDM/yiHxs7ztsaGnNtjdXmFW92SODvof2BwjvJIwbP5cDp4b++fcYCBGQYy6K8Q8jGhZYzV1==",
+    },
     // lang
-    "ko",
+    language: "ko",
     // Talk client version
-    "3.2.8",
+    version: "3.2.8",
     // Talk agent
-    TalkApiAgent::Win32(Cow::Borrowed("10.0")),
-);
+    agent: TalkApiAgent::Win32("10.0"),
+};
 
 // XVC hasher
-pub const HASHER: Win32XVCHasher = Win32XVCHasher::new_const("JAYDEN", "JAYMOND");
+pub const HASHER: Win32XVCHasher = Win32XVCHasher("JAYDEN", "JAYMOND");
 
 #[tokio::main]
 async fn main() {
@@ -40,8 +42,8 @@ async fn main() {
     let auth_client = TalkAuthClient::new(CONFIG, HASHER);
 
     let login_form = LoginMethod::Account(AccountLoginForm {
-        email: Cow::Borrowed(&args[1]),
-        password: Cow::Borrowed(&args[2]),
+        email: &args[1],
+        password: &args[2],
     });
 
     let res = auth_client

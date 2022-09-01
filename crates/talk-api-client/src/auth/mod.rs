@@ -2,15 +2,13 @@ pub mod resources;
 pub mod status;
 pub mod xvc;
 
-use std::borrow::Cow;
-
 use reqwest::{header, Client, RequestBuilder, Url};
 
 use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult, ApiURL};
 
 use self::{resources::LoginData, xvc::XVCHasher};
 
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 
 /// Internal talk api wrapper for authentication
 #[derive(Debug)]
@@ -47,7 +45,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
         let user_agent = self
             .config
             .agent
-            .get_user_agent(&self.config.version, &self.config.language);
+            .get_user_agent(self.config.version, self.config.language);
 
         let mut builder = builder
             .header(header::USER_AGENT, &user_agent)
@@ -61,7 +59,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
                 ),
             )
             .header(header::ACCEPT, "*/*")
-            .header(header::ACCEPT_LANGUAGE, &self.config.language as &str)
+            .header(header::ACCEPT_LANGUAGE, self.config.language as &str)
             .header("X-VC", self.hash_auth_xvc(&user_agent, email));
 
         if let Some(host) = self.url.host_str() {
@@ -80,7 +78,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
     fn hash_auth_xvc(&self, user_agent: &str, email: &str) -> String {
         let full_hash = self
             .xvc_hasher
-            .full_xvc_hash(&self.config.device.uuid, user_agent, email);
+            .full_xvc_hash(self.config.device.uuid, user_agent, email);
 
         hex::encode(&full_hash[..8])
     }
@@ -89,9 +87,9 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
         AuthRequestForm {
             email,
             password,
-            device_uuid: &self.config.device.uuid,
-            device_name: &self.config.device.name,
-            model_name: self.config.device.model.as_deref(),
+            device_uuid: self.config.device.uuid,
+            device_name: self.config.device.name,
+            model_name: self.config.device.model,
         }
     }
 
@@ -111,10 +109,10 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
 
                 self.build_auth_request(
                     self.client.post(self.build_url("account/login.json")),
-                    &account_form.email,
+                    account_form.email,
                 )
                 .form(&LoginRequestForm {
-                    auth: self.build_auth_form(&account_form.email, &account_form.password),
+                    auth: self.build_auth_form(account_form.email, account_form.password),
                     forced,
                 })
             }
@@ -131,10 +129,10 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
 
                 self.build_auth_request(
                     self.client.post(self.build_url("account/login.json")),
-                    &token_form.email,
+                    token_form.email,
                 )
                 .form(&TokenLoginRequestForm {
-                    auth: self.build_auth_form(&token_form.email, &token_form.auto_login_token),
+                    auth: self.build_auth_form(token_form.email, token_form.auto_login_token),
                     auto_login: true,
                     autowithlock: token_form.locked,
                     forced,
@@ -155,9 +153,9 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
             .build_auth_request(
                 self.client
                     .post(self.build_url("account/request_passcode.json")),
-                &account_form.email,
+                account_form.email,
             )
-            .form(&self.build_auth_form(&account_form.email, &account_form.password))
+            .form(&self.build_auth_form(account_form.email, account_form.password))
             .send()
             .await?;
 
@@ -182,10 +180,10 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
             .build_auth_request(
                 self.client
                     .post(self.build_url("account/register_device.json")),
-                &account_form.email,
+                account_form.email,
             )
             .form(&RegisterDeviceForm {
-                auth: self.build_auth_form(&account_form.email, &account_form.password),
+                auth: self.build_auth_form(account_form.email, account_form.password),
                 passcode,
                 permanent,
             })
@@ -207,101 +205,38 @@ struct AuthRequestForm<'a> {
     model_name: Option<&'a str>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct AuthClientConfig<'a> {
     pub device: AuthDeviceConfig<'a>,
 
-    pub language: Cow<'a, str>,
-    pub version: Cow<'a, str>,
+    pub language: &'a str,
+    pub version: &'a str,
 
     pub agent: TalkApiAgent<'a>,
 }
 
-impl AuthClientConfig<'static> {
-    pub const fn new_const(
-        device: AuthDeviceConfig<'static>,
-        language: &'static str,
-        version: &'static str,
-        agent: TalkApiAgent<'static>,
-    ) -> Self {
-        Self {
-            device,
-            language: Cow::Borrowed(language),
-            version: Cow::Borrowed(version),
-            agent,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
 pub struct AuthDeviceConfig<'a> {
-    pub name: Cow<'a, str>,
-    pub model: Option<Cow<'a, str>>,
-    pub uuid: Cow<'a, str>,
+    pub name: &'a str,
+    pub model: Option<&'a str>,
+    pub uuid: &'a str,
 }
 
-impl<'a> AuthDeviceConfig<'a> {
-    pub const fn new(name: Cow<'a, str>, model: Option<Cow<'a, str>>, uuid: Cow<'a, str>) -> Self {
-        Self { name, uuid, model }
-    }
-
-    pub const fn new_pc(name: Cow<'a, str>, uuid: Cow<'a, str>) -> Self {
-        Self {
-            name,
-            uuid,
-            model: None,
-        }
-    }
-}
-
-impl AuthDeviceConfig<'static> {
-    pub const fn new_const_pc(name: &'static str, uuid: &'static str) -> Self {
-        Self {
-            name: Cow::Borrowed(name),
-            uuid: Cow::Borrowed(uuid),
-            model: None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
 pub struct AccountLoginForm<'a> {
-    pub email: Cow<'a, str>,
-    pub password: Cow<'a, str>,
+    pub email: &'a str,
+    pub password: &'a str,
 }
 
-impl AccountLoginForm<'static> {
-    pub const fn new_const(email: &'static str, password: &'static str) -> Self {
-        Self {
-            email: Cow::Borrowed(email),
-            password: Cow::Borrowed(password),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
 pub struct TokenLoginForm<'a> {
-    pub email: Cow<'a, str>,
-    pub auto_login_token: Cow<'a, str>,
+    pub email: &'a str,
+    pub auto_login_token: &'a str,
 
     pub locked: bool,
 }
 
-impl TokenLoginForm<'static> {
-    pub const fn new_const(
-        email: &'static str,
-        auto_login_token: &'static str,
-        locked: bool,
-    ) -> Self {
-        Self {
-            email: Cow::Borrowed(email),
-            auto_login_token: Cow::Borrowed(auto_login_token),
-            locked,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy)]
 pub enum LoginMethod<'a> {
     Account(AccountLoginForm<'a>),
     Token(TokenLoginForm<'a>),
