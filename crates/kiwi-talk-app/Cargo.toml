@@ -18,6 +18,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.5", features = ["api-all"] }
 tokio = { version = "1", features = ["full"] }
 kiwi-talk-client = { path = "../kiwi-talk-client" }
+talk-api-client = { path = "../talk-api-client" }
 
 [features]
 default = [ "custom-protocol" ]
