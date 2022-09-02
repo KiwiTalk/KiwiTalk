@@ -1,2 +1,2 @@
-#[derive(Debug)]
-pub struct KiwiTalkClient {}
+pub mod constants;
+

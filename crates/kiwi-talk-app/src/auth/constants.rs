@@ -1,9 +1,8 @@
+use kiwi_talk_client::constants::TALK_VERSION;
 use talk_api_client::{
     agent::TalkApiAgent,
     auth::{xvc::default::Win32XVCHasher, AuthClientConfig, AuthDeviceConfig},
 };
-
-use crate::constants::TALK_VERSION;
 
 // TODO:: Generate DEVICE_UUID using machine id
 pub const DEVICE_UUID: &str =
