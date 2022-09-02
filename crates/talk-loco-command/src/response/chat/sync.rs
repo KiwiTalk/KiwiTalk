@@ -1,5 +1,6 @@
 use crate::structs::{channel_info::ChannelInfo, chat::Chatlog};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Sync Chatroom join
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,6 +23,7 @@ pub struct SyncDlMsg {
 }
 
 /// Sync openlink creation
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SyncLinkCr {
     /// Openlink id
@@ -29,7 +31,7 @@ pub struct SyncLinkCr {
     pub link_id: i64,
 
     /// Only presents if the openlink is openchat.
-    #[serde(rename = "chatRoom", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "chatRoom")]
     pub chat_room: Option<ChannelInfo>,
 }
 
