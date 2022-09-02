@@ -67,7 +67,7 @@ macro_rules! async_client_method {
         pub async fn $name(
             &self,
             command: &$request,
-        ) -> crate::client::ClientCommandRequest<$response> {
+        ) -> crate::client::ClientCommandRequest<talk_loco_command::response::ResponseData<$response>> {
             crate::client::request_response_async(
                 self.0,
                 &talk_loco_command::command::BsonCommand::new(std::borrow::Cow::Borrowed($method), 0, command),
