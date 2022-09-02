@@ -39,7 +39,7 @@ impl<D: DeserializeOwned + Unpin> Future for ClientCommandRequest<D> {
 }
 
 /// Convenience method for requesting command asynchronously
-pub async fn request_response_async<D: DeserializeOwned>(
+pub async fn request_response_async<D: DeserializeOwned + Unpin>(
     session: &LocoCommandSession,
     command: &BsonCommand<impl Serialize>,
 ) -> ClientCommandRequest<D> {
