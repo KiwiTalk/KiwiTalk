@@ -5,6 +5,7 @@
 
 mod app;
 mod auth;
+mod constants;
 
 #[tokio::main]
 async fn main() {
