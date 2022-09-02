@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Request every chatroom list
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LChatListReq {
     /// Known chatroom id list
@@ -16,6 +18,6 @@ pub struct LChatListReq {
     pub last_token_id: i64,
 
     /// Last chatroom id from list in last response
-    #[serde(rename = "lastChatId", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "lastChatId")]
     pub last_chat_id: Option<i64>,
 }

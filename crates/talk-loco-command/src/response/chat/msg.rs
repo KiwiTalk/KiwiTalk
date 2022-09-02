@@ -1,7 +1,9 @@
 use crate::structs::chat::Chatlog;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Message sent from chatroom
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Msg {
     /// Sent chatroom id
@@ -16,7 +18,7 @@ pub struct Msg {
     pub chatlog: Option<Chatlog>,
 
     /// Sender nickname
-    #[serde(rename = "authorNickname", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "authorNickname")]
     pub author_nick: Option<String>,
 
     /// false If sender sent message without reading.
@@ -25,11 +27,11 @@ pub struct Msg {
     #[serde(rename = "noSeen")]
     pub no_seen: bool,
 
-    #[serde(rename = "li", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "li")]
     pub link_id: Option<i64>,
 
     /// Act like no_seen.(?)
     /// Only appears on openchat
-    #[serde(rename = "notiRead", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "notiRead")]
     pub noti_read: Option<bool>,
 }

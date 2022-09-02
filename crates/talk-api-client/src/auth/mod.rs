@@ -3,6 +3,7 @@ pub mod status;
 pub mod xvc;
 
 use reqwest::{header, Client, RequestBuilder, Url};
+use serde_with::skip_serializing_none;
 
 use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult, ApiURL};
 
@@ -194,6 +195,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
     }
 }
 
+#[skip_serializing_none]
 #[derive(Serialize)]
 struct AuthRequestForm<'a> {
     email: &'a str,
@@ -201,7 +203,6 @@ struct AuthRequestForm<'a> {
     device_uuid: &'a str,
     device_name: &'a str,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     model_name: Option<&'a str>,
 }
 

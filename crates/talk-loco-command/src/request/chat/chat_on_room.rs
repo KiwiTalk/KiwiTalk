@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Send before opening chatroom window. Notice server the user opening chatroom window.
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatOnRoomReq {
     /// Chatroom id
@@ -11,6 +13,6 @@ pub struct ChatOnRoomReq {
     pub token: i64,
 
     /// Openlink token of chatroom if openchat.
-    #[serde(rename = "opt", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "opt")]
     pub open_token: Option<i32>,
 }

@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Write message to chatroom
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WriteReq {
     /// Chatroom id
@@ -31,12 +33,11 @@ pub struct WriteReq {
     ///
     /// Json data. Have contents and extra data according to chat type.
     /// Also known as `extra`.
-    #[serde(rename = "extra", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "extra")]
     pub attachment: Option<String>,
 
     /// Used on pluschat.
     ///
     /// Cannot be used to send by normal user
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub supplement: Option<String>,
 }
