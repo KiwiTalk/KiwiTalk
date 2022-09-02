@@ -7,11 +7,11 @@ authors = ["KiwiTalk contributors"]
 license = "Apache-2.0"
 
 [dependencies]
-reqwest = { version = "0.11.7", features = ["json"] }
-sha2 = "0.10.2"
+reqwest = { version = "0.11.11", features = ["json"] }
+sha2 = "0.10.3"
 hex = "0.4.3"
-serde = { version = "1.0.130", features = ["derive"] }
+serde = { version = "1.0.144", features = ["derive"] }
 thiserror = "1.0"
 
 [dev-dependencies]
-tokio = { version = "1.14.0", features = ["full"] }
+tokio = { version = "1.20.1", features = ["full"] }
