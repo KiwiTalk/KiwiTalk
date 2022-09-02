@@ -3,6 +3,7 @@
     windows_subsystem = "windows"
 )]
 
+mod app;
 mod auth;
 
 #[tokio::main]
@@ -11,6 +12,7 @@ async fn main() {
 
     tauri::Builder::default()
         .plugin(auth::init_plugin("auth"))
+        .plugin(app::init_plugin("app"))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
