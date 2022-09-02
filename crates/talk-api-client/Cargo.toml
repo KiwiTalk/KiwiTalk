@@ -14,4 +14,4 @@ serde = { version = "1.0.144", features = ["derive"] }
 thiserror = "1.0"
 
 [dev-dependencies]
-tokio = { version = "1.20.1", features = ["full"] }
+tokio = { version = "1.21.0", features = ["full"] }
