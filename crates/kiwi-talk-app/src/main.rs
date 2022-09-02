@@ -9,6 +9,8 @@ use auth::init_auth_plugin;
 
 #[tokio::main]
 async fn main() {
+    tauri::async_runtime::set(tokio::runtime::Handle::current());
+
     tauri::Builder::default()
         .plugin(init_auth_plugin())
         .run(tauri::generate_context!())
