@@ -5,14 +5,12 @@
 
 mod auth;
 
-use auth::init_auth_plugin;
-
 #[tokio::main]
 async fn main() {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
     tauri::Builder::default()
-        .plugin(init_auth_plugin())
+        .plugin(auth::init_plugin("auth"))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
