@@ -11,7 +11,7 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use talk_loco_command::command::BsonCommand;
+use talk_loco_command::{command::BsonCommand, response::ResponseData};
 
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
@@ -22,7 +22,7 @@ pub enum ClientRequestError {
     Deserialize(#[from] bson::de::Error),
 }
 
-pub type ClientRequestResult<D> = Result<BsonCommand<D>, ClientRequestError>;
+pub type ClientRequestResult<D> = Result<ResponseData<D>, ClientRequestError>;
 
 #[derive(Debug)]
 pub struct ClientCommandRequest<D>(CommandRequest, PhantomData<D>);
@@ -32,11 +32,7 @@ impl<D: DeserializeOwned + Unpin> Future for ClientCommandRequest<D> {
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         Poll::Ready(match ready!(self.0.poll_unpin(cx)) {
-            Ok(res) => Ok(BsonCommand::<D> {
-                method: res.method,
-                data_type: res.data_type,
-                data: bson::from_document(res.data)?,
-            }),
+            Ok(res) => Ok(bson::from_document(res.data)?),
             Err(_) => Err(ClientRequestError::Request(RequestError::Read)),
         })
     }
@@ -67,7 +63,7 @@ macro_rules! async_client_method {
         pub async fn $name(
             &self,
             command: &$request,
-        ) -> crate::client::ClientCommandRequest<talk_loco_command::response::ResponseData<$response>> {
+        ) -> crate::client::ClientCommandRequest<$response> {
             crate::client::request_response_async(
                 self.0,
                 &talk_loco_command::command::BsonCommand::new(std::borrow::Cow::Borrowed($method), 0, command),
