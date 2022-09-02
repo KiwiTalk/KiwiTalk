@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use super::openlink::OpenUser;
 
 /// Minimal user info for chatroom display
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DisplayUserInfo {
     /// User id
@@ -18,7 +20,7 @@ pub struct DisplayUserInfo {
     pub profile_image_url: Option<String>,
 
     /// Country Iso, does not present on openchat.
-    #[serde(rename = "countryIso", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "countryIso")]
     pub country_iso: Option<String>,
 }
 

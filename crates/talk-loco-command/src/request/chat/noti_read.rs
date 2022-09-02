@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Read message in chatroom
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NotiReadReq {
     /// Chatroom id
@@ -13,6 +15,6 @@ pub struct NotiReadReq {
     pub watermark: i64,
 
     /// Openchat link id
-    #[serde(rename = "linkId", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "linkId")]
     pub link_id: Option<i64>,
 }

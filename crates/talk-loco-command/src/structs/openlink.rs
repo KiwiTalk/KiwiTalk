@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Openlink info
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -80,6 +81,7 @@ pub struct OpenKickedUserInfo {
 }
 
 /// Openchat user
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpenUser {
     #[serde(rename = "userId")]
@@ -109,11 +111,12 @@ pub struct OpenUser {
     pub open_token: i32,
 
     /// Profile link id. Only presents if user using openlink profile.
-    #[serde(rename = "pli", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "pli")]
     pub profile_link_id: Option<i64>,
 }
 
 /// Openlink user. Dont confuse with OpenUser.
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpenLinkUser {
     #[serde(rename = "userId")]
@@ -140,7 +143,7 @@ pub struct OpenLinkUser {
     pub profile_type: i8,
 
     /// Profile link id
-    #[serde(rename = "pli", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "pli")]
     pub profile_link_id: Option<i64>,
 
     #[serde(rename = "opt")]

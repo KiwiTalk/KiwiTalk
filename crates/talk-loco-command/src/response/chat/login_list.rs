@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 use super::LChatListRes;
 
 /// Contains userId, tokens, chatroom list.
 /// The purposes of tokens, revisions are unknown yet.
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginListRes {
     /// Logon user id
@@ -21,7 +23,7 @@ pub struct LoginListRes {
     pub eof: bool,
 
     /// Latest chatroom id
-    #[serde(rename = "lastChatId", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "lastChatId")]
     pub last_chat_id: Option<i64>,
 
     /// Latest token(Unknown) id

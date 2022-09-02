@@ -1,7 +1,9 @@
 use crate::structs::chat::Chatlog;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// [crate::request::chat::WriteReq] response
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WriteRes {
     /// Chatroom id
@@ -25,6 +27,6 @@ pub struct WriteRes {
     pub msg_id: i32,
 
     /// Sent message
-    #[serde(rename = "chatLog", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "chatLog")]
     pub chatlog: Option<Chatlog>,
 }

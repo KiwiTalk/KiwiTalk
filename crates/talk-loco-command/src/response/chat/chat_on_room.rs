@@ -1,8 +1,10 @@
 use crate::structs::{openlink::OpenLinkUser, user::UserVariant};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 /// Contains user info, watermark list.
 /// Client can update chatroom information before opening chatroom window.
+#[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatOnRoomRes {
     /// Chatroom id
@@ -24,7 +26,7 @@ pub struct ChatOnRoomRes {
     pub watermarks: Vec<i64>,
 
     /// Chatroom open token if openchat
-    #[serde(rename = "otk", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "otk")]
     pub open_token: Option<i32>,
 
     /// User list. Variant different by chatroom type.
@@ -47,7 +49,7 @@ pub struct ChatOnRoomRes {
     pub last_log_id: i64,
 
     /// Client open link user if openchat
-    #[serde(rename = "olu", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "olu")]
     pub open_link_user: Option<OpenLinkUser>,
 
     #[serde(rename = "o")]
@@ -57,7 +59,7 @@ pub struct ChatOnRoomRes {
     pub unknown_jsi: i64,
 
     /// Unknown (openchat)
-    #[serde(rename = "notiRead", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "notiRead")]
     pub noti_read: Option<bool>,
 
     /// Unknown
@@ -73,6 +75,6 @@ pub struct ChatOnRoomRes {
 
     // #[serde(rename = "sui")]
     // pub unknown_sui: unknown,
-    #[serde(rename = "msr", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "msr")]
     pub unknown_msr: Option<i64>,
 }
