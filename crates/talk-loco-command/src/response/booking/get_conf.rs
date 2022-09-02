@@ -7,9 +7,9 @@ pub struct GetConfRes {
     /// Unknown
     pub revision: i32,
 
-    /// Ceullar (3g) config
+    /// Cellular (3g) config
     #[serde(rename = "3g")]
-    pub ceullar: ConnectionData,
+    pub cellular: ConnectionData,
 
     /// WiFi, wired config
     pub wifi: ConnectionData,
