@@ -80,7 +80,7 @@ async fn initialize_client(app: State<'_, KiwiTalkApp>) -> Result<(), ()> {
 #[tauri::command(async)]
 async fn next_client_event(app: State<'_, KiwiTalkApp>) -> Result<Option<KiwiTalkClientEvent>, ()> {
     Ok(match &mut *app.client_events.lock().await {
-        Some(receiver) => receiver.next().await,
+        Some(receiver) => receiver.recv().await,
         None => None,
     })
 }
