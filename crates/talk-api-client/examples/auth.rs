@@ -48,8 +48,7 @@ async fn main() {
 
     let res = auth_client
         .login(
-            login_form,
-            // Force login
+            login_form, // Force login
             true,
         )
         .await;
