@@ -1,10 +1,11 @@
-pub mod constants;
 pub mod conn;
+pub mod constants;
 
 use kiwi_talk_client::{
     event::KiwiTalkClientEvent, ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
-use rsa::{RsaPublicKey, pkcs8::FromPublicKey};
+use once_cell::sync::Lazy;
+use rsa::{pkcs8::FromPublicKey, RsaPublicKey};
 use serde::{Deserialize, Serialize};
 use talk_loco_client::LocoCommandSession;
 use tauri::{
@@ -12,19 +13,16 @@ use tauri::{
     plugin::{Builder, TauriPlugin},
     AppHandle, Manager, Runtime, State,
 };
-use lazy_static::lazy_static;
 use tokio::sync::{Mutex, RwLock};
 
-lazy_static! {
-    pub(crate) static ref LOCO_PUBLIC_KEY: RsaPublicKey = {
-        RsaPublicKey::from_public_key_der(
-            &pem::parse(include_str!("loco_public_key.pub"))
-                .unwrap()
-                .contents,
-        )
-        .unwrap()
-    };
-}
+pub(crate) static LOCO_PUBLIC_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
+    RsaPublicKey::from_public_key_der(
+        &pem::parse(include_str!("loco_public_key.pub"))
+            .unwrap()
+            .contents,
+    )
+    .unwrap()
+});
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
