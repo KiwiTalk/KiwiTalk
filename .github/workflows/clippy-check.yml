@@ -10,7 +10,8 @@ jobs:
             toolchain: nightly
             components: clippy
             override: true
-      - uses: actions-rs/clippy-check@v1
+      - uses: reinismu/clippy-check@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features
+          working-directory: crates
