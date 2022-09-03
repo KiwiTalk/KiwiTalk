@@ -1,24 +1,11 @@
-pub mod conn;
 pub mod constants;
 pub mod event;
 pub mod handler;
 
 use event::KiwiTalkClientEvent;
-use lazy_static::lazy_static;
-use rsa::{RsaPublicKey, pkcs8::FromPublicKey};
+use futures::{AsyncRead, AsyncWrite};
 use talk_loco_client::LocoCommandSession;
 use tokio::sync::mpsc;
-
-lazy_static! {
-    pub(crate) static ref LOCO_PUBLIC_KEY: RsaPublicKey = {
-        RsaPublicKey::from_public_key_der(
-            &pem::parse(include_str!("loco_public_key.pub"))
-                .unwrap()
-                .contents,
-        )
-        .unwrap()
-    };
-}
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
@@ -27,7 +14,10 @@ pub struct KiwiTalkClient {
 }
 
 impl KiwiTalkClient {
-    pub async fn login(credential: ClientCredential<'_>) -> (Self, KiwiTalkClientEventReceiver) {
+    pub async fn login<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(
+        stream: S,
+        credential: ClientCredential<'_>,
+    ) -> (Self, KiwiTalkClientEventReceiver) {
         todo!()
     }
 }

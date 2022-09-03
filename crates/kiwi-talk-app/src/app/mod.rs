@@ -1,14 +1,30 @@
+pub mod constants;
+pub mod conn;
+
 use kiwi_talk_client::{
     event::KiwiTalkClientEvent, ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
+use rsa::{RsaPublicKey, pkcs8::FromPublicKey};
 use serde::{Deserialize, Serialize};
+use talk_loco_client::LocoCommandSession;
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
     AppHandle, Manager, Runtime, State,
 };
-
+use lazy_static::lazy_static;
 use tokio::sync::{Mutex, RwLock};
+
+lazy_static! {
+    pub(crate) static ref LOCO_PUBLIC_KEY: RsaPublicKey = {
+        RsaPublicKey::from_public_key_der(
+            &pem::parse(include_str!("loco_public_key.pub"))
+                .unwrap()
+                .contents,
+        )
+        .unwrap()
+    };
+}
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -61,6 +77,7 @@ async fn initialize_client(app: State<'_, KiwiTalkApp>) -> Result<(), ()> {
             let mut client_slot = app.client.write().await;
             let mut client_events_slot = app.client_events.lock().await;
 
+            /*
             let (client, client_events) = KiwiTalkClient::login(ClientCredential {
                 access_token: &credential.access_token,
                 device_uuid: crate::auth::constants::DEVICE_UUID, // TODO:: REPLACE
@@ -70,6 +87,8 @@ async fn initialize_client(app: State<'_, KiwiTalkApp>) -> Result<(), ()> {
 
             *client_slot = Some(client);
             *client_events_slot = Some(client_events);
+
+            */
 
             Ok(())
         }
