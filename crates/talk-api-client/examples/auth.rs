@@ -12,7 +12,7 @@ pub const CONFIG: AuthClientConfig = AuthClientConfig {
     device: AuthDeviceConfig {
         // Device name
         name: "TEST_DEVICE",
-        
+
         model: None,
         // Unique id base64 encoded. 62 bytes
         uuid: "OMnpb2Rq6q4goIvDM/yiHxs7ztsaGnNtjdXmFW92SODvof2BwjvJIwbP5cDp4b++fcYCBGQYy6K8Q8jGhZYzV1==",
