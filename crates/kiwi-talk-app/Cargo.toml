@@ -28,6 +28,7 @@ loco-protocol = "5.0.2"
 kiwi-talk-client = { path = "../kiwi-talk-client" }
 talk-api-client = { path = "../talk-api-client" }
 talk-loco-client = { path = "../talk-loco-client" }
+talk-loco-command = { path = "../talk-loco-command" }
 
 [features]
 default = [ "custom-protocol" ]
