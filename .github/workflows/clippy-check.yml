@@ -12,7 +12,7 @@ jobs:
             toolchain: nightly
             components: rustfmt, clippy
             override: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: Setup Rust build cache
         with:
           path: |
