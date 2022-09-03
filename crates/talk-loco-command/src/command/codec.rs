@@ -1,7 +1,7 @@
 use std::{
     borrow::Cow,
     io::{Cursor, Read, Write},
-    string::FromUtf8Error
+    string::FromUtf8Error,
 };
 
 use bson::Document;

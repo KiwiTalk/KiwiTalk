@@ -101,9 +101,7 @@ pub struct ChannelInfo {
     pub new_chat_count: i32,
 
     /// true if new_message_count is invalid(?). Does not present on openchat.
-    #[serde(
-        rename = "invalidNewMessageCount"
-    )]
+    #[serde(rename = "invalidNewMessageCount")]
     pub new_chat_count_invalid: Option<bool>,
 
     // /// Chatroom metadata(?)
