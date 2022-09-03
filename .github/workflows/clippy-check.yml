@@ -10,8 +10,19 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
-            components: clippy
+            components: rustfmt, clippy
             override: true
+      - uses: actions/cache@v2
+        name: Setup Rust build cache
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            crates/target/debug/
+            crates/target/release/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
