@@ -1,28 +1,17 @@
 pub mod conn;
 pub mod constants;
+pub mod stream;
 
 use kiwi_talk_client::{
     event::KiwiTalkClientEvent, ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
-use once_cell::sync::Lazy;
-use rsa::{pkcs8::FromPublicKey, RsaPublicKey};
 use serde::{Deserialize, Serialize};
-use talk_loco_client::LocoCommandSession;
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
     AppHandle, Manager, Runtime, State,
 };
 use tokio::sync::{Mutex, RwLock};
-
-pub(crate) static LOCO_PUBLIC_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
-    RsaPublicKey::from_public_key_der(
-        &pem::parse(include_str!("loco_public_key.pub"))
-            .unwrap()
-            .contents,
-    )
-    .unwrap()
-});
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -45,7 +34,7 @@ fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> tauri::plugin::Result<()> 
 struct AppCredential {
     pub access_token: String,
     pub refresh_token: String,
-    pub user_id: Option<u64>,
+    pub user_id: Option<i64>,
 }
 
 #[derive(Default)]

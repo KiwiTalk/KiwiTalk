@@ -1,56 +1,80 @@
-use loco_protocol::secure::{
-    crypto::CryptoStore,
-    session::{SecureClientSession, SecureHandshakeError},
-    stream::SecureStream,
+use loco_protocol::secure::session::SecureClientSession;
+use serde::{Deserialize, Serialize};
+use talk_loco_client::{
+    client::{booking::BookingClient, checkin::CheckinClient, ClientRequestError},
+    LocoCommandSession,
+};
+use talk_loco_command::{
+    request::{booking::GetConfReq, checkin::CheckinReq},
+    response::{booking::GetConfRes, checkin::CheckinRes, ResponseData},
+    structs::client::ClientInfo,
 };
 use thiserror::Error;
-use tokio::{
-    io,
-    io::BufStream,
-    net::{TcpStream, ToSocketAddrs},
+use tokio_native_tls::native_tls;
+
+use super::{
+    constants::{
+        BOOKING_SERVER, CHECKIN_SERVER, TALK_MCCMNC, TALK_MODEL, TALK_NET_TYPE, TALK_OS,
+        TALK_USE_SUB, TALK_VERSION,
+    },
+    stream::{create_secure_stream, create_tls_stream, LOCO_CLIENT_SECURE_SESSION},
 };
-use tokio_native_tls::{TlsConnector, TlsStream};
-use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
 
-pub type TlsTcpStream = Compat<TlsStream<BufStream<TcpStream>>>;
-pub type SecureTcpStream = SecureStream<Compat<BufStream<TcpStream>>>;
-
-pub type ConnResult<T, E> = Result<T, ConnError<E>>;
-
-pub async fn create_tls_conn<A: ToSocketAddrs>(
-    connector: &mut TlsConnector,
-    domain: &str,
-    addr: A,
-) -> ConnResult<TlsTcpStream, tokio_native_tls::native_tls::Error> {
-    let stream = connector
-        .connect(domain, BufStream::new(TcpStream::connect(addr).await?))
-        .await
-        .map_err(|err| ConnError::Handshake(err))?;
-
-    Ok(stream.compat())
-}
-
-pub async fn create_secure_conn<A: ToSocketAddrs>(
-    session: &mut SecureClientSession,
-    addr: A,
-) -> ConnResult<SecureTcpStream, SecureHandshakeError> {
-    let mut stream = SecureStream::new(
-        CryptoStore::new(),
-        BufStream::new(TcpStream::connect(addr).await?).compat(),
+pub async fn get_conf() -> Result<ResponseData<GetConfRes>, ConnError> {
+    let mut connector = tokio_native_tls::TlsConnector::from(
+        native_tls::TlsConnector::new().or(Err(ConnError::Connection))?,
     );
 
-    session
-        .handshake_async(&mut stream)
+    let stream = create_tls_stream(&mut connector, BOOKING_SERVER.0, BOOKING_SERVER)
         .await
-        .map_err(|err| ConnError::Handshake(err))?;
+        .or(Err(ConnError::Connection))?;
 
-    Ok(stream)
+    let (session, _) = LocoCommandSession::new(stream);
+    let client = BookingClient(&session);
+
+    client
+        .get_conf(&GetConfReq {
+            os: TALK_OS.into(),
+            mccmnc: TALK_MCCMNC.into(),
+            model: TALK_MODEL.into(),
+        })
+        .await
+        .await
+        .or(Err(ConnError::Request))
 }
 
-#[derive(Debug, Error)]
-pub enum ConnError<H> {
+pub async fn checkin(user_id: i64) -> Result<ResponseData<CheckinRes>, ConnError> {
+    let stream = create_secure_stream(&LOCO_CLIENT_SECURE_SESSION, CHECKIN_SERVER)
+        .await
+        .or(Err(ConnError::Connection))?;
+
+    let (session, _) = LocoCommandSession::new(stream);
+    let client = CheckinClient(&session);
+
+    client
+        .checkin(&CheckinReq {
+            user_id,
+            client: ClientInfo {
+                os: TALK_OS.into(),
+                net_type: TALK_NET_TYPE,
+                app_version: TALK_VERSION.into(),
+                mccmnc: TALK_MCCMNC.into(),
+            },
+            language: "ko".into(),
+            country_iso: "KR".into(),
+            use_sub: TALK_USE_SUB,
+        })
+        .await
+        .await
+        .or(Err(ConnError::Request))
+}
+
+#[derive(Debug, Error, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
+pub enum ConnError {
     #[error("Cannot connect to server")]
-    Stream(#[from] io::Error),
-    #[error("Handshaking failed")]
-    Handshake(H),
+    Connection,
+
+    #[error("Request failed")]
+    Request,
 }
