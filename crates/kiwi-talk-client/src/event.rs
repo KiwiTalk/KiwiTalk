@@ -1,7 +1,5 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
-pub enum KiwiTalkClientEvent {
-    Disconnected
-}
+pub enum KiwiTalkClientEvent {}

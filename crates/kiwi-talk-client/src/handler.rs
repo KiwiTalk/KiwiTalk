@@ -16,13 +16,10 @@ impl KiwiTalkClientHandler {
     ) {
         let mut handler = KiwiTalkClientHandler {
             receiver,
-            event_sender
+            event_sender,
         };
 
-        while let Some(Ok(read)) = handler.receiver.recv().await {
-
-        }
-        handler.emit(KiwiTalkClientEvent::Disconnected).await;
+        while let Some(Ok(read)) = handler.receiver.recv().await {}
     }
 
     pub async fn emit(&mut self, event: KiwiTalkClientEvent) {
