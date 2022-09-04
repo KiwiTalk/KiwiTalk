@@ -19,7 +19,6 @@ pub struct LoginData {
 
     // #[serde(rename = "resetUserData")]
     // pub reset_user_data: bool,
-
     pub story_url: String,
 
     #[serde(flatten)]

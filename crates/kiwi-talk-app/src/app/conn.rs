@@ -1,8 +1,14 @@
 use loco_protocol::secure::{
-    crypto::CryptoStore, session::{SecureClientSession, SecureHandshakeError}, stream::SecureStream,
+    crypto::CryptoStore,
+    session::{SecureClientSession, SecureHandshakeError},
+    stream::SecureStream,
 };
 use thiserror::Error;
-use tokio::{io, io::BufStream, net::{TcpStream, ToSocketAddrs}};
+use tokio::{
+    io,
+    io::BufStream,
+    net::{TcpStream, ToSocketAddrs},
+};
 use tokio_native_tls::{TlsConnector, TlsStream};
 use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
 
@@ -18,7 +24,8 @@ pub async fn create_tls_conn<A: ToSocketAddrs>(
 ) -> ConnResult<TlsTcpStream, tokio_native_tls::native_tls::Error> {
     let stream = connector
         .connect(domain, BufStream::new(TcpStream::connect(addr).await?))
-        .await.map_err(|err| ConnError::Handshake(err))?;
+        .await
+        .map_err(|err| ConnError::Handshake(err))?;
 
     Ok(stream.compat())
 }
@@ -34,7 +41,8 @@ pub async fn create_secure_conn<A: ToSocketAddrs>(
 
     session
         .handshake_async(&mut stream)
-        .await.map_err(|err| ConnError::Handshake(err))?;
+        .await
+        .map_err(|err| ConnError::Handshake(err))?;
 
     Ok(stream)
 }
