@@ -13,13 +13,13 @@ impl XVCHasher for Win32XVCHasher<'_> {
         let mut hasher = Sha512::new();
 
         hasher.update(self.0);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(user_agent);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(self.1);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(email);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(device_uuid);
 
         hasher.finalize().to_vec()
@@ -37,13 +37,13 @@ impl XVCHasher for AndroidSubXVCHasher<'_> {
         let mut hasher = Sha512::new();
 
         hasher.update(self.0);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(user_agent);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(self.1);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(email);
-        hasher.update(&"|");
+        hasher.update("|");
         hasher.update(self.2);
 
         hasher.finalize().to_vec()

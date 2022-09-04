@@ -7,10 +7,7 @@ pub enum TalkApiAgent<'a> {
     Win32(&'a str),
 
     /// Custom agent
-    Custom {
-        agent: &'a str,
-        user_agent: &'a str,
-    },
+    Custom { agent: &'a str, user_agent: &'a str },
 }
 
 impl<'a> TalkApiAgent<'a> {

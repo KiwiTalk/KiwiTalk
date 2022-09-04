@@ -5,13 +5,13 @@ pub mod talk;
 use crate::{CommandRequest, LocoCommandSession, RequestError};
 use futures::{ready, Future, FutureExt};
 use serde::{de::DeserializeOwned, Serialize};
-use thiserror::Error;
 use std::{
     marker::PhantomData,
     pin::Pin,
     task::{Context, Poll},
 };
 use talk_loco_command::{command::BsonCommand, response::ResponseData};
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
