@@ -35,5 +35,5 @@ impl KiwiTalkClientEventReceiver {
 pub struct ClientCredential<'a> {
     pub access_token: &'a str,
     pub device_uuid: &'a str,
-    pub user_id: Option<u64>,
+    pub user_id: Option<i64>,
 }
