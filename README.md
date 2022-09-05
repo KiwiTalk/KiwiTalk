@@ -11,7 +11,7 @@
 
 ## 프론트엔드
 
-- [KiwiTalk UI Mockup](https://www.figma.com/file/4Z6MR3oZK5iSvzyvvuT4DO/KiwiTalk-UI-Mockup?node-id=0%3A1)
+- [KiwiTalk UI Mockup](https://www.figma.com/file/JYO6jyz0Kji2KiPCW5cH5o/KiwiTalk-UI-Mockup-2?node-id=0%3A1)
 
 ## 주의사항
 
