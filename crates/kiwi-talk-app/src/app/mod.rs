@@ -11,7 +11,15 @@ use tauri::{
     plugin::{Builder, TauriPlugin},
     AppHandle, Manager, Runtime, State,
 };
+use thiserror::Error;
 use tokio::sync::{Mutex, RwLock};
+
+use crate::error::impl_tauri_error;
+
+use self::{
+    conn::{checkin, ConnError},
+    stream::{create_secure_stream, LOCO_CLIENT_SECURE_SESSION},
+};
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -56,30 +64,62 @@ async fn set_credential(
     Ok(())
 }
 
+#[derive(Debug, Error)]
+pub enum ClientInitializeError {
+    #[error("Credential is not set")]
+    CredentialNotSet,
+
+    #[error("Checkin failed")]
+    Checkin,
+
+    #[error("Loco stream handshake failed")]
+    LocoHandshake,
+
+    #[error("Error while initializing client")]
+    Client,
+}
+
+impl_tauri_error!(ClientInitializeError);
+
 #[tauri::command(async)]
-async fn initialize_client(app: State<'_, KiwiTalkApp>) -> Result<(), ()> {
-    // TODO:: Return error if credential is not set
+async fn initialize_client(app: State<'_, KiwiTalkApp>) -> Result<(), ClientInitializeError> {
     match &*app.credential.read().await {
         Some(credential) => {
             let mut client_slot = app.client.write().await;
             let mut client_events_slot = app.client_events.lock().await;
 
-            /*
-            let (client, client_events) = KiwiTalkClient::login(ClientCredential {
-                access_token: &credential.access_token,
-                device_uuid: crate::auth::constants::DEVICE_UUID, // TODO:: REPLACE
-                user_id: credential.user_id,
-            })
-            .await;
+            let checkin_res = checkin(credential.user_id.unwrap_or(1))
+                .await
+                .map_err(|_| ClientInitializeError::Checkin)?;
+            if checkin_res.status != 0 || checkin_res.data.is_none() {
+                return Err(ClientInitializeError::Checkin);
+            }
+            let checkin_res = checkin_res.data.unwrap();
+
+            let loco_session = create_secure_stream(
+                &LOCO_CLIENT_SECURE_SESSION,
+                (checkin_res.host.as_str(), checkin_res.port as u16),
+            )
+            .await
+            .map_err(|_| ClientInitializeError::LocoHandshake)?;
+
+            let (client, client_events) = KiwiTalkClient::login(
+                loco_session,
+                ClientCredential {
+                    access_token: &credential.access_token,
+                    device_uuid: crate::auth::constants::DEVICE_UUID, // TODO:: REPLACE
+                    user_id: credential.user_id,
+                },
+            )
+            .await
+            .map_err(|_| ClientInitializeError::Client)?;
 
             *client_slot = Some(client);
             *client_events_slot = Some(client_events);
 
-            */
-
             Ok(())
         }
-        None => Err(()),
+        None => Err(ClientInitializeError::CredentialNotSet),
     }
 }
 

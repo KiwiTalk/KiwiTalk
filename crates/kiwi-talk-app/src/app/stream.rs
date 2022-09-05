@@ -14,7 +14,9 @@ use tokio::{
 use tokio_native_tls::{TlsConnector, TlsStream};
 use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
 
-pub(crate) static LOCO_CLIENT_SECURE_SESSION: Lazy<SecureClientSession> = Lazy::new(|| {
+use crate::error::impl_tauri_error;
+
+pub static LOCO_CLIENT_SECURE_SESSION: Lazy<SecureClientSession> = Lazy::new(|| {
     SecureClientSession::new(
         RsaPublicKey::from_public_key_der(
             &pem::parse(include_str!("loco_public_key.pub"))
@@ -67,3 +69,5 @@ pub enum ConnectError<H> {
     #[error("Handshaking failed")]
     Handshake(H),
 }
+
+impl_tauri_error!(ConnectError<H>);

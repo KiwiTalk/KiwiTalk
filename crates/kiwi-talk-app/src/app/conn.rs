@@ -1,7 +1,5 @@
-use loco_protocol::secure::session::SecureClientSession;
-use serde::{Deserialize, Serialize};
 use talk_loco_client::{
-    client::{booking::BookingClient, checkin::CheckinClient, ClientRequestError},
+    client::{booking::BookingClient, checkin::CheckinClient},
     LocoCommandSession,
 };
 use talk_loco_command::{
@@ -11,6 +9,8 @@ use talk_loco_command::{
 };
 use thiserror::Error;
 use tokio_native_tls::native_tls;
+
+use crate::error::impl_tauri_error;
 
 use super::{
     constants::{
@@ -69,8 +69,7 @@ pub async fn checkin(user_id: i64) -> Result<ResponseData<CheckinRes>, ConnError
         .or(Err(ConnError::Request))
 }
 
-#[derive(Debug, Error, Serialize, Deserialize)]
-#[serde(tag = "type", content = "data")]
+#[derive(Debug, Error)]
 pub enum ConnError {
     #[error("Cannot connect to server")]
     Connection,
@@ -78,3 +77,5 @@ pub enum ConnError {
     #[error("Request failed")]
     Request,
 }
+
+impl_tauri_error!(ConnError);

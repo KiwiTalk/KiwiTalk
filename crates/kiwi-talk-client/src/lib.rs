@@ -3,6 +3,7 @@ pub mod handler;
 
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite};
+use handler::KiwiTalkClientHandler;
 use talk_loco_client::LocoCommandSession;
 use tokio::sync::mpsc;
 
@@ -16,8 +17,17 @@ impl KiwiTalkClient {
     pub async fn login<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(
         stream: S,
         credential: ClientCredential<'_>,
-    ) -> (Self, KiwiTalkClientEventReceiver) {
-        todo!()
+    ) -> Result<(Self, KiwiTalkClientEventReceiver), ()> {
+        let (session, receiver) = LocoCommandSession::new(stream);
+        let (event_sender, event_receiver) = mpsc::channel(128);
+
+        tokio::spawn(KiwiTalkClientHandler::run(receiver, event_sender));
+
+        let client = KiwiTalkClient { session };
+
+        // TODO:: Login
+
+        Ok((client, KiwiTalkClientEventReceiver(event_receiver)))
     }
 }
 
