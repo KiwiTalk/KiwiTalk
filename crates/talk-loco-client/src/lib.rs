@@ -6,7 +6,7 @@ use std::{
 };
 
 use bson::Document;
-use futures::{ready, AsyncRead, AsyncWrite, Future, FutureExt};
+use futures::{io::WriteHalf, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
 use loco_protocol::command::codec::CommandCodec;
 use rustc_hash::FxHashMap;
 use talk_loco_command::command::{
@@ -97,11 +97,11 @@ pub type BroadcastResult = Result<ReadBsonCommand<Document>, ReadError>;
 struct CommandSessionHandler<S> {
     read_map: FxHashMap<i32, oneshot::Sender<RequestResult>>,
     next_request_id: i32,
-    codec: BsonCommandCodec<S>,
+    write_stream: WriteHalf<S>,
     broadcast_sender: mpsc::Sender<BroadcastResult>,
 }
 
-impl<S: AsyncRead + AsyncWrite + Unpin> CommandSessionHandler<S> {
+impl<S: Send + AsyncRead + AsyncWrite + Unpin + 'static> CommandSessionHandler<S> {
     pub async fn handle_command(&mut self, command: HandlerCommand) {
         match command {
             HandlerCommand::Request(data, response_sender) => {
@@ -115,10 +115,12 @@ impl<S: AsyncRead + AsyncWrite + Unpin> CommandSessionHandler<S> {
         data: BsonCommand<Document>,
         response_sender: oneshot::Sender<RequestResult>,
     ) {
-        match self.codec.write_async(self.next_request_id, &data).await {
+        let mut codec = BsonCommandCodec(CommandCodec::new(&mut self.write_stream));
+
+        match codec.write_async(self.next_request_id, &data).await {
             Ok(_) => {
                 self.read_map.insert(self.next_request_id, response_sender);
-                self.codec.flush_async().await.ok();
+                codec.flush_async().await.ok();
                 self.next_request_id += 1;
             }
 
@@ -140,25 +142,32 @@ impl<S: AsyncRead + AsyncWrite + Unpin> CommandSessionHandler<S> {
         stream: S,
         mut receiver: mpsc::Receiver<HandlerCommand>,
         broadcast_sender: mpsc::Sender<BroadcastResult>,
-    ) -> S {
+    ) {
+        let (read_stream, write_stream) = stream.split();
+
         let mut handler = CommandSessionHandler {
             read_map: FxHashMap::default(),
             next_request_id: 0,
-            codec: BsonCommandCodec(CommandCodec::new(stream)),
+            write_stream,
             broadcast_sender,
         };
 
+        let (read_sender, mut read_receiver) = mpsc::channel(8);
+        let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
+        let read_handle = tokio::spawn(async move {
+            loop {
+                let read = read_codec.read_async().await;
+                read_sender.send(read).await.ok();
+            }
+        });
+
         loop {
             select! {
-                command = receiver.recv() => {
-                    if let Some(command) = command {
-                        handler.handle_command(command).await;
-                    } else {
-                        break;
-                    }
+                Some(command) = receiver.recv() => {
+                    handler.handle_command(command).await;
                 }
 
-                read = handler.codec.read_async() => {
+                Some(read) = read_receiver.recv() => {
                     match read {
                         Ok(read) => handler.handle_read(read).await,
 
@@ -173,10 +182,14 @@ impl<S: AsyncRead + AsyncWrite + Unpin> CommandSessionHandler<S> {
                         }
                     }
                 }
+
+                else => {
+                    break;
+                }
             };
         }
 
-        handler.codec.0.into_inner()
+        read_handle.abort();
     }
 }
 
