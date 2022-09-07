@@ -19,7 +19,15 @@ impl KiwiTalkClientHandler {
             event_sender,
         };
 
-        while let Some(Ok(read)) = handler.receiver.recv().await {}
+        while let Some(Ok(read)) = handler.receiver.recv().await {
+            match read.command.method.as_ref() {
+                "CHANGESVR" => {
+                    handler.emit(KiwiTalkClientEvent::SwitchServer).await;
+                }
+
+                _ => {}
+            }
+        }
     }
 
     pub async fn emit(&mut self, event: KiwiTalkClientEvent) {

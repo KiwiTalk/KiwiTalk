@@ -1,4 +1,7 @@
-use kiwi_talk_client::{ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver};
+use kiwi_talk_client::{
+    config::KiwiTalkClientConfig, ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver,
+};
+use talk_loco_command::structs::client::ClientInfo;
 use thiserror::Error;
 
 use crate::error::impl_tauri_error;
@@ -6,7 +9,7 @@ use crate::error::impl_tauri_error;
 use super::{
     conn::checkin,
     stream::{create_secure_stream, LOCO_CLIENT_SECURE_SESSION},
-    AppCredential,
+    AppCredential, constants::{TALK_OS, TALK_NET_TYPE, TALK_VERSION, TALK_MCCMNC, TALK_DEVIVCE_TYPE},
 };
 
 pub async fn create_client(
@@ -25,6 +28,17 @@ pub async fn create_client(
 
     KiwiTalkClient::login(
         loco_session,
+        // TODO:: Replace
+        KiwiTalkClientConfig {
+            client: ClientInfo {
+                os: TALK_OS.into(),
+                net_type: TALK_NET_TYPE,
+                app_version: TALK_VERSION.into(),
+                mccmnc: TALK_MCCMNC.into(),
+            },
+            language: "ko".into(),
+            device_type: TALK_DEVIVCE_TYPE,
+        },
         ClientCredential {
             access_token: &credential.access_token,
             device_uuid: crate::auth::constants::DEVICE_UUID, // TODO:: REPLACE
