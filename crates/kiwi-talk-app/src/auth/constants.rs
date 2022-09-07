@@ -3,6 +3,8 @@ use talk_api_client::{
     auth::{xvc::default::Win32XVCHasher, AuthClientConfig, AuthDeviceConfig},
 };
 
+use crate::app::constants::TALK_VERSION;
+
 // TODO:: Generate DEVICE_UUID using machine id
 pub const DEVICE_UUID: &str =
     "S2l3aVRhbGtLaXdpVGFsa0tpd2lUYWxrS2l3aVRhbGtLaXdpVGFsa0tpd2lUYWxrS2l3aVRhbGtLaXdpVGFsaw==";
@@ -21,6 +23,5 @@ pub const CONFIG: AuthClientConfig = AuthClientConfig {
     agent: TALK_AGENT,
 };
 
-pub const TALK_VERSION: &str = "3.4.2";
 pub const TALK_AGENT: TalkApiAgent = TalkApiAgent::Win32("11.0");
 pub const XVC_HASHER: Win32XVCHasher = Win32XVCHasher("WINTER", "ARTHUR");

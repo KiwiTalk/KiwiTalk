@@ -13,8 +13,8 @@ use tauri::{
 
 use self::constants::{CONFIG, XVC_HASHER};
 
-pub fn init_auth_plugin<R: Runtime>() -> TauriPlugin<R> {
-    Builder::new("auth")
+pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+    Builder::new(name)
         .invoke_handler(generate_handler![login, register_device, request_passcode])
         .build()
 }

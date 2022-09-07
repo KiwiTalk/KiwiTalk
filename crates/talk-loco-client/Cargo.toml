@@ -11,7 +11,6 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0" }
 tokio = { version = "1", features = ["rt", "net", "sync"] }
-tokio-util = { version = "0.7.3", features = ["compat"] }
 futures = "0.3.24"
 bson = "2.4.0"
 rustc-hash = "1.1.0"
@@ -21,4 +20,5 @@ thiserror = "1.0"
 
 [dev-dependencies]
 tokio-native-tls = "0.3.0"
+tokio-util = { version = "0.7.3", features = ["compat"] }
 tokio = { version = "1", features = ["full"] }
