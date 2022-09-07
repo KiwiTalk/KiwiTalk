@@ -40,7 +40,7 @@ pub async fn create_tls_stream<A: ToSocketAddrs>(
     let stream = connector
         .connect(domain, BufStream::new(TcpStream::connect(addr).await?))
         .await
-        .map_err(|err| ConnectError::Handshake(err))?;
+        .map_err(ConnectError::Handshake)?;
 
     Ok(stream.compat())
 }
@@ -57,7 +57,7 @@ pub async fn create_secure_stream<A: ToSocketAddrs>(
     session
         .handshake_async(&mut stream)
         .await
-        .map_err(|err| ConnectError::Handshake(err))?;
+        .map_err(ConnectError::Handshake)?;
 
     Ok(stream)
 }
