@@ -8,8 +8,9 @@ use crate::error::impl_tauri_error;
 
 use super::{
     conn::checkin,
+    constants::{TALK_DEVIVCE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION},
     stream::{create_secure_stream, LOCO_CLIENT_SECURE_SESSION},
-    AppCredential, constants::{TALK_OS, TALK_NET_TYPE, TALK_VERSION, TALK_MCCMNC, TALK_DEVIVCE_TYPE},
+    AppCredential,
 };
 
 pub async fn create_client(
