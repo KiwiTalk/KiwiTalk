@@ -4,7 +4,7 @@ use talk_loco_client::{
 };
 use talk_loco_command::{
     request::{booking::GetConfReq, checkin::CheckinReq},
-    response::{booking::GetConfRes, checkin::CheckinRes, ResponseData},
+    response::{booking::GetConfRes, checkin::CheckinRes},
     structs::client::ClientInfo,
 };
 use thiserror::Error;
@@ -20,7 +20,7 @@ use super::{
     stream::{create_secure_stream, create_tls_stream, LOCO_CLIENT_SECURE_SESSION},
 };
 
-pub async fn get_conf() -> Result<ResponseData<GetConfRes>, ConnError> {
+pub async fn get_conf() -> Result<GetConfRes, ConnError> {
     let mut connector = tokio_native_tls::TlsConnector::from(
         native_tls::TlsConnector::new().or(Err(ConnError::Connection))?,
     );
@@ -32,7 +32,7 @@ pub async fn get_conf() -> Result<ResponseData<GetConfRes>, ConnError> {
     let (session, _) = LocoCommandSession::new(stream);
     let client = BookingClient(&session);
 
-    client
+    let get_conf = client
         .get_conf(&GetConfReq {
             os: TALK_OS.into(),
             mccmnc: TALK_MCCMNC.into(),
@@ -40,10 +40,15 @@ pub async fn get_conf() -> Result<ResponseData<GetConfRes>, ConnError> {
         })
         .await
         .await
-        .or(Err(ConnError::Request))
+        .or(Err(ConnError::Stream))?;
+
+    match get_conf.data {
+        Some(data) => Ok(data),
+        None => Err(ConnError::Request(get_conf.status)),
+    }
 }
 
-pub async fn checkin(user_id: i64) -> Result<ResponseData<CheckinRes>, ConnError> {
+pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
     let stream = create_secure_stream(&LOCO_CLIENT_SECURE_SESSION, CHECKIN_SERVER)
         .await
         .or(Err(ConnError::Connection))?;
@@ -51,7 +56,7 @@ pub async fn checkin(user_id: i64) -> Result<ResponseData<CheckinRes>, ConnError
     let (session, _) = LocoCommandSession::new(stream);
     let client = CheckinClient(&session);
 
-    client
+    let checkin = client
         .checkin(&CheckinReq {
             user_id,
             client: ClientInfo {
@@ -66,7 +71,12 @@ pub async fn checkin(user_id: i64) -> Result<ResponseData<CheckinRes>, ConnError
         })
         .await
         .await
-        .or(Err(ConnError::Request))
+        .or(Err(ConnError::Stream))?;
+
+    match checkin.data {
+        Some(data) => Ok(data),
+        None => Err(ConnError::Request(checkin.status)),
+    }
 }
 
 #[derive(Debug, Error)]
@@ -74,8 +84,11 @@ pub enum ConnError {
     #[error("Cannot connect to server")]
     Connection,
 
+    #[error("Stream error")]
+    Stream,
+
     #[error("Request failed")]
-    Request,
+    Request(i16),
 }
 
 impl_tauri_error!(ConnError);
