@@ -32,7 +32,7 @@ impl KiwiTalkClient {
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
                 client: config.client.clone(),
-                protocol_version: "1".into(),
+                protocol_version: "1.0".into(),
                 device_uuid: credential.device_uuid.into(),
                 oauth_token: credential.access_token.into(),
                 language: config.language.clone(),

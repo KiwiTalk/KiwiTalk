@@ -23,5 +23,5 @@ pub const CONFIG: AuthClientConfig = AuthClientConfig {
     agent: TALK_AGENT,
 };
 
-pub const TALK_AGENT: TalkApiAgent = TalkApiAgent::Win32("11.0");
+pub const TALK_AGENT: TalkApiAgent = TalkApiAgent::Win32("10.0");
 pub const XVC_HASHER: Win32XVCHasher = Win32XVCHasher("WINTER", "ARTHUR");
