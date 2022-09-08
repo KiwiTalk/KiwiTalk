@@ -4,7 +4,7 @@ use loco_protocol::secure::{
     stream::SecureStream,
 };
 use once_cell::sync::Lazy;
-use rsa::{pkcs8::FromPublicKey, RsaPublicKey};
+use rsa::{pkcs8::DecodePublicKey, RsaPublicKey};
 use thiserror::Error;
 use tokio::{
     io,
