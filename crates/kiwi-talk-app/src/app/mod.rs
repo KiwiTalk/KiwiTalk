@@ -13,7 +13,7 @@ use tauri::{
 use thiserror::Error;
 use tokio::sync::{Mutex, RwLock};
 
-use crate::error::impl_tauri_error;
+use crate::{error::impl_tauri_error, KiwiTalkSystemInfo};
 
 use self::client::{create_client, CreateClientError};
 
@@ -72,13 +72,16 @@ pub enum ClientInitializeError {
 impl_tauri_error!(ClientInitializeError);
 
 #[tauri::command(async)]
-async fn initialize_client(app: State<'_, KiwiTalkApp>) -> Result<(), ClientInitializeError> {
+async fn initialize_client(
+    app: State<'_, KiwiTalkApp>,
+    info: State<'_, KiwiTalkSystemInfo>,
+) -> Result<(), ClientInitializeError> {
     match &*app.credential.read().await {
         Some(credential) => {
             let mut client_slot = app.client.write().await;
             let mut client_events_slot = app.client_events.lock().await;
 
-            let (client, client_events) = create_client(credential).await?;
+            let (client, client_events) = create_client(credential, info).await?;
 
             *client_slot = Some(client);
             *client_events_slot = Some(client_events);

@@ -2,9 +2,10 @@ use kiwi_talk_client::{
     config::KiwiTalkClientConfig, ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
 use talk_loco_command::structs::client::ClientInfo;
+use tauri::State;
 use thiserror::Error;
 
-use crate::error::impl_tauri_error;
+use crate::{error::impl_tauri_error, KiwiTalkSystemInfo};
 
 use super::{
     conn::checkin,
@@ -15,6 +16,7 @@ use super::{
 
 pub async fn create_client(
     credential: &AppCredential,
+    info: State<'_, KiwiTalkSystemInfo>,
 ) -> Result<(KiwiTalkClient, KiwiTalkClientEventReceiver), CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
@@ -37,12 +39,12 @@ pub async fn create_client(
                 app_version: TALK_VERSION.into(),
                 mccmnc: TALK_MCCMNC.into(),
             },
-            language: "ko".into(),
+            language: info.device_info.language().into(),
             device_type: TALK_DEVIVCE_TYPE,
         },
         ClientCredential {
             access_token: &credential.access_token,
-            device_uuid: crate::auth::constants::DEVICE_UUID, // TODO:: REPLACE
+            device_uuid: &info.device_info.device_uuid,
             user_id: credential.user_id,
         },
     )

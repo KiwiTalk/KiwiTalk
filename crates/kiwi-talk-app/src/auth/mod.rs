@@ -2,16 +2,21 @@ pub mod constants;
 
 use serde::Serialize;
 use talk_api_client::{
-    auth::{resources::LoginData, AccountLoginForm, LoginMethod, TalkAuthClient},
+    auth::{
+        resources::LoginData, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, LoginMethod,
+        TalkAuthClient,
+    },
     response::TalkStatusResponse,
 };
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
-    Runtime,
+    Runtime, State,
 };
 
-use self::constants::{CONFIG, XVC_HASHER};
+use crate::{app::constants::TALK_VERSION, KiwiTalkSystemInfo};
+
+use self::constants::{TALK_AGENT, XVC_HASHER};
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -37,8 +42,9 @@ async fn login(
     email: String,
     password: String,
     forced: bool,
+    app_info: State<'_, KiwiTalkSystemInfo>,
 ) -> ApiResult<TalkStatusResponse<LoginData>> {
-    let client = TalkAuthClient::new(CONFIG, XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
     let res = client
         .login(
@@ -55,8 +61,12 @@ async fn login(
 }
 
 #[tauri::command(async)]
-async fn request_passcode(email: String, password: String) -> ApiResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(CONFIG, XVC_HASHER);
+async fn request_passcode(
+    email: String,
+    password: String,
+    app_info: State<'_, KiwiTalkSystemInfo>,
+) -> ApiResult<TalkStatusResponse<()>> {
+    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
     let res = client
         .request_passcode(AccountLoginForm {
@@ -75,8 +85,9 @@ async fn register_device(
     email: String,
     password: String,
     permanent: bool,
+    app_info: State<'_, KiwiTalkSystemInfo>,
 ) -> ApiResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(CONFIG, XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
     let res = client
         .register_device(
@@ -91,4 +102,17 @@ async fn register_device(
         .or(Err(AuthApiError))?;
 
     Ok(res)
+}
+
+fn create_config<'a>(info: &'a State<'_, KiwiTalkSystemInfo>) -> AuthClientConfig<'a> {
+    AuthClientConfig {
+        device: AuthDeviceConfig {
+            name: &info.device_info.name,
+            model: None,
+            uuid: &info.device_info.device_uuid,
+        },
+        language: info.device_info.language(),
+        version: TALK_VERSION,
+        agent: TALK_AGENT,
+    }
 }
