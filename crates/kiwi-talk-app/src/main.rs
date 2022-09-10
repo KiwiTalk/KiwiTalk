@@ -14,10 +14,13 @@ use std::{error::Error, path::PathBuf};
 use constants::{
     APP_DEVICE_UUID_FILE, APP_PORTABLE_DATA_DIR, DEFAULT_DEVICE_LOCALE, DEFAULT_DEVICE_NAME,
 };
-use device::{gen_device_uuid, get_device_locale, get_device_name, DeviceInfo};
+use device::{gen_device_uuid, get_device_locale, get_device_name, DeviceInfo, DeviceUuid};
 use platform_dirs::AppDirs;
 use tauri::{App, Manager};
-use tokio::fs;
+use tokio::{
+    fs::{self, File},
+    io::AsyncReadExt,
+};
 
 #[derive(Debug)]
 pub struct KiwiTalkSystemInfo {
@@ -54,10 +57,15 @@ async fn setup_app(app: &mut App) -> Result<(), Box<dyn Error + 'static>> {
             .map(|metadata| metadata.is_file())
             .unwrap_or(false)
         {
-            fs::read_to_string(&path).await?
+            let mut file = File::open(&path).await?;
+
+            let mut buf = [0; 64];
+            file.read_exact(&mut buf).await?;
+
+            DeviceUuid::new(&buf)
         } else {
             let uuid = gen_device_uuid();
-            fs::write(&path, &uuid).await?;
+            fs::write(&path, uuid.decode()).await?;
             uuid
         }
     };

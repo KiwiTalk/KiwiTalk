@@ -109,7 +109,7 @@ fn create_config<'a>(info: &'a State<'_, KiwiTalkSystemInfo>) -> AuthClientConfi
         device: AuthDeviceConfig {
             name: &info.device_info.name,
             model: None,
-            uuid: &info.device_info.device_uuid,
+            uuid: info.device_info.device_uuid.as_str(),
         },
         language: info.device_info.language(),
         version: TALK_VERSION,

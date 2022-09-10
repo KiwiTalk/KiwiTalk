@@ -44,7 +44,7 @@ pub async fn create_client(
         },
         ClientCredential {
             access_token: &credential.access_token,
-            device_uuid: &info.device_info.device_uuid,
+            device_uuid: info.device_info.device_uuid.as_str(),
             user_id: credential.user_id,
         },
     )
