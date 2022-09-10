@@ -14,7 +14,7 @@ use tauri::{
     Runtime, State,
 };
 
-use crate::{app::constants::TALK_VERSION, KiwiTalkSystemInfo};
+use crate::{app::constants::TALK_VERSION, system::SystemInfo};
 
 use self::constants::{TALK_AGENT, XVC_HASHER};
 
@@ -42,7 +42,7 @@ async fn login(
     email: String,
     password: String,
     forced: bool,
-    app_info: State<'_, KiwiTalkSystemInfo>,
+    app_info: State<'_, SystemInfo>,
 ) -> ApiResult<TalkStatusResponse<LoginData>> {
     let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
@@ -64,7 +64,7 @@ async fn login(
 async fn request_passcode(
     email: String,
     password: String,
-    app_info: State<'_, KiwiTalkSystemInfo>,
+    app_info: State<'_, SystemInfo>,
 ) -> ApiResult<TalkStatusResponse<()>> {
     let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
@@ -85,7 +85,7 @@ async fn register_device(
     email: String,
     password: String,
     permanent: bool,
-    app_info: State<'_, KiwiTalkSystemInfo>,
+    app_info: State<'_, SystemInfo>,
 ) -> ApiResult<TalkStatusResponse<()>> {
     let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
@@ -104,7 +104,7 @@ async fn register_device(
     Ok(res)
 }
 
-fn create_config<'a>(info: &'a State<'_, KiwiTalkSystemInfo>) -> AuthClientConfig<'a> {
+fn create_config<'a>(info: &'a State<'_, SystemInfo>) -> AuthClientConfig<'a> {
     AuthClientConfig {
         device: AuthDeviceConfig {
             name: &info.device_info.name,

@@ -5,7 +5,7 @@ use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
 use thiserror::Error;
 
-use crate::{error::impl_tauri_error, KiwiTalkSystemInfo};
+use crate::{error::impl_tauri_error, system::SystemInfo};
 
 use super::{
     conn::checkin,
@@ -16,7 +16,7 @@ use super::{
 
 pub async fn create_client(
     credential: &AppCredential,
-    info: State<'_, KiwiTalkSystemInfo>,
+    info: State<'_, SystemInfo>,
 ) -> Result<(KiwiTalkClient, KiwiTalkClientEventReceiver), CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
