@@ -21,29 +21,34 @@ use tokio::fs;
 
 #[derive(Debug)]
 pub struct KiwiTalkSystemInfo {
-    pub data_dir_path: PathBuf,
+    pub device_data_dir: PathBuf,
+    pub data_dir: PathBuf,
     pub device_info: DeviceInfo,
 }
 
 // TODO:: cleanup code
 async fn setup_app(app: &mut App) -> Result<(), Box<dyn Error + 'static>> {
-    let data_dir_path = if fs::metadata(APP_PORTABLE_DATA_DIR)
-        .await
-        .map(|metadata| metadata.is_dir())
-        .unwrap_or(false)
-    {
-        APP_PORTABLE_DATA_DIR.into()
-    } else if let Some(app_dirs) = AppDirs::new(
+    let device_data_dir = if let Some(app_dirs) = AppDirs::new(
         Some(app.config().package.product_name.as_ref().unwrap()),
         false,
     ) {
         app_dirs.data_dir
     } else {
+        return Err("Cannot find device local data directory".into());
+    };
+
+    let data_dir = if fs::metadata(APP_PORTABLE_DATA_DIR)
+        .await
+        .map(|metadata| metadata.is_dir())
+        .unwrap_or(false)
+    {
         APP_PORTABLE_DATA_DIR.into()
+    } else {
+        device_data_dir.clone()
     };
 
     let device_uuid = {
-        let path = data_dir_path.as_path().join(APP_DEVICE_UUID_FILE);
+        let path = device_data_dir.as_path().join(APP_DEVICE_UUID_FILE);
         if fs::metadata(&path)
             .await
             .map(|metadata| metadata.is_file())
@@ -64,7 +69,8 @@ async fn setup_app(app: &mut App) -> Result<(), Box<dyn Error + 'static>> {
     };
 
     app.manage(KiwiTalkSystemInfo {
-        data_dir_path,
+        device_data_dir,
+        data_dir,
         device_info,
     });
 
