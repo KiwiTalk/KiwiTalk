@@ -20,8 +20,19 @@ async fn setup_app(app: &mut App) -> Result<(), Box<dyn Error + 'static>> {
     Ok(())
 }
 
+fn init_logger() {
+    let mut builder = env_logger::Builder::from_default_env();
+
+    #[cfg(not(debug_assertions))]
+    builder.filter(None, log::LevelFilter::Info);
+
+    builder.init();
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + 'static>> {
+    init_logger();
+
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
     let mut app = tauri::Builder::default()

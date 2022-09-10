@@ -13,8 +13,8 @@ wasm = ["loco-protocol/wasm"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_with = "2.0.0"
+serde_with = "2.0.1"
 futures = "0.3.24"
 bson = "2.4.0"
-loco-protocol = "5.1.0"
+loco-protocol = "5.2.0"
 thiserror = "1.0"
