@@ -27,7 +27,7 @@ pub struct ClientInfo {
     #[serde(rename = "appVer")]
     pub app_version: String,
 
-    /// Network MCCMNC ("999" for pc)
+    /// Network MCCMNC ("999" on pc)
     #[serde(rename = "MCCMNC")]
     pub mccmnc: String,
 }

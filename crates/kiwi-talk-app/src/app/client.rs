@@ -16,6 +16,7 @@ use super::{
 
 pub async fn create_client(
     credential: &AppCredential,
+    device_locked: bool,
     info: State<'_, SystemInfo>,
 ) -> Result<(KiwiTalkClient, KiwiTalkClientEventReceiver), CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
@@ -47,6 +48,7 @@ pub async fn create_client(
             device_uuid: info.device_info.device_uuid.as_str(),
             user_id: credential.user_id,
         },
+        device_locked,
     )
     .await
     .map_err(|_| CreateClientError::Client)

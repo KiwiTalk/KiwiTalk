@@ -5,8 +5,11 @@ use serde::{Deserialize, Serialize};
 pub struct SetStReq {
     /// Status
     ///
-    /// * Unlocked = 1
-    /// * Locked = 2
+    /// * Unlocked [`STATUS_UNLOCKED`]
+    /// * Locked [`STATUS_LOCKED`]
     #[serde(rename = "st")]
-    pub status: i8,
+    pub status: i32,
 }
+
+pub const STATUS_UNLOCKED: i32 = 1;
+pub const STATUS_LOCKED: i32 = 2;

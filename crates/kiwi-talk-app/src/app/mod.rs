@@ -73,6 +73,7 @@ impl_tauri_error!(ClientInitializeError);
 
 #[tauri::command(async)]
 async fn initialize_client(
+    device_locked: bool,
     app: State<'_, KiwiTalkApp>,
     info: State<'_, SystemInfo>,
 ) -> Result<(), ClientInitializeError> {
@@ -81,7 +82,7 @@ async fn initialize_client(
             let mut client_slot = app.client.write().await;
             let mut client_events_slot = app.client_events.lock().await;
 
-            let (client, client_events) = create_client(credential, info).await?;
+            let (client, client_events) = create_client(credential, device_locked, info).await?;
 
             *client_slot = Some(client);
             *client_events_slot = Some(client_events);

@@ -7,7 +7,7 @@ use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite};
 use handler::KiwiTalkClientHandler;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
-use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
+use talk_loco_command::request::chat::{set_st, LChatListReq, LoginListReq};
 use thiserror::Error;
 use tokio::sync::mpsc;
 
@@ -23,6 +23,7 @@ impl KiwiTalkClient {
         stream: S,
         config: KiwiTalkClientConfig,
         credential: ClientCredential<'_>,
+        device_locked: bool,
     ) -> Result<(Self, KiwiTalkClientEventReceiver), ClientLoginError> {
         let (session, receiver) = LocoCommandSession::new(stream);
         let (event_sender, event_receiver) = mpsc::channel(128);
@@ -36,9 +37,14 @@ impl KiwiTalkClient {
                 device_uuid: credential.device_uuid.into(),
                 oauth_token: credential.access_token.into(),
                 language: config.language.clone(),
-                device_type: config.device_type,
-                revision: 0,
-                rp: (),
+                device_type: Some(config.device_type),
+                pc_status: Some(if device_locked {
+                    set_st::STATUS_LOCKED
+                } else {
+                    set_st::STATUS_UNLOCKED
+                }),
+                revision: None,
+                rp: vec![0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
                 chat_list: LChatListReq {
                     chat_ids: vec![],
                     max_ids: vec![],
@@ -46,7 +52,7 @@ impl KiwiTalkClient {
                     last_chat_id: None,
                 },
                 last_block_token: 0,
-                background: false,
+                background: None,
             })
             .await
             .await
