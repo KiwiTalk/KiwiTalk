@@ -15,7 +15,7 @@ use crate::error::impl_tauri_error;
 use super::{
     constants::{
         BOOKING_SERVER, CHECKIN_SERVER, TALK_MCCMNC, TALK_MODEL, TALK_NET_TYPE, TALK_OS,
-        TALK_USE_SUB, TALK_VERSION, TALK_APP_VERSION,
+        TALK_USE_SUB, TALK_VERSION,
     },
     stream::{create_secure_stream, create_tls_stream, LOCO_CLIENT_SECURE_SESSION},
 };
@@ -62,7 +62,7 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
             client: ClientInfo {
                 os: TALK_OS.into(),
                 net_type: TALK_NET_TYPE,
-                app_version: TALK_APP_VERSION.into(),
+                app_version: TALK_VERSION.into(),
                 mccmnc: TALK_MCCMNC.into(),
             },
             language: "ko".into(),
