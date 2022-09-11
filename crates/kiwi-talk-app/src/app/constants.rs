@@ -1,4 +1,17 @@
-pub const TALK_VERSION: &str = "3.4.2";
+macro_rules! talk_version {
+    () => {
+        "3.4.2"
+    };
+}
+
+macro_rules! talk_app_build {
+    () => {
+        "3187"
+    };
+}
+
+pub const TALK_VERSION: &str = talk_version!();
+pub const TALK_APP_VERSION: &str = concat!(talk_version!(), ".", talk_app_build!());
 pub const TALK_OS: &str = "win32";
 pub const TALK_MCCMNC: &str = "999";
 pub const TALK_MODEL: &str = "";
