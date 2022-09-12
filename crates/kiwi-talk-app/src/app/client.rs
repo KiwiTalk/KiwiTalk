@@ -1,5 +1,6 @@
 use kiwi_talk_client::{
-    config::KiwiTalkClientConfig, ClientCredential, KiwiTalkClient, KiwiTalkClientEventReceiver,
+    config::KiwiTalkClientConfig, status::ClientStatus, ClientCredential, KiwiTalkClient,
+    KiwiTalkClientEventReceiver,
 };
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
@@ -16,7 +17,7 @@ use super::{
 
 pub async fn create_client(
     credential: &AppCredential,
-    device_locked: bool,
+    client_status: ClientStatus,
     info: State<'_, SystemInfo>,
 ) -> Result<(KiwiTalkClient, KiwiTalkClientEventReceiver), CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
@@ -48,7 +49,7 @@ pub async fn create_client(
             device_uuid: info.device_info.device_uuid.as_str(),
             user_id: credential.user_id,
         },
-        device_locked,
+        client_status,
     )
     .await
     .map_err(|_| CreateClientError::Client)

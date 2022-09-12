@@ -3,7 +3,9 @@ pub mod conn;
 pub mod constants;
 pub mod stream;
 
-use kiwi_talk_client::{event::KiwiTalkClientEvent, KiwiTalkClient, KiwiTalkClientEventReceiver};
+use kiwi_talk_client::{
+    event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient, KiwiTalkClientEventReceiver,
+};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
@@ -73,7 +75,7 @@ impl_tauri_error!(ClientInitializeError);
 
 #[tauri::command(async)]
 async fn initialize_client(
-    device_locked: bool,
+    client_status: ClientStatus,
     app: State<'_, KiwiTalkApp>,
     info: State<'_, SystemInfo>,
 ) -> Result<(), ClientInitializeError> {
@@ -82,7 +84,7 @@ async fn initialize_client(
             let mut client_slot = app.client.write().await;
             let mut client_events_slot = app.client_events.lock().await;
 
-            let (client, client_events) = create_client(credential, device_locked, info).await?;
+            let (client, client_events) = create_client(credential, client_status, info).await?;
 
             *client_slot = Some(client);
             *client_events_slot = Some(client_events);

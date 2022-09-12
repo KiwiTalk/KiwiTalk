@@ -1,13 +1,15 @@
 pub mod config;
 pub mod event;
 pub mod handler;
+pub mod status;
 
 use config::KiwiTalkClientConfig;
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite};
 use handler::KiwiTalkClientHandler;
+use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
-use talk_loco_command::request::chat::{set_st, LChatListReq, LoginListReq};
+use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
 use thiserror::Error;
 use tokio::sync::mpsc;
 
@@ -23,7 +25,7 @@ impl KiwiTalkClient {
         stream: S,
         config: KiwiTalkClientConfig,
         credential: ClientCredential<'_>,
-        device_locked: bool,
+        client_status: ClientStatus,
     ) -> Result<(Self, KiwiTalkClientEventReceiver), ClientLoginError> {
         let (session, receiver) = LocoCommandSession::new(stream);
         let (event_sender, event_receiver) = mpsc::channel(128);
@@ -38,11 +40,7 @@ impl KiwiTalkClient {
                 oauth_token: credential.access_token.into(),
                 language: config.language.clone(),
                 device_type: Some(config.device_type),
-                pc_status: Some(if device_locked {
-                    set_st::STATUS_LOCKED
-                } else {
-                    set_st::STATUS_UNLOCKED
-                }),
+                pc_status: Some(client_status as _),
                 revision: None,
                 rp: vec![0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
                 chat_list: LChatListReq {
