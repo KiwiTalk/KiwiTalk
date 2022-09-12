@@ -90,6 +90,6 @@ pub enum ClientLoginError {
     #[error("Stream error")]
     Stream,
 
-    #[error("Login failed")]
+    #[error("LOGINLIST failed. status: {0}")]
     Login(i16),
 }

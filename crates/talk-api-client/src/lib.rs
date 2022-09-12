@@ -28,7 +28,7 @@ impl Deref for ApiURL {
 
 #[derive(Debug, Error)]
 pub enum ApiRequestError {
-    #[error("HTTP request failed")]
+    #[error(transparent)]
     Request(#[from] reqwest::Error),
 }
 

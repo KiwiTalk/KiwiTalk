@@ -5,6 +5,7 @@ use loco_protocol::secure::{
 };
 use once_cell::sync::Lazy;
 use rsa::{pkcs8::DecodePublicKey, RsaPublicKey};
+use std::error::Error;
 use thiserror::Error;
 use tokio::{
     io,
@@ -64,7 +65,7 @@ pub async fn create_secure_stream<A: ToSocketAddrs>(
 
 #[derive(Debug, Error)]
 pub enum ConnectError<H> {
-    #[error("Cannot connect to server")]
+    #[error(transparent)]
     Stream(#[from] io::Error),
     #[error("Handshaking failed")]
     Handshake(H),

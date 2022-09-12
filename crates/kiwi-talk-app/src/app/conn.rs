@@ -87,7 +87,7 @@ pub enum ConnError {
     #[error("Stream error")]
     Stream,
 
-    #[error("Request failed")]
+    #[error("Request failed. status: {0}")]
     Request(i16),
 }
 

@@ -1,6 +1,6 @@
 use kiwi_talk_client::{
-    config::KiwiTalkClientConfig, status::ClientStatus, ClientCredential, KiwiTalkClient,
-    KiwiTalkClientEventReceiver,
+    config::KiwiTalkClientConfig, status::ClientStatus, ClientCredential, ClientLoginError,
+    KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
@@ -31,7 +31,7 @@ pub async fn create_client(
     .await
     .map_err(|_| CreateClientError::LocoHandshake)?;
 
-    KiwiTalkClient::login(
+    Ok(KiwiTalkClient::login(
         loco_session,
         // TODO:: Replace
         KiwiTalkClientConfig {
@@ -51,8 +51,7 @@ pub async fn create_client(
         },
         client_status,
     )
-    .await
-    .map_err(|_| CreateClientError::Client)
+    .await?)
 }
 
 #[derive(Debug, Error)]
@@ -63,8 +62,8 @@ pub enum CreateClientError {
     #[error("Loco stream handshake failed")]
     LocoHandshake,
 
-    #[error("Error while initializing client")]
-    Client,
+    #[error(transparent)]
+    Client(#[from] ClientLoginError),
 }
 
 impl_tauri_error!(CreateClientError);

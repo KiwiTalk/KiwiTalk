@@ -67,7 +67,7 @@ pub enum ClientInitializeError {
     #[error("Credential is not set")]
     CredentialNotSet,
 
-    #[error("Client creation failed")]
+    #[error(transparent)]
     Client(#[from] CreateClientError),
 }
 

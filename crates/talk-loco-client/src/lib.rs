@@ -83,7 +83,7 @@ impl Future for CommandRequest {
 
 #[derive(Debug, Error)]
 pub enum RequestError {
-    #[error("Could not write to stream")]
+    #[error("Could not write to stream. {0}")]
     Write(#[from] WriteError),
 
     #[error("Could not read from the stream")]

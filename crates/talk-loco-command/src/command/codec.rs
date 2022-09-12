@@ -17,26 +17,26 @@ use super::{BsonCommand, ReadBsonCommand};
 
 #[derive(Debug, Error)]
 pub enum WriteError {
-    #[error("Codec stream write error")]
+    #[error(transparent)]
     Codec(#[from] StreamError),
 
-    #[error("Could not serialize BSON data")]
+    #[error(transparent)]
     Encode(#[from] bson::ser::Error),
 }
 
 #[derive(Debug, Error)]
 pub enum ReadError {
-    #[error("Codec stream read error")]
+    #[error(transparent)]
     Stream(#[from] StreamError),
 
     /// Response command's status is not 0, means the request is corrupted
-    #[error("Command corrupted")]
+    #[error("Command corrupted. Command: {:?}", .0.header)]
     Corrupted(Command),
 
-    #[error("Invalid header method")]
+    #[error("Invalid header method. {0}")]
     InvalidMethod(#[from] FromUtf8Error),
 
-    #[error("Could not deserialize BSON data")]
+    #[error(transparent)]
     Decode(#[from] bson::de::Error),
 }
 

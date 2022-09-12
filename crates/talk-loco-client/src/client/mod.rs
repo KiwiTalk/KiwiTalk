@@ -15,10 +15,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
-    #[error("Request failed")]
+    #[error("Request failed. {0}")]
     Request(#[from] RequestError),
 
-    #[error("Could not deserialize BSON data")]
+    #[error("Could not deserialize BSON data. {0}")]
     Deserialize(#[from] bson::de::Error),
 }
 

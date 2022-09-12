@@ -130,6 +130,6 @@ pub enum SystemInitError {
     #[error("Device local data directory is not found")]
     DeviceDataDirectoryNotFound,
 
-    #[error("Io failed")]
+    #[error(transparent)]
     Io(#[from] io::Error),
 }
