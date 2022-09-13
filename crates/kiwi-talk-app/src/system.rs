@@ -107,6 +107,7 @@ pub async fn init_system_info(app_name: &str) -> Result<SystemInfo, SystemInitEr
             DeviceUuid::new(&buf)
         } else {
             let uuid = gen_device_uuid();
+            fs::create_dir_all(path.parent().unwrap()).await?;
             fs::write(&path, uuid.decode()).await?;
             uuid
         }
