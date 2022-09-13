@@ -7,3 +7,5 @@ repository = "https://github.com/KiwiTalk/kiwitalk"
 edition = "2021"
 
 [dependencies]
+tokio = { version = "1", features = ["rt", "fs", "sync"] }
+rusqlite = "0.28.0"
