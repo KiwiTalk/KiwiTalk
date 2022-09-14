@@ -20,6 +20,4 @@ pub struct ChatModel {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct UserModel {
-    
-}
+pub struct UserModel {}

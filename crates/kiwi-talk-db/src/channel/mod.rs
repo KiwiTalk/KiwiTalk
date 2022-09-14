@@ -96,16 +96,16 @@ impl<'a> ChatEntry<'a> {
 
     fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {
         Ok(ChatModel {
-            log_id: row.get(0)?,
-            prev_log_id: row.get(1)?,
-            chat_type: row.get(2)?,
-            message_id: row.get(3)?,
-            send_at: row.get(4)?,
-            author_id: row.get(5)?,
-            message: row.get(6)?,
-            attachment: row.get(7)?,
-            supplement: row.get(8)?,
-            referer: row.get(9)?,
+            log_id: row.get("log_id")?,
+            prev_log_id: row.get("prev_log_id")?,
+            chat_type: row.get("type")?,
+            message_id: row.get("message_id")?,
+            send_at: row.get("send_at")?,
+            author_id: row.get("author_id")?,
+            message: row.get("message")?,
+            attachment: row.get("attachment")?,
+            supplement: row.get("supplement")?,
+            referer: row.get("referer")?,
         })
     }
 }
