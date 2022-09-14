@@ -8,4 +8,4 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["rt", "fs", "sync"] }
-rusqlite = "0.28.0"
+rusqlite = { version = "0.28.0", features = ["bundled"] }
