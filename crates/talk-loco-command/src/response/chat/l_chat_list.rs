@@ -29,7 +29,6 @@ pub struct LChatListRes {
 
     // Unknown, Unknown item type
     //pub kc: Vec<()>
-
     /// Deleted chatroom ids(?)
     #[serde(rename = "delChatIds")]
     pub deleted_chat_ids: Vec<i64>,
