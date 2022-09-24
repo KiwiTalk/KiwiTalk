@@ -1,33 +1,12 @@
-import axios from 'axios';
-
+import { createRoot } from 'react-dom/client';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
+import { App } from './app';
 
-import './index.css';
+function main() {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const root = createRoot(document.getElementById('root')!);
 
-import * as serviceWorker from './service-worker';
-import { Provider } from 'react-redux';
-import configureStore from './store';
+  root.render(<React.StrictMode><App /></React.StrictMode>);
+}
 
-// Fix axios#552
-// always use Node.js adapter;
-axios.defaults.adapter = require('axios/lib/adapters/http');
-
-const store = configureStore();
-
-(async () => {
-  ReactDOM.render(
-      <React.StrictMode>
-        <Provider store={store}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </Provider>
-      </React.StrictMode>,
-      document.getElementById('root'),
-  );
-
-  serviceWorker.unregister();
-})();
+window.addEventListener('DOMContentLoaded', () => main());
