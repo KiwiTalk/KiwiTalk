@@ -9,3 +9,5 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["rt", "fs", "sync"] }
 rusqlite = { version = "0.28.0", features = ["bundled"] }
+rusqlite_migration = "1.0.0"
+once_cell = "1.14.0"
