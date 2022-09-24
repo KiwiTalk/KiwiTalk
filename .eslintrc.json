@@ -21,6 +21,7 @@
     "require-jsdoc": 0,
     "linebreak-style": 0,
     "object-curly-spacing": ["error", "always"],
+    "spaced-comment": ["error", "always", { "markers": ["/"] }],
     "max-len": ["error", 100]
   }
 }
