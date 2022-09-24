@@ -5,7 +5,7 @@ use rusqlite::Connection;
 
 #[test]
 fn test_chat() -> Result<(), Box<dyn Error>> {
-    let connection = ChannelConnection::new(Connection::open_in_memory()?);
+    let mut db = ChannelConnection::new(Connection::open_in_memory()?);
 
     let model = ChatModel {
         log_id: 0,
@@ -20,10 +20,9 @@ fn test_chat() -> Result<(), Box<dyn Error>> {
         referer: None,
     };
 
-    connection.initialize()?;
-    connection.chat().insert(&model)?;
-
-    assert_eq!(model, connection.chat().get_chat_from_log_id(0)?.unwrap());
+    db.migrate_to_latest()?;
+    db.chat().insert(&model)?;
+    assert_eq!(model, db.chat().get_chat_from_log_id(0)?.unwrap());
 
     Ok(())
 }

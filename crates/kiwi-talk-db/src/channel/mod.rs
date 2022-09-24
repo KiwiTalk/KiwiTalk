@@ -1,8 +1,16 @@
 pub mod model;
 
+use once_cell::sync::Lazy;
 use rusqlite::{Connection, OptionalExtension, Row};
+use rusqlite_migration::{Migrations, M};
 
 use self::model::ChatModel;
+
+static MIGRATIONS: Lazy<Migrations<'static>> = Lazy::new(|| {
+    Migrations::new(vec![M::up(include_str!(
+        "./migrations/20220924_channel.sql"
+    ))])
+});
 
 #[derive(Debug)]
 pub struct ChannelConnection {
@@ -10,26 +18,20 @@ pub struct ChannelConnection {
 }
 
 impl ChannelConnection {
-    pub const fn new(connection: Connection) -> Self {
+    pub fn new(connection: Connection) -> Self {
         Self { connection }
     }
 
-    pub fn initialize(&self) -> Result<(), rusqlite::Error> {
-        self.chat().initialize()?;
-
-        Ok(())
+    pub fn migrate_to_latest(&mut self) -> Result<(), rusqlite_migration::Error> {
+        MIGRATIONS.to_latest(&mut self.connection)
     }
 
     pub const fn user(&self) -> UserEntry<'_> {
-        UserEntry {
-            connection: &self.connection,
-        }
+        UserEntry(&self.connection)
     }
 
     pub const fn chat(&self) -> ChatEntry<'_> {
-        ChatEntry {
-            connection: &self.connection,
-        }
+        ChatEntry(&self.connection)
     }
 
     pub fn into_inner(self) -> Connection {
@@ -38,33 +40,11 @@ impl ChannelConnection {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct ChatEntry<'a> {
-    connection: &'a Connection,
-}
+pub struct ChatEntry<'a>(&'a Connection);
 
 impl<'a> ChatEntry<'a> {
-    pub fn initialize(&self) -> Result<(), rusqlite::Error> {
-        self.connection.execute(
-            "CREATE TABLE chat (
-            log_id INTEGER PRIMARY KEY,
-            prev_log_id INTEGER,
-            type INTEGER NOT NULL,
-            message_id INTEGER NOT NULL,
-            send_at INTEGER NOT NULL,
-            author_id INTEGER NOT NULL,
-            message TEXT,
-            attachment TEXT,
-            supplement TEXT,
-            referer INTEGER
-        )",
-            (),
-        )?;
-
-        Ok(())
-    }
-
     pub fn insert(&self, chat: &ChatModel) -> Result<(), rusqlite::Error> {
-        self.connection.execute("INSERT INTO chat (
+        self.0.execute("INSERT INTO chat (
             log_id, prev_log_id, type, message_id, send_at, author_id, message, attachment, supplement, referer
         ) VALUES (
             ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10
@@ -85,8 +65,8 @@ impl<'a> ChatEntry<'a> {
     }
 
     pub fn get_chat_from_log_id(&self, log_id: i64) -> Result<Option<ChatModel>, rusqlite::Error> {
-        self.connection
-            .query_row(
+        self.0
+            .query_row_and_then(
                 "SELECT * FROM chat WHERE log_id = ?",
                 [log_id],
                 Self::map_row,
@@ -111,8 +91,16 @@ impl<'a> ChatEntry<'a> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct UserEntry<'a> {
-    connection: &'a Connection,
-}
+pub struct UserEntry<'a>(&'a Connection);
 
 impl<'a> UserEntry<'a> {}
+
+#[cfg(test)]
+mod tests {
+    use super::MIGRATIONS;
+
+    #[test]
+    fn migrations_test() {
+        assert!(MIGRATIONS.validate().is_ok());
+    }
+}
