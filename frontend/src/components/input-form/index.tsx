@@ -37,10 +37,7 @@ const InputBox = styled.div`
   background: #FFFFFF;
   outline: none;
 
-  display: inline-flex;
-  justify-content: center;
-  
-  padding: 12px;
+  display: inline-block;
   
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
@@ -51,6 +48,13 @@ const InputBox = styled.div`
     background: #F2F2F3;
     outline: 1px solid #BFBDC1;
   }
+`;
+
+const InnerWrapper = styled.div`
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px;
 `;
 
 const InputIcon = styled(MaterialIconRound)`
@@ -97,13 +101,15 @@ export const InputForm: React.FC<InputProp> = ({
   };
 
   return <InputBox data-disabled={disabled} className={className}>
-    {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
-    <Input
-      {...input}
-      disabled={disabled}
-      onFocus={activateHandler(true)}
-      onBlur={activateHandler(false)}
-      ref={inputRef}
-    />
+    <InnerWrapper>
+      {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
+      <Input
+        {...input}
+        disabled={disabled}
+        onFocus={activateHandler(true)}
+        onBlur={activateHandler(false)}
+        ref={inputRef}
+      />
+    </InnerWrapper>
   </InputBox>;
 };
