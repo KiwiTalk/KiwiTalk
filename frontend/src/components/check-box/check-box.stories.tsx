@@ -9,15 +9,16 @@ export default {
 };
 
 type AdditionalProp = {
-  label: string
+  label: string,
+  checked?: boolean,
+  indeterminate?: boolean,
 }
 
 const Template: Story<ComponentProps<typeof CheckBox> & AdditionalProp> = (args) =>
   <CheckBox
     id="example"
     disabled={args.disabled}
-    checked={args.checked}
-    indeterminate={args.indeterminate}
+    status={{ checked: args.checked, indeterminate: args.indeterminate }}
   >{args.label}</CheckBox>;
 
 export const Default = Template.bind({});

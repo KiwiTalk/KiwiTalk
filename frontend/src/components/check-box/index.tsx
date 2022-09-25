@@ -41,8 +41,7 @@ export type CheckBoxStatus = {
 
 export type CheckBoxProp = React.PropsWithChildren<{
   id: string,
-  checked?: boolean,
-  indeterminate?: boolean,
+  status?: Partial<CheckBoxStatus>,
   disabled?: boolean,
   onChange?: (status: CheckBoxStatus) => void,
   checkbox?: InputHTMLAttributes<HTMLInputElement>,
@@ -52,8 +51,7 @@ export type CheckBoxProp = React.PropsWithChildren<{
 
 export const CheckBox: React.FC<CheckBoxProp> = ({
   id,
-  checked,
-  indeterminate,
+  status,
   disabled,
   onChange,
   checkbox,
@@ -62,15 +60,15 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
   children,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [status, setStatus] = useState<CheckBoxStatus>({
-    checked: checked || false,
-    indeterminate: indeterminate || false,
+  const [currentStatus, setCurrentStatus] = useState<CheckBoxStatus>({
+    checked: status?.checked || false,
+    indeterminate: status?.indeterminate || false,
   });
 
   let currentIcon = 'check_box_outline_blank';
-  if (status.indeterminate) {
+  if (currentStatus.indeterminate) {
     currentIcon = 'indeterminate_check_box';
-  } else if (status.checked) {
+  } else if (currentStatus.checked) {
     currentIcon = 'check_box';
   }
 
@@ -81,7 +79,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
       checked: inputRef.current.checked,
       indeterminate: inputRef.current.indeterminate,
     };
-    setStatus(nextStatus);
+    setCurrentStatus(nextStatus);
 
     if (onChange) {
       onChange(nextStatus);
@@ -92,12 +90,12 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
     <CheckboxInput
       {...checkbox}
       id={id}
-      checked={status.checked}
+      checked={currentStatus.checked}
       disabled={disabled}
       type="checkbox"
       ref={(ref) => {
         if (!ref) return;
-        ref.indeterminate = status.indeterminate || false;
+        ref.indeterminate = currentStatus.indeterminate || false;
         inputRef.current = ref;
       }}
       onChange={() => onInputChanged()}

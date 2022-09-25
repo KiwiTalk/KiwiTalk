@@ -1,24 +1,22 @@
-import { ComponentStory } from '@storybook/react';
+import { Story } from '@storybook/react';
 
-import { LoginForm } from './form';
+import { LoginForm, LoginFormInput } from './form';
 
 export default {
   title: 'KiwiTalk/login/LoginForm',
   component: LoginForm,
 };
 
-const Template: ComponentStory<typeof LoginForm> = (args) =>
+const Template: Story<Partial<LoginFormInput>> = (args) =>
   <LoginForm
-    input={args.input}
-    onSubmit={(input) => console.log(input)}
+    input={args}
+    onSubmit={(input) => console.debug(input)}
   />;
 
 export const Default = Template.bind({});
 Default.args = {
-  input: {
-    email: 'example@example.com',
-    password: '1234',
-    saveId: true,
-    autoLogin: false,
-  },
+  email: 'example@example.com',
+  password: '1234',
+  saveId: true,
+  autoLogin: false,
 };
