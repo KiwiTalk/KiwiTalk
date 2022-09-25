@@ -19,7 +19,7 @@ Default.args = {
   icon: 'account_circle',
   disabled: false,
   input: {
-    value: 'Sample input',
+    defaultValue: 'Sample input',
     placeholder: 'Placeholder',
   },
 };
@@ -28,7 +28,7 @@ export const WithoutIcon = Template.bind({});
 WithoutIcon.args = {
   disabled: false,
   input: {
-    value: 'Sample input',
+    defaultValue: 'Sample input',
     placeholder: 'Placeholder',
   },
 };
@@ -47,7 +47,7 @@ Disabled.args = {
   icon: 'account_circle',
   disabled: true,
   input: {
-    value: 'Disabled input',
+    defaultValue: 'Disabled input',
     placeholder: 'Placeholder',
   },
 };

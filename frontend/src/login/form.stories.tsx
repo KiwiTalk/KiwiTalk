@@ -9,16 +9,16 @@ export default {
 
 const Template: ComponentStory<typeof LoginForm> = (args) =>
   <LoginForm
-    email={args.email}
-    password={args.password}
-    saveId={args.saveId}
-    autoLogin={args.autoLogin}
+    input={args.input}
+    onSubmit={(input) => console.log(input)}
   />;
 
 export const Default = Template.bind({});
 Default.args = {
-  email: 'example@example.com',
-  password: '1234',
-  saveId: true,
-  autoLogin: false,
+  input: {
+    email: 'example@example.com',
+    password: '1234',
+    saveId: true,
+    autoLogin: false,
+  },
 };
