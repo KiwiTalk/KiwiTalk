@@ -95,11 +95,11 @@ export const InputForm: React.FC<InputProp> = ({
   return <InputBox data-disabled={disabled}>
     {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
     <Input
+      {...input}
       disabled={disabled}
       onFocus={activateHandler(true)}
       onBlur={activateHandler(false)}
       ref={inputRef}
-      {...input}
     />
   </InputBox>;
 };
