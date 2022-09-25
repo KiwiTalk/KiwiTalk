@@ -6,7 +6,6 @@ const Input = styled.input`
   border: none;
   outline: none;
   
-  margin-left: 10px;
   padding: 0px;
   
   font-size: 12px;
@@ -58,6 +57,8 @@ const InputIcon = styled(Icon)`
   color: #BFBDC1;
   padding: 0px;
   font-size: 20px;
+
+  margin-right: 10px;
 
   transition: all 0.25s;
 
