@@ -20,7 +20,7 @@ const CheckboxContainer = styled.div`
 
 const CheckboxLabel = styled.label`
   display: inline-flex;
-  justify-content: center;
+  align-items: center;
 
   padding: 3px 3px;
 
