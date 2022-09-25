@@ -1,13 +1,13 @@
 import React, { InputHTMLAttributes, useState, useRef } from 'react';
 import styled from 'styled-components';
-import { RoundIcon } from '../icon';
+import { MaterialRoundIcon } from '../icon';
 
 const CheckboxInput = styled.input`
   display: none;
 
 `;
 
-const CheckboxIcon = styled(RoundIcon)`
+const CheckboxIcon = styled(MaterialRoundIcon)`
   padding: 0px;
   font-size: 18px;
 
