@@ -67,7 +67,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
     currentIcon = 'check_box';
   }
 
-  const onCheckChanged = () => {
+  const onInputChanged = () => {
     if (!inputRef.current) return;
 
     const nextStatus = {
@@ -90,7 +90,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
         ref.indeterminate = status.indeterminate || false;
         inputRef.current = ref;
       }}
-      onChange={() => onCheckChanged()}
+      onChange={() => onInputChanged()}
     />
     <CheckboxLabel htmlFor={id} data-disabled={disabled}>
       <CheckboxIcon>{currentIcon}</CheckboxIcon>
