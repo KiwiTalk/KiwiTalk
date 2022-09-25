@@ -3,8 +3,12 @@ import React from 'react';
 import { App } from './app';
 
 function main() {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const root = createRoot(document.getElementById('root')!);
+  const rootElement = document.getElementById('root');
+  if (!rootElement) {
+    throw new Error('Cannot find root element');
+  }
+
+  const root = createRoot(rootElement);
 
   root.render(<React.StrictMode><App /></React.StrictMode>);
 }
