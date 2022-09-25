@@ -11,6 +11,8 @@ const Input = styled.input`
   font-size: 12px;
   line-height: 14px;
 
+  flex: 1;
+
   color: #1E2019;
   
   transition: all 0.25s;
@@ -51,10 +53,9 @@ const InputBox = styled.div`
 `;
 
 const InnerWrapper = styled.div`
-  display: inline-flex;
-  justify-content: center;
+  display: flex;
   align-items: center;
-  margin: 12px;
+  padding: 12px;
 `;
 
 const InputIcon = styled(MaterialIconRound)`
