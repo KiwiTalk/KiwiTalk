@@ -77,12 +77,12 @@ export const LoginForm: React.FC<LoginFormProp> = ({
     <LoginCheckbox
       id='saveId'
       checked={currentInput.saveId}
-      onChange={(status) => currentInput.saveId = status.checked || false}
+      onChange={(status) => currentInput.saveId = status.checked}
     >아이디 저장</LoginCheckbox>
     <LoginCheckbox
       id='autoLogin'
       checked={currentInput.autoLogin}
-      onChange={(status) => currentInput.autoLogin = status.checked || false}
+      onChange={(status) => currentInput.autoLogin = status.checked}
     >실행 시 자동 로그인</LoginCheckbox>
   </div>;
 };
