@@ -24,7 +24,7 @@
   "devDependencies": {
     "@tauri-apps/cli": "1.1.1",
     "@types/node": "18.7.14",
-    "@types/react": "18.0.20",
+    "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
     "@typescript-eslint/eslint-plugin": "5.38.0",
     "@typescript-eslint/parser": "5.38.0",
