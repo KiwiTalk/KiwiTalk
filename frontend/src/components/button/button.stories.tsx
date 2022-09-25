@@ -3,7 +3,7 @@ import { ComponentStory } from '@storybook/react';
 import { Button } from '.';
 
 export default {
-  title: 'KiwiTalk/Button',
+  title: 'KiwiTalk/components/Button',
   component: Button,
 };
 

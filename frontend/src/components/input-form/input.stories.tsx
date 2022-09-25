@@ -3,7 +3,7 @@ import { ComponentStory } from '@storybook/react';
 import { InputForm } from '.';
 
 export default {
-  title: 'KiwiTalk/InputForm',
+  title: 'KiwiTalk/components/InputForm',
   component: InputForm,
 };
 
@@ -14,8 +14,8 @@ const Template: ComponentStory<typeof InputForm> = (args) =>
     input={args.input}
   />;
 
-export const Primary = Template.bind({});
-Primary.args = {
+export const Default = Template.bind({});
+Default.args = {
   icon: 'account_circle',
   disabled: false,
   input: {

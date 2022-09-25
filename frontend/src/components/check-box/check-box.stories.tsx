@@ -1,20 +1,24 @@
-import { ComponentStory } from '@storybook/react';
+import { Story } from '@storybook/react';
+import { ComponentProps } from 'react';
 
 import { CheckBox } from '.';
 
 export default {
-  title: 'KiwiTalk/CheckBox',
+  title: 'KiwiTalk/components/CheckBox',
   component: CheckBox,
 };
 
-const Template: ComponentStory<typeof CheckBox> = (args) =>
+type AdditionalProp = {
+  label: string
+}
+
+const Template: Story<ComponentProps<typeof CheckBox> & AdditionalProp> = (args) =>
   <CheckBox
     id="example"
     disabled={args.disabled}
-    label={args.label}
     checked={args.checked}
     indeterminate={args.indeterminate}
-  />;
+  >{args.label}</CheckBox>;
 
 export const Default = Template.bind({});
 Default.args = {
