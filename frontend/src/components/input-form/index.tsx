@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, useState, useRef } from 'react';
+import React, { InputHTMLAttributes, useState, useRef, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { MaterialIconRound } from '../icon';
 
@@ -79,7 +79,8 @@ const InputIcon = styled(MaterialIconRound)`
 type InputProp = {
   icon?: string,
   disabled?: boolean,
-  input?: InputHTMLAttributes<HTMLInputElement>
+  onChange?: (text: string) => void,
+  input?: InputHTMLAttributes<HTMLInputElement>,
 
   className?: string,
 }
@@ -87,19 +88,26 @@ type InputProp = {
 export const InputForm: React.FC<InputProp> = ({
   icon,
   disabled,
+  onChange,
   input,
 
   className,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [activated, setActivated] = useState(!!input?.value);
+  const [activated, setActivated] = useState(!!input?.value || !!input?.defaultValue);
 
-  const activateHandler = (shouldActive: boolean) => {
+  function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
+    if (onChange) {
+      onChange(e.currentTarget.value);
+    }
+  }
+
+  function activateHandler(shouldActivate: boolean) {
     return () => {
-      const nextState = !!inputRef.current?.value || shouldActive;
+      const nextState = !!inputRef.current?.value || shouldActivate;
       if (activated !== nextState) setActivated(nextState);
     };
-  };
+  }
 
   return <InputBox data-disabled={disabled} className={className}>
     <InnerWrapper>
@@ -109,6 +117,7 @@ export const InputForm: React.FC<InputProp> = ({
         disabled={disabled}
         onFocus={activateHandler(true)}
         onBlur={activateHandler(false)}
+        onChange={onChangeHandler}
         ref={inputRef}
       />
     </InnerWrapper>

@@ -34,34 +34,38 @@ const CheckboxLabel = styled.label`
   }
 `;
 
+export type CheckBoxStatus = {
+  checked: boolean,
+  indeterminate: boolean
+};
+
 export type CheckBoxProp = React.PropsWithChildren<{
   id: string,
   checked?: boolean,
   indeterminate?: boolean,
   disabled?: boolean,
+  onChange?: (status: CheckBoxStatus) => void,
   checkbox?: InputHTMLAttributes<HTMLInputElement>,
 
   className?: string
 }>;
-
-type CheckBoxStatus = {
-  checked?: boolean,
-  indeterminate?: boolean
-};
 
 export const CheckBox: React.FC<CheckBoxProp> = ({
   id,
   checked,
   indeterminate,
   disabled,
+  onChange,
   checkbox,
 
   className,
   children,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const [status, setStatus] = useState<CheckBoxStatus>({ checked, indeterminate });
+  const [status, setStatus] = useState<CheckBoxStatus>({
+    checked: checked || false,
+    indeterminate: indeterminate || false,
+  });
 
   let currentIcon = 'check_box_outline_blank';
   if (status.indeterminate) {
@@ -77,8 +81,11 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
       checked: inputRef.current.checked,
       indeterminate: inputRef.current.indeterminate,
     };
-
     setStatus(nextStatus);
+
+    if (onChange) {
+      onChange(nextStatus);
+    }
   };
 
   return <CheckboxContainer className={className}>
