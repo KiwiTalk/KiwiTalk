@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes, useState, useRef } from 'react';
 import styled from 'styled-components';
-import { MaterialRoundIcon } from '../icon';
+import { MaterialIconRound } from '../icon';
 
 const Input = styled.input`
   border: none;
@@ -53,7 +53,7 @@ const InputBox = styled.div`
   }
 `;
 
-const InputIcon = styled(MaterialRoundIcon)`
+const InputIcon = styled(MaterialIconRound)`
   color: #BFBDC1;
   padding: 0px;
   font-size: 20px;
