@@ -9,6 +9,8 @@ export const Button = styled.button`
   border: none;
   outline: none;
 
+  padding: 16px 16px;
+
   font-weight: 600;
   font-size: 12px;
   
