@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from 'react';
+import React, { InputHTMLAttributes, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { Icon } from '../icon';
 
@@ -55,11 +55,15 @@ const InputBox = styled.div`
 `;
 
 const InputIcon = styled(Icon)`
+  color: #BFBDC1;
   padding: 0px;
   font-size: 20px;
-  color: #1E2019;
 
   transition: all 0.25s;
+
+  &[data-activated=true] {
+    color: #1E2019;
+  }
 
   &[data-disabled=true] {
     color: #BFBDC1;
@@ -77,8 +81,24 @@ export const InputForm: React.FC<InputProp> = ({
   disabled,
   input,
 }) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [activated, setActivated] = useState(!!input?.value);
+
+  const activateHandler = (shouldActive: boolean) => {
+    return () => {
+      const nextState = !!inputRef.current?.value || shouldActive;
+      if (activated !== nextState) setActivated(nextState);
+    };
+  };
+
   return <InputBox data-disabled={disabled}>
-    {icon && <InputIcon data-disabled={disabled}>{icon}</InputIcon>}
-    <Input disabled={disabled} {...input}/>
+    {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
+    <Input
+      disabled={disabled}
+      onFocus={activateHandler(true)}
+      onBlur={activateHandler(false)}
+      ref={inputRef}
+      {...input}
+    />
   </InputBox>;
 };
