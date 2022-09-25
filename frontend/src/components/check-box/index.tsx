@@ -34,14 +34,15 @@ const CheckboxLabel = styled.label`
   }
 `;
 
-export type CheckBoxProp = {
+export type CheckBoxProp = React.PropsWithChildren<{
   id: string,
-  label?: string,
   checked?: boolean,
   indeterminate?: boolean,
   disabled?: boolean,
-  checkbox?: InputHTMLAttributes<HTMLInputElement>
-};
+  checkbox?: InputHTMLAttributes<HTMLInputElement>,
+
+  className?: string
+}>;
 
 type CheckBoxStatus = {
   checked?: boolean,
@@ -50,11 +51,13 @@ type CheckBoxStatus = {
 
 export const CheckBox: React.FC<CheckBoxProp> = ({
   id,
-  label,
   checked,
   indeterminate,
   disabled,
   checkbox,
+
+  className,
+  children,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -78,7 +81,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
     setStatus(nextStatus);
   };
 
-  return <CheckboxContainer>
+  return <CheckboxContainer className={className}>
     <CheckboxInput
       {...checkbox}
       id={id}
@@ -94,7 +97,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
     />
     <CheckboxLabel htmlFor={id} data-disabled={disabled}>
       <CheckboxIcon>{currentIcon}</CheckboxIcon>
-      <span>{label}</span>
+      {children}
     </CheckboxLabel>
   </CheckboxContainer>;
 };

@@ -75,12 +75,16 @@ type InputProp = {
   icon?: string,
   disabled?: boolean,
   input?: InputHTMLAttributes<HTMLInputElement>
+
+  className?: string,
 }
 
 export const InputForm: React.FC<InputProp> = ({
   icon,
   disabled,
   input,
+
+  className,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [activated, setActivated] = useState(!!input?.value);
@@ -92,7 +96,7 @@ export const InputForm: React.FC<InputProp> = ({
     };
   };
 
-  return <InputBox data-disabled={disabled}>
+  return <InputBox data-disabled={disabled} className={className}>
     {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
     <Input
       {...input}
