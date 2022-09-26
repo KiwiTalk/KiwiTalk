@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import iconMinimize from './images/icon_minimize.svg';
-import iconMaximize from './images/icon_maximize.svg';
-import iconClose from './images/icon_close.svg';
+import iconMinimize from './icons/icon_minimize.svg';
+import iconMaximize from './icons/icon_maximize.svg';
+import iconClose from './icons/icon_close.svg';
 
 const ControlContainer = styled.div`
   border-bottom-left-radius: 3px;
