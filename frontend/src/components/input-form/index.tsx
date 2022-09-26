@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, useState, useRef, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { MaterialIconRound } from '../icon';
 
@@ -78,23 +78,28 @@ const InputIcon = styled(MaterialIconRound)`
 
 type InputProp = {
   icon?: string,
+
+  type?: React.HTMLInputTypeAttribute,
+  defaultValue?: string,
+  placeholder?: string,
   disabled?: boolean,
+
   onChange?: (text: string) => void,
-  input?: InputHTMLAttributes<HTMLInputElement>,
 
   className?: string,
 }
 
 export const InputForm: React.FC<InputProp> = ({
   icon,
+  type,
+  defaultValue,
+  placeholder,
   disabled,
   onChange,
-  input,
 
   className,
 }) => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [activated, setActivated] = useState(!!input?.value || !!input?.defaultValue);
+  const [activated, setActivated] = useState(!!defaultValue);
 
   function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
     if (onChange) {
@@ -102,23 +107,22 @@ export const InputForm: React.FC<InputProp> = ({
     }
   }
 
-  function activateHandler(shouldActivate: boolean) {
-    return () => {
-      const nextState = !!inputRef.current?.value || shouldActivate;
-      if (activated !== nextState) setActivated(nextState);
-    };
+  function activateHandler(input: HTMLInputElement, shouldActivate: boolean) {
+    const nextState = !!input.value || shouldActivate;
+    if (activated !== nextState) setActivated(nextState);
   }
 
   return <InputBox data-disabled={disabled} className={className}>
     <InnerWrapper>
       {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
       <Input
-        {...input}
+        type={type}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
         disabled={disabled}
-        onFocus={activateHandler(true)}
-        onBlur={activateHandler(false)}
+        onFocus={(e) => activateHandler(e.currentTarget, true)}
+        onBlur={(e) => activateHandler(e.currentTarget, false)}
         onChange={onChangeHandler}
-        ref={inputRef}
       />
     </InnerWrapper>
   </InputBox>;

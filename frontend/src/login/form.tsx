@@ -57,20 +57,16 @@ export const LoginForm: React.FC<LoginFormProp> = ({
   return <div className={className}>
     <LoginInput
       icon='account_circle'
-      input={{
-        type: 'email',
-        placeholder: '카카오계정(이메일 또는 전화번호)',
-        defaultValue: currentInput.email,
-      }}
+      type='email'
+      placeholder='카카오계정(이메일 또는 전화번호)'
+      defaultValue={currentInput.email}
       onChange={(text) => currentInput.email = text}
     />
     <LoginInput
       icon='vpn_key'
-      input={{
-        type: 'password',
-        placeholder: '비밀번호',
-        defaultValue: currentInput.password,
-      }}
+      type='password'
+      placeholder='비밀번호'
+      defaultValue={currentInput.password}
       onChange={(text) => currentInput.password = text}
     />
     <LoginButton onClick={() => clickHandler()}>로그인</LoginButton>

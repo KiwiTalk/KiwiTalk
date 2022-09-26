@@ -1,10 +1,9 @@
-import React, { InputHTMLAttributes, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { MaterialIconRound } from '../icon';
 
 const CheckboxInput = styled.input`
   display: none;
-
 `;
 
 const CheckboxIcon = styled(MaterialIconRound)`
@@ -43,8 +42,8 @@ export type CheckBoxProp = React.PropsWithChildren<{
   id: string,
   status?: Partial<CheckBoxStatus>,
   disabled?: boolean,
+
   onChange?: (status: CheckBoxStatus) => void,
-  checkbox?: InputHTMLAttributes<HTMLInputElement>,
 
   className?: string
 }>;
@@ -54,12 +53,10 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
   status,
   disabled,
   onChange,
-  checkbox,
 
   className,
   children,
 }) => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const [currentStatus, setCurrentStatus] = useState<CheckBoxStatus>({
     checked: status?.checked || false,
     indeterminate: status?.indeterminate || false,
@@ -72,12 +69,10 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
     currentIcon = 'check_box';
   }
 
-  const onInputChanged = () => {
-    if (!inputRef.current) return;
-
+  const onInputChanged = (input: HTMLInputElement) => {
     const nextStatus = {
-      checked: inputRef.current.checked,
-      indeterminate: inputRef.current.indeterminate,
+      checked: input.checked,
+      indeterminate: input.indeterminate,
     };
     setCurrentStatus(nextStatus);
 
@@ -88,7 +83,6 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
 
   return <CheckboxContainer className={className}>
     <CheckboxInput
-      {...checkbox}
       id={id}
       checked={currentStatus.checked}
       disabled={disabled}
@@ -96,9 +90,8 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
       ref={(ref) => {
         if (!ref) return;
         ref.indeterminate = currentStatus.indeterminate || false;
-        inputRef.current = ref;
       }}
-      onChange={() => onInputChanged()}
+      onChange={(e) => onInputChanged(e.currentTarget)}
     />
     <CheckboxLabel htmlFor={id} data-disabled={disabled}>
       <CheckboxIcon>{currentIcon}</CheckboxIcon>
