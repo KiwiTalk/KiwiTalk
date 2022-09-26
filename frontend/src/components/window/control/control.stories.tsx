@@ -10,6 +10,7 @@ export default {
 
 const DimmedWindowControl = styled(WindowControl)`
   background: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.5);
 `;
 
 const Template: ComponentStory<typeof WindowControl> = (args) =>

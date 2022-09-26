@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import iconMinimize from './icons/icon_minimize.svg';
-import iconMaximize from './icons/icon_maximize.svg';
-import iconClose from './icons/icon_close.svg';
+import { ReactComponent as IconMinimizeSvg } from './icons/icon_minimize.svg';
+import { ReactComponent as IconMaximizeSvg } from './icons/icon_maximize.svg';
+import { ReactComponent as IconCloseSvg } from './icons/icon_close.svg';
 
 const ControlContainer = styled.div`
   border-bottom-left-radius: 3px;
   font-size: 0px;
   display: inline-block;
+  vertical-align: top;
 `;
 
 const ControlButton = styled.button`
@@ -17,8 +18,8 @@ const ControlButton = styled.button`
   border: none;
   outline: none;
   background: none;
-  vertical-align: top;
   line-height: 0px;
+  color: inherit;
   
   :hover {
     background: rgba(0, 0, 0, 0.1);
@@ -37,7 +38,15 @@ const CloseButton = styled(ControlButton)`
   }
 `;
 
-const ControlIcon = styled.img`
+const IconMinimize = styled(IconMinimizeSvg)`
+  vertical-align: middle;
+`;
+
+const IconMaximize = styled(IconMaximizeSvg)`
+  vertical-align: middle;
+`;
+
+const IconClose = styled(IconCloseSvg)`
   vertical-align: middle;
 `;
 
@@ -59,19 +68,19 @@ export const WindowControl: React.FC<ControlProp> = ({
       onClick={() => {
         if (onControlClick) onControlClick('minimize');
       }}>
-      <ControlIcon src={iconMinimize} />
+      <IconMinimize />
     </MinimizeButton>
     <ControlButton
       onClick={() => {
         if (onControlClick) onControlClick('maximize');
       }}>
-      <ControlIcon src={iconMaximize} />
+      <IconMaximize />
     </ControlButton>
     <CloseButton
       onClick={() => {
         if (onControlClick) onControlClick('close');
       }}>
-      <ControlIcon src={iconClose} />
+      <IconClose />
     </CloseButton>
   </ControlContainer>;
 };
