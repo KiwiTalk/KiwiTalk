@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { Story } from '@storybook/react';
 import styled from 'styled-components';
 
 import { WindowControl } from '.';
@@ -8,17 +8,26 @@ export default {
   component: WindowControl,
 };
 
-const DimmedWindowControl = styled(WindowControl)`
-  background: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.5);
-`;
+type StoryProp = {
+  background: string,
+  color: string
+};
 
-const Template: ComponentStory<typeof WindowControl> = (args) =>
-  <DimmedWindowControl onControlClick={args.onControlClick}/>;
+const Template: Story<StoryProp> = (args) => {
+  const Control = styled(WindowControl)`
+    background: ${args.background};
+    color: ${args.color};
+  `;
+
+  return <Control
+    onControlClick={(type) => {
+      console.debug('Clicked ' + type);
+    }}
+  />;
+};
 
 export const Default = Template.bind({});
 Default.args = {
-  onControlClick: (type) => {
-    console.debug('Clicked ' + type);
-  },
+  background: 'rgba(0, 0, 0, 0.1)',
+  color: 'rgba(0, 0, 0, 0.5)',
 };
