@@ -1,3 +1,4 @@
+import './style.css';
 import styled from 'styled-components';
 
 const Base = styled.span`
