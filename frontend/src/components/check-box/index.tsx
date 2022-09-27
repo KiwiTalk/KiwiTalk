@@ -69,7 +69,6 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
   }
 
   function onInputChanged(input: HTMLInputElement) {
-    console.log(input.checked);
     const nextStatus = {
       checked: input.checked,
       indeterminate: input.indeterminate,
@@ -79,7 +78,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
       onInput(nextStatus);
     }
     setCurrentStatus(nextStatus);
-  };
+  }
 
   return <CheckboxContainer className={className}>
     <CheckboxInput
