@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { ReactComponent as KiwiSvg } from './icons/kiwi.svg';
 import { ReactComponent as BackgroundSvg } from './images/background.svg';
+import { ReactComponent as BackgroundPatternSvg } from './images/background-pattern.svg';
 
 const BackgroundContainer = styled.div`
   overflow: hidden;
@@ -35,6 +36,16 @@ const Background = styled(BackgroundSvg)`
   height: 100%;
 `;
 
+const BackgroundPattern = styled(BackgroundPatternSvg)`
+  position: absolute;
+
+  width: 50%;
+  height: 50%;
+
+  right: 50%;
+  bottom: 50%;
+`;
+
 export type LoginBackgroundProp = {
   className?: string
 };
@@ -44,6 +55,7 @@ export const LoginBackground: React.FC<LoginBackgroundProp> = ({
 }) => {
   return <BackgroundContainer className={className}>
     <BackgroundInner>
+      <BackgroundPattern />
       <Background />
       <KiwiIcon />
     </BackgroundInner>
