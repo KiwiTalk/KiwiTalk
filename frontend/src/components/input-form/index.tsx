@@ -5,8 +5,6 @@ import { MaterialIconRound } from '../icon';
 const Input = styled.input`
   border: none;
   outline: none;
-
-  font-size: 1em;
   
   padding: 0px;
 
