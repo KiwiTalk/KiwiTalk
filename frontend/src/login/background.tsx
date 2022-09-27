@@ -4,9 +4,8 @@ import { ReactComponent as BackgroundSvg } from './images/background.svg';
 import { ReactComponent as BackgroundPatternSvg } from './images/background-pattern.svg';
 
 const BackgroundContainer = styled.div`
-  overflow: hidden;
-  width: inherit;
-  height: inherit;
+  width: 100%;
+  height: 100%;
 `;
 
 const BackgroundInner = styled.div`
@@ -14,6 +13,7 @@ const BackgroundInner = styled.div`
   width: 100%;
   height: 100%;
   background: linear-gradient(107.56deg, #FFFFFF 0%, #FFFAE0 100%);
+  overflow: hidden;
 `;
 
 const KiwiIcon = styled(KiwiSvg)`

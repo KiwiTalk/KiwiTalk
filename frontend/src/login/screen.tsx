@@ -3,7 +3,7 @@ import { LoginBackground } from './background';
 import { ReactComponent as TextLogoSvg } from './icons/text_logo.svg';
 import React from 'react';
 
-const FormInnerContainer = styled.div`
+const ContentContainer = styled.div`
   position: relative;
   left: 0px;
   top: 0px;
@@ -24,16 +24,22 @@ const FormContainer = styled.div`
   width: 281px;
 `;
 
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
 export const LoginScreen: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  return <>
+  return <Container>
     <Background />
-    <FormInnerContainer>
+    <ContentContainer>
       <TextLogo />
       <FormContainer>
         {children}
       </FormContainer>
-    </FormInnerContainer>
-  </>;
+    </ContentContainer>
+  </Container>;
 };
