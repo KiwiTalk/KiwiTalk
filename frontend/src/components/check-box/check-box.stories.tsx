@@ -7,7 +7,7 @@ export default {
   title: 'KiwiTalk/components/CheckBox',
   component: CheckBox,
   argTypes: {
-    onChange: { action: 'Status' },
+    onInput: { action: 'Status' },
   },
 };
 
@@ -22,7 +22,7 @@ const Template: Story<ComponentProps<typeof CheckBox> & AdditionalProp> = (args)
     id="example"
     disabled={args.disabled}
     status={{ checked: args.checked, indeterminate: args.indeterminate }}
-    onChange={args.onChange}
+    onInput={args.onInput}
   >{args.label}</CheckBox>;
 
 export const Default = Template.bind({});

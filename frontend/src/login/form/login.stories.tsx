@@ -1,16 +1,23 @@
 import { Story } from '@storybook/react';
 
-import { LoginForm, LoginFormInput } from './form';
+import { LoginForm, LoginFormInput } from './login';
 
 export default {
   title: 'KiwiTalk/login/LoginForm',
   component: LoginForm,
+  argTypes: {
+    onSubmit: { action: 'Login' },
+  },
 };
 
-const Template: Story<Partial<LoginFormInput>> = (args) =>
+type Prop = Partial<LoginFormInput> & {
+  onSubmit?: (input: LoginFormInput) => void,
+};
+
+const Template: Story<Prop> = (args) =>
   <LoginForm
     input={args}
-    onSubmit={(input) => console.debug(input)}
+    onSubmit={args.onSubmit}
   />;
 
 export const Default = Template.bind({});

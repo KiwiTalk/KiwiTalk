@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { Button } from '../components/button';
-import { CheckBox } from '../components/check-box';
-import { InputForm } from '../components/input-form';
+import { Button } from '../../components/button';
+import { CheckBox } from '../../components/check-box';
+import { InputForm } from '../../components/input-form';
 
 const LoginInput = styled(InputForm)`
   display: block;
@@ -60,25 +60,25 @@ export const LoginForm: React.FC<LoginFormProp> = ({
       type='email'
       placeholder='카카오계정(이메일 또는 전화번호)'
       defaultValue={currentInput.email}
-      onChange={(text) => currentInput.email = text}
+      onInput={(text) => currentInput.email = text}
     />
     <LoginInput
       icon='vpn_key'
       type='password'
       placeholder='비밀번호'
       defaultValue={currentInput.password}
-      onChange={(text) => currentInput.password = text}
+      onInput={(text) => currentInput.password = text}
     />
     <LoginButton onClick={() => clickHandler()}>로그인</LoginButton>
     <LoginCheckbox
       id='saveId'
       status={{ checked: currentInput.saveId }}
-      onChange={(status) => currentInput.saveId = status.checked}
+      onInput={(status) => currentInput.saveId = status.checked}
     >아이디 저장</LoginCheckbox>
     <LoginCheckbox
       id='autoLogin'
       status={{ checked: currentInput.autoLogin }}
-      onChange={(status) => currentInput.autoLogin = status.checked}
+      onInput={(status) => currentInput.autoLogin = status.checked}
     >실행 시 자동 로그인</LoginCheckbox>
   </div>;
 };

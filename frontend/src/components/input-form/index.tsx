@@ -84,7 +84,7 @@ type InputProp = {
   maxLength?: number,
   disabled?: boolean,
 
-  onChange?: (text: string) => void,
+  onInput?: (text: string) => void,
 
   className?: string,
 }
@@ -96,15 +96,15 @@ export const InputForm: React.FC<InputProp> = ({
   placeholder,
   maxLength,
   disabled,
-  onChange,
+  onInput,
 
   className,
 }) => {
   const [activated, setActivated] = useState(!!defaultValue);
 
-  function onChangeHandler(e: ChangeEvent<HTMLInputElement>) {
-    if (onChange) {
-      onChange(e.currentTarget.value);
+  function onInputHandler(e: ChangeEvent<HTMLInputElement>) {
+    if (onInput) {
+      onInput(e.currentTarget.value);
     }
   }
 
@@ -124,7 +124,7 @@ export const InputForm: React.FC<InputProp> = ({
         maxLength={maxLength}
         onFocus={(e) => activateHandler(e.currentTarget, true)}
         onBlur={(e) => activateHandler(e.currentTarget, false)}
-        onChange={onChangeHandler}
+        onInput={onInputHandler}
       />
     </InnerWrapper>
   </InputBox>;

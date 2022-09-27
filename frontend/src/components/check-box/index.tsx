@@ -42,7 +42,7 @@ export type CheckBoxProp = React.PropsWithChildren<{
   status?: Partial<CheckBoxStatus>,
   disabled?: boolean,
 
-  onChange?: (status: CheckBoxStatus) => void,
+  onInput?: (status: CheckBoxStatus) => void,
 
   className?: string
 }>;
@@ -51,7 +51,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
   id,
   status,
   disabled,
-  onChange,
+  onInput,
 
   className,
   children,
@@ -68,29 +68,30 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
     currentIcon = 'check_box';
   }
 
-  const onInputChanged = (input: HTMLInputElement) => {
+  function onInputChanged(input: HTMLInputElement) {
+    console.log(input.checked);
     const nextStatus = {
       checked: input.checked,
       indeterminate: input.indeterminate,
     };
-    setCurrentStatus(nextStatus);
 
-    if (onChange) {
-      onChange(nextStatus);
+    if (onInput) {
+      onInput(nextStatus);
     }
+    setCurrentStatus(nextStatus);
   };
 
   return <CheckboxContainer className={className}>
     <CheckboxInput
       id={id}
-      checked={currentStatus.checked}
+      defaultChecked={currentStatus.checked}
       disabled={disabled}
       type="checkbox"
       ref={(ref) => {
         if (!ref) return;
         ref.indeterminate = currentStatus.indeterminate || false;
       }}
-      onChange={(e) => onInputChanged(e.currentTarget)}
+      onInput={(e) => onInputChanged(e.currentTarget)}
     />
     <CheckboxLabel htmlFor={id} data-disabled={disabled}>
       <CheckboxIcon>{currentIcon}</CheckboxIcon>
