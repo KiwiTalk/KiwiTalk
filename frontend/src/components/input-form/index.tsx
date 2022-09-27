@@ -62,6 +62,8 @@ const InputIcon = styled(MaterialIconRound)`
   color: #BFBDC1;
   padding: 0px;
 
+  font-size: 1.25em;
+
   margin-right: 10px;
 
   transition: all 0.25s;
