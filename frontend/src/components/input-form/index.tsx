@@ -53,7 +53,7 @@ const InputBox = styled.div`
 const InnerWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 12px;
+  padding: 12px 8px;
 `;
 
 const InputIcon = styled(MaterialIconRound)`
