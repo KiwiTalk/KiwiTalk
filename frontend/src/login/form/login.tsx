@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import styled from 'styled-components';
 import { Button } from '../../components/button';
 import { CheckBox } from '../../components/check-box';
@@ -39,18 +40,18 @@ export const LoginForm: React.FC<LoginFormProp> = ({
 
   className,
 }) => {
-  const currentInput: LoginFormInput = {
+  const inputRef = useRef<LoginFormInput>({
     email: '',
     password: '',
     saveId: false,
     autoLogin: false,
     ...input,
-  };
+  });
 
   function clickHandler() {
-    if (currentInput.email === '' || currentInput.password === '') return;
+    if (inputRef.current.email === '' || inputRef.current.password === '') return;
 
-    onSubmit?.(currentInput);
+    onSubmit?.(inputRef.current);
   }
 
   // TODO:: Update placeholder text
@@ -59,26 +60,26 @@ export const LoginForm: React.FC<LoginFormProp> = ({
       icon='account_circle'
       type='email'
       placeholder='카카오계정(이메일 또는 전화번호)'
-      defaultValue={currentInput.email}
-      onInput={(text) => currentInput.email = text}
+      defaultValue={inputRef.current.email}
+      onInput={(text) => inputRef.current.email = text}
     />
     <LoginInput
       icon='vpn_key'
       type='password'
       placeholder='비밀번호'
-      defaultValue={currentInput.password}
-      onInput={(text) => currentInput.password = text}
+      defaultValue={inputRef.current.password}
+      onInput={(text) => inputRef.current.password = text}
     />
     <LoginButton onClick={() => clickHandler()}>로그인</LoginButton>
     <LoginCheckbox
       id='saveId'
-      status={{ checked: currentInput.saveId }}
-      onInput={(status) => currentInput.saveId = status.checked}
+      status={{ checked: inputRef.current.saveId }}
+      onInput={(status) => inputRef.current.saveId = status.checked}
     >아이디 저장</LoginCheckbox>
     <LoginCheckbox
       id='autoLogin'
-      status={{ checked: currentInput.autoLogin }}
-      onInput={(status) => currentInput.autoLogin = status.checked}
+      status={{ checked: inputRef.current.autoLogin }}
+      onInput={(status) => inputRef.current.autoLogin = status.checked}
     >실행 시 자동 로그인</LoginCheckbox>
   </div>;
 };
