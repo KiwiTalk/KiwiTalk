@@ -23,10 +23,9 @@ const KiwiIcon = styled(KiwiSvg)`
   width: 75%;
   height: 75%;
 
-  position: relative;
-  float: right;
+  position: absolute;
 
-  left: 20%;
+  left: 45%;
   top: 70%;
 `;
 
