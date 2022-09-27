@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { MaterialIconRound } from '../icon';
 
@@ -102,9 +102,14 @@ export const InputForm: React.FC<InputProp> = ({
 }) => {
   const [activated, setActivated] = useState(!!defaultValue);
 
-  function onInputHandler(e: ChangeEvent<HTMLInputElement>) {
+  function onInputHandler(element: HTMLInputElement) {
+    if (maxLength && element.value.length > maxLength) {
+      element.value = element.value.slice(0, maxLength);
+      return;
+    }
+
     if (onInput) {
-      onInput(e.currentTarget.value);
+      onInput(element.value);
     }
   }
 
@@ -124,7 +129,7 @@ export const InputForm: React.FC<InputProp> = ({
         maxLength={maxLength}
         onFocus={(e) => activateHandler(e.currentTarget, true)}
         onBlur={(e) => activateHandler(e.currentTarget, false)}
-        onInput={onInputHandler}
+        onInput={(e) => onInputHandler(e.currentTarget)}
       />
     </InnerWrapper>
   </InputBox>;
