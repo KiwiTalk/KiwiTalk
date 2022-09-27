@@ -23,11 +23,24 @@ const Template: Story<BackgroundProp> = (args) => {
   return <Background/>;
 };
 
-export const Pc = Template.bind({});
-Pc.args = {
+export const PcW16H9 = Template.bind({});
+PcW16H9.args = {
+  width: 1920,
+  height: 1080,
+};
+
+export const PcW5H4 = Template.bind({});
+PcW5H4.args = {
+  width: 1280,
+  height: 1024,
+};
+
+export const Windowed = Template.bind({});
+Windowed.args = {
   width: 1280,
   height: 720,
 };
+
 
 export const Mobile = Template.bind({});
 Mobile.args = {
