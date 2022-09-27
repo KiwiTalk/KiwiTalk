@@ -81,6 +81,7 @@ type InputProp = {
   type?: React.HTMLInputTypeAttribute,
   defaultValue?: string,
   placeholder?: string,
+  maxLength?: number,
   disabled?: boolean,
 
   onChange?: (text: string) => void,
@@ -93,6 +94,7 @@ export const InputForm: React.FC<InputProp> = ({
   type,
   defaultValue,
   placeholder,
+  maxLength,
   disabled,
   onChange,
 
@@ -119,6 +121,7 @@ export const InputForm: React.FC<InputProp> = ({
         defaultValue={defaultValue}
         placeholder={placeholder}
         disabled={disabled}
+        maxLength={maxLength}
         onFocus={(e) => activateHandler(e.currentTarget, true)}
         onBlur={(e) => activateHandler(e.currentTarget, false)}
         onChange={onChangeHandler}
