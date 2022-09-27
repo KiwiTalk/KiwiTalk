@@ -8,7 +8,7 @@ const CheckboxInput = styled.input`
 
 const CheckboxIcon = styled(MaterialIconRound)`
   padding: 0px;
-  font-size: 18px;
+  font-size: 1.125rem;
 
   margin-right: 6px;
 `;
@@ -24,7 +24,6 @@ const CheckboxLabel = styled.label`
   padding: 3px 3px;
 
   color: #1E2019;
-  font-size: 12px;
 
   transition: all 0.25s;
 

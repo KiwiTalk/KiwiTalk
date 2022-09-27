@@ -12,7 +12,6 @@ export const Button = styled.button`
   padding: 16px 16px;
 
   font-weight: 600;
-  font-size: 12px;
   
   transition: all 0.25s;
 

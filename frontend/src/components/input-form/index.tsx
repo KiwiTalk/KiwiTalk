@@ -5,11 +5,10 @@ import { MaterialIconRound } from '../icon';
 const Input = styled.input`
   border: none;
   outline: none;
+
+  font-size: 1em;
   
   padding: 0px;
-  
-  font-size: 12px;
-  line-height: 14px;
 
   flex: 1;
 
@@ -62,7 +61,6 @@ const InnerWrapper = styled.div`
 const InputIcon = styled(MaterialIconRound)`
   color: #BFBDC1;
   padding: 0px;
-  font-size: 20px;
 
   margin-right: 10px;
 
