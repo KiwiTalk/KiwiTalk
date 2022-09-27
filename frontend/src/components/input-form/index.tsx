@@ -23,6 +23,7 @@ const Input = styled.input`
 
   ::placeholder {
     color: #BFBDC1;
+    transition: all 0.25s;
   }
 
   :not(:disabled):hover::placeholder {
