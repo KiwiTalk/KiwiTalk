@@ -14,13 +14,15 @@ type BackgroundProp = {
 };
 
 const Template: Story<BackgroundProp> = (args) => {
-  const Background = styled(LoginBackground)`
+  const Container = styled.div`
     width: ${args.width}px;
     height: ${args.height}px;
     border: 1px solid #000000;
   `;
 
-  return <Background/>;
+  return <Container>
+    <LoginBackground />
+  </Container>;
 };
 
 export const PcW16H9 = Template.bind({});
