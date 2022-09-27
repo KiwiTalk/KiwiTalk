@@ -37,7 +37,7 @@ export const PasscodeForm: React.FC<PasscodeFormProp> = ({
       maxLength={4}
       placeholder='카카오톡 앱 : 설정>개인/보안>PC연결관리'
       defaultValue={passcode}
-      onInput={(text) => onInputHandler(text)}
+      onInput={onInputHandler}
     />
   </div>;
 };
