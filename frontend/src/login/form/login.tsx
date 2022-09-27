@@ -50,9 +50,7 @@ export const LoginForm: React.FC<LoginFormProp> = ({
   function clickHandler() {
     if (currentInput.email === '' || currentInput.password === '') return;
 
-    if (onSubmit) {
-      onSubmit(currentInput);
-    }
+    onSubmit?.(currentInput);
   }
 
   // TODO:: Update placeholder text

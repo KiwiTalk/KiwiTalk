@@ -108,9 +108,7 @@ export const InputForm: React.FC<InputProp> = ({
       return;
     }
 
-    if (onInput) {
-      onInput(element.value);
-    }
+    onInput?.(element.value);
   }
 
   function activateHandler(input: HTMLInputElement, shouldActivate: boolean) {

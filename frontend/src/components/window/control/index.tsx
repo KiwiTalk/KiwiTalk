@@ -67,19 +67,19 @@ export const WindowControl: React.FC<ControlProp> = ({
   return <ControlContainer className={className}>
     <MinimizeButton
       onClick={() => {
-        if (onControlClick) onControlClick('minimize');
+        onControlClick?.('minimize');
       }}>
       <IconMinimize />
     </MinimizeButton>
     <ControlButton
       onClick={() => {
-        if (onControlClick) onControlClick('maximize');
+        onControlClick?.('maximize');
       }}>
       <IconMaximize />
     </ControlButton>
     <CloseButton
       onClick={() => {
-        if (onControlClick) onControlClick('close');
+        onControlClick?.('close');
       }}>
       <IconClose />
     </CloseButton>

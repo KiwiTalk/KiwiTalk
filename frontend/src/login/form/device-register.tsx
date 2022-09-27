@@ -25,9 +25,7 @@ export const DeviceRegisterForm: React.FC<DeviceRegisterFormProp> = ({
 }) => {
   function createOnClickHandler(type: DeviceRegisterType) {
     return () => {
-      if (onSubmit) {
-        onSubmit(type);
-      }
+      onSubmit?.(type);
     };
   }
 

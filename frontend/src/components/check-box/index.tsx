@@ -74,9 +74,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
       indeterminate: input.indeterminate,
     };
 
-    if (onInput) {
-      onInput(nextStatus);
-    }
+    onInput?.(nextStatus);
     setCurrentStatus(nextStatus);
   }
 

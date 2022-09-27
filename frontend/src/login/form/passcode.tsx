@@ -20,8 +20,8 @@ export const PasscodeForm: React.FC<PasscodeFormProp> = ({
   className,
 }) => {
   function onInputHandler(text: string) {
-    if (text.length === 4 && onSubmit) {
-      onSubmit(text);
+    if (text.length === 4) {
+      onSubmit?.(text);
     }
   }
 
