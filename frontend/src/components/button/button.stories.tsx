@@ -5,10 +5,13 @@ import { Button } from '.';
 export default {
   title: 'KiwiTalk/components/Button',
   component: Button,
+  argTypes: {
+    onClick: { action: 'Clicked' },
+  },
 };
 
 const Template: ComponentStory<typeof Button> = (args) =>
-  <Button disabled={args.disabled}>
+  <Button disabled={args.disabled} onClick={args.onClick}>
     {args.text}
   </Button>;
 

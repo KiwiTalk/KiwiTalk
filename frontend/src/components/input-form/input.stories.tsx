@@ -5,6 +5,9 @@ import { InputForm } from '.';
 export default {
   title: 'KiwiTalk/components/InputForm',
   component: InputForm,
+  argTypes: {
+    onChange: { action: 'Input' },
+  },
 };
 
 const Template: ComponentStory<typeof InputForm> = (args) =>
@@ -13,6 +16,7 @@ const Template: ComponentStory<typeof InputForm> = (args) =>
     disabled={args.disabled}
     defaultValue={args.defaultValue}
     placeholder={args.placeholder}
+    onChange={args.onChange}
   />;
 
 export const Default = Template.bind({});

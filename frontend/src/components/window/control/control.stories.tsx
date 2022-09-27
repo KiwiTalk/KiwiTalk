@@ -1,16 +1,20 @@
 import { Story } from '@storybook/react';
 import styled from 'styled-components';
 
-import { WindowControl } from '.';
+import { WindowControl, ControlType } from '.';
 
 export default {
   title: 'KiwiTalk/components/window/WindowControl',
   component: WindowControl,
+  argTypes: {
+    onControlClick: { action: 'Clicked' },
+  },
 };
 
 type StoryProp = {
   background: string,
-  color: string
+  color: string,
+  onControlClick?: (type: ControlType) => void
 };
 
 const Template: Story<StoryProp> = (args) => {
@@ -19,11 +23,7 @@ const Template: Story<StoryProp> = (args) => {
     color: ${args.color};
   `;
 
-  return <Control
-    onControlClick={(type) => {
-      console.debug('Clicked ' + type);
-    }}
-  />;
+  return <Control onControlClick={args.onControlClick} />;
 };
 
 export const Default = Template.bind({});
