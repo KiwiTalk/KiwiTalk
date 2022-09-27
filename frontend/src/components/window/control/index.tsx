@@ -12,8 +12,9 @@ const ControlContainer = styled.div`
 `;
 
 const ControlButton = styled.button`
-  width: 24px;
-  height: 20px;
+  width: 1.5rem;
+  height: 1.25rem;
+
   user-select: none;
   border: none;
   outline: none;
