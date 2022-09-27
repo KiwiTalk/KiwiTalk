@@ -43,7 +43,6 @@ Windowed.args = {
   height: 720,
 };
 
-
 export const Mobile = Template.bind({});
 Mobile.args = {
   width: 1080,

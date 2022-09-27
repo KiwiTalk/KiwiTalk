@@ -39,11 +39,11 @@ const Background = styled(BackgroundSvg)`
 const BackgroundPattern = styled(BackgroundPatternSvg)`
   position: absolute;
 
-  width: 50%;
-  height: 50%;
+  width: 70%;
+  height: 70%;
 
-  right: 50%;
-  bottom: 50%;
+  right: 51%;
+  bottom: 32%;
 `;
 
 export type LoginBackgroundProp = {
