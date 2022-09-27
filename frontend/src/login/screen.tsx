@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { LoginBackground } from './background';
-import { ReactComponent as TextLogoSvg } from './images/text_logo.svg';
+import { ReactComponent as TextLogoSvg } from './icons/text_logo.svg';
 import React from 'react';
 
 const FormInnerContainer = styled.div`
@@ -12,6 +12,7 @@ const FormInnerContainer = styled.div`
 
 const TextLogo = styled(TextLogoSvg)`
   margin-bottom: 54px;
+  color: black;
 `;
 
 const Background = styled(LoginBackground)`
