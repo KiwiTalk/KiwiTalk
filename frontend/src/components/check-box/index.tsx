@@ -57,8 +57,8 @@ export const CheckBox = ({
   children,
 }: CheckBoxProp) => {
   const [currentStatus, setCurrentStatus] = useState<CheckBoxStatus>({
-    checked: status?.checked || false,
-    indeterminate: status?.indeterminate || false,
+    checked: status?.checked ?? false,
+    indeterminate: status?.indeterminate ?? false,
   });
 
   let currentIcon = 'check_box_outline_blank';
