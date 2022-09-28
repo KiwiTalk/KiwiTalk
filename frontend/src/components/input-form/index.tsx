@@ -89,7 +89,7 @@ type InputProp = {
   className?: string,
 }
 
-export const InputForm: React.FC<InputProp> = ({
+export const InputForm = ({
   icon,
   type,
   defaultValue,
@@ -99,7 +99,7 @@ export const InputForm: React.FC<InputProp> = ({
   onInput,
 
   className,
-}) => {
+}: InputProp) => {
   const [activated, setActivated] = useState(!!defaultValue);
 
   function onInputHandler(element: HTMLInputElement) {

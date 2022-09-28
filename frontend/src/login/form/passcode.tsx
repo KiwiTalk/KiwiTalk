@@ -13,12 +13,12 @@ export type PasscodeFormProp = {
   className?: string
 }
 
-export const PasscodeForm: React.FC<PasscodeFormProp> = ({
+export const PasscodeForm = ({
   passcode,
   onSubmit,
 
   className,
-}) => {
+}: PasscodeFormProp) => {
   function onInputHandler(text: string) {
     if (text.length === 4) {
       onSubmit?.(text);

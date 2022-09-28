@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import { ReactComponent as IconMinimizeSvg } from './icons/icon_minimize.svg';
 import { ReactComponent as IconMaximizeSvg } from './icons/icon_maximize.svg';
@@ -59,11 +58,11 @@ export type ControlProp = {
   className?: string
 };
 
-export const WindowControl: React.FC<ControlProp> = ({
+export const WindowControl = ({
   onControlClick,
 
   className,
-}) => {
+}: ControlProp) => {
   return <ControlContainer className={className}>
     <MinimizeButton
       onClick={() => {

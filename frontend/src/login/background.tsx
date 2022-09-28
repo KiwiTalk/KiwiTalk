@@ -49,9 +49,9 @@ export type LoginBackgroundProp = {
   className?: string
 };
 
-export const LoginBackground: React.FC<LoginBackgroundProp> = ({
+export const LoginBackground = ({
   className,
-}) => {
+}: LoginBackgroundProp) => {
   return <BackgroundContainer className={className}>
     <BackgroundInner>
       <BackgroundPattern />

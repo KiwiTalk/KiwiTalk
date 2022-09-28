@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import { LoginBackground } from './background';
 import { ReactComponent as TextLogoSvg } from './icons/text_logo.svg';
-import React from 'react';
 
 const ContentContainer = styled.div`
   position: relative;
@@ -30,9 +29,9 @@ const Container = styled.div`
   height: 100%;
 `;
 
-export const LoginScreen: React.FC<React.PropsWithChildren> = ({
+export const LoginScreen = ({
   children,
-}) => {
+}: React.PropsWithChildren) => {
   return <Container>
     <Background />
     <ContentContainer>

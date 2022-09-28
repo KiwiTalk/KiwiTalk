@@ -1,5 +1,4 @@
 import { Story } from '@storybook/react';
-import React from 'react';
 import styled from 'styled-components';
 import { PasscodeForm } from './form/passcode';
 import { LoginForm } from './form/login';

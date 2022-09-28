@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { MaterialIconRound } from '../icon';
 
@@ -47,7 +47,7 @@ export type CheckBoxProp = React.PropsWithChildren<{
   className?: string
 }>;
 
-export const CheckBox: React.FC<CheckBoxProp> = ({
+export const CheckBox = ({
   id,
   status,
   disabled,
@@ -55,7 +55,7 @@ export const CheckBox: React.FC<CheckBoxProp> = ({
 
   className,
   children,
-}) => {
+}: CheckBoxProp) => {
   const [currentStatus, setCurrentStatus] = useState<CheckBoxStatus>({
     checked: status?.checked || false,
     indeterminate: status?.indeterminate || false,

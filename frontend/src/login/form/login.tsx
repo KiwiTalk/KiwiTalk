@@ -34,12 +34,12 @@ export type LoginFormProp = {
   className?: string
 }
 
-export const LoginForm: React.FC<LoginFormProp> = ({
+export const LoginForm = ({
   input,
   onSubmit,
 
   className,
-}) => {
+}: LoginFormProp) => {
   const inputRef = useRef<LoginFormInput>({
     email: '',
     password: '',

@@ -18,11 +18,11 @@ export type DeviceRegisterFormProp = {
   className?: string
 }
 
-export const DeviceRegisterForm: React.FC<DeviceRegisterFormProp> = ({
+export const DeviceRegisterForm = ({
   onSubmit,
 
   className,
-}) => {
+}: DeviceRegisterFormProp) => {
   function createOnClickHandler(type: DeviceRegisterType) {
     return () => {
       onSubmit?.(type);
