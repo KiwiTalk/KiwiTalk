@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { InputForm } from '../../components/input-form';
 
+import { ReactComponent as DialpadSvg } from './icons/dialpad.svg';
+
 const PasscodeInput = styled(InputForm)`
   display: block;
   margin-bottom: 12px;
@@ -32,7 +34,7 @@ export const PasscodeForm = ({
   // TODO:: Update placeholder text
   return <div className={className}>
     <PasscodeInput
-      icon='dialpad'
+      icon={<DialpadSvg />}
       type='number'
       maxLength={4}
       placeholder='카카오톡 앱 : 설정>개인/보안>PC연결관리'

@@ -1,9 +1,0 @@
-/* fallback */
-@font-face {
-  font-family: 'Material Icons Round';
-  font-style: normal;
-  font-weight: 400;
-  src: 
-    url(fonts/MaterialIconsRound-Regular.woff2) format('woff2'),
-    url(fonts/MaterialIconsRound-Regular.otf) format('opentype');
-}

@@ -4,6 +4,9 @@ import { Button } from '../../components/button';
 import { CheckBox } from '../../components/check-box';
 import { InputForm } from '../../components/input-form';
 
+import { ReactComponent as AccountCircleSvg } from './icons/account_circle.svg';
+import { ReactComponent as VpnKeySvg } from './icons/vpn_key.svg';
+
 const LoginInput = styled(InputForm)`
   display: block;
   margin-bottom: 12px;
@@ -11,13 +14,13 @@ const LoginInput = styled(InputForm)`
 
 const LoginButton = styled(Button)`
   display: block;
-  margin: 12px 0px 0px 0px;
+  margin: 12px 0px 7px 0px;
   width: 100%;
 `;
 
 const LoginCheckbox = styled(CheckBox)`
   display: block;
-  margin-top: 10px;
+  margin-top: 3px;
 `;
 
 export type LoginFormInput = {
@@ -57,14 +60,14 @@ export const LoginForm = ({
   // TODO:: Update placeholder text
   return <div className={className}>
     <LoginInput
-      icon='account_circle'
+      icon={<AccountCircleSvg />}
       type='email'
       placeholder='카카오계정(이메일 또는 전화번호)'
       defaultValue={inputRef.current.email}
       onInput={(text) => inputRef.current.email = text}
     />
     <LoginInput
-      icon='vpn_key'
+      icon={<VpnKeySvg />}
       type='password'
       placeholder='비밀번호'
       defaultValue={inputRef.current.password}

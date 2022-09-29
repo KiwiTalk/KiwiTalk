@@ -1,5 +1,7 @@
 import { ComponentStory } from '@storybook/react';
 
+import { ReactComponent as IconAccountCircle } from './account_circle.svg';
+
 import { InputForm } from '.';
 
 export default {
@@ -21,7 +23,7 @@ const Template: ComponentStory<typeof InputForm> = (args) =>
 
 export const Default = Template.bind({});
 Default.args = {
-  icon: 'account_circle',
+  icon: <IconAccountCircle />,
   disabled: false,
   defaultValue: 'Sample input',
   placeholder: 'Placeholder',
@@ -36,14 +38,14 @@ WithoutIcon.args = {
 
 export const Placeholder = Template.bind({});
 Placeholder.args = {
-  icon: 'account_circle',
+  icon: <IconAccountCircle />,
   disabled: false,
   placeholder: 'Placeholder',
 };
 
 export const Disabled = Template.bind({});
 Disabled.args = {
-  icon: 'account_circle',
+  icon: <IconAccountCircle />,
   disabled: true,
   defaultValue: 'Disabled input',
   placeholder: 'Placeholder',

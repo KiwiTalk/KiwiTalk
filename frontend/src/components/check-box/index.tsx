@@ -1,27 +1,29 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { MaterialIconRound } from '../icon';
+import { ReactComponent as CheckBoxIconSvg } from './icons/check_box.svg';
+import { ReactComponent as CheckBoxOutlineBlankSvg } from './icons/check_box_outline_blank.svg';
+import { ReactComponent as CheckBoxIndeterminateSvg } from './icons/indeterminate_check_box.svg';
 
-const CheckboxInput = styled.input`
+const CheckBoxInput = styled.input`
   display: none;
 `;
 
-const CheckboxIcon = styled(MaterialIconRound)`
-  padding: 0px;
-  font-size: 1.125rem;
+const IconContainer = styled.div`
+  width: 1.125rem;
+  height: 1.125rem;
 
   margin-right: 6px;
 `;
 
 const CheckboxContainer = styled.div`
   display: inline-block;
+  padding: 3px 3px;
 `;
 
 const CheckboxLabel = styled.label`
-  display: inline-flex;
-  align-items: center;
+  display: flex;
 
-  padding: 3px 3px;
+  line-height: 1;
 
   color: #1E2019;
 
@@ -61,11 +63,11 @@ export const CheckBox = ({
     indeterminate: status?.indeterminate ?? false,
   });
 
-  let currentIcon = 'check_box_outline_blank';
+  let currentIcon = <CheckBoxOutlineBlankSvg />;
   if (currentStatus.indeterminate) {
-    currentIcon = 'indeterminate_check_box';
+    currentIcon = <CheckBoxIndeterminateSvg />;
   } else if (currentStatus.checked) {
-    currentIcon = 'check_box';
+    currentIcon = <CheckBoxIconSvg />;
   }
 
   function onInputChanged(input: HTMLInputElement) {
@@ -79,7 +81,7 @@ export const CheckBox = ({
   }
 
   return <CheckboxContainer className={className}>
-    <CheckboxInput
+    <CheckBoxInput
       id={id}
       defaultChecked={currentStatus.checked}
       disabled={disabled}
@@ -91,7 +93,7 @@ export const CheckBox = ({
       onInput={(e) => onInputChanged(e.currentTarget)}
     />
     <CheckboxLabel htmlFor={id} data-disabled={disabled}>
-      <CheckboxIcon>{currentIcon}</CheckboxIcon>
+      <IconContainer>{currentIcon}</IconContainer>
       {children}
     </CheckboxLabel>
   </CheckboxContainer>;

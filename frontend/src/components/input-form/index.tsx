@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { MaterialIconRound } from '../icon';
 
 const Input = styled.input`
   border: none;
@@ -56,11 +55,15 @@ const InnerWrapper = styled.div`
   padding: 12px 8px;
 `;
 
-const InputIcon = styled(MaterialIconRound)`
+const IconContainer = styled.div`
   color: #BFBDC1;
-  padding: 0px;
 
-  font-size: 1.25em;
+  width: 1.25em;
+  height: 1.25em;
+
+  overflow: hidden;
+
+  line-height: 1;
 
   margin-right: 10px;
 
@@ -76,7 +79,7 @@ const InputIcon = styled(MaterialIconRound)`
 `;
 
 type InputProp = {
-  icon?: string,
+  icon?: JSX.Element,
 
   type?: React.HTMLInputTypeAttribute,
   defaultValue?: string,
@@ -118,7 +121,11 @@ export const InputForm = ({
 
   return <InputBox data-disabled={disabled} className={className}>
     <InnerWrapper>
-      {icon && <InputIcon data-disabled={disabled} data-activated={activated}>{icon}</InputIcon>}
+      {
+        icon ?
+        <IconContainer data-disabled={disabled} data-activated={activated}>{icon}</IconContainer> :
+        null
+      }
       <Input
         type={type}
         defaultValue={defaultValue}
