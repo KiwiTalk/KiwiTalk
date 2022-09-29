@@ -15,12 +15,12 @@ const IconContainer = styled.div`
   margin-right: 6px;
 `;
 
-const CheckboxContainer = styled.div`
+const CheckBoxContainer = styled.div`
   display: inline-block;
   padding: 3px 3px;
 `;
 
-const CheckboxLabel = styled.label`
+const CheckBoxLabel = styled.label`
   display: flex;
 
   line-height: 1;
@@ -80,7 +80,7 @@ export const CheckBox = ({
     setCurrentStatus(nextStatus);
   }
 
-  return <CheckboxContainer className={className}>
+  return <CheckBoxContainer className={className}>
     <CheckBoxInput
       id={id}
       defaultChecked={currentStatus.checked}
@@ -92,10 +92,10 @@ export const CheckBox = ({
       }}
       onInput={(e) => onInputChanged(e.currentTarget)}
     />
-    <CheckboxLabel htmlFor={id} data-disabled={disabled}>
+    <CheckBoxLabel htmlFor={id} data-disabled={disabled}>
       <IconContainer>{currentIcon}</IconContainer>
       {children}
-    </CheckboxLabel>
-  </CheckboxContainer>;
+    </CheckBoxLabel>
+  </CheckBoxContainer>;
 };
 
