@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import { InputForm } from '../../components/input-form';
 
@@ -27,9 +28,11 @@ export const PasscodeForm = ({
     }
   }
 
-  if (passcode) {
-    onInputHandler(passcode);
-  }
+  useEffect(() => {
+    if (passcode) {
+      onInputHandler(passcode);
+    }
+  }, []);
 
   // TODO:: Update placeholder text
   return <div className={className}>
