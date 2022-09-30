@@ -4,30 +4,18 @@ import styled from 'styled-components';
 const Input = styled.input`
   border: none;
   outline: none;
+
+  color: inherit;
+  
+  background: none;
   
   padding: 0px;
 
   flex: 1;
-
-  color: #1E2019;
   
   transition: all 0.25s;
-  
-  :focus {
-    outline: none;
-  }
 
   ::placeholder {
-    color: #BFBDC1;
-    transition: all 0.25s;
-  }
-
-  :not(:disabled):hover::placeholder {
-    color: #999999;
-  }
-
-  :disabled {
-    background: none;
     color: #BFBDC1;
   }
 `;
@@ -35,16 +23,25 @@ const Input = styled.input`
 const InputBox = styled.div`
   background: #FFFFFF;
   outline: none;
-
+  
   display: inline-block;
   
+  color: #1E2019;
+
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(26, 60, 68, 0.07);
-  
-  transition: all 0.25s;
+
+  &[data-activated=false] {
+    color: #BFBDC1;
+    
+    :hover {
+      color: #999999;
+    }
+  }
 
   &[data-disabled=true] {
     background: #F2F2F3;
+    color: #BFBDC1;
     outline: 1px solid #BFBDC1;
   }
 `;
@@ -52,12 +49,11 @@ const InputBox = styled.div`
 const InnerWrapper = styled.div`
   display: flex;
   align-items: center;
+
   padding: 12px 9px;
 `;
 
 const IconContainer = styled.div`
-  color: #BFBDC1;
-
   width: 1.25em;
   height: 1.25em;
 
@@ -68,14 +64,6 @@ const IconContainer = styled.div`
   margin-right: 9px;
 
   transition: all 0.25s;
-
-  &[data-activated=true] {
-    color: #1E2019;
-  }
-
-  &[data-disabled=true] {
-    color: #BFBDC1;
-  }
 `;
 
 type InputProp = {
@@ -119,11 +107,11 @@ export const InputForm = ({
     if (activated !== nextState) setActivated(nextState);
   }
 
-  return <InputBox data-disabled={disabled} className={className}>
+  return <InputBox data-disabled={disabled} data-activated={activated} className={className}>
     <InnerWrapper>
       {
         icon ?
-        <IconContainer data-disabled={disabled} data-activated={activated}>{icon}</IconContainer> :
+        <IconContainer>{icon}</IconContainer> :
         null
       }
       <Input
