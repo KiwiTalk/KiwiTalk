@@ -52,7 +52,7 @@ const InputBox = styled.div`
 const InnerWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding: 12px 8px;
+  padding: 12px 9px;
 `;
 
 const IconContainer = styled.div`
@@ -65,7 +65,7 @@ const IconContainer = styled.div`
 
   line-height: 1;
 
-  margin-right: 10px;
+  margin-right: 9px;
 
   transition: all 0.25s;
 
