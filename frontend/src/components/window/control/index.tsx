@@ -18,7 +18,7 @@ const ControlButton = styled.button`
   border: none;
   outline: none;
   background: none;
-  line-height: 0px;
+  line-height: 0;
   color: inherit;
   
   :hover {
