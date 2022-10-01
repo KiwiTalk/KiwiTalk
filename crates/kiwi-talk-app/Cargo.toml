@@ -37,5 +37,5 @@ talk-loco-client = { path = "../talk-loco-client" }
 talk-loco-command = { path = "../talk-loco-command" }
 
 [features]
-default = [ "custom-protocol" ]
+default = []
 custom-protocol = [ "tauri/custom-protocol" ]
