@@ -32,5 +32,5 @@ jobs:
       - uses: reinismu/clippy-check@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+          args: --all-targets
           working-directory: crates
