@@ -20,7 +20,6 @@ pub struct KiwiTalkClient {
 
     // TODO:: Remove underscore
     _session: LocoCommandSession,
-
     // database
 }
 
@@ -66,7 +65,10 @@ impl KiwiTalkClient {
             None => return Err(ClientLoginError::Login(login_res.status)),
         };
 
-        let client = KiwiTalkClient { _config: config, _session: session };
+        let client = KiwiTalkClient {
+            _config: config,
+            _session: session,
+        };
 
         Ok((client, KiwiTalkClientEventReceiver(event_receiver)))
     }
