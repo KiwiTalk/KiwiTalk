@@ -4,7 +4,6 @@
   "private": true,
   "description": "Open kiwi talk",
   "type": "module",
-  "main": "index.js",
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",
@@ -48,10 +47,9 @@
     "styled-components": "^5.3.5",
     "typescript": "4.8.4",
     "vite": "3.1.3",
-    "vite-plugin-svgr": "^2.2.1"
-  },
-  "dependencies": {
+    "vite-plugin-svgr": "^2.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
-  }
+  },
+  "dependencies": {}
 }
