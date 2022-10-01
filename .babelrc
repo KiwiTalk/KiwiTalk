@@ -1,0 +1,12 @@
+// https://github.com/storybookjs/storybook/issues/9854#issuecomment-1198909094
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "modules": "cjs"
+      }
+    ],
+    "@babel/preset-typescript"
+  ]
+}

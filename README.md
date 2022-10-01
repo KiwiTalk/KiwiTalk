@@ -25,5 +25,10 @@ yarn
 
 * 실행
 ```
-yarn tauri dev
+yarn dev
+```
+
+* Storybook
+```
+yarn storybook
 ```
