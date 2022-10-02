@@ -15,8 +15,11 @@ use tokio::sync::mpsc;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
-    config: KiwiTalkClientConfig,
-    session: LocoCommandSession,
+    // TODO:: Remove underscore
+    _config: KiwiTalkClientConfig,
+
+    // TODO:: Remove underscore
+    _session: LocoCommandSession,
     // database
 }
 
@@ -62,7 +65,10 @@ impl KiwiTalkClient {
             None => return Err(ClientLoginError::Login(login_res.status)),
         };
 
-        let client = KiwiTalkClient { config, session };
+        let client = KiwiTalkClient {
+            _config: config,
+            _session: session,
+        };
 
         Ok((client, KiwiTalkClientEventReceiver(event_receiver)))
     }

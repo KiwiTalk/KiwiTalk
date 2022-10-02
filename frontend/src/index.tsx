@@ -1,33 +1,16 @@
-import axios from 'axios';
-
+import { createRoot } from 'react-dom/client';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
+import { App } from './app';
 
-import './index.css';
+function main() {
+  const rootElement = document.getElementById('root');
+  if (!rootElement) {
+    throw new Error('Cannot find root element');
+  }
 
-import * as serviceWorker from './service-worker';
-import { Provider } from 'react-redux';
-import configureStore from './store';
+  const root = createRoot(rootElement);
 
-// Fix axios#552
-// always use Node.js adapter;
-axios.defaults.adapter = require('axios/lib/adapters/http');
+  root.render(<React.StrictMode><App /></React.StrictMode>);
+}
 
-const store = configureStore();
-
-(async () => {
-  ReactDOM.render(
-      <React.StrictMode>
-        <Provider store={store}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </Provider>
-      </React.StrictMode>,
-      document.getElementById('root'),
-  );
-
-  serviceWorker.unregister();
-})();
+window.addEventListener('DOMContentLoaded', () => main());

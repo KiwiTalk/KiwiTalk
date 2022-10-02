@@ -32,7 +32,7 @@ pub struct LoginListRes {
     /// 6 bytes binary
     #[serde(with = "serde_bytes")]
     pub rp: Vec<u8>,
-    
+
     /// Unknown
     #[serde(rename = "pkUpdate")]
     pub pk_update: Option<bool>,
