@@ -58,7 +58,7 @@ export const LoginForm = ({
   }
 
   // TODO:: Update placeholder text
-  return <div className={className}>
+  return <form className={className} onSubmit={(e) => e.preventDefault()}>
     <LoginInput
       icon={<AccountCircleSvg />}
       type='email'
@@ -84,5 +84,5 @@ export const LoginForm = ({
       status={{ checked: inputRef.current.autoLogin }}
       onInput={(status) => inputRef.current.autoLogin = status.checked}
     >실행 시 자동 로그인</LoginCheckbox>
-  </div>;
+  </form>;
 };
