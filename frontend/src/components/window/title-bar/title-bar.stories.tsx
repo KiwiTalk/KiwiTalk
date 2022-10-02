@@ -6,12 +6,7 @@ import { WindowControl } from '../control';
 export default {
   title: 'KiwiTalk/components/window/WindowTitleBar',
   component: WindowTitleBar,
-  argTypes: {
-    onDragStart: { action: 'Drag Start' },
-    onDrag: { action: 'Drag' },
-    onDragEnd: { action: 'Drag End' },
-    onDoubleClick: { action: 'Double click' },
-  },
+  argTypes: {},
 };
 
 const TitleBar = styled(WindowTitleBar)`
@@ -31,13 +26,8 @@ const TitleBarTitle = styled.span`
   user-select: none;
 `;
 
-const Template: ComponentStory<typeof WindowTitleBar> = (args) => {
-  return <TitleBar
-    onDoubleClick={args.onDoubleClick}
-    onDragStart={args.onDragStart}
-    onDrag={args.onDrag}
-    onDragEnd={args.onDragEnd}
-  >
+const Template: ComponentStory<typeof WindowTitleBar> = () => {
+  return <TitleBar>
     <TitleBarTitle>Sample title</TitleBarTitle>
     <TitleBarControl />
   </TitleBar>;
