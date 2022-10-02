@@ -8,6 +8,7 @@ const ControlContainer = styled.div`
   font-size: 0px;
   display: inline-block;
   vertical-align: top;
+  overflow: hidden;
 `;
 
 const ControlButton = styled.button`
@@ -18,7 +19,7 @@ const ControlButton = styled.button`
   border: none;
   outline: none;
   background: none;
-  line-height: 0;
+  font-size: 0px;
   color: inherit;
   
   :hover {
@@ -26,10 +27,6 @@ const ControlButton = styled.button`
   }
 
   transition: all 0.25s;
-`;
-
-const MinimizeButton = styled(ControlButton)`
-  border-bottom-left-radius: 3px;
 `;
 
 const CloseButton = styled(ControlButton)`
@@ -52,35 +49,48 @@ const IconClose = styled(IconCloseSvg)`
 
 export type ControlType = 'minimize' | 'maximize' | 'close';
 
+export type ControlButtons = {
+  minimize: boolean,
+  maximize: boolean,
+  close: boolean,
+};
+
 export type ControlProp = {
+  buttons?: ControlButtons,
+
   onControlClick?: (type: ControlType) => void,
 
   className?: string
 };
 
 export const WindowControl = ({
+  buttons = {
+    minimize: true,
+    maximize: true,
+    close: true,
+  },
   onControlClick,
 
   className,
 }: ControlProp) => {
   return <ControlContainer className={className}>
-    <MinimizeButton
+    { buttons.minimize ? <ControlButton
       onClick={() => {
         onControlClick?.('minimize');
       }}>
       <IconMinimize />
-    </MinimizeButton>
-    <ControlButton
+    </ControlButton> : null }
+    { buttons.maximize ? <ControlButton
       onClick={() => {
         onControlClick?.('maximize');
       }}>
       <IconMaximize />
-    </ControlButton>
-    <CloseButton
+    </ControlButton> : null }
+    { buttons.close ? <CloseButton
       onClick={() => {
         onControlClick?.('close');
       }}>
       <IconClose />
-    </CloseButton>
+    </CloseButton> : null }
   </ControlContainer>;
 };
