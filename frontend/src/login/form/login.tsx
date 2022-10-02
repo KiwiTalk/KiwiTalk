@@ -61,7 +61,6 @@ export const LoginForm = ({
   return <form className={className} onSubmit={(e) => e.preventDefault()}>
     <LoginInput
       icon={<AccountCircleSvg />}
-      type='email'
       placeholder='카카오계정(이메일 또는 전화번호)'
       defaultValue={inputRef.current.email}
       onInput={(text) => inputRef.current.email = text}
