@@ -1,9 +1,8 @@
-import { appWindow } from '@tauri-apps/api/window';
 import styled from 'styled-components';
-import { ControlType, WindowControl } from '../../components/window/control';
+import { LoginFormInput } from '../components/login/form/login';
+import { LoginScreen } from '../../components/login/screen';
 import { WindowTitleBar } from '../../components/window/title-bar';
-import { LoginFormInput } from '../../login/form/login';
-import { LoginScreen } from '../../login/screen';
+import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
 
 export type AppLoginProp = {
@@ -30,33 +29,14 @@ const LoginTitleBar = styled(WindowTitleBar)`
   z-index: 999999;
 `;
 
-const LoginWindowControl = styled(WindowControl)`
+const LoginWindowControl = styled(AppWindowControl)`
   margin-left: auto;
   background-color: rgba(0, 0, 0, .25);
   color: white;
 `;
 
 const AppLoginWindowTitleBar = () => {
-  function onControlClick(type: ControlType) {
-    switch (type) {
-      case 'close': {
-        appWindow.close().then();
-        break;
-      }
-
-      case 'maximize': {
-        appWindow.toggleMaximize().then();
-        break;
-      }
-
-      case 'minimize': {
-        appWindow.minimize().then();
-        break;
-      }
-    }
-  }
-
   return <LoginTitleBar>
-    <LoginWindowControl onControlClick={onControlClick} />
+    <LoginWindowControl />
   </LoginTitleBar>;
 };
