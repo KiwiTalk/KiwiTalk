@@ -4,7 +4,7 @@ import { ComponentProps } from 'react';
 import { CheckBox } from '.';
 
 export default {
-  title: 'KiwiTalk/components/CheckBox',
+  title: 'KiwiTalk/CheckBox',
   component: CheckBox,
   argTypes: {
     onInput: { action: 'Status' },
