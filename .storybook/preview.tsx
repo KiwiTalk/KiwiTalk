@@ -22,7 +22,7 @@ export const globalTypes = {
       icon: 'globe',
       items: [
         { value: 'en', right: '🇺🇸', title: 'English' },
-        { value: 'kr', right: '🇰🇷', title: '한국어' },
+        { value: 'ko', right: '🇰🇷', title: '한국어' },
       ],
     },
   },
