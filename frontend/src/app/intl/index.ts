@@ -4,10 +4,10 @@ import enUS from './translations/en-US.json';
 import koKR from './translations/ko-KR.json';
 
 export const LangResource: Resource = {
-  en: {
+  'en-US': {
     translation: enUS,
   },
-  ko: {
+  'ko-KR': {
     translation: koKR,
   },
 };
