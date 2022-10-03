@@ -5,6 +5,8 @@ import type { LoginAccessData, TalkResponseStatus } from '../auth';
 import { PasscodeContent } from './passcode';
 import { DeviceRegisterContent } from './device-register';
 import { LoginContent } from './login';
+import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 export type LoginContentProp = {
   defaultInput?: LoginFormInput,
@@ -29,10 +31,16 @@ type AppLoginState = AppLoginDefault | AppLoginDeviceRegister | AppLoginPasscode
 
 const DEFAULT_STATE: AppLoginState = { type: 'login', forced: false };
 
+const ErrorMessage = styled.p`
+  color: red;
+`;
+
 export const AppLoginContent = ({
   defaultInput,
   onLogin,
 }: LoginContentProp) => {
+  const { t } = useTranslation();
+
   const inputRef = useRef(defaultInput ?? {
     email: '',
     password: '',
@@ -41,6 +49,7 @@ export const AppLoginContent = ({
   });
 
   const [state, setState] = useState<AppLoginState>(DEFAULT_STATE);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
     inputRef.current = input;
@@ -65,6 +74,8 @@ export const AppLoginContent = ({
         break;
       }
     }
+
+    setErrorMessage(`login.status.login.${res.status}`);
   }
 
   function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
@@ -72,6 +83,8 @@ export const AppLoginContent = ({
       setState({ type: 'passcode', registerType: type });
       return;
     }
+
+    setErrorMessage(`login.status.device_register.${status}`);
   }
 
   function onPasscodeSubmit(status: number) {
@@ -79,38 +92,51 @@ export const AppLoginContent = ({
       setState(DEFAULT_STATE);
       return;
     }
+
+    setErrorMessage(`login.status.passcode.${status}`);
   }
 
-  function onError(e: unknown) {
-    // TODO:: Show network error message
-    console.error(e);
+  function onError() {
+    setErrorMessage(`login.network_error`);
   }
 
+  let content: JSX.Element;
   switch (state.type) {
     case 'login': {
-      return <LoginContent
+      content = <LoginContent
         defaultInput={inputRef.current}
         forced={state.forced}
         onSubmit={onLoginSubmit}
         onError={onError}
       />;
+      break;
     }
 
     case 'device_register': {
-      return <DeviceRegisterContent
+      content = <DeviceRegisterContent
         input={inputRef.current}
         onSubmit={onRegisterTypeSelected}
         onError={onError}
       />;
+      break;
     }
 
     case 'passcode': {
-      return <PasscodeContent
+      content = <PasscodeContent
         registerType={state.registerType}
         input={inputRef.current}
         onSubmit={onPasscodeSubmit}
         onError={onError}
       />;
+      break;
     }
   }
+
+  return <>
+    {content}
+    {errorMessage !== '' ?
+      <ErrorMessage>{t(errorMessage)}</ErrorMessage> :
+      null
+    }
+  </>;
 };
