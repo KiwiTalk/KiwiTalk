@@ -60,13 +60,9 @@ export const AppLoginContent = ({
     }
 
     switch (res.status) {
-      case -30: {
-        break;
-      }
-
       case -100: {
         setState({ type: 'device_register' });
-        break;
+        return;
       }
 
       case -101: {
