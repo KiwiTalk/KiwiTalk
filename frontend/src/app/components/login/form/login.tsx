@@ -1,8 +1,9 @@
 import { useRef } from 'react';
 import styled from 'styled-components';
-import { Button } from '../../components/button';
-import { CheckBox } from '../../components/check-box';
-import { InputForm } from '../../components/input-form';
+import { Button } from '../../../../components/button';
+import { CheckBox } from '../../../../components/check-box';
+import { InputForm } from '../../../../components/input-form';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as AccountCircleSvg } from './icons/account_circle.svg';
 import { ReactComponent as VpnKeySvg } from './icons/vpn_key.svg';
@@ -43,6 +44,8 @@ export const LoginForm = ({
 
   className,
 }: LoginFormProp) => {
+  const { t } = useTranslation();
+
   const inputRef = useRef<LoginFormInput>({
     email: '',
     password: '',
@@ -57,31 +60,31 @@ export const LoginForm = ({
     onSubmit?.(inputRef.current);
   }
 
-  // TODO:: Update placeholder text
-  return <form className={className} onSubmit={(e) => e.preventDefault()}>
+  return <div className={className}>
     <LoginInput
       icon={<AccountCircleSvg />}
-      placeholder='카카오계정(이메일 또는 전화번호)'
+      type='email'
+      placeholder={t('login.id_placeholder')}
       defaultValue={inputRef.current.email}
       onInput={(text) => inputRef.current.email = text}
     />
     <LoginInput
       icon={<VpnKeySvg />}
       type='password'
-      placeholder='비밀번호'
+      placeholder={t('login.password_placeholder')}
       defaultValue={inputRef.current.password}
       onInput={(text) => inputRef.current.password = text}
     />
-    <LoginButton onClick={() => clickHandler()}>로그인</LoginButton>
+    <LoginButton onClick={() => clickHandler()}>{t('login.login')}</LoginButton>
     <LoginCheckbox
       id='saveId'
       status={{ checked: inputRef.current.saveId }}
       onInput={(status) => inputRef.current.saveId = status.checked}
-    >아이디 저장</LoginCheckbox>
+    >{t('login.save_id')}</LoginCheckbox>
     <LoginCheckbox
       id='autoLogin'
       status={{ checked: inputRef.current.autoLogin }}
       onInput={(status) => inputRef.current.autoLogin = status.checked}
-    >실행 시 자동 로그인</LoginCheckbox>
-  </form>;
+    >{t('login.auto_login_on_launch')}</LoginCheckbox>
+  </div>;
 };

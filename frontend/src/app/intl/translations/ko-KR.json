@@ -1,0 +1,24 @@
+{
+  "common": {
+    "ok": "확인",
+    "cancel": "취소",
+    "close": "닫기"
+  },
+  "login": {
+    "login": "로그인",
+    "logout": "로그아웃",
+    "id_placeholder": "카카오계정 (이메일 또는 전화번호)",
+    "password_placeholder": "비밀번호",
+    "save_id": "아이디 저장",
+    "auto_login_on_launch": "실행 시 자동 로그인",
+    "force_login": "이미 다른 기기에 접속되어 있습니다.\n다른 기기의 연결을 해제하시겠습니까?",
+    "register_type": {
+      "permanent": "내 PC 인증 받기",
+      "temporary": "1회용 인증 받기"
+    },
+    "passcode_placeholder": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
+    "result": {
+      
+    }
+  }
+}

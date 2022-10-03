@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { WindowControl, ControlType, ControlButtons } from '.';
 
 export default {
-  title: 'KiwiTalk/components/window/WindowControl',
+  title: 'KiwiTalk/window/WindowControl',
   component: WindowControl,
   argTypes: {
     onControlClick: { action: 'Clicked' },

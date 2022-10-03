@@ -1,3 +1,5 @@
+import './env';
+
 import { AppLogin } from './login';
 
 export const App = () => {

@@ -5,7 +5,7 @@ import { ReactComponent as IconAccountCircle } from './account_circle.svg';
 import { InputForm } from '.';
 
 export default {
-  title: 'KiwiTalk/components/InputForm',
+  title: 'KiwiTalk/InputForm',
   component: InputForm,
   argTypes: {
     onInput: { action: 'Input' },

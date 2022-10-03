@@ -4,7 +4,7 @@ import { WindowTitleBar } from '.';
 import { WindowControl } from '../control';
 
 export default {
-  title: 'KiwiTalk/components/window/WindowTitleBar',
+  title: 'KiwiTalk/window/WindowTitleBar',
   component: WindowTitleBar,
   argTypes: {},
 };
