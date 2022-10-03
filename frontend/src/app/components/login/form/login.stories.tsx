@@ -3,7 +3,7 @@ import { Story } from '@storybook/react';
 import { LoginForm, LoginFormInput } from './login';
 
 export default {
-  title: 'KiwiTalk/login/LoginForm',
+  title: 'KiwiTalk/app/login/LoginForm',
   component: LoginForm,
   argTypes: {
     onSubmit: { action: 'Login' },
