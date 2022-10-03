@@ -30,7 +30,10 @@ export const globalTypes = {
 
 export const decorators = [
   (Story: () => JSX.Element, { globals }) => {
-    i18next.changeLanguage(globals.locale);
+    if (globals.locale !== i18next.language) {
+      i18next.changeLanguage(globals.locale);
+    }
+
     return <Story />;
   },
 ];
