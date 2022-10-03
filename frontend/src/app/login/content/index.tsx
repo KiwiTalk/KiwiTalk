@@ -15,15 +15,18 @@ export type LoginContentProp = {
 
 type AppLoginDefault = {
   type: 'login',
+  errorMessage?: string,
   forced: boolean
 };
 
 type AppLoginDeviceRegister = {
-  type: 'device_register'
+  type: 'device_register',
+  errorMessage?: string
 };
 
 type AppLoginPasscode = {
   type: 'passcode',
+  errorMessage?: string,
   registerType: DeviceRegisterType
 };
 
@@ -33,6 +36,12 @@ const DEFAULT_STATE: AppLoginState = { type: 'login', forced: false };
 
 const ErrorMessage = styled.p`
   color: red;
+`;
+
+const ResetText = styled.p`
+  color: #4D5061;
+  text-align: center;
+  user-select: none;
 `;
 
 export const AppLoginContent = ({
@@ -49,7 +58,6 @@ export const AppLoginContent = ({
   });
 
   const [state, setState] = useState<AppLoginState>(DEFAULT_STATE);
-  const [errorMessage, setErrorMessage] = useState<string>('');
 
   function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
     inputRef.current = input;
@@ -71,7 +79,7 @@ export const AppLoginContent = ({
       }
     }
 
-    setErrorMessage(`login.status.login.${res.status}`);
+    setState({ ...state, errorMessage: `login.status.login.${res.status}` });
   }
 
   function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
@@ -80,7 +88,7 @@ export const AppLoginContent = ({
       return;
     }
 
-    setErrorMessage(`login.status.device_register.${status}`);
+    setState({ ...state, errorMessage: `login.status.device_register.${status}` });
   }
 
   function onPasscodeSubmit(status: number) {
@@ -89,11 +97,15 @@ export const AppLoginContent = ({
       return;
     }
 
-    setErrorMessage(`login.status.passcode.${status}`);
+    setState({ ...state, errorMessage: `login.status.passcode.${status}` });
   }
 
   function onError() {
-    setErrorMessage(`login.network_error`);
+    setState({ ...state, errorMessage: `login.network_error` });
+  }
+
+  function onResetClick() {
+    setState(DEFAULT_STATE);
   }
 
   let content: JSX.Element;
@@ -130,8 +142,13 @@ export const AppLoginContent = ({
 
   return <>
     {content}
-    {errorMessage !== '' ?
-      <ErrorMessage>{t(errorMessage)}</ErrorMessage> :
+    {state.errorMessage ?
+      <ErrorMessage>{t(state.errorMessage)}</ErrorMessage> :
+      null
+    }
+    {
+      state.type !== DEFAULT_STATE.type ?
+      <ResetText onClick={onResetClick}>{t('login.back_to_login')}</ResetText> :
       null
     }
   </>;
