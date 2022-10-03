@@ -7,16 +7,16 @@ import { AppLoginContent } from './content';
 import { LoginAccessData } from './auth';
 
 export type AppLoginProp = {
-  defaultInput?: LoginFormInput
+  defaultInput?: LoginFormInput,
+
+  onLogin?: (data: LoginAccessData) => void
 }
 
 export const AppLogin = ({
   defaultInput,
-}: AppLoginProp) => {
-  function onLogin(input: LoginAccessData) {
-    console.log(input);
-  }
 
+  onLogin,
+}: AppLoginProp) => {
   return <>
     <AppLoginWindowTitleBar />
     <LoginScreen>
