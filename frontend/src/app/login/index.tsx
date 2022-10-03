@@ -4,6 +4,7 @@ import { LoginScreen } from '../../components/login/screen';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
+import { LoginAccessData } from './auth-types';
 
 export type AppLoginProp = {
   defaultInput?: LoginFormInput
@@ -12,10 +13,14 @@ export type AppLoginProp = {
 export const AppLogin = ({
   defaultInput,
 }: AppLoginProp) => {
+  function onLogin(input: LoginAccessData) {
+    console.log(input);
+  }
+
   return <>
     <AppLoginWindowTitleBar />
     <LoginScreen>
-      <AppLoginContent defaultInput={defaultInput}/>
+      <AppLoginContent defaultInput={defaultInput} onLogin={onLogin}/>
     </LoginScreen>
   </>;
 };

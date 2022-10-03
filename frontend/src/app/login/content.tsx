@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
-import { LoginForm, LoginFormInput } from '../../login/form/login';
-import { DeviceRegisterForm, DeviceRegisterType } from '../../login/form/device-register';
-import { PasscodeForm } from '../../login/form/passcode';
+import { LoginForm, LoginFormInput } from '../components/login/form/login';
+import { DeviceRegisterForm, DeviceRegisterType } from '../components/login/form/device-register';
+import { PasscodeForm } from '../components/login/form/passcode';
 import { tauri } from '@tauri-apps/api';
 import type { LoginAccessData, TalkResponseStatus } from './auth-types';
 

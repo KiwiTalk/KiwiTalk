@@ -60,10 +60,9 @@ export const LoginForm = ({
     onSubmit?.(inputRef.current);
   }
 
-  return <div className={className}>
+  return <form className={className}>
     <LoginInput
       icon={<AccountCircleSvg />}
-      type='email'
       placeholder={t('login.id_placeholder')}
       defaultValue={inputRef.current.email}
       onInput={(text) => inputRef.current.email = text}
@@ -86,5 +85,5 @@ export const LoginForm = ({
       status={{ checked: inputRef.current.autoLogin }}
       onInput={(status) => inputRef.current.autoLogin = status.checked}
     >{t('login.auto_login_on_launch')}</LoginCheckbox>
-  </div>;
+  </form>;
 };
