@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { InputForm } from '../../components/input-form';
+import { InputForm } from '../../../../components/input-form';
 
 import { ReactComponent as DialpadSvg } from './icons/dialpad.svg';
 
@@ -22,6 +23,8 @@ export const PasscodeForm = ({
 
   className,
 }: PasscodeFormProp) => {
+  const { t } = useTranslation();
+
   function onInputHandler(text: string) {
     if (text.length === 4) {
       onSubmit?.(text);
@@ -34,13 +37,12 @@ export const PasscodeForm = ({
     }
   }, []);
 
-  // TODO:: Update placeholder text
   return <div className={className}>
     <PasscodeInput
       icon={<DialpadSvg />}
       type='number'
       maxLength={4}
-      placeholder='카카오톡 앱 : 설정>개인/보안>PC연결관리'
+      placeholder={t('login.passcode_placeholder')}
       defaultValue={passcode}
       onInput={onInputHandler}
     />

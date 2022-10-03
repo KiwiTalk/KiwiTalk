@@ -3,7 +3,7 @@ import { ComponentStory } from '@storybook/react';
 import { DeviceRegisterForm } from './device-register';
 
 export default {
-  title: 'KiwiTalk/login/DeviceRegisterForm',
+  title: 'KiwiTalk/app/login/DeviceRegisterForm',
   component: DeviceRegisterForm,
   argTypes: {
     onSubmit: { action: 'RegisterType' },
