@@ -60,7 +60,7 @@ export const LoginForm = ({
     onSubmit?.(inputRef.current);
   }
 
-  return <form className={className}>
+  return <form className={className} onSubmit={(e) => e.preventDefault()}>
     <LoginInput
       icon={<AccountCircleSvg />}
       placeholder={t('login.id_placeholder')}
