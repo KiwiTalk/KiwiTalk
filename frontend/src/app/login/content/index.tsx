@@ -79,7 +79,9 @@ export const AppLoginContent = ({
       }
     }
 
-    setState({ ...state, errorMessage: `login.status.login.${res.status}` });
+    setState((state) => {
+      return { ...state, errorMessage: `login.status.login.${res.status}` };
+    });
   }
 
   function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
