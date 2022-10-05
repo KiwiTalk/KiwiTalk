@@ -8,7 +8,7 @@ use self::model::ChatModel;
 
 static MIGRATIONS: Lazy<Migrations<'static>> = Lazy::new(|| {
     Migrations::new(vec![M::up(include_str!(
-        "./migrations/20220924_channel.sql"
+        "./migrations/202210050951_channel.sql"
     ))])
 });
 
@@ -22,7 +22,7 @@ impl ChannelConnection {
         Self { connection }
     }
 
-    pub fn migrate_to_latest(&mut self) -> Result<(), rusqlite_migration::Error> {
+    pub fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
         MIGRATIONS.to_latest(&mut self.connection)
     }
 

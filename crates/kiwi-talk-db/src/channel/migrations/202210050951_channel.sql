@@ -10,3 +10,7 @@ CREATE TABLE IF NOT EXISTS chat (
     supplement TEXT,
     referer INTEGER
 );
+
+CREATE TABLE IF NOT EXISTS user (
+
+);
