@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { FormEvent, useRef } from 'react';
 import styled from 'styled-components';
 import { Button } from '../../../../components/button';
 import { CheckBox } from '../../../../components/check-box';
@@ -54,13 +54,15 @@ export const LoginForm = ({
     ...input,
   });
 
-  function clickHandler() {
+  function submitHandler(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
     if (inputRef.current.email === '' || inputRef.current.password === '') return;
 
     onSubmit?.(inputRef.current);
   }
 
-  return <form className={className} onSubmit={(e) => e.preventDefault()}>
+  return <form className={className} onSubmit={submitHandler}>
     <LoginInput
       icon={<AccountCircleSvg />}
       placeholder={t('login.id_placeholder')}
@@ -74,7 +76,7 @@ export const LoginForm = ({
       defaultValue={inputRef.current.password}
       onInput={(text) => inputRef.current.password = text}
     />
-    <LoginButton onClick={() => clickHandler()}>{t('login.login')}</LoginButton>
+    <LoginButton>{t('login.login')}</LoginButton>
     <LoginCheckbox
       id='saveId'
       status={{ checked: inputRef.current.saveId }}
