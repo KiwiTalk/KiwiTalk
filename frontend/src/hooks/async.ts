@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export type AsyncLockHook = {
   locked: boolean,
-  tryLock: (promise: () => Promise<void>) => boolean
+  tryLock: (asyncFn: () => Promise<void>) => boolean
 }
 
 export function useAsyncLock(): AsyncLockHook {
