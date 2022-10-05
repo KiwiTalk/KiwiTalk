@@ -36,5 +36,5 @@ export const LoginContent = ({
     });
   }
 
-  return <LoginForm input={defaultInput} onSubmit={onLogin} />;
+  return <LoginForm defaultInput={defaultInput} onSubmit={onLogin} />;
 };

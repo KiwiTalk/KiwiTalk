@@ -32,14 +32,14 @@ export type LoginFormInput = {
 }
 
 export type LoginFormProp = {
-  input?: Partial<LoginFormInput>,
+  defaultInput?: Partial<LoginFormInput>,
   onSubmit?: (input: LoginFormInput) => void,
 
   className?: string
 }
 
 export const LoginForm = ({
-  input,
+  defaultInput: input,
   onSubmit,
 
   className,
