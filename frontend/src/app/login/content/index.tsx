@@ -13,26 +13,25 @@ export type LoginContentProp = {
   onLogin?: (data: LoginAccessData) => void
 };
 
-type AppLoginDefault = {
-  type: 'login',
+type LoginStateKey<T> = {
+  type: T,
+
   errorMessage?: string,
+};
+
+type LoginStateDefault = LoginStateKey<'login'> & {
   forced: boolean
 };
 
-type AppLoginDeviceRegister = {
-  type: 'device_register',
-  errorMessage?: string
-};
+type LoginStateDeviceRegister = LoginStateKey<'device_register'>;
 
-type AppLoginPasscode = {
-  type: 'passcode',
-  errorMessage?: string,
+type LoginStatePasscode = LoginStateKey<'passcode'> & {
   registerType: DeviceRegisterType
 };
 
-type AppLoginState = AppLoginDefault | AppLoginDeviceRegister | AppLoginPasscode;
+type LoginState = LoginStateDefault | LoginStateDeviceRegister | LoginStatePasscode;
 
-const DEFAULT_STATE: AppLoginState = { type: 'login', forced: false };
+const DEFAULT_STATE: LoginState = { type: 'login', forced: false };
 
 const ErrorMessage = styled.p`
   color: red;
@@ -57,7 +56,7 @@ export const AppLoginContent = ({
     autoLogin: true,
   });
 
-  const [state, setState] = useState<AppLoginState>(DEFAULT_STATE);
+  const [state, setState] = useState<LoginState>(DEFAULT_STATE);
 
   function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
     inputRef.current = input;
