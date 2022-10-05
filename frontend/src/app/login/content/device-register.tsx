@@ -1,4 +1,5 @@
 import { tauri } from '@tauri-apps/api';
+import { useAsyncLock } from '../../../hooks/async';
 import {
   DeviceRegisterForm,
   DeviceRegisterType,
@@ -19,15 +20,21 @@ export const DeviceRegisterContent = ({
   onSubmit,
   onError,
 }: DeviceRegisterContentProp) => {
-  function onRegisterTypeSelected(type: DeviceRegisterType) {
-    (async () => {
-      const res = await tauri.invoke<TalkResponseStatus>('plugin:auth|request_passcode', {
-        email: input.email,
-        password: input.password,
-      });
+  const lock = useAsyncLock();
 
-      onSubmit?.(res.status, type);
-    })().then().catch(onError);
+  function onRegisterTypeSelected(type: DeviceRegisterType) {
+    lock.tryLock(async () => {
+      try {
+        const res = await tauri.invoke<TalkResponseStatus>('plugin:auth|request_passcode', {
+          email: input.email,
+          password: input.password,
+        });
+
+        onSubmit?.(res.status, type);
+      } catch (e) {
+        onError?.(e);
+      }
+    });
   }
 
   return <DeviceRegisterForm onSubmit={onRegisterTypeSelected} />;

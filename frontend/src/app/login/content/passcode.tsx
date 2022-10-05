@@ -1,4 +1,5 @@
 import { tauri } from '@tauri-apps/api';
+import { useAsyncLock } from '../../../hooks/async';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
 import { PasscodeForm } from '../../components/login/form/passcode';
@@ -19,17 +20,23 @@ export const PasscodeContent = ({
   onSubmit,
   onError,
 }: PasscodeContentProp) => {
-  function onPasscodeSubmit(passcode: string) {
-    (async () => {
-      const res = await tauri.invoke<TalkResponseStatus>('plugin:auth|register_device', {
-        passcode,
-        email: input.email,
-        password: input.password,
-        permanent: registerType === 'permanent',
-      });
+  const lock = useAsyncLock();
 
-      onSubmit?.(res.status);
-    })().then().catch(onError);
+  function onPasscodeSubmit(passcode: string) {
+    lock.tryLock(async () => {
+      try {
+        const res = await tauri.invoke<TalkResponseStatus>('plugin:auth|register_device', {
+          passcode,
+          email: input.email,
+          password: input.password,
+          permanent: registerType === 'permanent',
+        });
+
+        onSubmit?.(res.status);
+      } catch (e) {
+        onError?.(e);
+      }
+    });
   }
 
   return <PasscodeForm onSubmit={onPasscodeSubmit} />;
