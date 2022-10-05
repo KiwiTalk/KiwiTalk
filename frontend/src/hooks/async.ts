@@ -6,10 +6,11 @@ export type AsyncLockHook = {
 }
 
 export function useAsyncLock(): AsyncLockHook {
-  const [locked, setLocked] = useState(false);
+  let [locked, setLocked] = useState(false);
 
   function tryLock(asyncFn: () => Promise<void>) {
     if (locked) return false;
+    locked = true;
     setLocked(true);
 
     (async () => {
