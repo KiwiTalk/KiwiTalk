@@ -1,10 +1,10 @@
 import { Story } from '@storybook/react';
 import styled from 'styled-components';
 
-import { WindowControl, ControlType } from '.';
+import { WindowControl, ControlType, ControlButtons } from '.';
 
 export default {
-  title: 'KiwiTalk/components/window/WindowControl',
+  title: 'KiwiTalk/window/WindowControl',
   component: WindowControl,
   argTypes: {
     onControlClick: { action: 'Clicked' },
@@ -14,20 +14,32 @@ export default {
 type StoryProp = {
   background: string,
   color: string,
+  showMinimizeButton: boolean,
+  showMaximizeButton: boolean,
+  showCloseButton: boolean,
   onControlClick?: (type: ControlType) => void
 };
 
 const Template: Story<StoryProp> = (args) => {
+  const buttons: ControlButtons = {
+    minimize: args.showMinimizeButton,
+    maximize: args.showMaximizeButton,
+    close: args.showCloseButton,
+  };
+
   const Control = styled(WindowControl)`
     background: ${args.background};
     color: ${args.color};
   `;
 
-  return <Control onControlClick={args.onControlClick} />;
+  return <Control buttons={buttons} onControlClick={args.onControlClick} />;
 };
 
 export const Default = Template.bind({});
 Default.args = {
   background: 'rgba(0, 0, 0, 0.1)',
   color: 'rgba(0, 0, 0, 0.5)',
+  showMinimizeButton: true,
+  showMaximizeButton: true,
+  showCloseButton: true,
 };

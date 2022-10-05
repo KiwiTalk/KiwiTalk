@@ -3,7 +3,7 @@ import { ComponentStory } from '@storybook/react';
 import { PasscodeForm } from './passcode';
 
 export default {
-  title: 'KiwiTalk/login/PasscodeForm',
+  title: 'KiwiTalk/app/login/PasscodeForm',
   component: PasscodeForm,
   argTypes: {
     onSubmit: { action: 'Passcode' },

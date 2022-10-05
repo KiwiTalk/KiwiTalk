@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { Button } from '../../components/button';
+import { Button } from '../../../../components/button';
 
 const RegisterButton = styled(Button)`
   display: block;
@@ -23,20 +24,21 @@ export const DeviceRegisterForm = ({
 
   className,
 }: DeviceRegisterFormProp) => {
+  const { t } = useTranslation();
+
   function createOnClickHandler(type: DeviceRegisterType) {
     return () => {
       onSubmit?.(type);
     };
   }
 
-  // TODO:: Update button text
   return <div className={className}>
     <RegisterButton onClick={createOnClickHandler('permanent')}>
-      내 PC 인증 받기
+      {t('login.register_type.permanent')}
     </RegisterButton>
     <ButtonDivider />
     <RegisterButton onClick={createOnClickHandler('temporary')}>
-      1회용 인증 받기
+      {t('login.register_type.temporary')}
     </RegisterButton>
   </div>;
 };

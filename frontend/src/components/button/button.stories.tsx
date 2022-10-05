@@ -3,7 +3,7 @@ import { ComponentStory } from '@storybook/react';
 import { Button } from '.';
 
 export default {
-  title: 'KiwiTalk/components/Button',
+  title: 'KiwiTalk/Button',
   component: Button,
   argTypes: {
     onClick: { action: 'Clicked' },
