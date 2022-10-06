@@ -56,10 +56,11 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "width": 1280,
+        "height": 720,
         "resizable": true,
         "title": "KiwiTalk",
-        "width": 800
+        "decorations": false
       }
     ]
   }
