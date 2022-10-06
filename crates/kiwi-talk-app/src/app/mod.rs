@@ -25,7 +25,10 @@ use thiserror::Error;
 
 use crate::{error::impl_tauri_error, system::SystemInfo};
 
-use self::client::{create_client, CreateClientError};
+use self::{
+    client::{create_client, CreateClientError},
+    configuration::GlobalConfiguration,
+};
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -41,6 +44,8 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
 
 #[derive(Default)]
 struct KiwiTalkApp {
+    pub global_configuration: GlobalConfiguration,
+
     pub credential: RwLock<Option<AppCredential>>,
 
     pub client: RwLock<Option<KiwiTalkClient>>,

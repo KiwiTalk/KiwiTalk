@@ -60,7 +60,8 @@
         "height": 720,
         "resizable": true,
         "title": "KiwiTalk",
-        "decorations": false
+        "decorations": false,
+        "label": "main"
       }
     ]
   }
