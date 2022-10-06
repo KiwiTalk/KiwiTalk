@@ -52,7 +52,7 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
 
 #[derive(Default)]
 struct KiwiTalkApp {
-    pub global_configuration: tokio::sync::RwLock<GlobalConfiguration>,
+    pub global_configuration: parking_lot::RwLock<GlobalConfiguration>,
 
     pub credential: parking_lot::RwLock<Option<AppCredential>>,
 
@@ -153,17 +153,16 @@ async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
     Ok(true)
 }
 
-#[tauri::command(async)]
+// Error without Result
+#[tauri::command]
 async fn get_global_configuration(app: State<'_, KiwiTalkApp>) -> Result<GlobalConfiguration, ()> {
-    Ok(app.global_configuration.read().await.clone())
+    Ok(app.global_configuration.read().clone())
 }
 
-#[tauri::command(async)]
-async fn set_global_configuration(
+#[tauri::command]
+fn set_global_configuration(
     configuration: GlobalConfiguration,
     app: State<'_, KiwiTalkApp>,
-) -> Result<(), ()> {
-    *app.global_configuration.write().await = configuration;
-
-    Ok(())
+) {
+    *app.global_configuration.write() = configuration;
 }
