@@ -9,29 +9,31 @@ const CheckBoxInput = styled.input`
 `;
 
 const IconContainer = styled.div`
+  display: inline-block;
   width: 1.125rem;
   height: 1.125rem;
 
-  margin-right: 6px;
+  margin: auto 6px auto 0px;
+  line-height: 0;
 `;
 
 const CheckBoxContainer = styled.div`
   display: inline-block;
-  padding: 3px 3px;
-`;
-
-const CheckBoxLabel = styled.label`
-  display: flex;
-
-  line-height: 1;
 
   color: #1E2019;
-
-  transition: all 0.25s;
 
   &[data-disabled=true] {
     color: #BFBDC1;
   }
+`;
+
+const CheckBoxLabel = styled.label`
+  display: inline-flex;
+
+  transition: all 0.25s;
+
+  line-height: 1;
+  padding: 3px 3px;
 `;
 
 export type CheckBoxStatus = {
@@ -40,7 +42,7 @@ export type CheckBoxStatus = {
 };
 
 export type CheckBoxProp = React.PropsWithChildren<{
-  id: string,
+  name?: string,
   status?: Partial<CheckBoxStatus>,
   disabled?: boolean,
 
@@ -50,7 +52,7 @@ export type CheckBoxProp = React.PropsWithChildren<{
 }>;
 
 export const CheckBox = ({
-  id,
+  name,
   status,
   disabled,
   onInput,
@@ -80,19 +82,19 @@ export const CheckBox = ({
     setCurrentStatus(nextStatus);
   }
 
-  return <CheckBoxContainer className={className}>
-    <CheckBoxInput
-      id={id}
-      defaultChecked={currentStatus.checked}
-      disabled={disabled}
-      type="checkbox"
-      ref={(ref) => {
-        if (!ref) return;
-        ref.indeterminate = currentStatus.indeterminate || false;
-      }}
-      onInput={(e) => onInputChanged(e.currentTarget)}
-    />
-    <CheckBoxLabel htmlFor={id} data-disabled={disabled}>
+  return <CheckBoxContainer data-disabled={disabled} className={className}>
+    <CheckBoxLabel>
+      <CheckBoxInput
+        name={name}
+        defaultChecked={currentStatus.checked}
+        disabled={disabled}
+        type="checkbox"
+        ref={(ref) => {
+          if (!ref) return;
+          ref.indeterminate = currentStatus.indeterminate || false;
+        }}
+        onInput={(e) => onInputChanged(e.currentTarget)}
+      />
       <IconContainer>{currentIcon}</IconContainer>
       {children}
     </CheckBoxLabel>

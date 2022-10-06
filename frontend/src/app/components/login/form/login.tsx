@@ -78,12 +78,10 @@ export const LoginForm = ({
     />
     <LoginButton>{t('login.login')}</LoginButton>
     <LoginCheckbox
-      id='saveId'
       status={{ checked: inputRef.current.saveId }}
       onInput={(status) => inputRef.current.saveId = status.checked}
     >{t('login.save_id')}</LoginCheckbox>
     <LoginCheckbox
-      id='autoLogin'
       status={{ checked: inputRef.current.autoLogin }}
       onInput={(status) => inputRef.current.autoLogin = status.checked}
     >{t('login.auto_login_on_launch')}</LoginCheckbox>
