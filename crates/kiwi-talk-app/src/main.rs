@@ -23,7 +23,7 @@ fn init_logger() {
 fn main() -> Result<(), Box<dyn Error + 'static>> {
     init_logger();
 
-    let mut app = tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(system::init_plugin("system"))
         .plugin(auth::init_plugin("auth"))
         .plugin(app::init_plugin("app"))
