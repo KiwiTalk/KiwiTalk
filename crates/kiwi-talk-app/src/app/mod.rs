@@ -18,7 +18,7 @@ use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
-    plugin::{Builder, TauriPlugin, self},
+    plugin::{self, Builder, TauriPlugin},
     AppHandle, Manager, Runtime, State,
 };
 use thiserror::Error;
