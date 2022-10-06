@@ -53,8 +53,8 @@ export const LoginForm = ({
     const input: LoginFormInput = {
       email: formData.get('email')?.valueOf() as string ?? '',
       password: formData.get('password')?.valueOf() as string ?? '',
-      saveId: formData.get('save_id')?.valueOf() as boolean ?? false,
-      autoLogin: formData.get('auto_login')?.valueOf() as boolean ?? false,
+      saveId: !!formData.get('save_id')?.valueOf(),
+      autoLogin: !!formData.get('auto_login')?.valueOf(),
     };
 
     if (input.email === '' || input.password === '') return;
