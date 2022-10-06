@@ -14,12 +14,11 @@ use futures::{pin_mut, FutureExt};
 use kiwi_talk_client::{
     event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
-use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
-    plugin::{self, Builder, TauriPlugin},
-    AppHandle, Manager, Runtime, State,
+    plugin::{Builder, TauriPlugin},
+    Manager, Runtime, State,
 };
 use thiserror::Error;
 
@@ -31,31 +30,34 @@ use self::{
 };
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+    // TODO:: load & save global configuration from disk
+    let app = KiwiTalkApp::default();
+
     Builder::new(name)
-        .setup(setup_plugin)
+        .setup(|handle| {
+            handle.manage(app);
+
+            Ok(())
+        })
         .invoke_handler(generate_handler![
             set_credential,
             initialize_client,
             next_client_event,
-            destroy_client
+            destroy_client,
+            get_global_configuration,
+            set_global_configuration
         ])
         .build()
 }
 
 #[derive(Default)]
 struct KiwiTalkApp {
-    pub global_configuration: GlobalConfiguration,
+    pub global_configuration: tokio::sync::RwLock<GlobalConfiguration>,
 
-    pub credential: RwLock<Option<AppCredential>>,
+    pub credential: parking_lot::RwLock<Option<AppCredential>>,
 
-    pub client: RwLock<Option<KiwiTalkClient>>,
-    pub client_events: Mutex<Option<KiwiTalkClientEventReceiver>>,
-}
-
-fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> plugin::Result<()> {
-    handle.manage(KiwiTalkApp::default());
-
-    Ok(())
+    pub client: tokio::sync::RwLock<Option<KiwiTalkClient>>,
+    pub client_events: parking_lot::Mutex<Option<KiwiTalkClientEventReceiver>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -95,9 +97,9 @@ async fn initialize_client(
 
     match credential {
         Some(credential) => {
+            let mut client_slot = app.client.write().await;
             let (client, client_events) = create_client(&credential, client_status, info).await?;
 
-            let mut client_slot = app.client.write();
             let mut client_events_slot = app.client_events.lock();
 
             *client_slot = Some(client);
@@ -139,14 +141,29 @@ fn next_client_event(
     ClientEventFuture { app }.map(Result::Ok)
 }
 
-#[tauri::command]
-fn destroy_client(app: State<'_, KiwiTalkApp>) -> bool {
-    let mut client = app.client.write();
+#[tauri::command(async)]
+async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
+    let mut client = app.client.write().await;
     if client.is_none() {
-        return false;
+        return Ok(false);
     }
 
     *client = None;
     *app.client_events.lock() = None;
-    true
+    Ok(true)
+}
+
+#[tauri::command(async)]
+async fn get_global_configuration(app: State<'_, KiwiTalkApp>) -> Result<GlobalConfiguration, ()> {
+    Ok(app.global_configuration.read().await.clone())
+}
+
+#[tauri::command(async)]
+async fn set_global_configuration(
+    configuration: GlobalConfiguration,
+    app: State<'_, KiwiTalkApp>,
+) -> Result<(), ()> {
+    *app.global_configuration.write().await = configuration;
+
+    Ok(())
 }
