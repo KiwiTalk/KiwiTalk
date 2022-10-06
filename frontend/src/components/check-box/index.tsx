@@ -28,7 +28,7 @@ const CheckBoxContainer = styled.div`
 `;
 
 const CheckBoxLabel = styled.label`
-  display: inline-flex;
+  display: flex;
 
   transition: all 0.25s;
 
