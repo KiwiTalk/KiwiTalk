@@ -18,7 +18,7 @@ use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
-    plugin::{Builder, TauriPlugin},
+    plugin::{Builder, TauriPlugin, self},
     AppHandle, Manager, Runtime, State,
 };
 use thiserror::Error;
@@ -47,7 +47,7 @@ struct KiwiTalkApp {
     pub client_events: Mutex<Option<KiwiTalkClientEventReceiver>>,
 }
 
-fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> tauri::plugin::Result<()> {
+fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> plugin::Result<()> {
     handle.manage(KiwiTalkApp::default());
 
     Ok(())

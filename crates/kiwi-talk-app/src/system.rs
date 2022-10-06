@@ -1,16 +1,46 @@
-use std::path::PathBuf;
+use std::{
+    fs::{self, File},
+    io::{self, Read},
+    path::PathBuf,
+};
 
 use platform_dirs::AppDirs;
 use rand::Rng;
-use thiserror::Error;
-use tokio::{
-    fs::{self, File},
-    io::{self, AsyncReadExt},
+use tauri::{
+    generate_handler,
+    plugin::{self, Builder, TauriPlugin},
+    AppHandle, Manager, Runtime, State,
 };
+use thiserror::Error;
 
 use crate::constants::{
     APP_DEVICE_UUID_FILE, APP_PORTABLE_DATA_DIR, DEFAULT_DEVICE_LOCALE, DEFAULT_DEVICE_NAME,
 };
+
+pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+    Builder::new(name)
+        .setup(setup_plugin)
+        .invoke_handler(generate_handler![get_device_locale, get_device_name])
+        .build()
+}
+
+fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> plugin::Result<()> {
+    handle.manage(init_system_info(
+        handle.config().package.product_name.as_ref().unwrap(),
+    )?);
+
+    Ok(())
+}
+
+#[tauri::command]
+fn get_device_locale(info: State<'_, SystemInfo>) -> &str {
+    &info.device_info.locale
+}
+
+#[tauri::command]
+fn get_device_name(info: State<'_, SystemInfo>) -> &str {
+    &info.device_info.name
+}
 
 #[derive(Debug)]
 pub struct SystemInfo {
@@ -57,17 +87,6 @@ impl AsRef<str> for DeviceUuid {
     }
 }
 
-pub fn get_device_locale() -> Option<String> {
-    sys_locale::get_locale()
-}
-
-pub fn get_device_name() -> Option<String> {
-    hostname::get()
-        .map(|hostname| hostname.into_string().ok())
-        .ok()
-        .flatten()
-}
-
 pub fn gen_device_uuid() -> DeviceUuid {
     let mut rng = rand::thread_rng();
 
@@ -77,13 +96,12 @@ pub fn gen_device_uuid() -> DeviceUuid {
     DeviceUuid::new(&random_bytes)
 }
 
-pub async fn init_system_info(app_name: &str) -> Result<SystemInfo, SystemInitError> {
+pub fn init_system_info(app_name: &str) -> Result<SystemInfo, SystemInitError> {
     let device_data_dir = AppDirs::new(Some(app_name), false)
         .ok_or(SystemInitError::DeviceDataDirectoryNotFound)?
         .data_dir;
 
     let data_dir = if fs::metadata(APP_PORTABLE_DATA_DIR)
-        .await
         .map(|metadata| metadata.is_dir())
         .unwrap_or(false)
     {
@@ -95,27 +113,33 @@ pub async fn init_system_info(app_name: &str) -> Result<SystemInfo, SystemInitEr
     let device_uuid = {
         let path = device_data_dir.as_path().join(APP_DEVICE_UUID_FILE);
         if fs::metadata(&path)
-            .await
             .map(|metadata| metadata.is_file())
             .unwrap_or(false)
         {
-            let mut file = File::open(&path).await?;
+            let mut file = File::open(&path)?;
 
             let mut buf = [0; 64];
-            file.read_exact(&mut buf).await?;
+            file.read_exact(&mut buf)?;
 
             DeviceUuid::new(&buf)
         } else {
             let uuid = gen_device_uuid();
-            fs::create_dir_all(path.parent().unwrap()).await?;
-            fs::write(&path, uuid.decode()).await?;
+            fs::create_dir_all(path.parent().unwrap())?;
+            fs::write(&path, uuid.decode())?;
             uuid
         }
     };
 
+    let locale = sys_locale::get_locale().unwrap_or_else(|| String::from(DEFAULT_DEVICE_LOCALE));
+    let name = hostname::get()
+        .map(|hostname| hostname.into_string().ok())
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| String::from(DEFAULT_DEVICE_NAME));
+
     let device_info = DeviceInfo {
-        locale: get_device_locale().unwrap_or_else(|| String::from(DEFAULT_DEVICE_LOCALE)),
-        name: get_device_name().unwrap_or_else(|| String::from(DEFAULT_DEVICE_NAME)),
+        locale,
+        name,
         device_uuid,
     };
 
