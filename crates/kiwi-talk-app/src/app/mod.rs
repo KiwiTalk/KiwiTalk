@@ -1,11 +1,20 @@
 pub mod client;
+pub mod configuration;
 pub mod conn;
 pub mod constants;
 pub mod stream;
 
+use std::{
+    future::Future,
+    pin::Pin,
+    task::{Context, Poll},
+};
+
+use futures::{pin_mut, FutureExt};
 use kiwi_talk_client::{
     event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient, KiwiTalkClientEventReceiver,
 };
+use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
@@ -13,7 +22,6 @@ use tauri::{
     AppHandle, Manager, Runtime, State,
 };
 use thiserror::Error;
-use tokio::sync::{Mutex, RwLock};
 
 use crate::{error::impl_tauri_error, system::SystemInfo};
 
@@ -25,7 +33,8 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
         .invoke_handler(generate_handler![
             set_credential,
             initialize_client,
-            next_client_event
+            next_client_event,
+            destroy_client
         ])
         .build()
 }
@@ -44,21 +53,19 @@ fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> tauri::plugin::Result<()> 
     Ok(())
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct AppCredential {
     pub access_token: String,
     pub refresh_token: String,
     pub user_id: Option<i64>,
 }
 
-#[tauri::command(async)]
-async fn set_credential(
+#[tauri::command]
+fn set_credential(
     credential: Option<AppCredential>,
     app: State<'_, KiwiTalkApp>,
 ) -> Result<(), ()> {
-    *app.credential.write().await = credential;
-
-    // Async command using state must return Result. see tauri#4317
+    *app.credential.write() = credential;
     Ok(())
 }
 
@@ -79,26 +86,62 @@ async fn initialize_client(
     app: State<'_, KiwiTalkApp>,
     info: State<'_, SystemInfo>,
 ) -> Result<(), ClientInitializeError> {
-    match &*app.credential.read().await {
-        Some(credential) => {
-            let mut client_slot = app.client.write().await;
-            let mut client_events_slot = app.client_events.lock().await;
+    let credential = app.credential.read().clone();
 
-            let (client, client_events) = create_client(credential, client_status, info).await?;
+    match credential {
+        Some(credential) => {
+            let (client, client_events) = create_client(&credential, client_status, info).await?;
+
+            let mut client_slot = app.client.write();
+            let mut client_events_slot = app.client_events.lock();
 
             *client_slot = Some(client);
             *client_events_slot = Some(client_events);
 
             Ok(())
         }
+
         None => Err(ClientInitializeError::CredentialNotSet),
     }
 }
 
+struct ClientEventFuture<'a> {
+    app: State<'a, KiwiTalkApp>,
+}
+
+impl<'a> Future for ClientEventFuture<'a> {
+    type Output = Option<KiwiTalkClientEvent>;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        match &mut *self.app.client_events.lock() {
+            Some(receiver) => {
+                let recv = receiver.recv();
+                pin_mut!(recv);
+
+                recv.poll(cx)
+            }
+
+            None => Poll::Ready(None),
+        }
+    }
+}
+
+// Async command using state must return Result. see tauri#4317
 #[tauri::command(async)]
-async fn next_client_event(app: State<'_, KiwiTalkApp>) -> Result<Option<KiwiTalkClientEvent>, ()> {
-    Ok(match &mut *app.client_events.lock().await {
-        Some(receiver) => receiver.recv().await,
-        None => None,
-    })
+fn next_client_event(
+    app: State<'_, KiwiTalkApp>,
+) -> impl Future<Output = Result<Option<KiwiTalkClientEvent>, ()>> + '_ {
+    ClientEventFuture { app }.map(Result::Ok)
+}
+
+#[tauri::command]
+fn destroy_client(app: State<'_, KiwiTalkApp>) -> bool {
+    let mut client = app.client.write();
+    if client.is_none() {
+        return false;
+    }
+
+    *client = None;
+    *app.client_events.lock() = None;
+    true
 }
