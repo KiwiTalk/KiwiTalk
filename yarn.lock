@@ -5294,7 +5294,7 @@ esbuild-windows-arm64@0.15.10:
   resolved "https://registry.yarnpkg.com/esbuild-windows-arm64/-/esbuild-windows-arm64-0.15.10.tgz#5a6fcf2fa49e895949bf5495cf088ab1b43ae879"
   integrity sha512-S+th4F+F8VLsHLR0zrUcG+Et4hx0RKgK1eyHc08kztmLOES8BWwMiaGdoW9hiXuzznXQ0I/Fg904MNbr11Nktw==
 
-esbuild@^0.15.6:
+esbuild@^0.15.9:
   version "0.15.10"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.15.10.tgz#85c2f8446e9b1fe04fae68daceacba033eedbd42"
   integrity sha512-N7wBhfJ/E5fzn/SpNgX+oW2RLRjwaL8Y0ezqNqhjD6w0H2p0rDuEz2FKZqpqLnO8DCaWumKe8dsC/ljvVSSxng==
@@ -10618,12 +10618,12 @@ vite-plugin-svgr@2.2.1:
     "@rollup/pluginutils" "^4.2.1"
     "@svgr/core" "^6.3.1"
 
-vite@3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-3.1.4.tgz#b75824b819d8354a6f36e4b988943c7e4947e155"
-  integrity sha512-JoQI08aBjY9lycL7jcEq4p9o1xUjq5aRvdH4KWaXtkSx7e7RpAh9D3IjzDWRD4Fg44LS3oDAIOG/Kq1L+82psA==
+vite@3.1.5:
+  version "3.1.5"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-3.1.5.tgz#fb650af04334ddb1b0769adfdfab93c702df93d6"
+  integrity sha512-V4Avke0b7h2zTWVJf8vq6TE3aH061NQ3b1ixHQyqdoE/5HIVsxVLCyTLjJtHVcsJ5fIKSHvOtflWpgavHS8RPw==
   dependencies:
-    esbuild "^0.15.6"
+    esbuild "^0.15.9"
     postcss "^8.4.16"
     resolve "^1.22.1"
     rollup "~2.78.0"
