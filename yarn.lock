@@ -10618,10 +10618,10 @@ vite-plugin-svgr@2.2.1:
     "@rollup/pluginutils" "^4.2.1"
     "@svgr/core" "^6.3.1"
 
-vite@3.1.5:
-  version "3.1.5"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-3.1.5.tgz#fb650af04334ddb1b0769adfdfab93c702df93d6"
-  integrity sha512-V4Avke0b7h2zTWVJf8vq6TE3aH061NQ3b1ixHQyqdoE/5HIVsxVLCyTLjJtHVcsJ5fIKSHvOtflWpgavHS8RPw==
+vite@3.1.6:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-3.1.6.tgz#4c6db3000326342c918204a42a130fb3ffed2414"
+  integrity sha512-qMXIwnehvvcK5XfJiXQUiTxoYAEMKhM+jqCY6ZSTKFBKu1hJnAKEzP3AOcnTerI0cMZYAaJ4wpW1wiXLMDt4mA==
   dependencies:
     esbuild "^0.15.9"
     postcss "^8.4.16"
