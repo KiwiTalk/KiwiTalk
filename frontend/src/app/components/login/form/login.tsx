@@ -1,4 +1,4 @@
-import { FormEvent, useRef } from 'react';
+import { FormEvent } from 'react';
 import styled from 'styled-components';
 import { Button } from '../../../../components/button';
 import { CheckBox } from '../../../../components/check-box';
@@ -39,51 +39,51 @@ export type LoginFormProp = {
 }
 
 export const LoginForm = ({
-  defaultInput: input,
+  defaultInput,
   onSubmit,
 
   className,
 }: LoginFormProp) => {
   const { t } = useTranslation();
 
-  const inputRef = useRef<LoginFormInput>({
-    email: '',
-    password: '',
-    saveId: false,
-    autoLogin: false,
-    ...input,
-  });
-
   function submitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (inputRef.current.email === '' || inputRef.current.password === '') return;
+    const formData = new FormData(e.currentTarget);
+    const input: LoginFormInput = {
+      email: formData.get('email')?.valueOf() as string ?? '',
+      password: formData.get('password')?.valueOf() as string ?? '',
+      saveId: formData.get('save_id')?.valueOf() as boolean ?? false,
+      autoLogin: formData.get('auto_login')?.valueOf() as boolean ?? false,
+    };
 
-    onSubmit?.(inputRef.current);
+    if (input.email === '' || input.password === '') return;
+
+    onSubmit?.(input);
   }
 
   return <form className={className} onSubmit={submitHandler}>
     <LoginInput
+      name='email'
       icon={<AccountCircleSvg />}
       placeholder={t('login.id_placeholder')}
-      defaultValue={inputRef.current.email}
-      onInput={(text) => inputRef.current.email = text}
+      defaultValue={defaultInput?.email}
     />
     <LoginInput
+      name='password'
       icon={<VpnKeySvg />}
       type='password'
       placeholder={t('login.password_placeholder')}
-      defaultValue={inputRef.current.password}
-      onInput={(text) => inputRef.current.password = text}
+      defaultValue={defaultInput?.password}
     />
     <LoginButton>{t('login.login')}</LoginButton>
     <LoginCheckbox
-      status={{ checked: inputRef.current.saveId }}
-      onInput={(status) => inputRef.current.saveId = status.checked}
+      name='save_id'
+      status={{ checked: defaultInput?.saveId }}
     >{t('login.save_id')}</LoginCheckbox>
     <LoginCheckbox
-      status={{ checked: inputRef.current.autoLogin }}
-      onInput={(status) => inputRef.current.autoLogin = status.checked}
+      name='auto_login'
+      status={{ checked: defaultInput?.autoLogin }}
     >{t('login.auto_login_on_launch')}</LoginCheckbox>
   </form>;
 };
