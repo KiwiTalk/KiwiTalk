@@ -33,12 +33,12 @@ fn setup_plugin<R: Runtime>(handle: &AppHandle<R>) -> plugin::Result<()> {
 }
 
 #[tauri::command]
-fn get_device_locale<'a>(info: State<'a, SystemInfo>) -> String {
+fn get_device_locale(info: State<'_, SystemInfo>) -> String {
     info.device_info.locale.clone()
 }
 
 #[tauri::command]
-fn get_device_name<'a>(info: State<'a, SystemInfo>) -> String {
+fn get_device_name(info: State<'_, SystemInfo>) -> String {
     info.device_info.name.clone()
 }
 
