@@ -160,9 +160,6 @@ async fn get_global_configuration(app: State<'_, KiwiTalkApp>) -> Result<GlobalC
 }
 
 #[tauri::command]
-fn set_global_configuration(
-    configuration: GlobalConfiguration,
-    app: State<'_, KiwiTalkApp>,
-) {
+fn set_global_configuration(configuration: GlobalConfiguration, app: State<'_, KiwiTalkApp>) {
     *app.global_configuration.write() = configuration;
 }
