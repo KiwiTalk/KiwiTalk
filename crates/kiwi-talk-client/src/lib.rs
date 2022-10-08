@@ -33,7 +33,7 @@ impl KiwiTalkClient {
         let (session, receiver) = LocoCommandSession::new(stream);
         let (event_sender, event_receiver) = mpsc::channel(128);
 
-        tokio::spawn(KiwiTalkClientHandler::run(receiver, event_sender));
+        tokio::spawn(KiwiTalkClientHandler::new(event_sender).run(receiver));
 
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
