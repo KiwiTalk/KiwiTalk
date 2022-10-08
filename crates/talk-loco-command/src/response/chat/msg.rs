@@ -19,7 +19,7 @@ pub struct Msg {
 
     /// Sender nickname
     #[serde(rename = "authorNickname")]
-    pub author_nick: Option<String>,
+    pub author_nickname: Option<String>,
 
     /// false If sender sent message without reading.
     ///
