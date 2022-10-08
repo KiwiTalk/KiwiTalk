@@ -157,39 +157,47 @@ impl<S: Send + AsyncRead + AsyncWrite + Unpin + 'static> CommandSessionHandler<S
         let read_handle = tokio::spawn(async move {
             loop {
                 let read = read_codec.read_async().await;
-                read_sender.send(read).await.ok();
+                if read_sender.send(read).await.is_err() {
+                    break;
+                }
             }
         });
 
         loop {
             select! {
-                Some(command) = receiver.recv() => {
-                    handler.handle_command(command).await;
-                }
-
-                Some(read) = read_receiver.recv() => {
-                    match read {
-                        Ok(read) => handler.handle_read(read).await,
-
-                        Err(err) => {
-                            for (_, response_sender) in
-                            handler.read_map.drain() {
-                                response_sender.send(Err(RequestError::Read)).ok();
-                            }
-
-                            handler.broadcast_sender.send(Err(err)).await.ok();
-                            break;
-                        }
+                command = receiver.recv() => {
+                    match command {
+                        Some(command) => handler.handle_command(command).await,
+                        None => break,
                     }
                 }
 
-                else => {
-                    break;
+                read = read_receiver.recv() => {
+                    match read {
+                        Some(Ok(read)) => handler.handle_read(read).await,
+
+                        Some(Err(err)) => {
+                            handler.broadcast_sender.send(Err(err)).await.ok();
+                            break;
+                        }
+
+                        None => {
+                            break;
+                        }
+                    }
                 }
             };
         }
 
         read_handle.abort();
+    }
+}
+
+impl<S> Drop for CommandSessionHandler<S> {
+    fn drop(&mut self) {
+        for (_, response_sender) in self.read_map.drain() {
+            response_sender.send(Err(RequestError::Read)).ok();
+        }
     }
 }
 

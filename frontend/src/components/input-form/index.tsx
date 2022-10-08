@@ -46,7 +46,7 @@ const InputBox = styled.div`
   }
 `;
 
-const InnerWrapper = styled.div`
+const InnerWrapper = styled.label`
   display: flex;
   align-items: center;
 
@@ -69,6 +69,7 @@ const IconContainer = styled.div`
 type InputProp = {
   icon?: JSX.Element,
 
+  name?: string,
   type?: React.HTMLInputTypeAttribute,
   defaultValue?: string,
   placeholder?: string,
@@ -82,6 +83,8 @@ type InputProp = {
 
 export const InputForm = ({
   icon,
+
+  name,
   type,
   defaultValue,
   placeholder,
@@ -115,6 +118,7 @@ export const InputForm = ({
         null
       }
       <Input
+        name={name}
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}

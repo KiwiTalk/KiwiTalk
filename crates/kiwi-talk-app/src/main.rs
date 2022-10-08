@@ -11,14 +11,7 @@ mod system;
 
 use std::error::Error;
 
-use system::init_system_info;
-use tauri::{App, Manager};
-
-async fn setup_app(app: &mut App) -> Result<(), Box<dyn Error + 'static>> {
-    app.manage(init_system_info(app.config().package.product_name.as_ref().unwrap()).await?);
-
-    Ok(())
-}
+use tauri::{api::dialog, AppHandle, Manager, Runtime};
 
 fn init_logger() {
     let mut builder = env_logger::Builder::from_default_env();
@@ -29,19 +22,39 @@ fn init_logger() {
     builder.init();
 }
 
+async fn init_app(handle: &AppHandle<impl Runtime>) -> Result<(), Box<dyn Error + 'static>> {
+    handle.plugin(
+        system::init_plugin(
+            handle.config().package.product_name.as_ref().unwrap(),
+            "system",
+        )
+        .await?,
+    )?;
+
+    handle.plugin(auth::init_plugin("auth"))?;
+    handle.plugin(app::init_plugin("app"))?;
+
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + 'static>> {
     init_logger();
 
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
-    let mut app = tauri::Builder::default()
-        .plugin(auth::init_plugin("auth"))
-        .plugin(app::init_plugin("app"))
-        .build(tauri::generate_context!())?;
+    let app = tauri::Builder::default().build(tauri::generate_context!())?;
+    let main_window = app.get_window("main").unwrap();
 
-    setup_app(&mut app).await?;
+    if let Err(err) = init_app(&app.handle()).await {
+        dialog::message(
+            Some(&main_window),
+            "KiwiTalk Startup Fatal Error",
+            format!("{}", err),
+        );
+    }
 
     app.run(|_, _| {});
+
     Ok(())
 }

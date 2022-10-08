@@ -2,6 +2,11 @@ use std::path::PathBuf;
 
 use platform_dirs::AppDirs;
 use rand::Rng;
+use tauri::{
+    generate_handler,
+    plugin::{Builder, TauriPlugin},
+    Manager, Runtime, State,
+};
 use thiserror::Error;
 use tokio::{
     fs::{self, File},
@@ -11,6 +16,31 @@ use tokio::{
 use crate::constants::{
     APP_DEVICE_UUID_FILE, APP_PORTABLE_DATA_DIR, DEFAULT_DEVICE_LOCALE, DEFAULT_DEVICE_NAME,
 };
+
+pub async fn init_plugin<R: Runtime>(
+    app_name: &str,
+    name: &'static str,
+) -> tauri::plugin::Result<TauriPlugin<R>> {
+    let info = init_system_info(app_name).await?;
+
+    Ok(Builder::new(name)
+        .setup(|handle| {
+            handle.manage(info);
+            Ok(())
+        })
+        .invoke_handler(generate_handler![get_device_locale, get_device_name])
+        .build())
+}
+
+#[tauri::command]
+fn get_device_locale(info: State<'_, SystemInfo>) -> String {
+    info.device_info.locale.clone()
+}
+
+#[tauri::command]
+fn get_device_name(info: State<'_, SystemInfo>) -> String {
+    info.device_info.name.clone()
+}
 
 #[derive(Debug)]
 pub struct SystemInfo {
@@ -55,17 +85,6 @@ impl AsRef<str> for DeviceUuid {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
-}
-
-pub fn get_device_locale() -> Option<String> {
-    sys_locale::get_locale()
-}
-
-pub fn get_device_name() -> Option<String> {
-    hostname::get()
-        .map(|hostname| hostname.into_string().ok())
-        .ok()
-        .flatten()
 }
 
 pub fn gen_device_uuid() -> DeviceUuid {
@@ -113,9 +132,16 @@ pub async fn init_system_info(app_name: &str) -> Result<SystemInfo, SystemInitEr
         }
     };
 
+    let locale = sys_locale::get_locale().unwrap_or_else(|| String::from(DEFAULT_DEVICE_LOCALE));
+    let name = hostname::get()
+        .map(|hostname| hostname.into_string().ok())
+        .ok()
+        .flatten()
+        .unwrap_or_else(|| String::from(DEFAULT_DEVICE_NAME));
+
     let device_info = DeviceInfo {
-        locale: get_device_locale().unwrap_or_else(|| String::from(DEFAULT_DEVICE_LOCALE)),
-        name: get_device_name().unwrap_or_else(|| String::from(DEFAULT_DEVICE_NAME)),
+        locale,
+        name,
         device_uuid,
     };
 
