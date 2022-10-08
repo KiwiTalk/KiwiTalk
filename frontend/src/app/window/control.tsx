@@ -15,7 +15,7 @@ export const AppWindowControl = ({
   function onControlClick(type: ControlType) {
     switch (type) {
       case 'close': {
-        appWindow.close().then();
+        appWindow.hide().then();
         break;
       }
 
