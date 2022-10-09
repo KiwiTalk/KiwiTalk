@@ -43,6 +43,10 @@ export function useAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []
     let canceled = false;
 
     (async () => {
+      if (status.status !== 'pending') {
+        setStatus({ status: 'pending' });
+      }
+
       try {
         const value = await asyncFn();
 
