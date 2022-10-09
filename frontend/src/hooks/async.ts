@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { DependencyList, useEffect, useState } from 'react';
 
 export type AsyncLockHook = {
   locked: boolean,
@@ -24,4 +24,46 @@ export function useAsyncLock(): AsyncLockHook {
     locked,
     tryLock,
   };
+}
+
+export type AsyncHook<T> = {
+  status: 'pending'
+} | {
+  status: 'resolved',
+  value: T
+} | {
+  status: 'error',
+  error: unknown
+};
+
+export function useAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []): AsyncHook<T> {
+  const [status, setStatus] = useState<AsyncHook<T>>({ status: 'pending' });
+
+  useEffect(() => {
+    let canceled = false;
+
+    (async () => {
+      try {
+        const value = await asyncFn();
+
+        if (canceled) return;
+        setStatus({
+          status: 'resolved',
+          value,
+        });
+      } catch (error) {
+        if (canceled) return;
+        setStatus({
+          status: 'error',
+          error,
+        });
+      }
+    })().then();
+
+    return () => {
+      canceled = true;
+    };
+  }, deps);
+
+  return status;
 }
