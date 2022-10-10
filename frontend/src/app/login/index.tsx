@@ -4,7 +4,7 @@ import { LoginScreen } from '../../components/login/screen';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
-import { LoginAccessData } from './auth';
+import { LoginAccessData } from '../../backend/auth';
 
 export type AppLoginProp = {
   defaultInput?: LoginFormInput,
