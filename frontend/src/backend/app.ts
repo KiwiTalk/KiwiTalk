@@ -7,7 +7,7 @@ export type AppCredential = {
 }
 
 export function setCredential(credential: AppCredential): Promise<AppCredential> {
-  return tauri.invoke<AppCredential>('plugin:system|set_credential', { credential });
+  return tauri.invoke<AppCredential>('plugin:app|set_credential', { credential });
 }
 
 export type ClientStatus = { status: 'Locked' } | { status: 'Unlocked' };
@@ -20,7 +20,7 @@ export type KiwiTalkClientEvent = {
   // TODO
 }
 
-export function nextClientEvent(): Promise<KiwiTalkClientEvent> {
+export function nextClientEvent(): Promise<KiwiTalkClientEvent | void> {
   return tauri.invoke<KiwiTalkClientEvent>('plugin:app|next_client_event');
 }
 
