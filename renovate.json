@@ -4,6 +4,7 @@
     "config:base"
   ],
   "baseBranches": ["dev"],
+  "labels": ["Type: Dependency"],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
