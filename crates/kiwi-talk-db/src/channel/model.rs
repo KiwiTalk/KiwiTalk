@@ -1,23 +1,10 @@
 #[derive(Debug, PartialEq, Eq)]
-pub struct ChatModel {
-    pub log_id: i64,
-    pub prev_log_id: Option<i64>,
-
-    pub chat_type: i32,
-
-    pub message_id: i64,
-
-    pub send_at: i32,
-
-    pub author_id: i64,
-
-    pub message: Option<String>,
-    pub attachment: Option<String>,
-
-    pub supplement: Option<String>,
-
-    pub referer: Option<i32>,
+pub struct ChannelModel {
+    pub id: i64,
+    pub channel_type: String,
+    pub active_user_count: i32,
+    pub new_chat_count: i32,
+    pub last_chat_log_id: i64,
+    pub last_seen_log_id: i64,
+    pub push_alert: bool,
 }
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct UserModel {}

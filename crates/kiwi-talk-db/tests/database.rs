@@ -1,11 +1,11 @@
 use std::error::Error;
 
-use kiwi_talk_db::channel::{model::ChatModel, ChannelConnection};
+use kiwi_talk_db::{KiwiTalkConnection, chat::model::ChatModel};
 use rusqlite::Connection;
 
 #[test]
 fn test_chat() -> Result<(), Box<dyn Error>> {
-    let mut db = ChannelConnection::new(Connection::open_in_memory()?);
+    let mut db = KiwiTalkConnection::new(Connection::open_in_memory()?);
 
     let model = ChatModel {
         log_id: 0,
