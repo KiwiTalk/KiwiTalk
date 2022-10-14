@@ -1,6 +1,5 @@
 name: Bug Report
 description: File a bug report
-title: ""
 labels: ["bug"]
 assignees: []
 body:
@@ -11,7 +10,7 @@ body:
       description: 문제에 대한 간결하고 명확한 설명을 제공해주세요.
       placeholder: |
         ex) 오픈 채팅방에서 `내보내기` 버튼을 눌렀을 때 키위톡이 갑자기 꺼져요.
-    validation:
+    validations:
       required: true
   - type: textarea
     attributes:
@@ -20,7 +19,7 @@ body:
       description: 예상한 동작에 대해 간결하고 명확한 설명을 제공해주세요.
       placeholder: |
         ex) `내보내기` 버튼을 눌렀을 때 정상적으로 채팅방 멤버가 내보내져야해요.
-    validation:
+    validations:
       required: true
   - type: textarea
     attributes:
@@ -31,7 +30,7 @@ body:
         1. ...
         2. ...
         3. ...
-    validation:
+    validations:
       required: true
   - type: input
     attributes:
@@ -39,7 +38,7 @@ body:
       label: 키위톡 버전
       description: 현재 사용중인 키위톡 버전, 혹은 커밋 해시를 제공해주세요.
       placeholder: 0.1.0
-    validation:
+    validations:
       required: true
   - type: textarea
     attributes:
@@ -49,14 +48,14 @@ body:
       value: |
         OS: Ubuntu 22.04 / MacOS (Intel CPU / Apple Silicon) / Arch Linux / etc...
         개발 버전 사용중: Yes/No
-    validation:
+    validations:
       required: true
   - type: textarea
     attributes:
       id: additional-notes
       label: 추가 정보
       description: 개발팀이 알아야하거나 필요한 정보가 있다면 이곳에 작성해주세요.
-    validation:
+    validations:
       required: false
   - type: checkboxes
     attributes:
