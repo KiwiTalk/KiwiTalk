@@ -1,0 +1,30 @@
+name: 기능 추가 요청
+description: 추가되었으면 좋은 기능들을 이곳에 요청해주세요.
+labels: ["Type: Enhancement"]
+assignees: []
+body:
+  - type: textarea
+    attributes:
+      id: feature
+      label: 추가하고 싶은 기능
+      description: 추가하고 싶은 기능이나 문제에 대한 간결하고 명확한 설명을 제공해주세요.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: solution
+      label: 해결 방법
+      description: 이 기능이 구현되기를 원하는 방식을 설명해주세요. 기술 구현 세부 사항은 필요하지 않으며, 이 기능이 어떻게 사용되기를 원하는지에 대한 설명이 필요합니다.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: additional-notes
+      label: 추가 정보
+      description: 기능 요청에 대한 다른 내용 또는 스크린샷, Proof-of-concepts 등을 추가해주세요.
+      value: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: false
