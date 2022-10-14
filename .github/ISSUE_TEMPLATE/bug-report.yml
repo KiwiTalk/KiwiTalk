@@ -1,67 +1,60 @@
-name: 버그 제보
-description: 예상치 못한 버그가 있다면 이곳으로 제보해주세요.
+name: Bug report
+description: If you find unexpected behavior, or crashes, please report it to here. 
 labels: ["Type: Bug"]
 assignees: []
 body:
   - type: textarea
     attributes:
       id: current-behavior
-      label: 현재 동작
-      description: 문제에 대한 간결하고 명확한 설명을 제공해주세요.
+      label: Current behavior
+      description: Please provide a clear and concise description of the issue.
       placeholder: |
-        ex) 오픈 채팅방에서 `내보내기` 버튼을 눌렀을 때 키위톡이 갑자기 꺼져요.
+        ex) Client crashes when clicking X button
     validations:
       required: true
   - type: textarea
     attributes:
       id: expected-behavior
-      label: 예상한 동작
-      description: 예상한 동작에 대해 간결하고 명확한 설명을 제공해주세요.
+      label: Expected behavior
+      description: Please describe what you expected to happen.
       placeholder: |
-        ex) `내보내기` 버튼을 눌렀을 때 정상적으로 채팅방 멤버가 내보내져야해요.
+        ex) The X button should work normally.
     validations:
       required: true
   - type: textarea
     attributes:
       id: step-to-reproduce
-      label: 재현 방법
-      description: 문제를 재현하는 방법을 가능한 자세히 설명해주세요. 명확하지 않거나 재현에 실패한 경우 이슈가 종료될 수 있습니다.
+      label: Step to reproduce
+      description: Please provide a step to reproduce as much as you can. An issue which cannot be reproduced or invalid will be closed by maintainers.
       value: |
         1. ...
         2. ...
         3. ...
     validations:
       required: true
-  - type: input
-    attributes:
-      label: 키위톡 버전
-      description: 현재 사용중인 키위톡 버전, 혹은 커밋 해시를 제공해주세요.
-      placeholder: 0.1.0
-    validations:
-      required: true
   - type: textarea
     attributes:
       id: os-specification
-      label: 운영 체제, 기타 실행 환경
-      description: 현재 사용중인 운영 체제, 운영 체제 버전, 기타 실행 환경을 제공해주세요.
+      label: OS, or Other Environments
+      description: Please provide a detailed specification of your OS.
       value: |
         OS: Ubuntu 22.04 / MacOS (Intel CPU / Apple Silicon) / Arch Linux / etc...
-        개발 버전 사용중: Yes/No
+        Using Development build: Yes/No
     validations:
       required: true
   - type: textarea
     attributes:
       id: additional-notes
-      label: 추가 정보
-      description: 개발팀이 알아야하거나 필요한 정보가 있다면 이곳에 작성해주세요.
+      label: Additional Notes
+      description: If you have any additional notes, or things that maintainers should be aware of, Please write it here.
     validations:
       required: false
   - type: checkboxes
     attributes:
-      label: 현재 이슈와 같거나 비슷한 이슈가 있는지 찾아보셨나요?
-      description: 아직 찾아보지 않았다면 [이슈 트래커](https://github.com/KiwiTalk/KiwiTalk/issues)에서 찾아보실 수 있습니다.
+      label: Is there an existing issue for this?
+      description: Please search [here](https://github.com/KiwiTalk/KiwiTalk/issues) to see if an issue already exists for your problem.
       options:
-        - label: 현재 이슈와 동일한 이슈가 없는지 확인했습니다.
+        - label: I have searched the existing issues before opening this issue.
           required: true
-        - label: 모든 필요한 정보를 정확히 제공했습니다.
+        - label: I have provided all required informations.
           required: true
