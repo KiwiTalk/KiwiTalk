@@ -39,6 +39,7 @@ body:
       description: Please provide a detailed specification of your OS.
       value: |
         OS: Ubuntu 22.04 / MacOS (Intel CPU / Apple Silicon) / Arch Linux / etc...
+        System Webview version: Windows (Edge) / MacOS (Safari)
         Using Development build: Yes/No
     validations:
       required: true
