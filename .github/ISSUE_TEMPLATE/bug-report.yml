@@ -1,5 +1,5 @@
-name: Bug Report
-description: File a bug report
+name: 버그 제보
+description: 예상치 못한 버그가 있다면 이곳으로 제보해주세요.
 labels: ["bug"]
 assignees: []
 body:
