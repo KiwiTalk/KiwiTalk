@@ -30,7 +30,7 @@ impl KiwiTalkConnection {
     pub fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
         MIGRATIONS.to_latest(&mut self.connection)
     }
-    
+
     pub const fn channel(&self) -> ChannelEntry<'_> {
         ChannelEntry(&self.connection)
     }
