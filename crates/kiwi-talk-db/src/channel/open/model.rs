@@ -5,5 +5,5 @@ pub struct OpenChannelModel {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct OpenUserModel {
-    pub id: i64
+    pub id: i64,
 }
