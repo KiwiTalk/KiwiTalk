@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS normal_channel (
 );
 
 -- See /src/channel/normal/model.rs
-CREATE TABLE IF NOT EXISTS normal_user (
+CREATE TABLE IF NOT EXISTS normal_channel_user (
     id INTEGER PRIMARY KEY,
     channel_id INTEGER NOT NULL,
 
