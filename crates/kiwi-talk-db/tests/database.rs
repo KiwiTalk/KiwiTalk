@@ -1,6 +1,10 @@
 use std::error::Error;
 
-use kiwi_talk_db::{chat::model::ChatModel, KiwiTalkConnection, channel::model::{ChannelModel, ChannelUserModel}};
+use kiwi_talk_db::{
+    channel::model::{ChannelModel, ChannelUserModel},
+    chat::model::ChatModel,
+    KiwiTalkConnection,
+};
 use rusqlite::Connection;
 
 fn prepare_test_database() -> Result<KiwiTalkConnection, Box<dyn Error>> {
@@ -13,9 +17,19 @@ fn prepare_test_database() -> Result<KiwiTalkConnection, Box<dyn Error>> {
 #[test]
 fn chat_insert() -> Result<(), Box<dyn Error>> {
     let db = prepare_test_database()?;
+    db.channel().insert(&ChannelModel {
+        id: 0,
+        channel_type: "OM".into(),
+        active_user_count: 0,
+        new_chat_count: 0,
+        last_chat_log_id: Some(0),
+        last_seen_log_id: Some(0),
+        push_alert: true,
+    })?;
 
     let model = ChatModel {
         log_id: 0,
+        channel_id: 0,
         prev_log_id: Some(0),
         chat_type: 1,
         message_id: 0,
@@ -25,6 +39,7 @@ fn chat_insert() -> Result<(), Box<dyn Error>> {
         attachment: Some("".into()),
         supplement: None,
         referer: None,
+        deleted: false,
     };
 
     db.chat().insert(&model)?;
@@ -34,10 +49,9 @@ fn chat_insert() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn user_channel_insert() -> Result<(), Box<dyn Error>> {
+fn channel_user_insert() -> Result<(), Box<dyn Error>> {
     let db = prepare_test_database()?;
-
-    let model = ChannelModel {
+    db.channel().insert(&ChannelModel {
         id: 0,
         channel_type: "OM".into(),
         active_user_count: 0,
@@ -45,8 +59,9 @@ fn user_channel_insert() -> Result<(), Box<dyn Error>> {
         last_chat_log_id: Some(0),
         last_seen_log_id: Some(0),
         push_alert: true,
-    };
-    let user_model = ChannelUserModel {
+    })?;
+
+    let model = ChannelUserModel {
         id: 0,
         channel_id: 0,
         nickname: "".into(),
@@ -56,8 +71,7 @@ fn user_channel_insert() -> Result<(), Box<dyn Error>> {
         user_type: 0,
     };
 
-    db.channel().insert(&model)?;
-    db.user().insert(&user_model)?;
+    db.user().insert(&model)?;
 
     Ok(())
 }
