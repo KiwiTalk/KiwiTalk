@@ -1,0 +1,61 @@
+name: Bug report
+description: If you find unexpected behavior, or crashes, please report it to here. 
+labels: ["Type: Bug"]
+assignees: []
+body:
+  - type: textarea
+    attributes:
+      id: current-behavior
+      label: Current behavior
+      description: Please provide a clear and concise description of the issue.
+      placeholder: |
+        ex) Client crashes when clicking X button
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: expected-behavior
+      label: Expected behavior
+      description: Please describe what you expected to happen.
+      placeholder: |
+        ex) The X button should work normally.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: step-to-reproduce
+      label: Step to reproduce
+      description: Please provide a step to reproduce as much as you can. An issue which cannot be reproduced or invalid will be closed by maintainers.
+      value: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: os-specification
+      label: OS, or Other Environments
+      description: Please provide a detailed specification of your OS.
+      value: |
+        OS: Ubuntu 22.04 / MacOS (Intel CPU / Apple Silicon) / Arch Linux / etc...
+        System Webview version: Windows (Edge) / MacOS (Safari)
+        Using Development build: Yes/No
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: additional-notes
+      label: Additional Notes
+      description: If you have any additional notes, or things that maintainers should be aware of, Please write it here.
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search [here](https://github.com/KiwiTalk/KiwiTalk/issues) to see if an issue already exists for your problem.
+      options:
+        - label: I have searched the existing issues before opening this issue.
+          required: true
+        - label: I have provided all required informations.
+          required: true

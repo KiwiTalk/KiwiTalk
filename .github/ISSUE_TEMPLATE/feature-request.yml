@@ -1,0 +1,30 @@
+name: Feature Request
+description: Suggest a new feature or improvement for the software.
+labels: ["Type: Enhancement"]
+assignees: []
+body:
+  - type: textarea
+    attributes:
+      id: feature
+      label: Describe the feature you would like to see.
+      description: Please provide a concise and clear description of the feature or issue you would like to see.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: solution
+      label: Describe the solution you'd like.
+      description: You must explain how you'd like to see this feature implemented. Technical implementation details are not necessary, rather an idea of how you'd like to see this feature used.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: additional-notes
+      label: Additional Notes
+      description: Add any other context, proof-of-concepts or screenshots about the feature request.
+      value: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: false
