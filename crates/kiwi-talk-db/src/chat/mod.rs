@@ -10,11 +10,12 @@ pub struct ChatEntry<'a>(pub &'a Connection);
 impl<'a> ChatEntry<'a> {
     pub fn insert(&self, chat: &ChatModel) -> Result<(), rusqlite::Error> {
         self.0.execute("INSERT INTO chat (
-            log_id, prev_log_id, type, message_id, send_at, author_id, message, attachment, supplement, referer
+            log_id, channel_id, prev_log_id, type, message_id, send_at, author_id, message, attachment, supplement, referer, deleted
         ) VALUES (
-            ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10
+            ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12
         )", (
             &chat.log_id,
+            &chat.channel_id,
             &chat.prev_log_id,
             &chat.chat_type,
             &chat.message_id,
@@ -23,7 +24,8 @@ impl<'a> ChatEntry<'a> {
             &chat.message,
             &chat.attachment,
             &chat.supplement,
-            &chat.referer
+            &chat.referer,
+            &chat.deleted,
         ))?;
 
         Ok(())
@@ -46,6 +48,13 @@ impl<'a> ChatEntry<'a> {
         )
     }
 
+    pub fn update_deleted(&self, log_id: i64, deleted: bool) -> Result<usize, rusqlite::Error> {
+        self.0.execute(
+            "UPDATE chat SET deleted = ? WHERE log_id = ?",
+            (deleted, log_id),
+        )
+    }
+
     pub fn delete_chat(&self, log_id: i64) -> Result<usize, rusqlite::Error> {
         self.0
             .execute("DELETE FROM chat WHERE log_id = ?", [log_id])
@@ -54,6 +63,7 @@ impl<'a> ChatEntry<'a> {
     fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {
         Ok(ChatModel {
             log_id: row.get("log_id")?,
+            channel_id: row.get("channel_id")?,
             prev_log_id: row.get("prev_log_id")?,
             chat_type: row.get("type")?,
             message_id: row.get("message_id")?,
@@ -63,6 +73,7 @@ impl<'a> ChatEntry<'a> {
             attachment: row.get("attachment")?,
             supplement: row.get("supplement")?,
             referer: row.get("referer")?,
+            deleted: row.get("deleted")?,
         })
     }
 }

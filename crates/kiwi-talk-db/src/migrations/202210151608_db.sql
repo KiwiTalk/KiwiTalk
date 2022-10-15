@@ -1,6 +1,7 @@
 -- See /src/chat/model.rs
 CREATE TABLE IF NOT EXISTS chat (
     log_id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
     prev_log_id INTEGER,
     type INTEGER NOT NULL,
     message_id INTEGER NOT NULL,
@@ -9,7 +10,11 @@ CREATE TABLE IF NOT EXISTS chat (
     message TEXT,
     attachment TEXT,
     supplement TEXT,
-    referer INTEGER
+    referer INTEGER,
+
+    deleted BOOLEAN NOT NULL,
+
+    FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 
 -- See /src/channel/model.rs

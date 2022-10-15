@@ -1,6 +1,7 @@
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChatModel {
     pub log_id: i64,
+    pub channel_id: i64,
     pub prev_log_id: Option<i64>,
 
     pub chat_type: i32,
@@ -17,4 +18,6 @@ pub struct ChatModel {
     pub supplement: Option<String>,
 
     pub referer: Option<i32>,
+
+    pub deleted: bool,
 }
