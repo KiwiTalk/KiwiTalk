@@ -1,3 +1,4 @@
+-- See /src/chat/model.rs
 CREATE TABLE IF NOT EXISTS chat (
     log_id INTEGER PRIMARY KEY,
     prev_log_id INTEGER,
@@ -11,6 +12,7 @@ CREATE TABLE IF NOT EXISTS chat (
     referer INTEGER
 );
 
+-- See /src/channel/model.rs
 CREATE TABLE IF NOT EXISTS channel (
     id INTEGER PRIMARY KEY,
     type VARCHAR(16) NOT NULL,
@@ -21,43 +23,41 @@ CREATE TABLE IF NOT EXISTS channel (
     push_alert BOOLEAN
 );
 
-CREATE TABLE IF NOT EXISTS user (
-    id INTEGER PRIMARY KEY
+-- See /src/channel/model.rs
+CREATE TABLE IF NOT EXISTS channel_user (
+    id INTEGER PRIMARY KEY,
+    channel_id INTEGER NOT NULL,
+
+    nickname VARCHAR NOT NULL,
+
+    profile_url TEXT,
+    full_profile_url TEXT,
+    original_profile_url TEXT,
+    user_type INTEGER NOT NULL,
+
+    FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 
+-- See /src/channel/normal/model.rs
 CREATE TABLE IF NOT EXISTS normal_channel (
     id INTEGER PRIMARY KEY,
+
     join_time INTEGER,
 
     FOREIGN KEY(id) REFERENCES channel(id)
 );
 
+-- See /src/channel/normal/model.rs
 CREATE TABLE IF NOT EXISTS normal_user (
-    id INTEGER PRIMARY KEY
-);
-
-CREATE TABLE IF NOT EXISTS open_channel (
     id INTEGER PRIMARY KEY,
-    link_id INTEGER NOT NULL,
-    open_token INTEGER,
-    
-    link_name VARCHAR(32),
-    link_cover_url TEXT,
-    description VARCHAR(32),
-    searchable BOOLEAN,
-    activated BOOLEAN,
+    channel_id INTEGER NOT NULL,
 
-    link_url TEXT,
-    profile_tag_list TEXT,
-    created_at INTEGER,
+    country_iso VARCHAR(4) NOT NULL,
+    account_id INTEGER NOT NULL,
+    status_message TEXT,
+    linked_services TEXT,
+    suspended BOOLEAN,
 
-    owner_link_id INTEGER,
-
-    privilege INTEGER,
-
-    FOREIGN KEY(id) REFERENCES channel(id)
-);
-
-CREATE TABLE IF NOT EXISTS open_user (
-    id INTEGER PRIMARY KEY
+    FOREIGN KEY(id) REFERENCES user(id),
+    FOREIGN KEY(channel_id) REFERENCES channel(id)
 );

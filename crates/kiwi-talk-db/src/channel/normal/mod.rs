@@ -1,13 +1,15 @@
 pub mod model;
 
-use rusqlite::Connection;
+use super::{ChannelEntry, ChannelUserEntry};
 
 #[derive(Debug, Clone, Copy)]
-pub struct NormalChannelEntry<'a>(pub &'a Connection);
+pub struct NormalChannelEntry<'a>(pub ChannelEntry<'a>);
 
-impl<'a> NormalChannelEntry<'a> {}
+impl<'a> NormalChannelEntry<'a> {
+    
+}
 
 #[derive(Debug, Clone, Copy)]
-pub struct NormalUserEntry<'a>(pub &'a Connection);
+pub struct NormalUserEntry<'a>(pub ChannelUserEntry<'a>);
 
 impl<'a> NormalUserEntry<'a> {}
