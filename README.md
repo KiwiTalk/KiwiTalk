@@ -19,19 +19,39 @@ KiwiTalk은 카카오톡이 제공되지 않는 기기 및 OS (예: Ubuntu, Arch
 즉, KiwiTalk을 통해 이루어지는 모든 활동에 대한 모든 책임은 전적으로 사용자에게 있습니다.
 ```
 
-## 실행 (Dev)
+## 실행 (개발 환경)
 
-* 모듈 설치
-```
+### 사전 요구 사항
+
+개발 환경에서 프로젝트를 실행하기 위해 다음 요구 사항을 충족시켜야 합니다.
+
+- 본 프로젝트가 Tauri를 사용하기 때문에 [Tauri 개발을 위한 사전 요구 사항](https://tauri.app/ko/v1/guides/getting-started/prerequisites/)을 충족시켜야 합니다.
+  해당 글에서 지시하는 대로, Tauri 개발 환경을 구축시켜주시기 바랍니다.
+- 이 프로젝트는 프론트엔드 패키지 관리에 yarn을 사용하고 있습니다.
+  [설치 안내서](https://yarnpkg.com/getting-started/install)를 따라, yarn 설치를 완료시켜주시기 바랍니다.
+
+### 의존성 설치
+
+아래 명령어를 실행해 npm 의존성을 설치합니다.
+
+```sh
 yarn
 ```
 
-* 실행
-```
+### KiwiTalk 실행
+
+아래 명령어를 실행해 KiwiTalk을 실행합니다. GUI 창을 띄워야 하므로, 적절한 GUI 설정이 존재하는지 확인하시기 바랍니다.
+예를 들어, Linux용 Windows 하위시스템(WSL)을 사용하시는 경우, [Microsoft 공식 문서](https://learn.microsoft.com/ko-kr/windows/wsl/tutorials/gui-apps)를 참조해 설정하시기 바랍니다.
+
+```sh
 yarn dev
 ```
 
-* Storybook
-```
+### Storybook 실행
+
+본 프로젝트는 디자인 시스템 구축을 위해 Storybook을 사용하고 있습니다.
+Storybook을 실행하려면 아래 명령어를 실행하시기 바랍니다.
+
+```sh
 yarn storybook
 ```
