@@ -11,7 +11,7 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0" }
 tokio = { version = "1", features = ["rt", "net", "sync"] }
-futures = "0.3.24"
+futures = "0.3.25"
 bson = "2.4.0"
 rustc-hash = "1.1.0"
 talk-loco-command = { path = "../talk-loco-command" }
