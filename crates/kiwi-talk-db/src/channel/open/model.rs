@@ -1,9 +1,5 @@
-#[derive(Debug, PartialEq, Eq)]
-pub struct OpenChannelModel {
-    pub id: i64,
-}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OpenChannelModel {}
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct OpenUserModel {
-    pub id: i64,
-}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OpenUserModel {}

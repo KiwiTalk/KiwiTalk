@@ -1,6 +1,7 @@
-#[derive(Debug, PartialEq, Eq)]
+pub type LogId = i64;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChatModel {
-    pub log_id: i64,
     pub channel_id: i64,
     pub prev_log_id: Option<i64>,
 

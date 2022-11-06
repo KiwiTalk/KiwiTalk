@@ -2,30 +2,32 @@ pub mod model;
 
 use rusqlite::{Connection, OptionalExtension, Row};
 
-use self::model::ChatModel;
+use crate::model::FullModel;
+
+use self::model::{ChatModel, LogId};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChatEntry<'a>(pub &'a Connection);
 
 impl<'a> ChatEntry<'a> {
-    pub fn insert(&self, chat: &ChatModel) -> Result<(), rusqlite::Error> {
+    pub fn insert(&self, chat: &FullModel<LogId, ChatModel>) -> Result<(), rusqlite::Error> {
         self.0.execute("INSERT INTO chat (
             log_id, channel_id, prev_log_id, type, message_id, send_at, author_id, message, attachment, supplement, referer, deleted
         ) VALUES (
             ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12
         )", (
-            &chat.log_id,
-            &chat.channel_id,
-            &chat.prev_log_id,
-            &chat.chat_type,
-            &chat.message_id,
-            &chat.send_at,
-            &chat.author_id,
-            &chat.message,
-            &chat.attachment,
-            &chat.supplement,
-            &chat.referer,
-            &chat.deleted,
+            &chat.id,
+            &chat.model.channel_id,
+            &chat.model.prev_log_id,
+            &chat.model.chat_type,
+            &chat.model.message_id,
+            &chat.model.send_at,
+            &chat.model.author_id,
+            &chat.model.message,
+            &chat.model.attachment,
+            &chat.model.supplement,
+            &chat.model.referer,
+            &chat.model.deleted,
         ))?;
 
         Ok(())
@@ -60,9 +62,8 @@ impl<'a> ChatEntry<'a> {
             .execute("DELETE FROM chat WHERE log_id = ?", [log_id])
     }
 
-    fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {
+    pub fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {
         Ok(ChatModel {
-            log_id: row.get("log_id")?,
             channel_id: row.get("channel_id")?,
             prev_log_id: row.get("prev_log_id")?,
             chat_type: row.get("type")?,
@@ -74,6 +75,13 @@ impl<'a> ChatEntry<'a> {
             supplement: row.get("supplement")?,
             referer: row.get("referer")?,
             deleted: row.get("deleted")?,
+        })
+    }
+
+    pub fn map_full_row(row: &Row) -> Result<FullModel<LogId, ChatModel>, rusqlite::Error> {
+        Ok(FullModel {
+            id: row.get("log_id")?,
+            model: Self::map_row(row)?,
         })
     }
 }

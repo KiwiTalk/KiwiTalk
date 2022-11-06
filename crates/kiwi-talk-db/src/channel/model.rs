@@ -1,6 +1,7 @@
-#[derive(Debug, PartialEq, Eq, Clone)]
+pub type ChannelId = i64;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChannelModel {
-    pub id: i64,
     pub channel_type: String,
     pub active_user_count: i32,
     pub new_chat_count: i32,
@@ -9,9 +10,10 @@ pub struct ChannelModel {
     pub push_alert: bool,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+pub type ChannelUserId = i64;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChannelUserModel {
-    pub id: i64,
     pub channel_id: i64,
 
     pub nickname: String,

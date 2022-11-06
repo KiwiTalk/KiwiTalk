@@ -1,5 +1,6 @@
 pub mod channel;
 pub mod chat;
+pub mod model;
 
 use channel::{
     normal::{NormalChannelEntry, NormalUserEntry},
