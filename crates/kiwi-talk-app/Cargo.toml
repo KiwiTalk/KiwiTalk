@@ -29,7 +29,7 @@ platform-dirs = "0.3.0"
 rand = "0.8.5"
 base64 = "0.13.1"
 log = "0.4.17"
-env_logger = "0.9.1"
+env_logger = "0.9.3"
 parking_lot = "0.12.1"
 futures = "0.3.25"
 
