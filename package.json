@@ -32,7 +32,7 @@
     "@storybook/builder-vite": "0.2.5",
     "@storybook/react": "6.5.13",
     "@storybook/testing-library": "0.0.13",
-    "@tauri-apps/cli": "1.1.1",
+    "@tauri-apps/cli": "1.2.0",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.8",
@@ -49,7 +49,7 @@
     "vite-plugin-svgr": "2.2.2"
   },
   "dependencies": {
-    "@tauri-apps/api": "1.1.0",
+    "@tauri-apps/api": "1.2.0",
     "i18next": "22.0.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
