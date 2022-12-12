@@ -11031,10 +11031,10 @@ vfile@^4.0.0:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vite-plugin-svgr@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/vite-plugin-svgr/-/vite-plugin-svgr-2.3.0.tgz#6490f95ad26dc8b0f2ed153ddfaa847ec0684941"
-  integrity sha512-R26NgElnVKl+tRydkr7w397XbOirSOS3R4xxCnhb8DRr/j1Eh56Qsv+i1lzmq/GWk4/YrDJ2UJskkVLUUo9pAw==
+vite-plugin-svgr@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-svgr/-/vite-plugin-svgr-2.4.0.tgz#9b14953955e79893ea7718089b9777a494e38fc6"
+  integrity sha512-q+mJJol6ThvqkkJvvVFEndI4EaKIjSI0I3jNFgSoC9fXAz1M7kYTVUin8fhUsFojFDKZ9VHKtX6NXNaOLpbsHA==
   dependencies:
     "@rollup/pluginutils" "^5.0.2"
     "@svgr/core" "^6.5.1"
