@@ -29,7 +29,7 @@
     "@storybook/addon-essentials": "6.5.15",
     "@storybook/addon-interactions": "6.5.15",
     "@storybook/addon-links": "6.5.15",
-    "@storybook/builder-vite": "0.2.5",
+    "@storybook/builder-vite": "0.2.6",
     "@storybook/react": "6.5.15",
     "@storybook/testing-library": "0.0.13",
     "@tauri-apps/cli": "1.2.2",

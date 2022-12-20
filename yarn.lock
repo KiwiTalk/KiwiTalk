@@ -2096,10 +2096,10 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-"@storybook/builder-vite@0.2.5":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@storybook/builder-vite/-/builder-vite-0.2.5.tgz#b3996a5f28ffd1ce2ca18aff98cf3ed9d4551927"
-  integrity sha512-0PktEaYsbR6gGE/YDkW/tI1VxVnaPNZpHGpiWfDU7c5hjCajWYzdFTgHOwcXT8tiTs+WN/rvoCPT2iAhSCcHIw==
+"@storybook/builder-vite@0.2.6":
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@storybook/builder-vite/-/builder-vite-0.2.6.tgz#d2ad32b979015fc6f033511309ed7e466de542c8"
+  integrity sha512-TwlqJykq5KfM8SmDXWQtUHrYg4XySxwOe3RKud4iGZDYmqPc/ayB9XSF6DR50WgC7gKK7WIVIN+ZcGPphy5zWg==
   dependencies:
     "@joshwooding/vite-plugin-react-docgen-typescript" "0.0.5"
     "@storybook/core-common" "^6.4.3"
@@ -2113,7 +2113,7 @@
     glob "^7.2.0"
     glob-promise "^4.2.0"
     magic-string "^0.26.1"
-    react-docgen "^6.0.0-alpha.0"
+    react-docgen "6.0.0-alpha.3"
     slash "^3.0.0"
     sveltedoc-parser "^4.2.1"
 
@@ -9331,6 +9331,22 @@ react-docgen-typescript@^2.1.1:
   resolved "https://registry.yarnpkg.com/react-docgen-typescript/-/react-docgen-typescript-2.2.2.tgz#4611055e569edc071204aadb20e1c93e1ab1659c"
   integrity sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==
 
+react-docgen@6.0.0-alpha.3:
+  version "6.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/react-docgen/-/react-docgen-6.0.0-alpha.3.tgz#4d8a4916b45de4aadb90eb5f3a6f923edf447928"
+  integrity sha512-DDLvB5EV9As1/zoUsct6Iz2Cupw9FObEGD3DMcIs3EDFIoSKyz8FZtoWj3Wj+oodrU4/NfidN0BL5yrapIcTSA==
+  dependencies:
+    "@babel/core" "^7.7.5"
+    "@babel/generator" "^7.12.11"
+    ast-types "^0.14.2"
+    commander "^2.19.0"
+    doctrine "^3.0.0"
+    estree-to-babel "^3.1.0"
+    neo-async "^2.6.1"
+    node-dir "^0.1.10"
+    resolve "^1.17.0"
+    strip-indent "^3.0.0"
+
 react-docgen@^5.0.0:
   version "5.4.3"
   resolved "https://registry.yarnpkg.com/react-docgen/-/react-docgen-5.4.3.tgz#7d297f73b977d0c7611402e5fc2a168acf332b26"
@@ -9345,22 +9361,6 @@ react-docgen@^5.0.0:
     estree-to-babel "^3.1.0"
     neo-async "^2.6.1"
     node-dir "^0.1.10"
-    strip-indent "^3.0.0"
-
-react-docgen@^6.0.0-alpha.0:
-  version "6.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/react-docgen/-/react-docgen-6.0.0-alpha.3.tgz#4d8a4916b45de4aadb90eb5f3a6f923edf447928"
-  integrity sha512-DDLvB5EV9As1/zoUsct6Iz2Cupw9FObEGD3DMcIs3EDFIoSKyz8FZtoWj3Wj+oodrU4/NfidN0BL5yrapIcTSA==
-  dependencies:
-    "@babel/core" "^7.7.5"
-    "@babel/generator" "^7.12.11"
-    ast-types "^0.14.2"
-    commander "^2.19.0"
-    doctrine "^3.0.0"
-    estree-to-babel "^3.1.0"
-    neo-async "^2.6.1"
-    node-dir "^0.1.10"
-    resolve "^1.17.0"
     strip-indent "^3.0.0"
 
 react-dom@18.2.0:
