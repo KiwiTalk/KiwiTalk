@@ -14,7 +14,7 @@ wasm = ["loco-protocol/wasm"]
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_with = "2.1.0"
-serde_bytes = "0.11.7"
+serde_bytes = "0.11.8"
 futures = "0.3.25"
 bson = "2.4.0"
 loco-protocol = "5.3.1"
