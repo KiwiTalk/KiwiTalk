@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/KiwiTalk/kiwitalk",
   "devDependencies": {
-    "@babel/core": "7.20.5",
+    "@babel/core": "7.20.7",
     "@storybook/addon-actions": "6.5.15",
     "@storybook/addon-essentials": "6.5.15",
     "@storybook/addon-interactions": "6.5.15",
