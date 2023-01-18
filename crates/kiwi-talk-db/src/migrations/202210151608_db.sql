@@ -12,9 +12,7 @@ CREATE TABLE IF NOT EXISTS chat (
     supplement TEXT,
     referer INTEGER,
 
-    deleted BOOLEAN NOT NULL,
-
-    FOREIGN KEY(channel_id) REFERENCES channel(id)
+    deleted BOOLEAN NOT NULL
 );
 
 -- See /src/channel/model.rs
