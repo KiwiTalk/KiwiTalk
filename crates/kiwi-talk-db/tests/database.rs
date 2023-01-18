@@ -47,6 +47,8 @@ fn chat_insert() -> Result<(), Box<dyn Error>> {
     db.chat().insert(&FullModel::new(0, model.clone()))?;
     assert_eq!(model, db.chat().get_chat_from_log_id(0)?.unwrap());
 
+    assert_eq!(model, db.chat().get_chats_from_latest(0, 0, 1)?.pop().unwrap().model);
+
     Ok(())
 }
 
