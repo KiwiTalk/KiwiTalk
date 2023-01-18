@@ -33,7 +33,7 @@ impl<'a> NormalChannelEntry<'a> {
 
     pub fn map_row(row: &Row) -> Result<NormalChannelModel, rusqlite::Error> {
         Ok(NormalChannelModel {
-            join_time: row.get("join_time")?,
+            join_time: row.get(1)?,
         })
     }
 
@@ -41,7 +41,7 @@ impl<'a> NormalChannelEntry<'a> {
         row: &Row,
     ) -> Result<FullModel<ChannelId, NormalChannelModel>, rusqlite::Error> {
         Ok(FullModel {
-            id: row.get("id")?,
+            id: row.get(0)?,
             model: Self::map_row(row)?,
         })
     }
@@ -56,11 +56,7 @@ impl<'a> NormalUserEntry<'a> {
         user: &FullModel<ChannelUserId, NormalUserModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0 .0.execute(
-            "INSERT INTO normal_channel_user (
-            id, channel_id, country_iso, account_id, status_message, linked_services, suspended
-        ) VALUES (
-            ?1, ?2, ?3, ?4, ?5, ?6, ?7
-        )",
+            "INSERT INTO normal_channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             (
                 &user.id,
                 &user.model.channel_id,
@@ -83,14 +79,27 @@ impl<'a> NormalUserEntry<'a> {
         )
     }
 
+    pub fn get_all_users_in(
+        &self,
+        id: ChannelId,
+    ) -> Result<Vec<FullModel<ChannelUserId, NormalUserModel>>, rusqlite::Error> {
+        let mut statement = self
+            .0
+             .0
+            .prepare("SELECT * FROM normal_channel_user WHERE channel_id = ?")?;
+
+        let rows = statement.query([id])?;
+        rows.mapped(Self::map_full_row).collect()
+    }
+
     pub fn map_row(row: &Row) -> Result<NormalUserModel, rusqlite::Error> {
         Ok(NormalUserModel {
-            channel_id: row.get("channel_id")?,
-            country_iso: row.get("country_iso")?,
-            account_id: row.get("account_id")?,
-            status_message: row.get("status_message")?,
-            linked_services: row.get("linked_services")?,
-            suspended: row.get("suspended")?,
+            channel_id: row.get(1)?,
+            country_iso: row.get(2)?,
+            account_id: row.get(3)?,
+            status_message: row.get(4)?,
+            linked_services: row.get(5)?,
+            suspended: row.get(6)?,
         })
     }
 
@@ -98,7 +107,7 @@ impl<'a> NormalUserEntry<'a> {
         row: &Row,
     ) -> Result<FullModel<ChannelUserId, NormalUserModel>, rusqlite::Error> {
         Ok(FullModel {
-            id: row.get("id")?,
+            id: row.get(0)?,
             model: Self::map_row(row)?,
         })
     }

@@ -17,19 +17,18 @@ impl<'a> ChannelEntry<'a> {
         &self,
         channel: &FullModel<ChannelId, ChannelModel>,
     ) -> Result<(), rusqlite::Error> {
-        self.0.execute("INSERT INTO channel (
-            id, type, active_user_count, new_chat_count, last_chat_log_id, last_seen_log_id, push_alert
-        ) VALUES (
-            ?1, ?2, ?3, ?4, ?5, ?6, ?7
-        )", (
-            &channel.id,
-            &channel.model.channel_type,
-            &channel.model.active_user_count,
-            &channel.model.new_chat_count,
-            &channel.model.last_chat_log_id,
-            &channel.model.last_seen_log_id,
-            &channel.model.push_alert,
-        ))?;
+        self.0.execute(
+            "INSERT INTO channel VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            (
+                &channel.id,
+                &channel.model.channel_type,
+                &channel.model.active_user_count,
+                &channel.model.new_chat_count,
+                &channel.model.last_chat_log_id,
+                &channel.model.last_seen_log_id,
+                &channel.model.push_alert,
+            ),
+        )?;
 
         Ok(())
     }
@@ -50,18 +49,18 @@ impl<'a> ChannelEntry<'a> {
 
     pub fn map_row(row: &Row) -> Result<ChannelModel, rusqlite::Error> {
         Ok(ChannelModel {
-            channel_type: row.get("type")?,
-            active_user_count: row.get("active_user_count")?,
-            new_chat_count: row.get("new_chat_count")?,
-            last_chat_log_id: row.get("last_chat_log_id")?,
-            last_seen_log_id: row.get("last_seen_log_id")?,
-            push_alert: row.get("push_alert")?,
+            channel_type: row.get(1)?,
+            active_user_count: row.get(2)?,
+            new_chat_count: row.get(3)?,
+            last_chat_log_id: row.get(4)?,
+            last_seen_log_id: row.get(5)?,
+            push_alert: row.get(6)?,
         })
     }
 
     pub fn map_full_row(row: &Row) -> Result<FullModel<ChannelId, ChannelModel>, rusqlite::Error> {
         Ok(FullModel {
-            id: row.get("id")?,
+            id: row.get(0)?,
             model: Self::map_row(row)?,
         })
     }
@@ -117,12 +116,12 @@ impl<'a> ChannelUserEntry<'a> {
 
     pub fn map_row(row: &Row) -> Result<ChannelUserModel, rusqlite::Error> {
         Ok(ChannelUserModel {
-            channel_id: row.get("channel_id")?,
-            nickname: row.get("nickname")?,
-            profile_url: row.get("profile_url")?,
-            full_profile_url: row.get("full_profile_url")?,
-            original_profile_url: row.get("original_profile_url")?,
-            user_type: row.get("user_type")?,
+            channel_id: row.get(1)?,
+            nickname: row.get(2)?,
+            profile_url: row.get(3)?,
+            full_profile_url: row.get(4)?,
+            original_profile_url: row.get(5)?,
+            user_type: row.get(6)?,
         })
     }
 
@@ -130,7 +129,7 @@ impl<'a> ChannelUserEntry<'a> {
         row: &Row,
     ) -> Result<FullModel<ChannelUserId, ChannelUserModel>, rusqlite::Error> {
         Ok(FullModel {
-            id: row.get("id")?,
+            id: row.get(0)?,
             model: Self::map_row(row)?,
         })
     }

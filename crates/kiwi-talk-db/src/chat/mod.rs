@@ -11,24 +11,23 @@ pub struct ChatEntry<'a>(pub &'a Connection);
 
 impl<'a> ChatEntry<'a> {
     pub fn insert(&self, chat: &FullModel<LogId, ChatModel>) -> Result<(), rusqlite::Error> {
-        self.0.execute("INSERT INTO chat (
-            log_id, channel_id, prev_log_id, type, message_id, send_at, author_id, message, attachment, supplement, referer, deleted
-        ) VALUES (
-            ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12
-        )", (
-            &chat.id,
-            &chat.model.channel_id,
-            &chat.model.prev_log_id,
-            &chat.model.chat_type,
-            &chat.model.message_id,
-            &chat.model.send_at,
-            &chat.model.author_id,
-            &chat.model.message,
-            &chat.model.attachment,
-            &chat.model.supplement,
-            &chat.model.referer,
-            &chat.model.deleted,
-        ))?;
+        self.0.execute(
+            "INSERT INTO chat VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+            (
+                &chat.id,
+                &chat.model.channel_id,
+                &chat.model.prev_log_id,
+                &chat.model.chat_type,
+                &chat.model.message_id,
+                &chat.model.send_at,
+                &chat.model.author_id,
+                &chat.model.message,
+                &chat.model.attachment,
+                &chat.model.supplement,
+                &chat.model.referer,
+                &chat.model.deleted,
+            ),
+        )?;
 
         Ok(())
     }
@@ -74,7 +73,8 @@ impl<'a> ChatEntry<'a> {
     }
 
     pub fn clear_all_chat_in(&self, channel_id: ChannelId) -> Result<usize, rusqlite::Error> {
-        self.0.execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
+        self.0
+            .execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
     }
 
     pub fn get_chats_from_latest(
@@ -93,23 +93,23 @@ impl<'a> ChatEntry<'a> {
 
     pub fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {
         Ok(ChatModel {
-            channel_id: row.get("channel_id")?,
-            prev_log_id: row.get("prev_log_id")?,
-            chat_type: row.get("type")?,
-            message_id: row.get("message_id")?,
-            send_at: row.get("send_at")?,
-            author_id: row.get("author_id")?,
-            message: row.get("message")?,
-            attachment: row.get("attachment")?,
-            supplement: row.get("supplement")?,
-            referer: row.get("referer")?,
-            deleted: row.get("deleted")?,
+            channel_id: row.get(1)?,
+            prev_log_id: row.get(2)?,
+            chat_type: row.get(3)?,
+            message_id: row.get(4)?,
+            send_at: row.get(5)?,
+            author_id: row.get(6)?,
+            message: row.get(7)?,
+            attachment: row.get(8)?,
+            supplement: row.get(9)?,
+            referer: row.get(10)?,
+            deleted: row.get(11)?,
         })
     }
 
     pub fn map_full_row(row: &Row) -> Result<FullModel<LogId, ChatModel>, rusqlite::Error> {
         Ok(FullModel {
-            id: row.get("log_id")?,
+            id: row.get(0)?,
             model: Self::map_row(row)?,
         })
     }
