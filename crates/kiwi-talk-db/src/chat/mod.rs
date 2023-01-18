@@ -69,6 +69,14 @@ impl<'a> ChatEntry<'a> {
             .execute("DELETE FROM chat WHERE log_id = ?", [log_id])
     }
 
+    pub fn clear_all_chat(&self) -> Result<usize, rusqlite::Error> {
+        self.0.execute("TRUNCATE TABLE chat", ())
+    }
+
+    pub fn clear_all_chat_in(&self, channel_id: ChannelId) -> Result<usize, rusqlite::Error> {
+        self.0.execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
+    }
+
     pub fn get_chats_from_latest(
         &self,
         channel_id: ChannelId,
