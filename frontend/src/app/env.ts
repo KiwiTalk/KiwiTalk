@@ -5,7 +5,7 @@ import { LangResource } from './intl';
 i18next.use(initReactI18next).init({
   resources: LangResource,
   debug: import.meta.env.DEV,
-  fallbackLng: 'en-US',
+  fallbackLng: 'ko-KR',
 
   interpolation: {
     escapeValue: false,

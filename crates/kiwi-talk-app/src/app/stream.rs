@@ -1,10 +1,12 @@
-use loco_protocol::secure::{
-    crypto::CryptoStore,
-    session::{SecureClientSession, SecureHandshakeError},
-    stream::SecureStream,
+use loco_protocol::{
+    rsa::{BigUint, RsaPublicKey},
+    secure::{
+        crypto::CryptoStore,
+        session::{SecureClientSession, SecureHandshakeError},
+        stream::SecureStream,
+    },
 };
 use once_cell::sync::Lazy;
-use rsa::{BigUint, RsaPublicKey};
 use thiserror::Error;
 use tokio::{
     io,
