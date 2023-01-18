@@ -15,7 +15,7 @@ futures = "0.3.25"
 bson = "2.5.0"
 rustc-hash = "1.1.0"
 talk-loco-command = { path = "../talk-loco-command" }
-loco-protocol = "5.3.1"
+loco-protocol = "5.4.0"
 thiserror = "1.0"
 
 [dev-dependencies]
