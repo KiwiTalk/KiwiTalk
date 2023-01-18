@@ -2,7 +2,7 @@ pub mod model;
 
 use rusqlite::{Connection, OptionalExtension, Row};
 
-use crate::{model::FullModel, channel::model::ChannelId};
+use crate::{channel::model::ChannelId, model::FullModel};
 
 use self::model::{ChatModel, LogId};
 
@@ -33,7 +33,10 @@ impl<'a> ChatEntry<'a> {
         Ok(())
     }
 
-    pub fn get_chat_from_log_id(&self, log_id: LogId) -> Result<Option<ChatModel>, rusqlite::Error> {
+    pub fn get_chat_from_log_id(
+        &self,
+        log_id: LogId,
+    ) -> Result<Option<ChatModel>, rusqlite::Error> {
         self.0
             .query_row(
                 "SELECT * FROM chat WHERE log_id = ?",
@@ -43,7 +46,11 @@ impl<'a> ChatEntry<'a> {
             .optional()
     }
 
-    pub fn update_chat_type(&self, log_id: LogId, chat_type: i32) -> Result<usize, rusqlite::Error> {
+    pub fn update_chat_type(
+        &self,
+        log_id: LogId,
+        chat_type: i32,
+    ) -> Result<usize, rusqlite::Error> {
         self.0.execute(
             "UPDATE chat SET type = ? WHERE log_id = ?",
             (chat_type, log_id),
