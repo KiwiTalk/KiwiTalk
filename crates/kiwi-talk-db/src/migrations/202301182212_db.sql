@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS channel (
     new_chat_count INTEGER NOT NULL,
     last_chat_log_id INTEGER,
     last_seen_log_id INTEGER,
-    push_alert BOOLEAN
+    push_alert BOOLEAN NOT NULL
 );
 
 -- See /src/channel/model.rs
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS normal_channel_user (
     account_id INTEGER NOT NULL,
     status_message TEXT,
     linked_services TEXT,
-    suspended BOOLEAN,
+    suspended BOOLEAN NOT NULL,
 
     FOREIGN KEY(id) REFERENCES user(id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
