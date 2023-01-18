@@ -42,10 +42,7 @@ pub async fn get_conf() -> Result<GetConfRes, ConnError> {
         .await
         .or(Err(ConnError::Stream))?;
 
-    match get_conf.data {
-        Some(data) => Ok(data),
-        None => Err(ConnError::Request(get_conf.status)),
-    }
+    Ok(get_conf.data)
 }
 
 pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
@@ -73,10 +70,7 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
         .await
         .or(Err(ConnError::Stream))?;
 
-    match checkin.data {
-        Some(data) => Ok(data),
-        None => Err(ConnError::Request(checkin.status)),
-    }
+    Ok(checkin.data)
 }
 
 #[derive(Debug, Error)]

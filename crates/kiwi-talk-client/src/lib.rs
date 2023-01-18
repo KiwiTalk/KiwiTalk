@@ -10,7 +10,10 @@ use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite};
 use handler::KiwiTalkClientHandler;
 use status::ClientStatus;
-use talk_loco_client::{client::{talk::TalkClient, ClientRequestError}, LocoCommandSession};
+use talk_loco_client::{
+    client::{talk::TalkClient, ClientRequestError},
+    LocoCommandSession,
+};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
 use thiserror::Error;
 use tokio::sync::mpsc;
@@ -62,12 +65,6 @@ impl KiwiTalkClient {
             .await
             .await
             .map_err(ClientLoginError::Client)?;
-
-        // TODO:: Do channel initialization
-        let _ = match login_res.data {
-            Some(data) => data,
-            None => return Err(ClientLoginError::Login(login_res.status)),
-        };
 
         let client = KiwiTalkClient {
             _config: config,
