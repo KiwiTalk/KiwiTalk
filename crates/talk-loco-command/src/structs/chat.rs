@@ -52,5 +52,5 @@ pub struct Chatlog {
 
     /// Unknown id (Client send count??). Don't confuse with log_id.
     #[serde(rename = "msgId")]
-    pub msg_id: i32,
+    pub msg_id: i64,
 }
