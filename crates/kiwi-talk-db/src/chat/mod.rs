@@ -72,14 +72,8 @@ impl<'a> ChatEntry<'a> {
             .0
             .prepare("SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT ?, ?")?;
 
-        let mut rows = statement.query((channel_id, offset, limit))?;
-
-        let mut res = Vec::new();
-        while let Some(row) = rows.next()? {
-            res.push(Self::map_full_row(&row)?);
-        }
-
-        Ok(res)
+        let rows = statement.query((channel_id, offset, limit))?;
+        rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
     pub fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {

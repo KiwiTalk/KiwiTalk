@@ -35,7 +35,17 @@ impl<'a> ChannelEntry<'a> {
     }
 
     pub fn get(&self, id: ChannelId) -> Result<ChannelModel, rusqlite::Error> {
-        self.0.query_row("SELECT * FROM channel WHERE id = ?", [id], Self::map_row)
+        self.0
+            .query_row("SELECT * FROM channel WHERE id = ?", [id], Self::map_row)
+    }
+
+    pub fn get_all_channels(
+        &self,
+    ) -> Result<Vec<FullModel<ChannelId, ChannelModel>>, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT * FROM channel")?;
+
+        let rows = statement.query(())?;
+        rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
     pub fn map_row(row: &Row) -> Result<ChannelModel, rusqlite::Error> {
@@ -86,7 +96,23 @@ impl<'a> ChannelUserEntry<'a> {
     }
 
     pub fn get(&self, id: ChannelUserId) -> Result<ChannelUserModel, rusqlite::Error> {
-        self.0.query_row("SELECT * FROM channel_user WHERE id = ?", [id], Self::map_row)
+        self.0.query_row(
+            "SELECT * FROM channel_user WHERE id = ?",
+            [id],
+            Self::map_row,
+        )
+    }
+
+    pub fn get_all_users_in(
+        &self,
+        id: ChannelId,
+    ) -> Result<Vec<FullModel<ChannelUserId, ChannelUserModel>>, rusqlite::Error> {
+        let mut statement = self
+            .0
+            .prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;
+
+        let rows = statement.query([id])?;
+        rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
     pub fn map_row(row: &Row) -> Result<ChannelUserModel, rusqlite::Error> {
@@ -133,10 +159,7 @@ mod tests {
             push_alert: true,
         };
 
-        db.channel().insert(&FullModel::new(
-            0,
-            model.clone(),
-        ))?;
+        db.channel().insert(&FullModel::new(0, model.clone()))?;
 
         assert_eq!(model, db.channel().get(0)?);
 
