@@ -29,7 +29,7 @@ pub async fn get_conf() -> Result<GetConfRes, ConnError> {
         .await
         .or(Err(ConnError::Connection))?;
 
-    let (session, _) = LocoCommandSession::new(stream);
+    let session = LocoCommandSession::new(stream, |_| {});
     let client = BookingClient(&session);
 
     let get_conf = client
@@ -53,7 +53,7 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
         .await
         .or(Err(ConnError::Connection))?;
 
-    let (session, _) = LocoCommandSession::new(stream);
+    let session = LocoCommandSession::new(stream, |_| {});
     let client = CheckinClient(&session);
 
     let checkin = client
