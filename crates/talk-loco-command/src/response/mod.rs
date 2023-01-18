@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 /// Common Response data with status code
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ResponseData<T> {
     pub status: i16,
 
