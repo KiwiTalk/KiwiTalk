@@ -2,13 +2,13 @@ pub mod client;
 
 use std::{
     pin::Pin,
-    task::{Context, Poll},
+    task::{Context, Poll}, collections::HashMap,
 };
 
 use bson::Document;
 use futures::{io::WriteHalf, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
 use loco_protocol::command::codec::CommandCodec;
-use rustc_hash::FxHashMap;
+use nohash_hasher::BuildNoHashHasher;
 use talk_loco_command::command::{
     codec::{BsonCommandCodec, ReadError, WriteError},
     BsonCommand, ReadBsonCommand,
@@ -95,7 +95,7 @@ pub type BroadcastResult = Result<ReadBsonCommand<Document>, ReadError>;
 
 #[derive(Debug)]
 struct CommandSessionHandler<S> {
-    read_map: FxHashMap<i32, oneshot::Sender<RequestResult>>,
+    read_map: HashMap<i32, oneshot::Sender<RequestResult>, BuildNoHashHasher<i32>>,
     next_request_id: i32,
     write_stream: WriteHalf<S>,
     broadcast_sender: mpsc::Sender<BroadcastResult>,
@@ -146,7 +146,7 @@ impl<S: Send + AsyncRead + AsyncWrite + Unpin + 'static> CommandSessionHandler<S
         let (read_stream, write_stream) = stream.split();
 
         let mut handler = CommandSessionHandler {
-            read_map: FxHashMap::default(),
+            read_map: HashMap::default(),
             next_request_id: 0,
             write_stream,
             broadcast_sender,
