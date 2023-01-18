@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap()
         .compat();
 
-    let (booking_conn, _) = LocoCommandSession::new(stream);
+    let booking_conn = LocoCommandSession::new(stream, |_| {});
     let booking_client = BookingClient(&booking_conn);
     let booking_res = booking_client
         .get_conf(&request::booking::GetConfReq {

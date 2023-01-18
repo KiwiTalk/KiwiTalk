@@ -2,7 +2,7 @@ pub mod booking;
 pub mod checkin;
 pub mod talk;
 
-use crate::{CommandRequest, LocoCommandSession, RequestError};
+use crate::{CommandRequest, LocoCommandSession};
 use futures::{ready, Future, FutureExt};
 use serde::{de::DeserializeOwned, Serialize};
 use std::{
@@ -15,8 +15,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
-    #[error("Request failed. {0}")]
-    Request(#[from] RequestError),
+    #[error("Request failed")]
+    Request,
 
     #[error("Could not deserialize BSON data. {0}")]
     Deserialize(#[from] bson::de::Error),
@@ -32,8 +32,8 @@ impl<D: DeserializeOwned + Unpin> Future for ClientCommandRequest<D> {
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         Poll::Ready(match ready!(self.0.poll_unpin(cx)) {
-            Ok(res) => Ok(bson::from_document(res.data)?),
-            Err(_) => Err(ClientRequestError::Request(RequestError::Read)),
+            Some(res) => Ok(bson::from_document(res.data)?),
+            None => Err(ClientRequestError::Request),
         })
     }
 }

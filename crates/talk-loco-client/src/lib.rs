@@ -1,19 +1,19 @@
 pub mod client;
 
 use std::{
+    collections::HashMap,
     pin::Pin,
-    task::{Context, Poll}, collections::HashMap,
+    task::{Context, Poll},
 };
 
 use bson::Document;
-use futures::{io::WriteHalf, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
+use futures::{AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, ready};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::BuildNoHashHasher;
 use talk_loco_command::command::{
-    codec::{BsonCommandCodec, ReadError, WriteError},
+    codec::{BsonCommandCodec, ReadError},
     BsonCommand, ReadBsonCommand,
 };
-use thiserror::Error;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
@@ -21,30 +21,29 @@ use tokio::{
 
 #[derive(Debug)]
 pub struct LocoCommandSession {
-    sender: mpsc::Sender<HandlerCommand>,
+    sender: mpsc::Sender<RequestCommand>,
 }
 
 impl LocoCommandSession {
-    pub fn new<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(
+    pub fn new<
+        S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
+        Handler: Send + 'static + FnMut(ReadResult),
+    >(
         stream: S,
-    ) -> (Self, LocoBroadcastReceiver) {
+        handler: Handler,
+    ) -> Self {
         let (sender, receiver) = mpsc::channel(128);
-        let (broadcast_sender, broadcast_receiver) = mpsc::channel(128);
+        let session_handler = CommandSessionHandler::new(handler);
+        tokio::spawn(session_handler.run(stream, receiver));
 
-        tokio::spawn(CommandSessionHandler::run(
-            stream,
-            receiver,
-            broadcast_sender,
-        ));
-
-        (Self { sender }, LocoBroadcastReceiver(broadcast_receiver))
+        Self { sender }
     }
 
     pub async fn send(&self, command: BsonCommand<Document>) -> CommandRequest {
         let (sender, receiver) = oneshot::channel();
 
         self.sender
-            .send(HandlerCommand::Request(command, sender))
+            .send(RequestCommand::new(command, sender))
             .await
             .ok();
 
@@ -53,108 +52,75 @@ impl LocoCommandSession {
 }
 
 #[derive(Debug)]
-pub struct LocoBroadcastReceiver(mpsc::Receiver<BroadcastResult>);
-
-impl LocoBroadcastReceiver {
-    #[inline]
-    pub async fn recv(&mut self) -> Option<BroadcastResult> {
-        self.0.recv().await
-    }
-
-    #[inline]
-    pub fn try_recv(&mut self) -> Result<BroadcastResult, mpsc::error::TryRecvError> {
-        self.0.try_recv()
-    }
-}
-
-#[derive(Debug)]
-pub struct CommandRequest(oneshot::Receiver<RequestResult>);
+pub struct CommandRequest(oneshot::Receiver<BsonCommand<Document>>);
 
 impl Future for CommandRequest {
-    type Output = RequestResult;
+    type Output = Option<BsonCommand<Document>>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Poll::Ready(match ready!(self.0.poll_unpin(cx)) {
-            Ok(res) => res,
-            Err(_) => Err(RequestError::Read),
-        })
+        Poll::Ready(ready!(self.0.poll_unpin(cx)).ok())
     }
 }
 
-#[derive(Debug, Error)]
-pub enum RequestError {
-    #[error("Could not write to stream. {0}")]
-    Write(#[from] WriteError),
-
-    #[error("Could not read from the stream")]
-    Read,
-}
-
-pub type RequestResult = Result<BsonCommand<Document>, RequestError>;
-pub type BroadcastResult = Result<ReadBsonCommand<Document>, ReadError>;
+pub type ReadResult = Result<ReadBsonCommand<Document>, ReadError>;
 
 #[derive(Debug)]
-struct CommandSessionHandler<S> {
-    read_map: HashMap<i32, oneshot::Sender<RequestResult>, BuildNoHashHasher<i32>>,
+struct CommandSessionHandler<Handler> {
+    read_map: HashMap<i32, oneshot::Sender<BsonCommand<Document>>, BuildNoHashHasher<i32>>,
     next_request_id: i32,
-    write_stream: WriteHalf<S>,
-    broadcast_sender: mpsc::Sender<BroadcastResult>,
+    handler: Handler,
 }
 
-impl<S: Send + AsyncRead + AsyncWrite + Unpin + 'static> CommandSessionHandler<S> {
-    pub async fn handle_command(&mut self, command: HandlerCommand) {
-        match command {
-            HandlerCommand::Request(data, response_sender) => {
-                self.send_request(data, response_sender).await
-            }
+impl<Handler: FnMut(ReadResult)> CommandSessionHandler<Handler> {
+    pub fn new(handler: Handler) -> Self {
+        CommandSessionHandler {
+            read_map: HashMap::default(),
+            next_request_id: 0,
+            handler,
         }
     }
 
-    async fn send_request(
-        &mut self,
-        data: BsonCommand<Document>,
-        response_sender: oneshot::Sender<RequestResult>,
-    ) {
-        let mut codec = BsonCommandCodec(CommandCodec::new(&mut self.write_stream));
+    pub fn add_response(&mut self, sender: oneshot::Sender<BsonCommand<Document>>) -> i32 {
+        let request_id = self.next_request_id;
 
-        match codec.write_async(self.next_request_id, &data).await {
-            Ok(_) => {
-                self.read_map.insert(self.next_request_id, response_sender);
-                codec.flush_async().await.ok();
-                self.next_request_id += 1;
-            }
+        self.next_request_id += 1;
+        self.read_map.insert(request_id, sender);
 
-            Err(err) => {
-                response_sender.send(Err(err.into())).ok();
-            }
-        }
+        request_id
     }
 
-    pub async fn handle_read(&mut self, read: ReadBsonCommand<Document>) {
-        if let Some(sender) = self.read_map.remove(&read.id) {
-            sender.send(Ok(read.command)).ok();
-        } else {
-            self.broadcast_sender.send(Ok(read)).await.ok();
+    pub fn take_response(&mut self, id: i32) -> Option<oneshot::Sender<BsonCommand<Document>>> {
+        self.read_map.remove(&id)
+    }
+
+    pub fn handle_read(&mut self, read: ReadResult) {
+        match read {
+            Ok(read) => {
+                if let Some(sender) = self.read_map.remove(&read.id) {
+                    sender.send(read.command).ok();
+                } else {
+                    (self.handler)(Ok(read));
+                }
+            }
+
+            Err(_) => {
+                (self.handler)(read);
+            }
         }
     }
 
     pub async fn run(
-        stream: S,
-        mut receiver: mpsc::Receiver<HandlerCommand>,
-        broadcast_sender: mpsc::Sender<BroadcastResult>,
+        mut self,
+        stream: impl Send + AsyncRead + AsyncWrite + Unpin + 'static,
+        mut request_recv: mpsc::Receiver<RequestCommand>,
     ) {
         let (read_stream, write_stream) = stream.split();
 
-        let mut handler = CommandSessionHandler {
-            read_map: HashMap::default(),
-            next_request_id: 0,
-            write_stream,
-            broadcast_sender,
-        };
-
         let (read_sender, mut read_receiver) = mpsc::channel(8);
-        let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
+
         let read_handle = tokio::spawn(async move {
+            let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
+
             loop {
                 let read = read_codec.read_async().await;
                 if read_sender.send(read).await.is_err() {
@@ -163,23 +129,32 @@ impl<S: Send + AsyncRead + AsyncWrite + Unpin + 'static> CommandSessionHandler<S
             }
         });
 
+        let mut write_codec = BsonCommandCodec(CommandCodec::new(write_stream));
         loop {
             select! {
-                command = receiver.recv() => {
-                    match command {
-                        Some(command) => handler.handle_command(command).await,
+                request = request_recv.recv() => {
+                    match request {
+                        Some(request) => {
+                            let request_id = self.add_response(request.response_sender);
+
+                            if write_codec.write_async(request_id, &request.command).await.is_err() {
+                                self.take_response(request_id);
+                                continue;
+                            }
+
+                            if write_codec.flush_async().await.is_err() {
+                                self.take_response(request_id);
+                                continue;
+                            }
+                        },
+
                         None => break,
                     }
                 }
 
                 read = read_receiver.recv() => {
                     match read {
-                        Some(Ok(read)) => handler.handle_read(read).await,
-
-                        Some(Err(err)) => {
-                            handler.broadcast_sender.send(Err(err)).await.ok();
-                            break;
-                        }
+                        Some(read) => self.handle_read(read),
 
                         None => {
                             break;
@@ -193,15 +168,20 @@ impl<S: Send + AsyncRead + AsyncWrite + Unpin + 'static> CommandSessionHandler<S
     }
 }
 
-impl<S> Drop for CommandSessionHandler<S> {
-    fn drop(&mut self) {
-        for (_, response_sender) in self.read_map.drain() {
-            response_sender.send(Err(RequestError::Read)).ok();
-        }
-    }
+#[derive(Debug)]
+struct RequestCommand {
+    pub command: BsonCommand<Document>,
+    pub response_sender: oneshot::Sender<BsonCommand<Document>>,
 }
 
-#[derive(Debug)]
-enum HandlerCommand {
-    Request(BsonCommand<Document>, oneshot::Sender<RequestResult>),
+impl RequestCommand {
+    pub const fn new(
+        command: BsonCommand<Document>,
+        response_sender: oneshot::Sender<BsonCommand<Document>>,
+    ) -> Self {
+        Self {
+            command,
+            response_sender,
+        }
+    }
 }
