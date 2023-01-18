@@ -112,7 +112,7 @@ impl<'a> ChannelUserEntry<'a> {
             .prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;
 
         let rows = statement.query([id])?;
-        rows.mapped(Self::map_full_row).into_iter().collect()
+        rows.mapped(Self::map_full_row).collect()
     }
 
     pub fn map_row(row: &Row) -> Result<ChannelUserModel, rusqlite::Error> {

@@ -80,7 +80,7 @@ impl<'a> ChatEntry<'a> {
             .prepare("SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT ?, ?")?;
 
         let rows = statement.query((channel_id, offset, limit))?;
-        rows.mapped(Self::map_full_row).into_iter().collect()
+        rows.mapped(Self::map_full_row).collect()
     }
 
     pub fn map_row(row: &Row) -> Result<ChatModel, rusqlite::Error> {
