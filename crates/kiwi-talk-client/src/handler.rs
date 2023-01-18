@@ -6,7 +6,7 @@ use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
 use tokio::sync::mpsc;
 
-use crate::event::{KiwiTalkClientEvent, KiwiTalkClientHandlerError};
+use crate::event::{KiwiTalkClientEvent, KiwiTalkClientError};
 
 #[derive(Debug)]
 pub struct KiwiTalkClientHandler {
@@ -32,7 +32,7 @@ impl KiwiTalkClientHandler {
 
             Err(_) => {
                 self.emit(KiwiTalkClientEvent::Error(
-                    KiwiTalkClientHandlerError::NetworkRead,
+                    KiwiTalkClientError::NetworkRead,
                 ))
                 .await;
             }
@@ -40,7 +40,7 @@ impl KiwiTalkClientHandler {
     }
 }
 
-pub type HandlerResult<T> = Result<T, KiwiTalkClientHandlerError>;
+pub type HandlerResult<T> = Result<T, KiwiTalkClientError>;
 
 impl KiwiTalkClientHandler {
     // TODO:: Use macro
@@ -83,7 +83,7 @@ impl KiwiTalkClientHandler {
 fn map_data<T: DeserializeOwned>(
     method: &str,
     doc: Document,
-) -> Result<T, KiwiTalkClientHandlerError> {
+) -> Result<T, KiwiTalkClientError> {
     bson::de::from_document(doc)
-        .map_err(|_| KiwiTalkClientHandlerError::CommandDecode(method.to_string()))
+        .map_err(|_| KiwiTalkClientError::CommandDecode(method.to_string()))
 }

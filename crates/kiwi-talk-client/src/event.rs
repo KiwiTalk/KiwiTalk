@@ -20,12 +20,12 @@ pub enum KiwiTalkClientEvent {
     },
 
     Unhandled(EventCommand),
-    Error(KiwiTalkClientHandlerError),
+    Error(KiwiTalkClientError),
 }
 
 #[derive(Debug, Serialize, Deserialize, Error)]
 #[serde(tag = "type", content = "data")]
-pub enum KiwiTalkClientHandlerError {
+pub enum KiwiTalkClientError {
     #[error("Could not decode command")]
     CommandDecode(String),
 
