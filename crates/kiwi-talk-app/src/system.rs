@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use base64::{engine::general_purpose::STANDARD, Engine};
 use platform_dirs::AppDirs;
 use rand::Rng;
 use tauri::{
@@ -68,7 +69,7 @@ pub struct DeviceUuid(String);
 
 impl DeviceUuid {
     pub fn new(data: &[u8; 64]) -> Self {
-        DeviceUuid(base64::encode(&data))
+        DeviceUuid(STANDARD.encode(&data))
     }
 
     #[inline]
@@ -77,7 +78,7 @@ impl DeviceUuid {
     }
 
     pub fn decode(&self) -> Vec<u8> {
-        base64::decode(&self.0).unwrap()
+        STANDARD.decode(&self.0).unwrap()
     }
 }
 
