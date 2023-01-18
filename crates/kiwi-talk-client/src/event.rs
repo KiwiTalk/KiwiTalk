@@ -15,7 +15,9 @@ pub enum KiwiTalkClientEvent {
         chat: Option<Chatlog>,
     },
     SwitchServer,
-    Kickout { reason: i16 },
+    Kickout {
+        reason: i16,
+    },
 
     Unhandled(EventCommand),
     Error(KiwiTalkClientHandlerError),

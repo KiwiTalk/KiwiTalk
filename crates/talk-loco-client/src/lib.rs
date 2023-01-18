@@ -7,7 +7,7 @@ use std::{
 };
 
 use bson::Document;
-use futures::{AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, ready};
+use futures::{ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::BuildNoHashHasher;
 use talk_loco_command::command::{
