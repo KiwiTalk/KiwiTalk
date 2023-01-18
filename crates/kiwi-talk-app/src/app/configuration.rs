@@ -14,7 +14,7 @@ impl Default for GlobalConfiguration {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "value")]
 pub enum Locale {
     Auto,
     Fixed(String),

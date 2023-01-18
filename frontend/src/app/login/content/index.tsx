@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { LoginFormInput } from '../../components/login/form/login';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
-import type { LoginAccessData, TalkResponseStatus } from '../auth';
+import type { LoginAccessData, TalkResponseStatus } from '../../../backend/auth';
 import { PasscodeContent } from './passcode';
 import { DeviceRegisterContent } from './device-register';
 import { LoginContent } from './login';
