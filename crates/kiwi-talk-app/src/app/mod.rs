@@ -12,7 +12,7 @@ use std::{
 
 use futures::{pin_mut, FutureExt};
 use kiwi_talk_client::{
-    event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient, KiwiTalkClientEventReceiver,
+    event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient, KiwiTalkEventListener,
 };
 use serde::{Deserialize, Serialize};
 use tauri::{
@@ -57,7 +57,7 @@ struct KiwiTalkApp {
     pub credential: parking_lot::RwLock<Option<AppCredential>>,
 
     pub client: tokio::sync::RwLock<Option<KiwiTalkClient>>,
-    pub client_events: parking_lot::Mutex<Option<KiwiTalkClientEventReceiver>>,
+    pub client_events: parking_lot::Mutex<Option<KiwiTalkEventListener>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -122,7 +122,7 @@ impl<'a> Future for ClientEventFuture<'a> {
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match &mut *self.app.client_events.lock() {
             Some(receiver) => {
-                let recv = receiver.recv();
+                let recv = receiver.next();
                 pin_mut!(recv);
 
                 recv.poll(cx)

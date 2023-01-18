@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bson::Document;
 use serde::de::DeserializeOwned;
-use talk_loco_client::LocoBroadcastHandler;
+use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
 use tokio::sync::mpsc;
 
@@ -22,27 +22,19 @@ impl KiwiTalkClientHandler {
         self.event_sender.send(event).await.ok();
     }
 
-    pub async fn run(self, mut receiver: LocoBroadcastHandler) {
-        let handler = Arc::new(self);
+    pub async fn handle(self: Arc<Self>, read: ReadResult) {
+        match read {
+            Ok(read) => {
+                if let Err(err) = self.handle_command(read.command).await {
+                    self.emit(KiwiTalkClientEvent::Error(err)).await;
+                }
+            }
 
-        while let Some(read) = receiver.recv().await {
-            match read {
-                Ok(read) => {
-                    let command = read.command;
-                    let handler = handler.clone();
-                    tokio::spawn(async move {
-                        if let Err(err) = handler.handle_command(command).await {
-                            handler.emit(KiwiTalkClientEvent::Error(err)).await;
-                        }
-                    });
-                }
-                Err(_) => {
-                    handler
-                        .emit(KiwiTalkClientEvent::Error(
-                            KiwiTalkClientHandlerError::NetworkRead,
-                        ))
-                        .await;
-                }
+            Err(_) => {
+                self.emit(KiwiTalkClientEvent::Error(
+                    KiwiTalkClientHandlerError::NetworkRead,
+                ))
+                .await;
             }
         }
     }

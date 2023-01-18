@@ -1,6 +1,6 @@
 use kiwi_talk_client::{
     config::KiwiTalkClientConfig, status::ClientStatus, ClientCredential, ClientLoginError,
-    KiwiTalkClient, KiwiTalkClientEventReceiver,
+    KiwiTalkClient, KiwiTalkEventListener,
 };
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
@@ -19,7 +19,7 @@ pub async fn create_client(
     credential: &AppCredential,
     client_status: ClientStatus,
     info: State<'_, SystemInfo>,
-) -> Result<(KiwiTalkClient, KiwiTalkClientEventReceiver), CreateClientError> {
+) -> Result<(KiwiTalkClient, KiwiTalkEventListener), CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
         .map_err(|_| CreateClientError::Checkin)?;
