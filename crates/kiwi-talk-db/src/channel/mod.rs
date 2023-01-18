@@ -34,9 +34,13 @@ impl<'a> ChannelEntry<'a> {
         Ok(())
     }
 
+    pub fn get(&self, id: ChannelId) -> Result<ChannelModel, rusqlite::Error> {
+        self.0.query_row("SELECT * FROM channel WHERE id = ?", [id], Self::map_row)
+    }
+
     pub fn map_row(row: &Row) -> Result<ChannelModel, rusqlite::Error> {
         Ok(ChannelModel {
-            channel_type: row.get("channel_type")?,
+            channel_type: row.get("type")?,
             active_user_count: row.get("active_user_count")?,
             new_chat_count: row.get("new_chat_count")?,
             last_chat_log_id: row.get("last_chat_log_id")?,
@@ -81,6 +85,10 @@ impl<'a> ChannelUserEntry<'a> {
         Ok(())
     }
 
+    pub fn get(&self, id: ChannelUserId) -> Result<ChannelUserModel, rusqlite::Error> {
+        self.0.query_row("SELECT * FROM channel_user WHERE id = ?", [id], Self::map_row)
+    }
+
     pub fn map_row(row: &Row) -> Result<ChannelUserModel, rusqlite::Error> {
         Ok(ChannelUserModel {
             channel_id: row.get("channel_id")?,
@@ -99,5 +107,70 @@ impl<'a> ChannelUserEntry<'a> {
             id: row.get("id")?,
             model: Self::map_row(row)?,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::error::Error;
+
+    use crate::{
+        channel::model::{ChannelModel, ChannelUserModel},
+        model::FullModel,
+        tests::prepare_test_database,
+    };
+
+    #[test]
+    fn channel_insert() -> Result<(), Box<dyn Error>> {
+        let db = prepare_test_database()?;
+
+        let model = ChannelModel {
+            channel_type: "OM".into(),
+            active_user_count: 0,
+            new_chat_count: 0,
+            last_chat_log_id: Some(0),
+            last_seen_log_id: Some(0),
+            push_alert: true,
+        };
+
+        db.channel().insert(&FullModel::new(
+            0,
+            model.clone(),
+        ))?;
+
+        assert_eq!(model, db.channel().get(0)?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn channel_user_insert() -> Result<(), Box<dyn Error>> {
+        let db = prepare_test_database()?;
+        db.channel().insert(&FullModel::new(
+            0,
+            ChannelModel {
+                channel_type: "OM".into(),
+                active_user_count: 0,
+                new_chat_count: 0,
+                last_chat_log_id: Some(0),
+                last_seen_log_id: Some(0),
+                push_alert: true,
+            },
+        ))?;
+
+        let model = ChannelUserModel {
+            channel_id: 0,
+            nickname: "".into(),
+            profile_url: None,
+            full_profile_url: None,
+            original_profile_url: None,
+            user_type: 0,
+        };
+
+        db.user().insert(&FullModel::new(0, model.clone()))?;
+
+        assert_eq!(model, db.user().get(0)?);
+
+        Ok(())
     }
 }

@@ -59,10 +59,21 @@ impl KiwiTalkConnection {
 
 #[cfg(test)]
 mod tests {
+    use rusqlite::Connection;
+
+    use crate::KiwiTalkConnection;
+
     use super::MIGRATIONS;
 
     #[test]
     fn migrations_test() {
         assert!(MIGRATIONS.validate().is_ok());
+    }
+
+    pub fn prepare_test_database() -> Result<KiwiTalkConnection, Box<dyn std::error::Error>> {
+        let mut db = KiwiTalkConnection::new(Connection::open_in_memory()?);
+        db.migrate_to_latest()?;
+
+        Ok(db)
     }
 }

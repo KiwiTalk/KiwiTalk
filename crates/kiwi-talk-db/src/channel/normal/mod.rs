@@ -75,6 +75,14 @@ impl<'a> NormalUserEntry<'a> {
         Ok(())
     }
 
+    pub fn get(&self, id: ChannelUserId) -> Result<NormalUserModel, rusqlite::Error> {
+        self.0 .0.query_row(
+            "SELLECT * FROM normal_channel_user WHERE id = ?",
+            [id],
+            Self::map_row,
+        )
+    }
+
     pub fn map_row(row: &Row) -> Result<NormalUserModel, rusqlite::Error> {
         Ok(NormalUserModel {
             channel_id: row.get("channel_id")?,
