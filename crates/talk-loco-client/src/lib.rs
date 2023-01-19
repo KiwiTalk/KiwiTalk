@@ -29,7 +29,7 @@ pub struct LocoCommandSession {
 
 impl LocoCommandSession {
     pub fn new<
-        S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
+        S: AsyncRead + AsyncWrite + Send + 'static,
         Handler: Send + 'static + FnMut(ReadResult),
     >(
         stream: S,
@@ -114,7 +114,7 @@ impl<Handler: FnMut(ReadResult)> CommandSessionHandler<Handler> {
 
     pub async fn run(
         mut self,
-        stream: impl Send + AsyncRead + AsyncWrite + Unpin + 'static,
+        stream: impl Send + AsyncRead + AsyncWrite + 'static,
         mut request_recv: mpsc::Receiver<RequestCommand>,
     ) {
         let (read_stream, write_stream) = stream.split();

@@ -33,7 +33,7 @@ pub struct KiwiTalkClient {
 impl KiwiTalkClient {
     // TODO:: Reduce complexity
     pub async fn login<
-        S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
+        S: AsyncRead + AsyncWrite + Send + 'static,
         Fut: Future<Output = ()> + Send + 'static,
     >(
         stream: S,
