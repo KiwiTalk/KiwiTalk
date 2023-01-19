@@ -11,9 +11,7 @@ use std::{
 };
 
 use futures::{pin_mut, FutureExt};
-use kiwi_talk_client::{
-    event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient, KiwiTalkEventListener,
-};
+use kiwi_talk_client::{event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
@@ -21,6 +19,7 @@ use tauri::{
     Manager, Runtime, State,
 };
 use thiserror::Error;
+use tokio::sync::mpsc::{channel, Receiver};
 
 use crate::{error::impl_tauri_error, system::SystemInfo};
 
@@ -57,7 +56,8 @@ struct KiwiTalkApp {
     pub credential: parking_lot::RwLock<Option<AppCredential>>,
 
     pub client: tokio::sync::RwLock<Option<KiwiTalkClient>>,
-    pub client_events: parking_lot::Mutex<Option<KiwiTalkEventListener>>,
+
+    pub client_event_recv: parking_lot::Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -98,12 +98,21 @@ async fn initialize_client(
     match credential {
         Some(credential) => {
             let mut client_slot = app.client.write().await;
-            let (client, client_events) = create_client(&credential, client_status, info).await?;
 
-            let mut client_events_slot = app.client_events.lock();
+            let (sender, recv) = channel(256);
+            let client = create_client(&credential, client_status, info, move |event| {
+                let sender = sender.clone();
+
+                async move {
+                    sender.send(event).await.ok();
+                }
+            })
+            .await?;
+
+            let mut client_events_slot = app.client_event_recv.lock();
 
             *client_slot = Some(client);
-            *client_events_slot = Some(client_events);
+            *client_events_slot = Some(recv);
 
             Ok(())
         }
@@ -120,9 +129,9 @@ impl<'a> Future for ClientEventFuture<'a> {
     type Output = Option<KiwiTalkClientEvent>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        match &mut *self.app.client_events.lock() {
+        match &mut *self.app.client_event_recv.lock() {
             Some(receiver) => {
-                let recv = receiver.next();
+                let recv = receiver.recv();
                 pin_mut!(recv);
 
                 recv.poll(cx)
@@ -149,7 +158,7 @@ async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
     }
 
     *client = None;
-    *app.client_events.lock() = None;
+    *app.client_event_recv.lock() = None;
     Ok(true)
 }
 

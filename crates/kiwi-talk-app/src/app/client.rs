@@ -1,6 +1,7 @@
+use futures::Future;
 use kiwi_talk_client::{
-    config::KiwiTalkClientConfig, status::ClientStatus, ClientCredential, ClientLoginError,
-    KiwiTalkClient, KiwiTalkEventListener,
+    config::KiwiTalkClientConfig, event::KiwiTalkClientEvent, status::ClientStatus,
+    ClientCredential, ClientLoginError, KiwiTalkClient,
 };
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
@@ -15,11 +16,12 @@ use super::{
     AppCredential,
 };
 
-pub async fn create_client(
+pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
     credential: &AppCredential,
     client_status: ClientStatus,
     info: State<'_, SystemInfo>,
-) -> Result<(KiwiTalkClient, KiwiTalkEventListener), CreateClientError> {
+    listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
+) -> Result<KiwiTalkClient, CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
         .map_err(|_| CreateClientError::Checkin)?;
@@ -50,6 +52,7 @@ pub async fn create_client(
             user_id: credential.user_id,
         },
         client_status,
+        listener,
     )
     .await?)
 }
