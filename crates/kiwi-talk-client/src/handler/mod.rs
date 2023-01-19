@@ -4,6 +4,7 @@ use std::sync::Arc;
 
 use bson::Document;
 use futures::Future;
+use kiwi_talk_db::{chat::model::ChatModel, model::FullModel};
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
 use talk_loco_command::{
@@ -12,7 +13,7 @@ use talk_loco_command::{
 };
 
 use crate::{
-    database::KiwiTalkDatabasePool,
+    database::{run_database_task, KiwiTalkDatabasePool},
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
@@ -57,10 +58,10 @@ where
     // TODO:: Use macro
     async fn handle_command(&self, command: BsonCommand<ResponseData>) -> HandlerResult<()> {
         match command.method.as_ref() {
-            "MSG" => Ok(self.on_chat(map_data("MSG", command.data.data)?).await),
+            "MSG" => Ok(self.on_chat(map_data("MSG", command.data.data)?).await?),
             "DECUNREAD" => Ok(self
                 .on_chat_read(map_data("DECUNREAD", command.data.data)?)
-                .await),
+                .await?),
 
             "CHANGESVR" => Ok(self.on_change_server().await),
 
@@ -74,7 +75,30 @@ where
         }
     }
 
-    async fn on_chat(&self, data: chat::Msg) {
+    async fn on_chat(&self, data: chat::Msg) -> HandlerResult<()> {
+        let chatlog = data.chatlog.clone();
+        run_database_task(self.pool.clone(), move |connection| {
+            connection.chat().insert(&FullModel::new(
+                chatlog.log_id,
+                ChatModel {
+                    channel_id: chatlog.chat_id,
+                    prev_log_id: chatlog.prev_log_id,
+                    chat_type: chatlog.chat_type,
+                    message_id: chatlog.msg_id,
+                    send_at: chatlog.send_at,
+                    author_id: chatlog.author_id,
+                    message: chatlog.message,
+                    attachment: chatlog.attachment,
+                    supplement: chatlog.supplement,
+                    referer: data.chatlog.referer.map(Into::into),
+                    deleted: false,
+                },
+            ))?;
+
+            Ok(())
+        })
+        .await?;
+
         self.emit(
             KiwiTalkChannelEvent::Chat(ReceivedChat {
                 channel_id: data.chat_id,
@@ -86,9 +110,20 @@ where
             .into(),
         )
         .await;
+
+        Ok(())
     }
 
-    async fn on_chat_read(&self, data: chat::DecunRead) {
+    async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
+        run_database_task(self.pool.clone(), move |connection| {
+            connection
+                .user()
+                .update_watermark(data.user_id, data.chat_id, data.watermark)?;
+
+            Ok(())
+        })
+        .await?;
+
         self.emit(
             KiwiTalkChannelEvent::ChatRead(ChatRead {
                 channel_id: data.chat_id,
@@ -98,6 +133,8 @@ where
             .into(),
         )
         .await;
+
+        Ok(())
     }
 
     async fn on_kickout(&self, data: chat::Kickout) {
