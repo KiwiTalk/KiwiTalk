@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS channel (
 
 -- See /src/channel/model.rs
 CREATE TABLE IF NOT EXISTS channel_user (
-    id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
 
     nickname VARCHAR NOT NULL,
@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS channel_user (
 
     watermark INTEGER NOT NULL,
 
+    UNIQUE(id, channel_id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS normal_channel (
 
 -- See /src/channel/normal/model.rs
 CREATE TABLE IF NOT EXISTS normal_channel_user (
-    id INTEGER PRIMARY KEY,
+    id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
 
     country_iso VARCHAR(4) NOT NULL,
@@ -63,6 +64,7 @@ CREATE TABLE IF NOT EXISTS normal_channel_user (
     linked_services TEXT,
     suspended BOOLEAN NOT NULL,
 
+    UNIQUE(id, channel_id),
     FOREIGN KEY(id) REFERENCES channel_user(id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
