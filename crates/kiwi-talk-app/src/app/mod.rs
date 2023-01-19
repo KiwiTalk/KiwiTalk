@@ -4,13 +4,9 @@ pub mod conn;
 pub mod constants;
 pub mod stream;
 
-use std::{
-    future::Future,
-    pin::Pin,
-    task::{Context, Poll},
-};
+use std::{future::Future, task::Poll};
 
-use futures::{pin_mut, FutureExt};
+use futures::{future::poll_fn, FutureExt};
 use kiwi_talk_client::{event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient};
 use serde::{Deserialize, Serialize};
 use tauri::{
@@ -121,33 +117,17 @@ async fn initialize_client(
     }
 }
 
-struct ClientEventFuture<'a> {
-    app: State<'a, KiwiTalkApp>,
-}
-
-impl<'a> Future for ClientEventFuture<'a> {
-    type Output = Option<KiwiTalkClientEvent>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        match &mut *self.app.client_event_recv.lock() {
-            Some(receiver) => {
-                let recv = receiver.recv();
-                pin_mut!(recv);
-
-                recv.poll(cx)
-            }
-
-            None => Poll::Ready(None),
-        }
-    }
-}
-
 // Async command using state must return Result. see tauri#4317
 #[tauri::command(async)]
 fn next_client_event(
     app: State<'_, KiwiTalkApp>,
 ) -> impl Future<Output = Result<Option<KiwiTalkClientEvent>, ()>> + '_ {
-    ClientEventFuture { app }.map(Result::Ok)
+    poll_fn(move |cx| match &mut *app.client_event_recv.lock() {
+        Some(receiver) => receiver.poll_recv(cx),
+
+        None => Poll::Ready(None),
+    })
+    .map(Result::Ok)
 }
 
 #[tauri::command(async)]
