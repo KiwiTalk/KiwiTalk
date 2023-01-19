@@ -1,9 +1,26 @@
-use kiwi_talk_db::{KiwiTalkConnection, rusqlite};
+use std::path::Path;
+
+use kiwi_talk_db::{rusqlite, KiwiTalkConnection};
 use r2d2::ManageConnection;
 use r2d2_sqlite::SqliteConnectionManager;
 
+#[derive(Debug)]
 pub struct KiwiTalkDatabaseManager {
-    rusqlite: SqliteConnectionManager
+    rusqlite: SqliteConnectionManager,
+}
+
+impl KiwiTalkDatabaseManager {
+    pub fn file(path: impl AsRef<Path>) -> Self {
+        Self {
+            rusqlite: SqliteConnectionManager::file(path),
+        }
+    }
+
+    pub fn memory() -> Self {
+        Self {
+            rusqlite: SqliteConnectionManager::memory(),
+        }
+    }
 }
 
 impl ManageConnection for KiwiTalkDatabaseManager {
