@@ -34,8 +34,8 @@ where
                 }
             }
 
-            Err(_) => {
-                self.emit(KiwiTalkClientEvent::Error(KiwiTalkClientError::NetworkRead))
+            Err(err) => {
+                self.emit(KiwiTalkClientEvent::Error(err.into()))
                     .await;
             }
         }

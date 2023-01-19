@@ -1,9 +1,14 @@
+use std::{error::Error, io};
+
 use bson::Document;
-use serde::{Deserialize, Serialize};
-use talk_loco_command::{command::BsonCommand, structs::chat::Chatlog};
+use serde::{Deserialize, Serialize, Serializer};
+use talk_loco_command::{
+    command::{codec::ReadError, BsonCommand},
+    structs::chat::Chatlog,
+};
 use thiserror::Error;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "data")]
 pub enum KiwiTalkClientEvent {
     Chat {
@@ -20,20 +25,34 @@ pub enum KiwiTalkClientEvent {
     },
 
     Unhandled(EventCommand),
+
+    #[serde(serialize_with = "serialize_error_to_string")]
     Error(KiwiTalkClientError),
 }
 
-#[derive(Debug, Serialize, Deserialize, Error)]
-#[serde(tag = "type", content = "data")]
+impl From<KiwiTalkClientError> for KiwiTalkClientEvent {
+    fn from(err: KiwiTalkClientError) -> Self {
+        Self::Error(err)
+    }
+}
+
+fn serialize_error_to_string<E: Error, S>(error: E, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serializer.serialize_str(&error.to_string())
+}
+
+#[derive(Debug, Error)]
 pub enum KiwiTalkClientError {
     #[error("Could not decode command. command: {0}")]
     CommandDecode(String),
 
-    #[error("Network error while reading from socket")]
-    NetworkRead,
+    #[error("Network error while reading from socket. {0}")]
+    NetworkRead(#[from] ReadError),
 
-    #[error("Client handler io error")]
-    Io,
+    #[error("Client handler io error. {0}")]
+    Io(#[from] io::Error),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
