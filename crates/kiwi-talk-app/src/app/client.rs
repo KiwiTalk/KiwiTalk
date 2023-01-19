@@ -4,9 +4,8 @@ use kiwi_talk_client::{
     database::{KiwiTalkDatabaseManager, KiwiTalkDatabasePool},
     event::KiwiTalkClientEvent,
     status::ClientStatus,
-    ClientCredential, KiwiTalkClient,
+    ClientCredential, KiwiTalkClient, error::KiwiTalkClientError,
 };
-use talk_loco_client::client::ClientRequestError;
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
 use thiserror::Error;
@@ -71,7 +70,7 @@ pub enum CreateClientError {
     LocoHandshake,
 
     #[error(transparent)]
-    Client(#[from] ClientRequestError),
+    Client(#[from] KiwiTalkClientError),
 }
 
 impl_tauri_error!(CreateClientError);
