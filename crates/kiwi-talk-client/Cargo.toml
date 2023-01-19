@@ -13,6 +13,8 @@ thiserror = "1.0"
 futures = "0.3.25"
 bson = "2.5.0"
 log = "0.4.17"
+r2d2 = "0.8.10"
+r2d2_sqlite = "0.21.0"
 
 talk-loco-client = { path = "../talk-loco-client" }
 talk-loco-command = { path = "../talk-loco-command" }
