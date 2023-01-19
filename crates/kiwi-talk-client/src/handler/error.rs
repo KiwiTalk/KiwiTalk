@@ -4,7 +4,7 @@ use thiserror::Error;
 use crate::database::ConnectionManagerError;
 
 #[derive(Debug, Error)]
-pub enum KiwiTalkClientError {
+pub enum KiwiTalkClientHandlerError {
     #[error("Could not decode command. command: {0}")]
     CommandDecode(String),
 

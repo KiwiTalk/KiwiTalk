@@ -1,12 +1,13 @@
 pub mod channel;
-pub mod error;
 
 use std::error::Error;
 
 use serde::{Deserialize, Serialize, Serializer};
 use talk_loco_command::{command::BsonCommand, response::ResponseData};
 
-use self::{channel::KiwiTalkChannelEvent, error::KiwiTalkClientError};
+use crate::handler::error::KiwiTalkClientHandlerError;
+
+use self::channel::KiwiTalkChannelEvent;
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "data")]
@@ -23,11 +24,11 @@ pub enum KiwiTalkClientEvent {
     Unhandled(EventCommand),
 
     #[serde(serialize_with = "serialize_error_to_string")]
-    Error(KiwiTalkClientError),
+    Error(KiwiTalkClientHandlerError),
 }
 
-impl From<KiwiTalkClientError> for KiwiTalkClientEvent {
-    fn from(err: KiwiTalkClientError) -> Self {
+impl From<KiwiTalkClientHandlerError> for KiwiTalkClientEvent {
+    fn from(err: KiwiTalkClientHandlerError) -> Self {
         Self::Error(err)
     }
 }

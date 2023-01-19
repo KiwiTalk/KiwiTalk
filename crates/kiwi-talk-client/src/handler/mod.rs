@@ -1,3 +1,5 @@
+pub mod error;
+
 use std::sync::Arc;
 
 use bson::Document;
@@ -13,10 +15,11 @@ use crate::{
     database::KiwiTalkDatabasePool,
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
-        error::KiwiTalkClientError,
         KiwiTalkClientEvent,
     },
 };
+
+use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
 pub struct KiwiTalkClientHandler<Listener> {
@@ -106,8 +109,8 @@ where
     }
 }
 
-pub type HandlerResult<T> = Result<T, KiwiTalkClientError>;
+pub type HandlerResult<T> = Result<T, KiwiTalkClientHandlerError>;
 
-fn map_data<T: DeserializeOwned>(method: &str, doc: Document) -> Result<T, KiwiTalkClientError> {
-    bson::de::from_document(doc).map_err(|_| KiwiTalkClientError::CommandDecode(method.to_string()))
+fn map_data<T: DeserializeOwned>(method: &str, doc: Document) -> Result<T, KiwiTalkClientHandlerError> {
+    bson::de::from_document(doc).map_err(|_| KiwiTalkClientHandlerError::CommandDecode(method.to_string()))
 }
