@@ -15,7 +15,7 @@ pub struct ReceivedChat {
 
     pub log_id: i64,
     pub user_nickname: Option<String>,
-    pub chat: Option<Chatlog>,
+    pub chat: Chatlog,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

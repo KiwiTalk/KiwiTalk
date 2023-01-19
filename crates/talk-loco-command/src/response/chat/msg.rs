@@ -15,7 +15,7 @@ pub struct Msg {
     pub log_id: i64,
 
     #[serde(rename = "chatLog")]
-    pub chatlog: Option<Chatlog>,
+    pub chatlog: Chatlog,
 
     /// Sender nickname
     #[serde(rename = "authorNickname")]
