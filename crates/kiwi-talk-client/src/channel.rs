@@ -12,4 +12,9 @@ impl<'a> KiwiTalkClientChannel<'a> {
     pub const fn new(client: &'a KiwiTalkClient, channel_id: ChannelId) -> Self {
         Self { client, channel_id }
     }
+
+    #[inline(always)]
+    pub const fn channel_id(&self) -> ChannelId {
+        self.channel_id
+    }
 }
