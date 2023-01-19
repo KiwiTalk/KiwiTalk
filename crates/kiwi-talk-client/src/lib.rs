@@ -1,3 +1,4 @@
+pub mod channel;
 pub mod config;
 pub mod event;
 pub mod handler;
@@ -5,10 +6,12 @@ pub mod status;
 
 use std::sync::Arc;
 
+use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite, Future};
 use handler::KiwiTalkClientHandler;
+use kiwi_talk_db::channel::model::ChannelId;
 use status::ClientStatus;
 use talk_loco_client::{
     client::{talk::TalkClient, ClientRequestError},
@@ -24,7 +27,6 @@ pub struct KiwiTalkClient {
 
     // TODO:: Remove underscore
     session: LocoCommandSession,
-    // database
 }
 
 impl KiwiTalkClient {
@@ -68,12 +70,13 @@ impl KiwiTalkClient {
             .await
             .map_err(ClientLoginError::Client)?;
 
-        let client = KiwiTalkClient {
-            config,
-            session,
-        };
+        let client = KiwiTalkClient { config, session };
 
         Ok(client)
+    }
+
+    pub fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
+        KiwiTalkClientChannel::new(self, channel_id)
     }
 }
 
