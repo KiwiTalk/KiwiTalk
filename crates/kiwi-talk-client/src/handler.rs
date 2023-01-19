@@ -1,25 +1,29 @@
 use std::sync::Arc;
 
 use bson::Document;
+use futures::Future;
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
-use tokio::sync::mpsc;
 
 use crate::event::{KiwiTalkClientError, KiwiTalkClientEvent};
 
 #[derive(Debug)]
-pub struct KiwiTalkClientHandler {
-    event_sender: mpsc::Sender<KiwiTalkClientEvent>,
+pub struct KiwiTalkClientHandler<Listener> {
+    listener: Listener,
 }
 
-impl KiwiTalkClientHandler {
-    pub fn new(event_sender: mpsc::Sender<KiwiTalkClientEvent>) -> Self {
-        Self { event_sender }
+impl<Fut, Listener> KiwiTalkClientHandler<Listener>
+where
+    Fut: Future<Output = ()>,
+    Listener: Fn(KiwiTalkClientEvent) -> Fut,
+{
+    pub const fn new(listener: Listener) -> Self {
+        Self { listener }
     }
 
-    pub async fn emit(&self, event: KiwiTalkClientEvent) {
-        self.event_sender.send(event).await.ok();
+    pub fn emit(&self, event: KiwiTalkClientEvent) -> Fut {
+        (self.listener)(event)
     }
 
     pub async fn handle(self: Arc<Self>, read: ReadResult) {
@@ -36,11 +40,7 @@ impl KiwiTalkClientHandler {
             }
         }
     }
-}
 
-pub type HandlerResult<T> = Result<T, KiwiTalkClientError>;
-
-impl KiwiTalkClientHandler {
     // TODO:: Use macro
     async fn handle_command(&self, command: BsonCommand<Document>) -> HandlerResult<()> {
         match command.method.as_ref() {
@@ -77,6 +77,8 @@ impl KiwiTalkClientHandler {
         self.emit(KiwiTalkClientEvent::SwitchServer).await;
     }
 }
+
+pub type HandlerResult<T> = Result<T, KiwiTalkClientError>;
 
 fn map_data<T: DeserializeOwned>(method: &str, doc: Document) -> Result<T, KiwiTalkClientError> {
     bson::de::from_document(doc).map_err(|_| KiwiTalkClientError::CommandDecode(method.to_string()))

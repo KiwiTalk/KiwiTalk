@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use config::KiwiTalkClientConfig;
 use event::KiwiTalkClientEvent;
-use futures::{AsyncRead, AsyncWrite};
+use futures::{AsyncRead, AsyncWrite, Future};
 use handler::KiwiTalkClientHandler;
 use status::ClientStatus;
 use talk_loco_client::{
@@ -16,7 +16,6 @@ use talk_loco_client::{
 };
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
 use thiserror::Error;
-use tokio::sync::mpsc;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
@@ -29,15 +28,18 @@ pub struct KiwiTalkClient {
 }
 
 impl KiwiTalkClient {
-    pub async fn login<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(
+    // TODO:: Reduce complexity
+    pub async fn login<
+        S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
+        Fut: Future<Output = ()> + Send + 'static,
+    >(
         stream: S,
         config: KiwiTalkClientConfig,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
-    ) -> Result<(Self, KiwiTalkEventListener), ClientLoginError> {
-        let (event_sender, event_receiver) = mpsc::channel(128);
-
-        let handler = Arc::new(KiwiTalkClientHandler::new(event_sender));
+        listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
+    ) -> Result<Self, ClientLoginError> {
+        let handler = Arc::new(KiwiTalkClientHandler::new(listener));
         let session = LocoCommandSession::new(stream, move |read| {
             tokio::spawn(Arc::clone(&handler).handle(read));
         });
@@ -71,17 +73,7 @@ impl KiwiTalkClient {
             _session: session,
         };
 
-        Ok((client, KiwiTalkEventListener(event_receiver)))
-    }
-}
-
-#[derive(Debug)]
-pub struct KiwiTalkEventListener(mpsc::Receiver<KiwiTalkClientEvent>);
-
-impl KiwiTalkEventListener {
-    #[inline]
-    pub async fn next(&mut self) -> Option<KiwiTalkClientEvent> {
-        self.0.recv().await
+        Ok(client)
     }
 }
 
