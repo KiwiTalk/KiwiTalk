@@ -18,7 +18,7 @@ use handler::KiwiTalkClientHandler;
 use kiwi_talk_db::channel::model::ChannelId;
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
-use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
+use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
@@ -99,6 +99,16 @@ impl KiwiTalkClient {
 
     pub fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
         KiwiTalkClientChannel::new(self, channel_id)
+    }
+
+    pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
+        TalkClient(&self.session)
+            .set_status(&SetStReq {
+                status: client_status as _,
+            })
+            .await?;
+
+        Ok(())
     }
 }
 
