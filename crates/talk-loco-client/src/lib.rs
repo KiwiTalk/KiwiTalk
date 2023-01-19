@@ -10,10 +10,13 @@ use bson::Document;
 use futures::{ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::BuildNoHashHasher;
-use talk_loco_command::{command::{
-    codec::{BsonCommandCodec, ReadError},
-    BsonCommand, ReadBsonCommand,
-}, response::ResponseData};
+use talk_loco_command::{
+    command::{
+        codec::{BsonCommandCodec, ReadError},
+        BsonCommand, ReadBsonCommand,
+    },
+    response::ResponseData,
+};
 use tokio::{
     select,
     sync::{mpsc, oneshot},

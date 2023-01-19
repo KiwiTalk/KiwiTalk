@@ -4,7 +4,10 @@ use bson::Document;
 use futures::Future;
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
-use talk_loco_command::{command::BsonCommand, response::{chat, ResponseData}};
+use talk_loco_command::{
+    command::BsonCommand,
+    response::{chat, ResponseData},
+};
 
 use crate::event::{
     channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
@@ -54,7 +57,9 @@ where
 
             "CHANGESVR" => Ok(self.on_change_server().await),
 
-            "KICKOUT" => Ok(self.on_kickout(map_data("KICKOUT", command.data.data)?).await),
+            "KICKOUT" => Ok(self
+                .on_kickout(map_data("KICKOUT", command.data.data)?)
+                .await),
 
             _ => Ok(self
                 .emit(KiwiTalkClientEvent::Unhandled(command.into()))

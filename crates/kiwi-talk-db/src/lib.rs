@@ -54,6 +54,10 @@ impl KiwiTalkConnection {
         ChatEntry(&self.connection)
     }
 
+    pub fn inner(&self) -> &Connection {
+        &self.connection
+    }
+
     pub fn into_inner(self) -> Connection {
         self.connection
     }

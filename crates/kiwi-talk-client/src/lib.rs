@@ -3,6 +3,7 @@ pub mod config;
 pub mod event;
 pub mod handler;
 pub mod status;
+pub mod database;
 
 use std::sync::Arc;
 

@@ -105,7 +105,9 @@ impl<S: AsyncWrite + Unpin> BsonCommandCodec<S> {
 
 impl<S: AsyncRead + Unpin> BsonCommandCodec<S> {
     /// Read incoming [BsonCommand]
-    pub async fn read_async<D: DeserializeOwned>(&mut self) -> Result<ReadBsonCommand<D>, ReadError> {
+    pub async fn read_async<D: DeserializeOwned>(
+        &mut self,
+    ) -> Result<ReadBsonCommand<D>, ReadError> {
         let (_, command) = self.0.read_async().await?;
 
         if command.header.status == 0 {

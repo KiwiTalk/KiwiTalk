@@ -1,8 +1,9 @@
 use futures::Future;
 use kiwi_talk_client::{
     config::KiwiTalkClientConfig, event::KiwiTalkClientEvent, status::ClientStatus,
-    ClientCredential, ClientLoginError, KiwiTalkClient,
+    ClientCredential, KiwiTalkClient,
 };
+use talk_loco_client::client::ClientRequestError;
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
 use thiserror::Error;
@@ -66,7 +67,7 @@ pub enum CreateClientError {
     LocoHandshake,
 
     #[error(transparent)]
-    Client(#[from] ClientLoginError),
+    Client(#[from] ClientRequestError),
 }
 
 impl_tauri_error!(CreateClientError);
