@@ -27,7 +27,7 @@ pub type ClientRequestResult<D> = Result<ResponseData<D>, ClientRequestError>;
 #[derive(Debug)]
 pub struct ClientCommandRequest<D>(CommandRequest, PhantomData<D>);
 
-impl<D: DeserializeOwned + Unpin> Future for ClientCommandRequest<D> {
+impl<D: DeserializeOwned> Future for ClientCommandRequest<D> {
     type Output = ClientRequestResult<D>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -37,6 +37,8 @@ impl<D: DeserializeOwned + Unpin> Future for ClientCommandRequest<D> {
         })
     }
 }
+
+impl<D> Unpin for ClientCommandRequest<D> {}
 
 /// Convenience method for requesting command asynchronously
 pub async fn request_response_async<D: DeserializeOwned + Unpin>(
