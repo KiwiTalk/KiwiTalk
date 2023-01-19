@@ -4,7 +4,7 @@ use bson::Document;
 use futures::Future;
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
-use talk_loco_command::{command::BsonCommand, response::chat};
+use talk_loco_command::{command::BsonCommand, response::{chat, ResponseData}};
 
 use crate::event::{
     channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
@@ -45,16 +45,16 @@ where
     }
 
     // TODO:: Use macro
-    async fn handle_command(&self, command: BsonCommand<Document>) -> HandlerResult<()> {
+    async fn handle_command(&self, command: BsonCommand<ResponseData>) -> HandlerResult<()> {
         match command.method.as_ref() {
-            "MSG" => Ok(self.on_chat(map_data("MSG", command.data)?).await),
+            "MSG" => Ok(self.on_chat(map_data("MSG", command.data.data)?).await),
             "DECUNREAD" => Ok(self
-                .on_chat_read(map_data("DECUNREAD", command.data)?)
+                .on_chat_read(map_data("DECUNREAD", command.data.data)?)
                 .await),
 
             "CHANGESVR" => Ok(self.on_change_server().await),
 
-            "KICKOUT" => Ok(self.on_kickout(map_data("KICKOUT", command.data)?).await),
+            "KICKOUT" => Ok(self.on_kickout(map_data("KICKOUT", command.data.data)?).await),
 
             _ => Ok(self
                 .emit(KiwiTalkClientEvent::Unhandled(command.into()))

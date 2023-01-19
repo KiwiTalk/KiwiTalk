@@ -3,9 +3,8 @@ pub mod error;
 
 use std::error::Error;
 
-use bson::Document;
 use serde::{Deserialize, Serialize, Serializer};
-use talk_loco_command::command::BsonCommand;
+use talk_loco_command::{command::BsonCommand, response::ResponseData};
 
 use self::{channel::KiwiTalkChannelEvent, error::KiwiTalkClientError};
 
@@ -50,11 +49,11 @@ where
 pub struct EventCommand {
     pub method: String,
     pub data_type: i8,
-    pub data: Document,
+    pub data: ResponseData,
 }
 
-impl From<BsonCommand<Document>> for EventCommand {
-    fn from(command: BsonCommand<Document>) -> Self {
+impl From<BsonCommand<ResponseData>> for EventCommand {
+    fn from(command: BsonCommand<ResponseData>) -> Self {
         Self {
             method: command.method.to_string(),
             data_type: command.data_type,

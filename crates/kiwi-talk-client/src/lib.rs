@@ -14,11 +14,10 @@ use handler::KiwiTalkClientHandler;
 use kiwi_talk_db::channel::model::ChannelId;
 use status::ClientStatus;
 use talk_loco_client::{
-    client::{talk::TalkClient, ClientRequestError},
+    client::{talk::TalkClient, ClientRequestResult},
     LocoCommandSession,
 };
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
-use thiserror::Error;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
@@ -38,7 +37,7 @@ impl KiwiTalkClient {
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
-    ) -> Result<Self, ClientLoginError> {
+    ) -> ClientRequestResult<Self> {
         let handler = Arc::new(KiwiTalkClientHandler::new(listener));
 
         let session = LocoCommandSession::new(stream, move |read| {
@@ -65,15 +64,7 @@ impl KiwiTalkClient {
                 last_block_token: 0,
                 background: None,
             })
-            .await
-            .await
-            .map_err(ClientLoginError::Client)?;
-
-        // TODO:: Do channel initialization
-        let _ = match login_res.data {
-            Some(data) => data,
-            None => return Err(ClientLoginError::Login(login_res.status)),
-        };
+            .await?;
 
         let client = KiwiTalkClient { config, session };
 
@@ -95,13 +86,4 @@ pub struct ClientCredential<'a> {
     pub access_token: &'a str,
     pub device_uuid: &'a str,
     pub user_id: Option<i64>,
-}
-
-#[derive(Debug, Error)]
-pub enum ClientLoginError {
-    #[error("Client error. {0}")]
-    Client(ClientRequestError),
-
-    #[error("LOGINLIST failed. status: {0}")]
-    Login(i16),
 }
