@@ -5,7 +5,7 @@ pub mod open;
 
 use rusqlite::{Connection, Row};
 
-use crate::model::FullModel;
+use crate::{chat::model::LogId, model::FullModel};
 
 use self::model::{ChannelId, ChannelModel, ChannelUserId, ChannelUserModel};
 
@@ -91,10 +91,14 @@ impl<'a> ChannelUserEntry<'a> {
         Ok(())
     }
 
-    pub fn get(&self, id: ChannelUserId) -> Result<ChannelUserModel, rusqlite::Error> {
+    pub fn get(
+        &self,
+        id: ChannelUserId,
+        channel_id: ChannelId,
+    ) -> Result<ChannelUserModel, rusqlite::Error> {
         self.0.query_row(
-            "SELECT * FROM channel_user WHERE id = ?",
-            [id],
+            "SELECT * FROM channel_user WHERE id = ? AND channel_id = ?",
+            (id, channel_id),
             Self::map_row,
         )
     }
@@ -109,6 +113,18 @@ impl<'a> ChannelUserEntry<'a> {
 
         let rows = statement.query([id])?;
         rows.mapped(Self::map_full_row).collect()
+    }
+
+    pub fn update_watermark(
+        &self,
+        id: ChannelUserId,
+        channel_id: ChannelId,
+        watermark: LogId,
+    ) -> Result<usize, rusqlite::Error> {
+        self.0.execute(
+            "UPDATE channel_user SET watermark = ? WHERE id = ? AND channel_id = ?",
+            (watermark, id, channel_id),
+        )
     }
 
     pub fn map_row(row: &Row) -> Result<ChannelUserModel, rusqlite::Error> {
@@ -190,7 +206,7 @@ mod tests {
 
         db.user().insert(&FullModel::new(0, model.clone()))?;
 
-        assert_eq!(model, db.user().get(0)?);
+        assert_eq!(model, db.user().get(0, 0)?);
 
         Ok(())
     }
