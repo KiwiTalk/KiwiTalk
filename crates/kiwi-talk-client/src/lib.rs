@@ -30,15 +30,12 @@ pub struct KiwiTalkClient {
 }
 
 impl KiwiTalkClient {
-    // TODO:: Reduce complexity
-    pub async fn login<
+    pub async fn new<
         S: AsyncRead + AsyncWrite + Send + 'static,
         Fut: Future<Output = ()> + Send + 'static,
     >(
         stream: S,
         config: KiwiTalkClientConfig,
-        credential: ClientCredential<'_>,
-        client_status: ClientStatus,
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> ClientResult<Self> {
@@ -53,14 +50,26 @@ impl KiwiTalkClient {
             tokio::spawn(Arc::clone(&handler).handle(read));
         });
 
-        let login_res = TalkClient(&session)
+        Ok(KiwiTalkClient {
+            config,
+            session,
+            pool,
+        })
+    }
+
+    pub async fn login(
+        &self,
+        credential: ClientCredential<'_>,
+        client_status: ClientStatus,
+    ) -> ClientResult<()> {
+        let login_res = TalkClient(&self.session)
             .login(&LoginListReq {
-                client: config.client.clone(),
+                client: self.config.client.clone(),
                 protocol_version: "1.0".into(),
                 device_uuid: credential.device_uuid.into(),
                 oauth_token: credential.access_token.into(),
-                language: config.language.clone(),
-                device_type: Some(config.device_type),
+                language: self.config.language.clone(),
+                device_type: Some(self.config.device_type),
                 pc_status: Some(client_status as _),
                 revision: None,
                 rp: vec![0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
@@ -75,13 +84,7 @@ impl KiwiTalkClient {
             })
             .await?;
 
-        let client = KiwiTalkClient {
-            config,
-            session,
-            pool,
-        };
-
-        Ok(client)
+        Ok(())
     }
 
     #[inline(always)]

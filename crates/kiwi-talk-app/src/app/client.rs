@@ -2,9 +2,10 @@ use futures::Future;
 use kiwi_talk_client::{
     config::KiwiTalkClientConfig,
     database::{KiwiTalkDatabaseManager, KiwiTalkDatabasePool},
+    error::KiwiTalkClientError,
     event::KiwiTalkClientEvent,
     status::ClientStatus,
-    ClientCredential, KiwiTalkClient, error::KiwiTalkClientError,
+    ClientCredential, KiwiTalkClient,
 };
 use talk_loco_command::structs::client::ClientInfo;
 use tauri::State;
@@ -36,7 +37,7 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
     .await
     .map_err(|_| CreateClientError::LocoHandshake)?;
 
-    Ok(KiwiTalkClient::login(
+    let client = KiwiTalkClient::new(
         loco_session,
         // TODO:: Replace
         KiwiTalkClientConfig {
@@ -49,16 +50,23 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
             language: info.device_info.language().into(),
             device_type: TALK_DEVIVCE_TYPE,
         },
-        ClientCredential {
-            access_token: &credential.access_token,
-            device_uuid: info.device_info.device_uuid.as_str(),
-            user_id: credential.user_id,
-        },
-        client_status,
         KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::memory()).unwrap(),
         listener,
     )
-    .await?)
+    .await?;
+
+    client
+        .login(
+            ClientCredential {
+                access_token: &credential.access_token,
+                device_uuid: info.device_info.device_uuid.as_str(),
+                user_id: credential.user_id,
+            },
+            client_status,
+        )
+        .await?;
+
+    Ok(client)
 }
 
 #[derive(Debug, Error)]
