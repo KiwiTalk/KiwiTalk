@@ -92,6 +92,11 @@ impl KiwiTalkClient {
         &self.session
     }
 
+    #[inline(always)]
+    pub const fn pool(&self) -> &KiwiTalkDatabasePool {
+        &self.pool
+    }
+
     pub fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
         KiwiTalkClientChannel::new(self, channel_id)
     }
