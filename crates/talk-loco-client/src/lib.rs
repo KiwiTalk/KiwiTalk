@@ -10,10 +10,10 @@ use bson::Document;
 use futures::{ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::BuildNoHashHasher;
-use talk_loco_command::command::{
+use talk_loco_command::{command::{
     codec::{BsonCommandCodec, ReadError},
     BsonCommand, ReadBsonCommand,
-};
+}, response::ResponseData};
 use tokio::{
     select,
     sync::{mpsc, oneshot},
@@ -52,21 +52,21 @@ impl LocoCommandSession {
 }
 
 #[derive(Debug)]
-pub struct CommandRequest(oneshot::Receiver<BsonCommand<Document>>);
+pub struct CommandRequest(oneshot::Receiver<BsonCommand<ResponseData>>);
 
 impl Future for CommandRequest {
-    type Output = Option<BsonCommand<Document>>;
+    type Output = Option<BsonCommand<ResponseData>>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         Poll::Ready(ready!(self.0.poll_unpin(cx)).ok())
     }
 }
 
-pub type ReadResult = Result<ReadBsonCommand<Document>, ReadError>;
+pub type ReadResult = Result<ReadBsonCommand<ResponseData>, ReadError>;
 
 #[derive(Debug)]
 struct CommandSessionHandler<Handler> {
-    read_map: HashMap<i32, oneshot::Sender<BsonCommand<Document>>, BuildNoHashHasher<i32>>,
+    read_map: HashMap<i32, oneshot::Sender<BsonCommand<ResponseData>>, BuildNoHashHasher<i32>>,
     next_request_id: i32,
     handler: Handler,
 }
@@ -80,7 +80,7 @@ impl<Handler: FnMut(ReadResult)> CommandSessionHandler<Handler> {
         }
     }
 
-    pub fn add_response(&mut self, sender: oneshot::Sender<BsonCommand<Document>>) -> i32 {
+    pub fn add_response(&mut self, sender: oneshot::Sender<BsonCommand<ResponseData>>) -> i32 {
         let request_id = self.next_request_id;
 
         self.next_request_id += 1;
@@ -89,7 +89,7 @@ impl<Handler: FnMut(ReadResult)> CommandSessionHandler<Handler> {
         request_id
     }
 
-    pub fn take_response(&mut self, id: i32) -> Option<oneshot::Sender<BsonCommand<Document>>> {
+    pub fn take_response(&mut self, id: i32) -> Option<oneshot::Sender<BsonCommand<ResponseData>>> {
         self.read_map.remove(&id)
     }
 
@@ -171,13 +171,13 @@ impl<Handler: FnMut(ReadResult)> CommandSessionHandler<Handler> {
 #[derive(Debug)]
 struct RequestCommand {
     pub command: BsonCommand<Document>,
-    pub response_sender: oneshot::Sender<BsonCommand<Document>>,
+    pub response_sender: oneshot::Sender<BsonCommand<ResponseData>>,
 }
 
 impl RequestCommand {
     pub const fn new(
         command: BsonCommand<Document>,
-        response_sender: oneshot::Sender<BsonCommand<Document>>,
+        response_sender: oneshot::Sender<BsonCommand<ResponseData>>,
     ) -> Self {
         Self {
             command,

@@ -4,9 +4,8 @@ pub mod talk;
 
 use crate::{CommandRequest, LocoCommandSession};
 use futures::{ready, Future, FutureExt};
-use serde::{de::DeserializeOwned, Serialize};
+use serde::Serialize;
 use std::{
-    marker::PhantomData,
     pin::Pin,
     task::{Context, Poll},
 };
@@ -15,36 +14,37 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
-    #[error("Request failed")]
-    Request,
+    #[error("Request failed. status: {0}")]
+    Request(i16),
+
+    #[error("Session closed before response")]
+    Session,
 
     #[error("Could not deserialize BSON data. {0}")]
     Deserialize(#[from] bson::de::Error),
 }
 
-pub type ClientRequestResult<D> = Result<ResponseData<D>, ClientRequestError>;
+pub type ClientRequestResult<T> = Result<T, ClientRequestError>;
 
 #[derive(Debug)]
-pub struct ClientCommandRequest<D>(CommandRequest, PhantomData<D>);
+pub struct ClientCommandRequest(CommandRequest);
 
-impl<D: DeserializeOwned> Future for ClientCommandRequest<D> {
-    type Output = ClientRequestResult<D>;
+impl Future for ClientCommandRequest {
+    type Output = ClientRequestResult<ResponseData>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         Poll::Ready(match ready!(self.0.poll_unpin(cx)) {
-            Some(res) => Ok(bson::from_document(res.data)?),
-            None => Err(ClientRequestError::Request),
+            Some(res) => Ok(res.data),
+            None => Err(ClientRequestError::Session),
         })
     }
 }
 
-impl<D> Unpin for ClientCommandRequest<D> {}
-
 /// Convenience method for requesting command asynchronously
-pub async fn request_response_async<D: DeserializeOwned + Unpin>(
+pub async fn request_response_async(
     session: &LocoCommandSession,
     command: &BsonCommand<impl Serialize>,
-) -> ClientCommandRequest<D> {
+) -> ClientCommandRequest {
     let req = session
         .send(BsonCommand {
             method: command.method.clone(),
@@ -53,9 +53,10 @@ pub async fn request_response_async<D: DeserializeOwned + Unpin>(
         })
         .await;
 
-    ClientCommandRequest(req, PhantomData)
+    ClientCommandRequest(req)
 }
 
+// TODO:: customizable status check
 macro_rules! async_client_method {
     (
         $(#[$meta:meta])*
@@ -65,12 +66,18 @@ macro_rules! async_client_method {
         pub async fn $name(
             &self,
             command: &$request,
-        ) -> crate::client::ClientCommandRequest<$response> {
-            crate::client::request_response_async(
+        ) -> crate::client::ClientRequestResult<$response> {
+            let res = crate::client::request_response_async(
                 self.0,
                 &talk_loco_command::command::BsonCommand::new(std::borrow::Cow::Borrowed($method), 0, command),
             )
-            .await
+            .await.await?;
+
+            if res.status == 0 {
+                Ok(res.get()?)
+            } else {
+                Err(crate::client::ClientRequestError::Request(res.status))
+            }
         }
     };
 

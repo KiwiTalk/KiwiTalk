@@ -33,8 +33,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })
         .await;
 
-    let booking_res = booking_res.await;
-
     println!("GETCONF response: {:?}\n", booking_res);
 
     Ok(())
