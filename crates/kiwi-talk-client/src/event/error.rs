@@ -1,7 +1,7 @@
-use std::io;
-
 use talk_loco_command::command::codec::ReadError;
 use thiserror::Error;
+
+use crate::database::ConnectionManagerError;
 
 #[derive(Debug, Error)]
 pub enum KiwiTalkClientError {
@@ -11,6 +11,6 @@ pub enum KiwiTalkClientError {
     #[error("Network error while reading from socket. {0}")]
     NetworkRead(#[from] ReadError),
 
-    #[error("Client handler io error. {0}")]
-    Io(#[from] io::Error),
+    #[error("Database error. {0}")]
+    Database(#[from] ConnectionManagerError),
 }
