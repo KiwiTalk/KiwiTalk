@@ -22,4 +22,6 @@ pub struct ChannelUserModel {
     pub full_profile_url: Option<String>,
     pub original_profile_url: Option<String>,
     pub user_type: i32,
+
+    pub watermark: i64,
 }

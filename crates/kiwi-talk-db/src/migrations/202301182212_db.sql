@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS channel_user (
     original_profile_url TEXT,
     user_type INTEGER NOT NULL,
 
+    watermark INTEGER NOT NULL
+
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 

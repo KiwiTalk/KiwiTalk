@@ -75,11 +75,7 @@ impl<'a> ChannelUserEntry<'a> {
         user: &FullModel<ChannelUserId, ChannelUserModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT INTO channel_user (
-            id, channel_id, nickname, profile_url, full_profile_url, original_profile_url, user_type
-        ) VALUES (
-            ?1, ?2, ?3, ?4, ?5, ?6, ?7
-        )",
+            "INSERT INTO channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             (
                 &user.id,
                 &user.model.channel_id,
@@ -88,6 +84,7 @@ impl<'a> ChannelUserEntry<'a> {
                 &user.model.full_profile_url,
                 &user.model.original_profile_url,
                 &user.model.user_type,
+                &user.model.watermark,
             ),
         )?;
 
@@ -122,6 +119,7 @@ impl<'a> ChannelUserEntry<'a> {
             full_profile_url: row.get(4)?,
             original_profile_url: row.get(5)?,
             user_type: row.get(6)?,
+            watermark: row.get(7)?,
         })
     }
 
@@ -187,6 +185,7 @@ mod tests {
             full_profile_url: None,
             original_profile_url: None,
             user_type: 0,
+            watermark: 0,
         };
 
         db.user().insert(&FullModel::new(0, model.clone()))?;
