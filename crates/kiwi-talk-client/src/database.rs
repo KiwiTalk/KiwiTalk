@@ -1,8 +1,10 @@
 use std::path::Path;
 
 use kiwi_talk_db::{rusqlite, KiwiTalkConnection};
-use r2d2::ManageConnection;
+use r2d2::{ManageConnection, Pool};
 use r2d2_sqlite::SqliteConnectionManager;
+
+pub type KiwiTalkDatabasePool = Pool<KiwiTalkDatabaseManager>;
 
 #[derive(Debug)]
 pub struct KiwiTalkDatabaseManager {
@@ -10,12 +12,14 @@ pub struct KiwiTalkDatabaseManager {
 }
 
 impl KiwiTalkDatabaseManager {
+    #[inline(always)]
     pub fn file(path: impl AsRef<Path>) -> Self {
         Self {
             rusqlite: SqliteConnectionManager::file(path),
         }
     }
 
+    #[inline(always)]
     pub fn memory() -> Self {
         Self {
             rusqlite: SqliteConnectionManager::memory(),
