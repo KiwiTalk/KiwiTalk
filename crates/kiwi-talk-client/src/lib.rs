@@ -9,7 +9,7 @@ use std::sync::Arc;
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
-use database::KiwiTalkDatabasePool;
+use database::{run_database_task, KiwiTalkDatabasePool};
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite, Future};
 use handler::KiwiTalkClientHandler;
@@ -43,6 +43,12 @@ impl KiwiTalkClient {
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> ClientRequestResult<Self> {
+        run_database_task(pool.clone(), |mut connection| {
+            Ok(connection.migrate_to_latest()?)
+        })
+        .await
+        .unwrap();
+
         let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
 
         let session = LocoCommandSession::new(stream, move |read| {
