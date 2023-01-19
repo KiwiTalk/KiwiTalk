@@ -53,7 +53,8 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
         KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::memory()).unwrap(),
         listener,
     )
-    .await?;
+    .await
+    .map_err(KiwiTalkClientError::from)?;
 
     client
         .login(

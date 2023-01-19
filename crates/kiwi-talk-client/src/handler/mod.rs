@@ -111,6 +111,10 @@ where
 
 pub type HandlerResult<T> = Result<T, KiwiTalkClientHandlerError>;
 
-fn map_data<T: DeserializeOwned>(method: &str, doc: Document) -> Result<T, KiwiTalkClientHandlerError> {
-    bson::de::from_document(doc).map_err(|_| KiwiTalkClientHandlerError::CommandDecode(method.to_string()))
+fn map_data<T: DeserializeOwned>(
+    method: &str,
+    doc: Document,
+) -> Result<T, KiwiTalkClientHandlerError> {
+    bson::de::from_document(doc)
+        .map_err(|_| KiwiTalkClientHandlerError::CommandDecode(method.to_string()))
 }
