@@ -3,6 +3,7 @@ pub mod chat;
 pub mod model;
 
 pub use rusqlite;
+pub use rusqlite_migration;
 
 use channel::{
     normal::{NormalChannelEntry, NormalUserEntry},
