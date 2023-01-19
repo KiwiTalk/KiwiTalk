@@ -1,14 +1,15 @@
 pub mod channel;
 pub mod config;
+pub mod database;
 pub mod event;
 pub mod handler;
 pub mod status;
-pub mod database;
 
 use std::sync::Arc;
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
+use database::KiwiTalkDatabasePool;
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite, Future};
 use handler::KiwiTalkClientHandler;
@@ -25,6 +26,8 @@ pub struct KiwiTalkClient {
     pub config: KiwiTalkClientConfig,
 
     session: LocoCommandSession,
+
+    pool: KiwiTalkDatabasePool,
 }
 
 impl KiwiTalkClient {
@@ -37,9 +40,10 @@ impl KiwiTalkClient {
         config: KiwiTalkClientConfig,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
+        pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> ClientRequestResult<Self> {
-        let handler = Arc::new(KiwiTalkClientHandler::new(listener));
+        let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
 
         let session = LocoCommandSession::new(stream, move |read| {
             tokio::spawn(Arc::clone(&handler).handle(read));
@@ -67,7 +71,11 @@ impl KiwiTalkClient {
             })
             .await?;
 
-        let client = KiwiTalkClient { config, session };
+        let client = KiwiTalkClient {
+            config,
+            session,
+            pool,
+        };
 
         Ok(client)
     }

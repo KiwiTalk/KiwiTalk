@@ -9,14 +9,18 @@ use talk_loco_command::{
     response::{chat, ResponseData},
 };
 
-use crate::event::{
-    channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
-    error::KiwiTalkClientError,
-    KiwiTalkClientEvent,
+use crate::{
+    database::KiwiTalkDatabasePool,
+    event::{
+        channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
+        error::KiwiTalkClientError,
+        KiwiTalkClientEvent,
+    },
 };
 
 #[derive(Debug)]
 pub struct KiwiTalkClientHandler<Listener> {
+    pool: KiwiTalkDatabasePool,
     listener: Listener,
 }
 
@@ -25,8 +29,8 @@ where
     Fut: Future<Output = ()>,
     Listener: Fn(KiwiTalkClientEvent) -> Fut,
 {
-    pub const fn new(listener: Listener) -> Self {
-        Self { listener }
+    pub const fn new(pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
+        Self { pool, listener }
     }
 
     pub fn emit(&self, event: KiwiTalkClientEvent) -> Fut {
