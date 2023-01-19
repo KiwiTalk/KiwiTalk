@@ -69,6 +69,12 @@ impl KiwiTalkClient {
             .await
             .map_err(ClientLoginError::Client)?;
 
+        // TODO:: Do channel initialization
+        let _ = match login_res.data {
+            Some(data) => data,
+            None => return Err(ClientLoginError::Login(login_res.status)),
+        };
+
         let client = KiwiTalkClient { config, session };
 
         Ok(client)
