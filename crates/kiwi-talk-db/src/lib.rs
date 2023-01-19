@@ -2,6 +2,8 @@ pub mod channel;
 pub mod chat;
 pub mod model;
 
+pub use rusqlite;
+
 use channel::{
     normal::{NormalChannelEntry, NormalUserEntry},
     ChannelEntry, ChannelUserEntry,
