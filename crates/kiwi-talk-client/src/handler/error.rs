@@ -1,7 +1,7 @@
 use talk_loco_command::command::codec::ReadError;
 use thiserror::Error;
 
-use crate::database::ConnectionManagerError;
+use crate::database::KiwiTalkDatabaseError;
 
 #[derive(Debug, Error)]
 pub enum KiwiTalkClientHandlerError {
@@ -12,5 +12,5 @@ pub enum KiwiTalkClientHandlerError {
     NetworkRead(#[from] ReadError),
 
     #[error("Database operation failed. {0}")]
-    Database(#[from] ConnectionManagerError),
+    Database(#[from] KiwiTalkDatabaseError),
 }

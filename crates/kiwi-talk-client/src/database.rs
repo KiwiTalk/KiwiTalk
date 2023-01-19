@@ -31,7 +31,7 @@ impl KiwiTalkDatabaseManager {
 impl ManageConnection for KiwiTalkDatabaseManager {
     type Connection = KiwiTalkConnection;
 
-    type Error = ConnectionManagerError;
+    type Error = KiwiTalkDatabaseError;
 
     fn connect(&self) -> Result<Self::Connection, Self::Error> {
         Ok(KiwiTalkConnection::new(self.rusqlite.connect()?))
@@ -47,7 +47,7 @@ impl ManageConnection for KiwiTalkDatabaseManager {
 }
 
 #[derive(Debug, Error)]
-pub enum ConnectionManagerError {
+pub enum KiwiTalkDatabaseError {
     #[error(transparent)]
     Rusqlite(#[from] rusqlite::Error),
 
@@ -59,11 +59,11 @@ pub enum ConnectionManagerError {
 }
 
 pub async fn run_database_task<
-    F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<(), ConnectionManagerError>,
+    F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<(), KiwiTalkDatabaseError>,
 >(
     pool: KiwiTalkDatabasePool,
     closure: F,
-) -> Result<(), ConnectionManagerError>
+) -> Result<(), KiwiTalkDatabaseError>
 where
     F: Send + 'static,
 {
