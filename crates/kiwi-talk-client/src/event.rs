@@ -26,7 +26,7 @@ pub enum KiwiTalkClientEvent {
 #[derive(Debug, Serialize, Deserialize, Error)]
 #[serde(tag = "type", content = "data")]
 pub enum KiwiTalkClientError {
-    #[error("Could not decode command")]
+    #[error("Could not decode command. command: {0}")]
     CommandDecode(String),
 
     #[error("Network error while reading from socket")]
