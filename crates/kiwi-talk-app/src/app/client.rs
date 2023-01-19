@@ -1,6 +1,9 @@
 use futures::Future;
 use kiwi_talk_client::{
-    config::KiwiTalkClientConfig, event::KiwiTalkClientEvent, status::ClientStatus,
+    config::KiwiTalkClientConfig,
+    database::{KiwiTalkDatabaseManager, KiwiTalkDatabasePool},
+    event::KiwiTalkClientEvent,
+    status::ClientStatus,
     ClientCredential, KiwiTalkClient,
 };
 use talk_loco_client::client::ClientRequestError;
@@ -53,6 +56,7 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
             user_id: credential.user_id,
         },
         client_status,
+        KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::memory()).unwrap(),
         listener,
     )
     .await?)
