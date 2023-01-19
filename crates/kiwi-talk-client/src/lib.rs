@@ -22,10 +22,8 @@ use thiserror::Error;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
-    // TODO:: Remove underscore
-    config: KiwiTalkClientConfig,
+    pub config: KiwiTalkClientConfig,
 
-    // TODO:: Remove underscore
     session: LocoCommandSession,
 }
 
@@ -42,6 +40,7 @@ impl KiwiTalkClient {
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> Result<Self, ClientLoginError> {
         let handler = Arc::new(KiwiTalkClientHandler::new(listener));
+
         let session = LocoCommandSession::new(stream, move |read| {
             tokio::spawn(Arc::clone(&handler).handle(read));
         });
@@ -73,6 +72,11 @@ impl KiwiTalkClient {
         let client = KiwiTalkClient { config, session };
 
         Ok(client)
+    }
+
+    #[inline(always)]
+    pub const fn session(&self) -> &LocoCommandSession {
+        &self.session
     }
 
     pub fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
