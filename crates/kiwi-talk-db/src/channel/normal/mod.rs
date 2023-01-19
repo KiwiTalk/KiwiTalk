@@ -67,12 +67,26 @@ impl<'a> NormalUserEntry<'a> {
         Ok(())
     }
 
-    pub fn get(&self, id: ChannelUserId) -> Result<NormalUserModel, rusqlite::Error> {
+    pub fn get(
+        &self,
+        id: ChannelUserId,
+        channel_id: ChannelId,
+    ) -> Result<NormalUserModel, rusqlite::Error> {
         self.0 .0.query_row(
-            "SELLECT * FROM normal_channel_user WHERE id = ?",
-            [id],
+            "SELLECT * FROM normal_channel_user WHERE id = ? AND channel_id = ?",
+            (id, channel_id),
             Self::map_row,
         )
+    }
+
+    pub fn get_all(&self, id: ChannelUserId) -> Result<Vec<NormalUserModel>, rusqlite::Error> {
+        let mut statement = self
+            .0
+             .0
+            .prepare("SELECT * FROM normal_channel_user WHERE id = ?")?;
+
+        let rows = statement.query([id])?;
+        rows.mapped(Self::map_row).collect()
     }
 
     pub fn get_all_users_in(

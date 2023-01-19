@@ -103,6 +103,13 @@ impl<'a> ChannelUserEntry<'a> {
         )
     }
 
+    pub fn get_all(&self, id: ChannelUserId) -> Result<Vec<ChannelUserModel>, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT * FROM channel_user WHERE id = ?")?;
+
+        let rows = statement.query([id])?;
+        rows.mapped(Self::map_row).collect()
+    }
+
     pub fn get_all_users_in(
         &self,
         id: ChannelId,
