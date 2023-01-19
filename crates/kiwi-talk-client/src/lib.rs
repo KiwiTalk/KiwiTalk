@@ -20,10 +20,10 @@ use thiserror::Error;
 #[derive(Debug)]
 pub struct KiwiTalkClient {
     // TODO:: Remove underscore
-    _config: KiwiTalkClientConfig,
+    config: KiwiTalkClientConfig,
 
     // TODO:: Remove underscore
-    _session: LocoCommandSession,
+    session: LocoCommandSession,
     // database
 }
 
@@ -69,8 +69,8 @@ impl KiwiTalkClient {
             .map_err(ClientLoginError::Client)?;
 
         let client = KiwiTalkClient {
-            _config: config,
-            _session: session,
+            config,
+            session,
         };
 
         Ok(client)
