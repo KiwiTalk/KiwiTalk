@@ -1,6 +1,7 @@
 pub mod channel;
 pub mod config;
 pub mod database;
+pub mod error;
 pub mod event;
 pub mod handler;
 pub mod status;
@@ -10,15 +11,13 @@ use std::sync::Arc;
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
 use database::{run_database_task, KiwiTalkDatabasePool};
+use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite, Future};
 use handler::KiwiTalkClientHandler;
 use kiwi_talk_db::channel::model::ChannelId;
 use status::ClientStatus;
-use talk_loco_client::{
-    client::{talk::TalkClient, ClientRequestResult},
-    LocoCommandSession,
-};
+use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq};
 
 #[derive(Debug)]
@@ -42,12 +41,11 @@ impl KiwiTalkClient {
         client_status: ClientStatus,
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
-    ) -> ClientRequestResult<Self> {
+    ) -> ClientResult<Self> {
         run_database_task(pool.clone(), |mut connection| {
             Ok(connection.migrate_to_latest()?)
         })
-        .await
-        .unwrap();
+        .await?;
 
         let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
 
@@ -102,3 +100,5 @@ pub struct ClientCredential<'a> {
     pub device_uuid: &'a str,
     pub user_id: Option<i64>,
 }
+
+pub type ClientResult<T> = Result<T, KiwiTalkClientError>;
