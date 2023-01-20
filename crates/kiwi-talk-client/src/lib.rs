@@ -127,7 +127,7 @@ impl KiwiTalkClient {
 
         sender.send(login_res.chat_list.chat_datas).await.ok();
 
-        let database_task = tokio::spawn(self.pool.spawn_task(move |connection| {
+        let database_task = self.pool.spawn_task(move |connection| {
             while let Some(datas) = recv.blocking_recv() {
                 for data in datas {
                     connection
@@ -143,7 +143,7 @@ impl KiwiTalkClient {
             }
 
             Ok(())
-        }));
+        });
 
         if !login_res.chat_list.eof {
             let stream = talk_client.channel_list_stream(
@@ -161,7 +161,7 @@ impl KiwiTalkClient {
         }
 
         drop(sender);
-        database_task.await.unwrap()?;
+        database_task.await?;
 
         Ok(())
     }
