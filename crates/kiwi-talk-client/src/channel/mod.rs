@@ -85,8 +85,14 @@ impl<'a> KiwiTalkClientChannel<'a> {
                 .pool()
                 .spawn_task(move |connection| {
                     Ok((
-                        connection.channel().get_last_chat_log_id(channel_id)?,
-                        connection.chat().get_lastest_chat_log_id(channel_id)?,
+                        connection
+                            .channel()
+                            .get_last_chat_log_id(channel_id)
+                            .unwrap_or(0),
+                        connection
+                            .chat()
+                            .get_lastest_chat_log_id(channel_id)
+                            .unwrap_or(0),
                     ))
                 })
                 .await?
