@@ -38,9 +38,7 @@ impl<'a> ChannelEntry<'a> {
             .query_row("SELECT * FROM channel WHERE id = ?", [id], Self::map_row)
     }
 
-    pub fn get_all_channel_id(
-        &self,
-    ) -> Result<Vec<ChannelId>, rusqlite::Error> {
+    pub fn get_all_channel_id(&self) -> Result<Vec<ChannelId>, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT id FROM channel")?;
 
         let rows = statement.query(())?;
@@ -56,14 +54,11 @@ impl<'a> ChannelEntry<'a> {
         rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
-    pub fn get_last_chat_log_id(
-        &self,
-        id: ChannelId,
-    ) -> Result<LogId, rusqlite::Error> {
+    pub fn get_last_chat_log_id(&self, id: ChannelId) -> Result<LogId, rusqlite::Error> {
         self.0.query_row(
             "SELECT last_chat_log_id FROM channel WHERE id = ?",
             [id],
-            |row| row.get(0)
+            |row| row.get(0),
         )
     }
 

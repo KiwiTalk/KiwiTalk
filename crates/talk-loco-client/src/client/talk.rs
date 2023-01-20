@@ -66,7 +66,7 @@ impl TalkClient<'_> {
             chat_id,
             mut current,
             count,
-            max
+            max,
         } = *req;
 
         try_stream! {

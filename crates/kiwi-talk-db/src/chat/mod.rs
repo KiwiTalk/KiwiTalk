@@ -91,10 +91,7 @@ impl<'a> ChatEntry<'a> {
         rows.mapped(Self::map_full_row).collect()
     }
 
-    pub fn get_lastest_chat_log_id(
-        &self,
-        channel_id: ChannelId,
-    ) -> Result<LogId, rusqlite::Error> {
+    pub fn get_lastest_chat_log_id(&self, channel_id: ChannelId) -> Result<LogId, rusqlite::Error> {
         self.0.query_row(
             "SELECT log_id FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT 1",
             [channel_id],
