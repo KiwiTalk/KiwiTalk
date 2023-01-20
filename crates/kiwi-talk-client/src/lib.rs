@@ -119,14 +119,9 @@ impl KiwiTalkClient {
 
         self.user_id.store(login_res.user_id, Ordering::Release);
 
-        let mut sync_list: Vec<(i64, i64)> =
-            Vec::with_capacity(login_res.chat_list.chat_datas.capacity());
-
         for data in &login_res.chat_list.chat_datas {
-            sync_list.push((data.id, data.last_log_id));
+            self.channel(data.id).sync_chats(data.last_log_id).await?;
         }
-
-        sender.send(login_res.chat_list.chat_datas).await.ok();
 
         let database_task = self.pool.spawn_task(move |connection| {
             while let Some(datas) = recv.blocking_recv() {
@@ -146,6 +141,8 @@ impl KiwiTalkClient {
             Ok(())
         });
 
+        sender.send(login_res.chat_list.chat_datas).await.unwrap();
+
         if !login_res.chat_list.eof {
             let stream = talk_client.channel_list_stream(
                 login_res.chat_list.last_token_id.unwrap_or_default(),
@@ -156,17 +153,12 @@ impl KiwiTalkClient {
                 let res = res?;
 
                 for data in &res.chat_datas {
-                    sync_list.push((data.id, data.last_log_id));
+                    self.channel(data.id).sync_chats(data.last_log_id).await?;
                 }
-
                 if sender.send(res.chat_datas).await.is_err() {
                     break;
                 }
             }
-        }
-
-        for (id, last_log_id) in sync_list {
-            self.channel(id).sync_chats(last_log_id).await?;
         }
 
         drop(sender);
