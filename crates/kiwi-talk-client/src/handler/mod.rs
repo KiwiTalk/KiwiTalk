@@ -12,7 +12,7 @@ use talk_loco_command::{
 };
 
 use crate::{
-    database::{spawn_database_task, KiwiTalkDatabasePool, conversion::chat_model_from_chatlog},
+    database::{conversion::chat_model_from_chatlog, KiwiTalkDatabasePool},
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
@@ -65,32 +65,33 @@ where
             "CHANGESVR" => {
                 self.on_change_server().await;
                 Ok(())
-            },
+            }
 
             "KICKOUT" => {
-                self
-                .on_kickout(map_data("KICKOUT", command.data.data)?)
-                .await;
+                self.on_kickout(map_data("KICKOUT", command.data.data)?)
+                    .await;
                 Ok(())
-            },
+            }
 
             _ => {
-                self
-                .emit(KiwiTalkClientEvent::Unhandled(command.into()))
-                .await;
+                self.emit(KiwiTalkClientEvent::Unhandled(command.into()))
+                    .await;
                 Ok(())
-            },
+            }
         }
     }
 
     async fn on_chat(&self, data: chat::Msg) -> HandlerResult<()> {
         let chatlog = data.chatlog.clone();
-        spawn_database_task(self.pool.clone(), move |connection| {
-            connection.chat().insert(&chat_model_from_chatlog(&chatlog))?;
+        self.pool
+            .spawn_task(move |connection| {
+                connection
+                    .chat()
+                    .insert(&chat_model_from_chatlog(&chatlog))?;
 
-            Ok(())
-        })
-        .await?;
+                Ok(())
+            })
+            .await?;
 
         self.emit(
             KiwiTalkChannelEvent::Chat(ReceivedChat {
@@ -108,7 +109,7 @@ where
     }
 
     async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
-        spawn_database_task(self.pool.clone(), move |connection| {
+        self.pool.spawn_task(move |connection| {
             connection
                 .user()
                 .update_watermark(data.user_id, data.chat_id, data.watermark)?;

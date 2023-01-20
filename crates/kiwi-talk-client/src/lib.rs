@@ -12,7 +12,7 @@ use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
-    spawn_database_task, KiwiTalkDatabaseError, KiwiTalkDatabasePool,
+    KiwiTalkDatabaseError, KiwiTalkDatabasePool,
 };
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
@@ -43,7 +43,7 @@ impl KiwiTalkClient {
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> Result<Self, KiwiTalkDatabaseError> {
-        spawn_database_task(pool.clone(), |mut connection| {
+        pool.spawn_task(|mut connection| {
             Ok(connection.migrate_to_latest()?)
         })
         .await?;
@@ -59,6 +59,21 @@ impl KiwiTalkClient {
             session,
             pool,
         })
+    }
+
+    #[inline(always)]
+    pub const fn session(&self) -> &LocoCommandSession {
+        &self.session
+    }
+
+    #[inline(always)]
+    pub const fn pool(&self) -> &KiwiTalkDatabasePool {
+        &self.pool
+    }
+
+    #[inline(always)]
+    pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_> {
+        KiwiTalkClientChannel::new(self, channel_id)
     }
 
     pub async fn login(
@@ -92,25 +107,26 @@ impl KiwiTalkClient {
             })
             .await?;
 
-        sender.send(login_res.chat_list.chat_datas).await.unwrap();
+        sender.send(login_res.chat_list.chat_datas).await.ok();
 
-        tokio::spawn(spawn_database_task(self.pool.clone(), move |connection| {
-            while let Some(datas) = recv.blocking_recv() {
-                for data in datas {
-                    connection
-                        .channel()
-                        .insert(&channel_model_from_channel_list_data(&data))?;
-
-                    if let Some(ref chatlog) = data.chatlog {
+        let database_task =
+            tokio::spawn(self.pool.spawn_task(move |connection| {
+                while let Some(datas) = recv.blocking_recv() {
+                    for data in datas {
                         connection
-                            .chat()
-                            .insert(&chat_model_from_chatlog(chatlog))?;
+                            .channel()
+                            .insert(&channel_model_from_channel_list_data(&data))?;
+
+                        if let Some(ref chatlog) = data.chatlog {
+                            connection
+                                .chat()
+                                .insert(&chat_model_from_chatlog(chatlog))?;
+                        }
                     }
                 }
-            }
 
-            Ok(())
-        }));
+                Ok(())
+            }));
 
         if !login_res.chat_list.eof {
             let stream = talk_client.channel_list_stream(
@@ -120,26 +136,13 @@ impl KiwiTalkClient {
             pin_mut!(stream);
             while let Some(res) = stream.next().await {
                 let res = res?;
-                sender.send(res.chat_datas).await.unwrap();
+                sender.send(res.chat_datas).await.ok();
             }
         }
 
+        database_task.await.unwrap()?;
+
         Ok(())
-    }
-
-    #[inline(always)]
-    pub const fn session(&self) -> &LocoCommandSession {
-        &self.session
-    }
-
-    #[inline(always)]
-    pub const fn pool(&self) -> &KiwiTalkDatabasePool {
-        &self.pool
-    }
-
-    #[inline(always)]
-    pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_> {
-        KiwiTalkClientChannel::new(self, channel_id)
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {

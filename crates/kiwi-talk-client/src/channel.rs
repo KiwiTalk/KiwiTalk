@@ -1,7 +1,4 @@
-use crate::{
-    database::{conversion::chat_model_from_chatlog, spawn_database_task},
-    ClientResult, KiwiTalkClient,
-};
+use crate::{database::conversion::chat_model_from_chatlog, ClientResult, KiwiTalkClient};
 use kiwi_talk_db::channel::model::ChannelId;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{request::chat::WriteReq, structs::chat::Chatlog};
@@ -49,14 +46,16 @@ impl<'a> KiwiTalkClientChannel<'a> {
             msg_id: res.msg_id,
         });
 
-        spawn_database_task(self.client.pool().clone(), move |connection| {
-            connection
-                .chat()
-                .insert(&chat_model_from_chatlog(&chatlog))?;
+        self.client
+            .pool()
+            .spawn_task(move |connection| {
+                connection
+                    .chat()
+                    .insert(&chat_model_from_chatlog(&chatlog))?;
 
-            Ok(())
-        })
-        .await?;
+                Ok(())
+            })
+            .await?;
 
         Ok(chatlog)
     }

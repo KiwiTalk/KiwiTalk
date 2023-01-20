@@ -2,12 +2,38 @@ pub mod conversion;
 
 use std::path::Path;
 
+use futures::{Future, FutureExt};
 use kiwi_talk_db::{rusqlite, rusqlite_migration, KiwiTalkConnection};
 use r2d2::{ManageConnection, Pool, PooledConnection};
 use r2d2_sqlite::SqliteConnectionManager;
 use thiserror::Error;
 
-pub type KiwiTalkDatabasePool = Pool<KiwiTalkDatabaseManager>;
+#[derive(Debug, Clone)]
+pub struct KiwiTalkDatabasePool(Pool<KiwiTalkDatabaseManager>);
+
+impl KiwiTalkDatabasePool {
+    pub fn new(manager: KiwiTalkDatabaseManager) -> Result<Self, PoolError> {
+        Ok(Self(Pool::new(manager)?))
+    }
+
+    pub fn spawn_task<
+        F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<(), KiwiTalkDatabaseError>,
+    >(
+        &self,
+        closure: F,
+    ) -> impl Future<Output = Result<(), KiwiTalkDatabaseError>>
+    where
+        F: Send + 'static,
+    {
+        let pool = self.0.clone();
+        tokio::task::spawn_blocking(move || {
+            let connection = pool.get().map_err(PoolError)?;
+
+            closure(connection)
+        })
+        .map(|res| res.unwrap())
+    }
+}
 
 #[derive(Debug)]
 pub struct KiwiTalkDatabaseManager {
@@ -49,31 +75,17 @@ impl ManageConnection for KiwiTalkDatabaseManager {
 }
 
 #[derive(Debug, Error)]
+#[error(transparent)]
+pub struct PoolError(#[from] r2d2::Error);
+
+#[derive(Debug, Error)]
 pub enum KiwiTalkDatabaseError {
     #[error(transparent)]
     Rusqlite(#[from] rusqlite::Error),
 
     #[error(transparent)]
-    Pool(#[from] r2d2::Error),
+    Pool(#[from] PoolError),
 
     #[error(transparent)]
     Initialization(#[from] rusqlite_migration::Error),
-}
-
-pub async fn spawn_database_task<
-    F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<(), KiwiTalkDatabaseError>,
->(
-    pool: KiwiTalkDatabasePool,
-    closure: F,
-) -> Result<(), KiwiTalkDatabaseError>
-where
-    F: Send + 'static,
-{
-    tokio::task::spawn_blocking(move || {
-        let connection = pool.get()?;
-
-        closure(connection)
-    })
-    .await
-    .unwrap()
 }
