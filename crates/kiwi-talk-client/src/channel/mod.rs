@@ -124,13 +124,6 @@ impl<'a> KiwiTalkClientChannel<'a> {
 
         let mut count = 0;
 
-        let stream = client.sync_chat_stream(&SyncMsgReq {
-            chat_id: self.channel_id,
-            current,
-            count: 300,
-            max,
-        });
-
         let (sender, mut recv) = channel(4);
 
         let database_task = self.client.pool().spawn_task(move |connection| {
@@ -144,14 +137,24 @@ impl<'a> KiwiTalkClientChannel<'a> {
             Ok(())
         });
 
+        let stream = client.sync_chat_stream(&SyncMsgReq {
+            chat_id: self.channel_id,
+            current,
+            count: 0,
+            max,
+        });
+
         pin_mut!(stream);
         while let Some(res) = stream.next().await {
             let res = res?;
 
-            count += res.chat_logs.len();
-            sender.send(res.chat_logs).await.ok();
+            if let Some(chatlogs) = res.chatlogs {
+                count += chatlogs.len();
+                sender.send(chatlogs).await.ok();
+            }
         }
 
+        drop(sender);
         database_task.await?;
 
         Ok(count)
