@@ -56,7 +56,7 @@ pub struct ChatOnRoomRes {
     pub unknown_o: i64,
 
     #[serde(rename = "jsi")]
-    pub unknown_jsi: i64,
+    pub unknown_jsi: Option<i64>,
 
     /// Unknown (openchat)
     #[serde(rename = "notiRead")]
