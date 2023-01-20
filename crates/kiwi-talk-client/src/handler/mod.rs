@@ -109,14 +109,15 @@ where
     }
 
     async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
-        self.pool.spawn_task(move |connection| {
-            connection
-                .user()
-                .update_watermark(data.user_id, data.chat_id, data.watermark)?;
+        self.pool
+            .spawn_task(move |connection| {
+                connection
+                    .user()
+                    .update_watermark(data.user_id, data.chat_id, data.watermark)?;
 
-            Ok(())
-        })
-        .await?;
+                Ok(())
+            })
+            .await?;
 
         self.emit(
             KiwiTalkChannelEvent::ChatRead(ChatRead {

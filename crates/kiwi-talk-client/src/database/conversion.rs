@@ -1,5 +1,9 @@
-use kiwi_talk_db::{chat::model::{ChatModel, LogId}, model::FullModel, channel::model::{ChannelId, ChannelModel}};
-use talk_loco_command::structs::{chat::Chatlog, channel_info::ChannelListData};
+use kiwi_talk_db::{
+    channel::model::{ChannelId, ChannelModel},
+    chat::model::{ChatModel, LogId},
+    model::FullModel,
+};
+use talk_loco_command::structs::{channel_info::ChannelListData, chat::Chatlog};
 
 // TODO:: use trait
 pub fn chat_model_from_chatlog(chatlog: &Chatlog) -> FullModel<LogId, ChatModel> {
@@ -22,7 +26,9 @@ pub fn chat_model_from_chatlog(chatlog: &Chatlog) -> FullModel<LogId, ChatModel>
 }
 
 // TODO:: use trait
-pub fn channel_model_from_channel_list_data(data: &ChannelListData) -> FullModel<ChannelId, ChannelModel> {
+pub fn channel_model_from_channel_list_data(
+    data: &ChannelListData,
+) -> FullModel<ChannelId, ChannelModel> {
     FullModel::new(
         data.id,
         ChannelModel {

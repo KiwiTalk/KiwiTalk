@@ -43,10 +43,8 @@ impl KiwiTalkClient {
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> Result<Self, KiwiTalkDatabaseError> {
-        pool.spawn_task(|mut connection| {
-            Ok(connection.migrate_to_latest()?)
-        })
-        .await?;
+        pool.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
+            .await?;
 
         let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
 
@@ -109,24 +107,23 @@ impl KiwiTalkClient {
 
         sender.send(login_res.chat_list.chat_datas).await.ok();
 
-        let database_task =
-            tokio::spawn(self.pool.spawn_task(move |connection| {
-                while let Some(datas) = recv.blocking_recv() {
-                    for data in datas {
-                        connection
-                            .channel()
-                            .insert(&channel_model_from_channel_list_data(&data))?;
+        let database_task = tokio::spawn(self.pool.spawn_task(move |connection| {
+            while let Some(datas) = recv.blocking_recv() {
+                for data in datas {
+                    connection
+                        .channel()
+                        .insert(&channel_model_from_channel_list_data(&data))?;
 
-                        if let Some(ref chatlog) = data.chatlog {
-                            connection
-                                .chat()
-                                .insert(&chat_model_from_chatlog(chatlog))?;
-                        }
+                    if let Some(ref chatlog) = data.chatlog {
+                        connection
+                            .chat()
+                            .insert(&chat_model_from_chatlog(chatlog))?;
                     }
                 }
+            }
 
-                Ok(())
-            }));
+            Ok(())
+        }));
 
         if !login_res.chat_list.eof {
             let stream = talk_client.channel_list_stream(
