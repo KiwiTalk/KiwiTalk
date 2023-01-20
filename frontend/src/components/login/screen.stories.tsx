@@ -1,4 +1,4 @@
-import { Story } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
 
 import { LoginScreen } from './screen';
@@ -20,7 +20,7 @@ const InnerForm = styled.div`
   outline: 1px solid black;
 `;
 
-const Template: Story<React.PropsWithChildren> = () => {
+const Template: StoryFn<React.PropsWithChildren> = () => {
   return <Container>
     <LoginScreen>
       <InnerForm />

@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 
 import { Button } from '.';
 
@@ -10,7 +10,7 @@ export default {
   },
 };
 
-const Template: ComponentStory<typeof Button> = (args) =>
+const Template: StoryFn<typeof Button> = (args) =>
   <Button disabled={args.disabled} onClick={args.onClick}>
     {args.text}
   </Button>;

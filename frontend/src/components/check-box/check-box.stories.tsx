@@ -1,4 +1,4 @@
-import { Story } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 import { ComponentProps } from 'react';
 
 import { CheckBox } from '.';
@@ -17,7 +17,7 @@ type AdditionalProp = {
   indeterminate?: boolean,
 }
 
-const Template: Story<ComponentProps<typeof CheckBox> & AdditionalProp> = (args) =>
+const Template: StoryFn<ComponentProps<typeof CheckBox> & AdditionalProp> = (args) =>
   <CheckBox
     id="example"
     disabled={args.disabled}

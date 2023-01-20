@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 
 import { TodoPlaceholder } from '.';
 
@@ -7,7 +7,7 @@ export default {
   component: TodoPlaceholder,
 };
 
-const Template: ComponentStory<typeof TodoPlaceholder> = (args) =>
+const Template: StoryFn<typeof TodoPlaceholder> = (args) =>
   <TodoPlaceholder part={args.part} />;
 
 export const Default = Template.bind({});

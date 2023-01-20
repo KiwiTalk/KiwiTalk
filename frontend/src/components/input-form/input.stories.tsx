@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 
 import { ReactComponent as IconAccountCircle } from './account_circle.svg';
 
@@ -12,7 +12,7 @@ export default {
   },
 };
 
-const Template: ComponentStory<typeof InputForm> = (args) =>
+const Template: StoryFn<typeof InputForm> = (args) =>
   <InputForm
     icon={args.icon}
     disabled={args.disabled}

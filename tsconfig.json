@@ -20,6 +20,6 @@
       "vite-plugin-svgr/client",
     ]
   },
-  "include": ["frontend/src"],
+  "include": ["frontend/src", ".storybook/preview.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,17 +1,17 @@
 import '../frontend/src/app/env';
 
 import i18next from 'i18next';
-import React from 'react';
+import { Decorator } from '@storybook/react';
 
 export const parameters = {
-  actions: { argTypesRegex: "^on[A-Z].*" },
+  actions: { argTypesRegex: '^on[A-Z].*' },
   controls: {
     matchers: {
       color: /(background|color)$/i,
       date: /Date$/,
     },
   },
-}
+};
 
 export const globalTypes = {
   locale: {
@@ -28,7 +28,7 @@ export const globalTypes = {
   },
 };
 
-export const decorators = [
+export const decorators: Decorator[] = [
   (Story: () => JSX.Element, { globals }) => {
     if (globals.locale !== i18next.language) {
       i18next.changeLanguage(globals.locale);

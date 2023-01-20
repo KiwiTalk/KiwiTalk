@@ -1,4 +1,4 @@
-import { Story } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 
 import { LoginForm, LoginFormInput } from './login';
 
@@ -14,7 +14,7 @@ type Prop = Partial<LoginFormInput> & {
   onSubmit?: (input: LoginFormInput) => void,
 };
 
-const Template: Story<Prop> = (args) =>
+const Template: StoryFn<Prop> = (args) =>
   <LoginForm
     defaultInput={args}
     onSubmit={args.onSubmit}
