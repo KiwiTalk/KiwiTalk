@@ -43,7 +43,7 @@ pub struct Chatlog {
     ///
     /// * KakaoI = 1
     /// * Bot = 2
-    pub referer: Option<i8>,
+    pub referer: Option<i32>,
 
     /// Used on pluschat.
     ///
