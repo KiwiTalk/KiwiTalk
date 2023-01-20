@@ -3243,7 +3243,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/preview-web@npm:6.5.15, @storybook/preview-web@npm:^6.5.15":
+"@storybook/preview-web@npm:6.5.15":
   version: 6.5.15
   resolution: "@storybook/preview-web@npm:6.5.15"
   dependencies:
@@ -10191,7 +10191,6 @@ __metadata:
     "@storybook/addon-interactions": 6.5.15
     "@storybook/addon-links": 6.5.15
     "@storybook/builder-vite": 0.3.0
-    "@storybook/preview-web": ^6.5.15
     "@storybook/react": 6.5.15
     "@storybook/testing-library": 0.0.13
     "@tauri-apps/api": 1.2.0
