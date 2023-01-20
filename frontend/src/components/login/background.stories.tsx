@@ -1,4 +1,4 @@
-import { Story } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
 
 import { LoginBackground } from './background';
@@ -13,7 +13,7 @@ type BackgroundProp = {
   height: number;
 };
 
-const Template: Story<BackgroundProp> = (args) => {
+const Template: StoryFn<BackgroundProp> = (args) => {
   const Container = styled.div`
     width: ${args.width}px;
     height: ${args.height}px;

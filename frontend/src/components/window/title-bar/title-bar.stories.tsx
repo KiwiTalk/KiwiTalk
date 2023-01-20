@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
 import { WindowTitleBar } from '.';
 import { WindowControl } from '../control';
@@ -26,7 +26,7 @@ const TitleBarTitle = styled.span`
   user-select: none;
 `;
 
-const Template: ComponentStory<typeof WindowTitleBar> = () => {
+const Template: StoryFn<typeof WindowTitleBar> = () => {
   return <TitleBar>
     <TitleBarTitle>Sample title</TitleBarTitle>
     <TitleBarControl />
