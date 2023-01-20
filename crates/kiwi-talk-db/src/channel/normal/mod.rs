@@ -54,13 +54,13 @@ impl<'a> NormalUserEntry<'a> {
         self.0 .0.execute(
             "INSERT INTO normal_channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             (
-                &user.id,
-                &user.model.channel_id,
+                user.id,
+                user.model.channel_id,
                 &user.model.country_iso,
-                &user.model.account_id,
-                &user.model.status_message,
-                &user.model.linked_services,
-                &user.model.suspended,
+                user.model.account_id,
+                user.model.status_message.as_ref(),
+                user.model.linked_services.as_ref(),
+                user.model.suspended,
             ),
         )?;
 

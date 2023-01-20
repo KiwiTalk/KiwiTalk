@@ -125,14 +125,14 @@ impl<'a> ChannelUserEntry<'a> {
         self.0.execute(
             "INSERT OR REPLACE INTO channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             (
-                &user.id,
-                &user.model.channel_id,
+                user.id,
+                user.model.channel_id,
                 &user.model.nickname,
-                &user.model.profile_url,
-                &user.model.full_profile_url,
-                &user.model.original_profile_url,
-                &user.model.user_type,
-                &user.model.watermark,
+                user.model.profile_url.as_ref(),
+                user.model.full_profile_url.as_ref(),
+                user.model.original_profile_url.as_ref(),
+                user.model.user_type,
+                user.model.watermark,
             ),
         )?;
 
