@@ -125,6 +125,17 @@ impl KiwiTalkClient {
 
         self.user_id.store(login_res.user_id, Ordering::Release);
 
+        {
+            let id_list = self
+                .pool
+                .spawn_task(|connection| Ok(connection.channel().get_all_channel_id()?))
+                .await?;
+
+            for id in id_list {
+                self.channel(id).sync_chats().await?;
+            }
+        }
+
         sender.send(login_res.chat_list.chat_datas).await.ok();
 
         let database_task = self.pool.spawn_task(move |connection| {
