@@ -145,8 +145,8 @@ mod tests {
                 channel_type: "OM".into(),
                 active_user_count: 0,
                 new_chat_count: 0,
-                last_chat_log_id: Some(0),
-                last_seen_log_id: Some(0),
+                last_chat_log_id: 0,
+                last_seen_log_id: 0,
                 push_alert: true,
             },
         ))?;
