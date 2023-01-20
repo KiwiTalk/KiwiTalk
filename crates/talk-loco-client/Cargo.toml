@@ -17,6 +17,7 @@ nohash-hasher = "0.2.0"
 talk-loco-command = { path = "../talk-loco-command" }
 loco-protocol = "5.3.1"
 thiserror = "1.0"
+async-stream = "0.3.3"
 
 [dev-dependencies]
 tokio-native-tls = "0.3.0"

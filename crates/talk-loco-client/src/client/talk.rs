@@ -1,8 +1,10 @@
+use async_stream::try_stream;
+use futures::Stream;
 use talk_loco_command::{request, response};
 
 use crate::LocoCommandSession;
 
-use super::async_client_method;
+use super::{async_client_method, ClientRequestResult};
 
 #[derive(Debug)]
 pub struct TalkClient<'a>(pub &'a LocoCommandSession);
@@ -11,6 +13,31 @@ impl TalkClient<'_> {
     async_client_method!(login, "LOGINLIST", request::chat::LoginListReq => response::chat::LoginListRes);
 
     async_client_method!(load_channel_list, "LCHATLIST", request::chat::LChatListReq => response::chat::LChatListRes);
+    pub fn channel_list_stream<'a>(
+        &'a self,
+        mut last_token_id: i64,
+        mut last_chat_id: Option<i64>,
+    ) -> impl Stream<Item = ClientRequestResult<response::chat::LChatListRes>> + 'a {
+        try_stream! {
+            let mut eof = false;
+
+            while !eof {
+                let res = self.load_channel_list(&request::chat::LChatListReq {
+                    chat_ids: vec![],
+                    max_ids: vec![],
+                    last_token_id,
+                    last_chat_id,
+                }).await?;
+
+                if let Some(id) = res.last_token_id {
+                    last_token_id = id;
+                }
+
+                (last_chat_id, eof) = (res.last_chat_id, res.eof);
+                yield res;
+            }
+        }
+    }
 
     async_client_method!(set_status, "SETST", request::chat::SetStReq);
 
@@ -31,6 +58,40 @@ impl TalkClient<'_> {
     async_client_method!(set_meta, "SETMETA", request::chat::SetMetaReq => response::chat::SetMetaRes);
 
     async_client_method!(sync_chat, "SYNCMSG", request::chat::SyncMsgReq => response::chat::SyncMsgRes);
+    pub fn sync_chat_stream<'a>(
+        &'a self,
+        req: &'a request::chat::SyncMsgReq,
+    ) -> impl Stream<Item = ClientRequestResult<response::chat::SyncMsgRes>> + 'a {
+        try_stream! {
+            let request::chat::SyncMsgReq {
+                chat_id,
+                mut current,
+                count,
+                max
+            } = *req;
+
+            let mut is_ok = true;
+            while is_ok {
+                let res = self.sync_chat(&request::chat::SyncMsgReq {
+                    chat_id,
+                    current,
+                    count,
+                    max,
+                }).await?;
+
+                match res.chat_logs.last() {
+                    Some(last) => {
+                        current = last.log_id;
+                        is_ok = res.is_ok;
+                    }
+
+                    None => is_ok = false,
+                }
+
+                yield res;
+            }
+        }
+    }
 
     async_client_method!(channel_users, "GETMEM", request::chat::GetMemReq => response::chat::GetMemRes);
 
