@@ -98,7 +98,6 @@ impl KiwiTalkClient {
         tokio::spawn(spawn_database_task(self.pool.clone(), move |connection| {
             while let Some(datas) = recv.blocking_recv() {
                 for data in datas {
-                    println!("{:?}", data);
                     connection.channel().insert(&FullModel::new(
                         data.id,
                         ChannelModel {
