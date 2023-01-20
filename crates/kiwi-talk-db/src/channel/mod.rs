@@ -38,7 +38,16 @@ impl<'a> ChannelEntry<'a> {
             .query_row("SELECT * FROM channel WHERE id = ?", [id], Self::map_row)
     }
 
-    pub fn get_all_channels(
+    pub fn get_all_channel_id(
+        &self,
+    ) -> Result<Vec<ChannelId>, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT id FROM channel")?;
+
+        let rows = statement.query(())?;
+        rows.mapped(|row| row.get(0)).into_iter().collect()
+    }
+
+    pub fn get_all_channel(
         &self,
     ) -> Result<Vec<FullModel<ChannelId, ChannelModel>>, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM channel")?;
