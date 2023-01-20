@@ -32,14 +32,14 @@ pub async fn get_conf() -> Result<GetConfRes, ConnError> {
     let session = LocoCommandSession::new(stream, |_| {});
     let client = BookingClient(&session);
 
-    Ok(client
+    client
         .get_conf(&GetConfReq {
             os: TALK_OS.into(),
             mccmnc: TALK_MCCMNC.into(),
             model: TALK_MODEL.into(),
         })
         .await
-        .or(Err(ConnError::Stream))?)
+        .or(Err(ConnError::Stream))
 }
 
 pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
@@ -50,7 +50,7 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
     let session = LocoCommandSession::new(stream, |_| {});
     let client = CheckinClient(&session);
 
-    Ok(client
+    client
         .checkin(&CheckinReq {
             user_id,
             client: ClientInfo {
@@ -64,7 +64,7 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
             use_sub: TALK_USE_SUB,
         })
         .await
-        .or(Err(ConnError::Stream))?)
+        .or(Err(ConnError::Stream))
 }
 
 #[derive(Debug, Error)]

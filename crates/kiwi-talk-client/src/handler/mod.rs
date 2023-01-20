@@ -63,15 +63,24 @@ where
                 .on_chat_read(map_data("DECUNREAD", command.data.data)?)
                 .await?),
 
-            "CHANGESVR" => Ok(self.on_change_server().await),
+            "CHANGESVR" => {
+                self.on_change_server().await;
+                Ok(())
+            },
 
-            "KICKOUT" => Ok(self
+            "KICKOUT" => {
+                self
                 .on_kickout(map_data("KICKOUT", command.data.data)?)
-                .await),
+                .await;
+                Ok(())
+            },
 
-            _ => Ok(self
+            _ => {
+                self
                 .emit(KiwiTalkClientEvent::Unhandled(command.into()))
-                .await),
+                .await;
+                Ok(())
+            },
         }
     }
 

@@ -69,7 +69,7 @@ pub struct DeviceUuid(String);
 
 impl DeviceUuid {
     pub fn new(data: &[u8; 64]) -> Self {
-        DeviceUuid(STANDARD.encode(&data))
+        DeviceUuid(STANDARD.encode(data))
     }
 
     #[inline]

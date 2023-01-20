@@ -13,11 +13,11 @@ impl TalkClient<'_> {
     async_client_method!(login, "LOGINLIST", request::chat::LoginListReq => response::chat::LoginListRes);
 
     async_client_method!(load_channel_list, "LCHATLIST", request::chat::LChatListReq => response::chat::LChatListRes);
-    pub fn channel_list_stream<'a>(
-        &'a self,
+    pub fn channel_list_stream(
+        &self,
         mut last_token_id: i64,
         mut last_chat_id: Option<i64>,
-    ) -> impl Stream<Item = ClientRequestResult<response::chat::LChatListRes>> + 'a {
+    ) -> impl Stream<Item = ClientRequestResult<response::chat::LChatListRes>> + '_ {
         try_stream! {
             let mut eof = false;
 

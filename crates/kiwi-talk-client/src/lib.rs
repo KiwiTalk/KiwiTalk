@@ -160,7 +160,7 @@ impl KiwiTalkClient {
     }
 
     #[inline(always)]
-    pub const fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
+    pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_> {
         KiwiTalkClientChannel::new(self, channel_id)
     }
 
