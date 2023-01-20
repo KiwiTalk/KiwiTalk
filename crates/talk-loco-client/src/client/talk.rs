@@ -70,8 +70,8 @@ impl TalkClient<'_> {
         } = *req;
 
         try_stream! {
-            let mut is_ok = true;
-            while is_ok {
+            let mut is_ok = false;
+            while !is_ok {
                 let res = self.sync_chat(&request::chat::SyncMsgReq {
                     chat_id,
                     current,
@@ -79,13 +79,13 @@ impl TalkClient<'_> {
                     max,
                 }).await?;
 
-                match res.chat_logs.last() {
+                match res.chatlogs.as_ref().map(|chatlogs| chatlogs.last()).flatten() {
                     Some(last) => {
                         current = last.log_id;
                         is_ok = res.is_ok;
                     }
 
-                    None => is_ok = false,
+                    None => is_ok = true,
                 }
 
                 yield res;
