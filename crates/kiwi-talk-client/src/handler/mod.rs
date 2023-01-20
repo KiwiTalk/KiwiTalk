@@ -1,9 +1,6 @@
 pub mod error;
 
-use std::sync::{
-    atomic::{AtomicI64, Ordering},
-    Arc,
-};
+use std::sync::{atomic::AtomicI64, Arc};
 
 use bson::Document;
 use futures::Future;
@@ -15,7 +12,7 @@ use talk_loco_command::{
 };
 
 use crate::{
-    database::{KiwiTalkDatabasePool, conversion::chat_model_from_chatlog},
+    database::{conversion::chat_model_from_chatlog, KiwiTalkDatabasePool},
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
@@ -122,16 +119,8 @@ where
     }
 
     async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
-        let should_update_last_seen = self.user_id.load(Ordering::Acquire) == data.user_id;
-
         self.pool
             .spawn_task(move |connection| {
-                if should_update_last_seen {
-                    connection
-                        .channel()
-                        .set_last_seen_log_id(data.chat_id, data.watermark)?;
-                }
-
                 connection
                     .user()
                     .update_watermark(data.user_id, data.chat_id, data.watermark)?;
