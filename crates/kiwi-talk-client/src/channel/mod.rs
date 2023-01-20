@@ -3,7 +3,7 @@ use crate::{
 };
 use kiwi_talk_db::channel::model::ChannelId;
 use talk_loco_client::client::talk::TalkClient;
-use talk_loco_command::{request::chat::WriteReq, structs::chat::Chatlog};
+use talk_loco_command::{request::chat::{WriteReq, UpdateChatReq}, structs::chat::Chatlog};
 
 #[derive(Debug, Clone, Copy)]
 pub struct KiwiTalkClientChannel<'a> {
@@ -65,5 +65,15 @@ impl<'a> KiwiTalkClientChannel<'a> {
         }
 
         Ok(chatlog)
+    }
+
+    pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
+        TalkClient(self.client.session()).update_channel(&UpdateChatReq {
+            chat_id: self.channel_id,
+            push_alert,
+        }).await?;
+
+        
+        Ok(())
     }
 }
