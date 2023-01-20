@@ -15,7 +15,7 @@ use talk_loco_command::{
 };
 
 use crate::{
-    database::{conversion::chat_model_from_chatlog, KiwiTalkDatabasePool},
+    database::KiwiTalkDatabasePool,
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
@@ -102,10 +102,6 @@ where
                 connection
                     .channel()
                     .set_last_chat_log_id(chatlog.chat_id, chatlog.log_id)?;
-                connection
-                    .chat()
-                    .insert(&chat_model_from_chatlog(&chatlog))?;
-
                 Ok(())
             })
             .await?;
