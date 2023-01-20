@@ -13,7 +13,7 @@ use config::KiwiTalkClientConfig;
 use database::{spawn_database_task, KiwiTalkDatabaseError, KiwiTalkDatabasePool};
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
-use futures::{AsyncRead, AsyncWrite, Future};
+use futures::{pin_mut, AsyncRead, AsyncWrite, Future, StreamExt};
 use handler::KiwiTalkClientHandler;
 use kiwi_talk_db::channel::model::ChannelId;
 use status::ClientStatus;
@@ -62,7 +62,9 @@ impl KiwiTalkClient {
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
     ) -> ClientResult<()> {
-        let login_res = TalkClient(&self.session)
+        let talk_client = TalkClient(&self.session);
+
+        let login_res = talk_client
             .login(&LoginListReq {
                 client: self.config.client.clone(),
                 protocol_version: "1.0".into(),
@@ -83,6 +85,17 @@ impl KiwiTalkClient {
                 background: None,
             })
             .await?;
+
+        if !login_res.chat_list.eof {
+            let stream = talk_client.channel_list_stream(
+                login_res.chat_list.last_token_id.unwrap_or_default(),
+                login_res.chat_list.last_chat_id,
+            );
+            pin_mut!(stream);
+            while let Some(res) = stream.next().await {
+                let res = res?;
+            }
+        }
 
         Ok(())
     }
