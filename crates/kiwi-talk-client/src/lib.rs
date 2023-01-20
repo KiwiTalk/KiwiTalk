@@ -7,7 +7,10 @@ pub mod event;
 pub mod handler;
 pub mod status;
 
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicI64, Ordering},
+    Arc,
+};
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
@@ -31,7 +34,7 @@ pub struct KiwiTalkClient {
 
     session: LocoCommandSession,
 
-    user_id: ChannelUserId,
+    user_id: Arc<AtomicI64>,
 
     pool: KiwiTalkDatabasePool,
 }
@@ -49,7 +52,13 @@ impl KiwiTalkClient {
         pool.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
             .await?;
 
-        let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
+        let user_id = Arc::new(AtomicI64::new(0));
+
+        let handler = Arc::new(KiwiTalkClientHandler::new(
+            pool.clone(),
+            user_id.clone(),
+            listener,
+        ));
 
         let session = LocoCommandSession::new(stream, move |read| {
             tokio::spawn(Arc::clone(&handler).handle(read));
@@ -58,7 +67,7 @@ impl KiwiTalkClient {
         Ok(KiwiTalkClient {
             config,
             session,
-            user_id: 0,
+            user_id,
             pool,
         })
     }
@@ -74,8 +83,8 @@ impl KiwiTalkClient {
     }
 
     #[inline(always)]
-    pub const fn user_id(&self) -> ChannelUserId {
-        self.user_id
+    pub fn user_id(&self) -> ChannelUserId {
+        self.user_id.load(Ordering::Acquire)
     }
 
     #[inline(always)]
@@ -84,7 +93,7 @@ impl KiwiTalkClient {
     }
 
     pub async fn login(
-        &mut self,
+        &self,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
     ) -> ClientResult<()> {
@@ -113,6 +122,8 @@ impl KiwiTalkClient {
                 background: None,
             })
             .await?;
+
+        self.user_id.store(login_res.user_id, Ordering::Release);
 
         sender.send(login_res.chat_list.chat_datas).await.ok();
 
@@ -151,8 +162,6 @@ impl KiwiTalkClient {
 
         drop(sender);
         database_task.await.unwrap()?;
-
-        self.user_id = login_res.user_id;
 
         Ok(())
     }
