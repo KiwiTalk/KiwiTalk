@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS channel (
     type VARCHAR(16) NOT NULL,
     active_user_count INTEGER NOT NULL,
     new_chat_count INTEGER NOT NULL,
-    last_chat_log_id INTEGER,
-    last_seen_log_id INTEGER,
+    last_chat_log_id INTEGER NOT NULL,
+    last_seen_log_id INTEGER NOT NULL,
     push_alert BOOLEAN NOT NULL
 );
 

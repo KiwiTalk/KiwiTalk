@@ -90,7 +90,7 @@ where
                     message: chatlog.message,
                     attachment: chatlog.attachment,
                     supplement: chatlog.supplement,
-                    referer: data.chatlog.referer.map(Into::into),
+                    referer: data.chatlog.referer,
                     deleted: false,
                 },
             ))?;
