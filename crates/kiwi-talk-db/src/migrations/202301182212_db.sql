@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS channel_user (
 
     watermark INTEGER NOT NULL,
 
-    UNIQUE(id, channel_id),
+    PRIMARY KEY(id, channel_id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS normal_channel_user (
     linked_services TEXT,
     suspended BOOLEAN NOT NULL,
 
-    UNIQUE(id, channel_id),
+    PRIMARY KEY(id, channel_id),
     FOREIGN KEY(id) REFERENCES channel_user(id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
