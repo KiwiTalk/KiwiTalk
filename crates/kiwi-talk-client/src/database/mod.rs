@@ -1,3 +1,5 @@
+pub mod conversion;
+
 use std::path::Path;
 
 use kiwi_talk_db::{rusqlite, rusqlite_migration, KiwiTalkConnection};
