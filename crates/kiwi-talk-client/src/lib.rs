@@ -5,6 +5,7 @@ pub mod error;
 pub mod event;
 pub mod handler;
 pub mod status;
+pub mod chat;
 
 use std::sync::Arc;
 
@@ -18,7 +19,7 @@ use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{pin_mut, AsyncRead, AsyncWrite, Future, StreamExt};
 use handler::KiwiTalkClientHandler;
-use kiwi_talk_db::channel::model::ChannelId;
+use kiwi_talk_db::channel::model::{ChannelId, ChannelUserId};
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
@@ -29,6 +30,8 @@ pub struct KiwiTalkClient {
     pub config: KiwiTalkClientConfig,
 
     session: LocoCommandSession,
+
+    user_id: ChannelUserId,
 
     pool: KiwiTalkDatabasePool,
 }
@@ -55,6 +58,7 @@ impl KiwiTalkClient {
         Ok(KiwiTalkClient {
             config,
             session,
+            user_id: 0,
             pool,
         })
     }
@@ -70,12 +74,17 @@ impl KiwiTalkClient {
     }
 
     #[inline(always)]
+    pub const fn user_id(&self) -> ChannelUserId {
+        self.user_id
+    }
+
+    #[inline(always)]
     pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_> {
         KiwiTalkClientChannel::new(self, channel_id)
     }
 
     pub async fn login(
-        &self,
+        &mut self,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
     ) -> ClientResult<()> {
@@ -142,6 +151,8 @@ impl KiwiTalkClient {
 
         drop(sender);
         database_task.await.unwrap()?;
+
+        self.user_id = login_res.user_id;
 
         Ok(())
     }
