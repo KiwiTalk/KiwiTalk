@@ -5,7 +5,7 @@ use futures::{pin_mut, StreamExt};
 use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq},
+    request::chat::{NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq, ChatOnRoomReq},
     structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
@@ -100,27 +100,27 @@ impl<'a> KiwiTalkClientChannel<'a> {
         Ok(())
     }
 
-    pub async fn sync_chats(&self) -> ClientResult<usize> {
+    pub async fn sync_chats(&self, max: LogId) -> ClientResult<usize> {
         let client = TalkClient(self.client.session());
 
-        let (current, max) = {
+        let current = {
             let channel_id = self.channel_id;
             self.client
                 .pool()
                 .spawn_task(move |connection| {
-                    Ok((
+                    Ok(
                         connection
                             .channel()
                             .get_last_chat_log_id(channel_id)
                             .unwrap_or(0),
-                        connection
-                            .chat()
-                            .get_lastest_chat_log_id(channel_id)
-                            .unwrap_or(0),
-                    ))
+                    )
                 })
                 .await?
         };
+        
+        if current >= max {
+            return Ok(0);
+        }
 
         let mut count = 0;
 
@@ -157,6 +157,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
 
         Ok(count)
     }
+
 
     pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
         TalkClient(self.client.session())

@@ -7,7 +7,10 @@ pub mod event;
 pub mod handler;
 pub mod status;
 
-use std::sync::{Arc, atomic::{AtomicI64, Ordering}};
+use std::sync::{
+    atomic::{AtomicI64, Ordering},
+    Arc,
+};
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
@@ -116,15 +119,10 @@ impl KiwiTalkClient {
 
         self.user_id.store(login_res.user_id, Ordering::Release);
 
-        {
-            let id_list = self
-                .pool
-                .spawn_task(|connection| Ok(connection.channel().get_all_channel_id()?))
-                .await?;
+        let mut sync_list: Vec<(i64, i64)> = Vec::with_capacity(login_res.chat_list.chat_datas.capacity());
 
-            for id in id_list {
-                self.channel(id).sync_chats().await.ok();
-            }
+        for data in &login_res.chat_list.chat_datas {
+            sync_list.push((data.id, data.last_log_id));
         }
 
         sender.send(login_res.chat_list.chat_datas).await.ok();
@@ -156,10 +154,18 @@ impl KiwiTalkClient {
             while let Some(res) = stream.next().await {
                 let res = res?;
 
+                for data in &res.chat_datas {
+                    sync_list.push((data.id, data.last_log_id));
+                }
+
                 if sender.send(res.chat_datas).await.is_err() {
                     break;
                 }
             }
+        }
+
+        for (id, last_log_id) in sync_list {
+            self.channel(id).sync_chats(last_log_id).await?;
         }
 
         drop(sender);
