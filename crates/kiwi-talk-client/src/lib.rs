@@ -122,8 +122,6 @@ impl KiwiTalkClient {
                 }
             }
 
-            println!("C");
-
             Ok(())
         }));
 
