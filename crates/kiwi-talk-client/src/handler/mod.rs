@@ -85,6 +85,7 @@ where
         let chatlog = data.chatlog.clone();
         self.pool
             .spawn_task(move |connection| {
+                connection.channel().set_last_chat_log_id(chatlog.chat_id, chatlog.log_id)?;
                 connection
                     .chat()
                     .insert(&chat_model_from_chatlog(&chatlog))?;
