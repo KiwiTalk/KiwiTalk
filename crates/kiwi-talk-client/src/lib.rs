@@ -1,11 +1,11 @@
 pub mod channel;
+pub mod chat;
 pub mod config;
 pub mod database;
 pub mod error;
 pub mod event;
 pub mod handler;
 pub mod status;
-pub mod chat;
 
 use std::sync::Arc;
 
