@@ -50,7 +50,6 @@ where
 pub struct EventCommand {
     pub method: String,
     pub data_type: i8,
-    pub data: ResponseData,
 }
 
 impl From<BsonCommand<ResponseData>> for EventCommand {
@@ -58,7 +57,6 @@ impl From<BsonCommand<ResponseData>> for EventCommand {
         Self {
             method: command.method.to_string(),
             data_type: command.data_type,
-            data: command.data,
         }
     }
 }
