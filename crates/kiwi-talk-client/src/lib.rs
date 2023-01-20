@@ -119,7 +119,8 @@ impl KiwiTalkClient {
 
         self.user_id.store(login_res.user_id, Ordering::Release);
 
-        let mut sync_list: Vec<(i64, i64)> = Vec::with_capacity(login_res.chat_list.chat_datas.capacity());
+        let mut sync_list: Vec<(i64, i64)> =
+            Vec::with_capacity(login_res.chat_list.chat_datas.capacity());
 
         for data in &login_res.chat_list.chat_datas {
             sync_list.push((data.id, data.last_log_id));

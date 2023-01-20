@@ -1,11 +1,13 @@
 use crate::{
-    chat::ChatContent, database::conversion::chat_model_from_chatlog, ClientResult, KiwiTalkClient,
+    chat::ChatContent,
+    database::conversion::{channel_user_model_from_user_variant, chat_model_from_chatlog},
+    ClientResult, KiwiTalkClient,
 };
 use futures::{pin_mut, StreamExt};
 use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq, ChatOnRoomReq},
+    request::chat::{ChatOnRoomReq, MemberReq, NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq},
     structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
@@ -108,16 +110,14 @@ impl<'a> KiwiTalkClientChannel<'a> {
             self.client
                 .pool()
                 .spawn_task(move |connection| {
-                    Ok(
-                        connection
-                            .channel()
-                            .get_last_chat_log_id(channel_id)
-                            .unwrap_or(0),
-                    )
+                    Ok(connection
+                        .channel()
+                        .get_last_chat_log_id(channel_id)
+                        .unwrap_or(0))
                 })
                 .await?
         };
-        
+
         if current >= max {
             return Ok(0);
         }
@@ -141,7 +141,6 @@ impl<'a> KiwiTalkClientChannel<'a> {
                         .insert(&chat_model_from_chatlog(&chatlog))?;
                 }
             }
-
             Ok(())
         });
 
@@ -158,6 +157,57 @@ impl<'a> KiwiTalkClientChannel<'a> {
         Ok(count)
     }
 
+    pub async fn chat_on(&self) -> ClientResult<()> {
+        let res = TalkClient(self.client.session())
+            .chat_on_channel(&ChatOnRoomReq {
+                chat_id: self.channel_id,
+                token: 0,
+                open_token: None,
+            })
+            .await?;
+
+        self.sync_chats(res.last_log_id).await?;
+
+        let users = match res.users {
+            Some(users) => users,
+            None => {
+                let res = TalkClient(self.client.session())
+                    .user_info(&MemberReq {
+                        chat_id: self.channel_id,
+                        user_ids: res.user_ids.unwrap_or_default(),
+                    })
+                    .await?;
+
+                res.members
+            }
+        };
+
+        let channel_id = self.channel_id;
+        self.client
+            .pool()
+            .spawn_task(move |connection| {
+                connection
+                    .channel()
+                    .set_last_chat_log_id(channel_id, res.last_log_id)?;
+
+                for user in users {
+                    connection
+                        .user()
+                        .insert(&channel_user_model_from_user_variant(channel_id, 0, &user))?;
+                }
+
+                for (id, watermark) in res.watermark_user_ids.into_iter().zip(res.watermarks) {
+                    connection
+                        .user()
+                        .update_watermark(id, channel_id, watermark)?;
+                }
+
+                Ok(())
+            })
+            .await?;
+
+        Ok(())
+    }
 
     pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
         TalkClient(self.client.session())
