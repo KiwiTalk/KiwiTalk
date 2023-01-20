@@ -7,10 +7,7 @@ pub mod event;
 pub mod handler;
 pub mod status;
 
-use std::sync::{
-    atomic::{AtomicI64, Ordering},
-    Arc,
-};
+use std::sync::Arc;
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
@@ -34,7 +31,7 @@ pub struct KiwiTalkClient {
 
     session: LocoCommandSession,
 
-    user_id: Arc<AtomicI64>,
+    user_id: ChannelUserId,
 
     pool: KiwiTalkDatabasePool,
 }
@@ -52,13 +49,7 @@ impl KiwiTalkClient {
         pool.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
             .await?;
 
-        let user_id = Arc::new(AtomicI64::new(0));
-
-        let handler = Arc::new(KiwiTalkClientHandler::new(
-            pool.clone(),
-            user_id.clone(),
-            listener,
-        ));
+        let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
 
         let session = LocoCommandSession::new(stream, move |read| {
             tokio::spawn(Arc::clone(&handler).handle(read));
@@ -67,7 +58,7 @@ impl KiwiTalkClient {
         Ok(KiwiTalkClient {
             config,
             session,
-            user_id,
+            user_id: 0,
             pool,
         })
     }
@@ -83,8 +74,8 @@ impl KiwiTalkClient {
     }
 
     #[inline(always)]
-    pub fn user_id(&self) -> ChannelUserId {
-        self.user_id.load(Ordering::Acquire)
+    pub const fn user_id(&self) -> ChannelUserId {
+        self.user_id
     }
 
     #[inline(always)]
@@ -93,7 +84,7 @@ impl KiwiTalkClient {
     }
 
     pub async fn login(
-        &self,
+        &mut self,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
     ) -> ClientResult<()> {
@@ -123,7 +114,7 @@ impl KiwiTalkClient {
             })
             .await?;
 
-        self.user_id.store(login_res.user_id, Ordering::Release);
+        self.user_id = login_res.user_id;
 
         {
             let id_list = self

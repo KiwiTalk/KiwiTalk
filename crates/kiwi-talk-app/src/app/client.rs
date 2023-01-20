@@ -37,7 +37,7 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
     .await
     .map_err(|_| CreateClientError::LocoHandshake)?;
 
-    let client = KiwiTalkClient::new(
+    let mut client = KiwiTalkClient::new(
         loco_session,
         // TODO:: Replace
         KiwiTalkClientConfig {

@@ -1,6 +1,6 @@
 pub mod error;
 
-use std::sync::{atomic::AtomicI64, Arc};
+use std::sync::Arc;
 
 use bson::Document;
 use futures::Future;
@@ -24,9 +24,6 @@ use self::error::KiwiTalkClientHandlerError;
 #[derive(Debug)]
 pub struct KiwiTalkClientHandler<Listener> {
     pool: KiwiTalkDatabasePool,
-
-    user_id: Arc<AtomicI64>,
-
     listener: Listener,
 }
 
@@ -35,16 +32,8 @@ where
     Fut: Future<Output = ()>,
     Listener: Fn(KiwiTalkClientEvent) -> Fut,
 {
-    pub const fn new(
-        pool: KiwiTalkDatabasePool,
-        user_id: Arc<AtomicI64>,
-        listener: Listener,
-    ) -> Self {
-        Self {
-            pool,
-            user_id,
-            listener,
-        }
+    pub const fn new(pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
+        Self { pool, listener }
     }
 
     pub fn emit(&self, event: KiwiTalkClientEvent) -> Fut {
