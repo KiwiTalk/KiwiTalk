@@ -122,6 +122,8 @@ impl KiwiTalkClient {
                 }
             }
 
+            println!("C");
+
             Ok(())
         }));
 
@@ -140,6 +142,7 @@ impl KiwiTalkClient {
             }
         }
 
+        drop(sender);
         database_task.await.unwrap()?;
 
         Ok(())
