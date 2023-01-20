@@ -2,10 +2,10 @@ use crate::{
     chat::ChatContent, database::conversion::chat_model_from_chatlog, ClientResult, KiwiTalkClient,
 };
 use futures::{pin_mut, StreamExt};
-use kiwi_talk_db::channel::model::ChannelId;
+use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{SyncMsgReq, UpdateChatReq, WriteReq},
+    request::chat::{NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq},
     structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
@@ -70,6 +70,34 @@ impl<'a> KiwiTalkClientChannel<'a> {
         }
 
         Ok(chatlog)
+    }
+
+    pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
+        TalkClient(self.client.session())
+            .read_chat(&NotiReadReq {
+                chat_id: self.channel_id,
+                watermark: log_id,
+                link_id: None,
+            })
+            .await?;
+
+        let client_user_id = self.client.user_id();
+        let channel_id = self.channel_id;
+        self.client
+            .pool()
+            .spawn_task(move |connection| {
+                connection
+                    .channel()
+                    .set_last_seen_log_id(channel_id, log_id)?;
+                connection
+                    .user()
+                    .update_watermark(client_user_id, channel_id, log_id)?;
+
+                Ok(())
+            })
+            .await?;
+
+        Ok(())
     }
 
     pub async fn sync_chats(&self) -> ClientResult<usize> {
