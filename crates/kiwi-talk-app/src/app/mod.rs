@@ -38,6 +38,7 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
             set_credential,
             initialize_client,
             next_client_event,
+            client_user_id,
             destroy_client,
             get_global_configuration,
             set_global_configuration
@@ -51,7 +52,7 @@ struct KiwiTalkApp {
 
     pub credential: parking_lot::RwLock<Option<AppCredential>>,
 
-    pub client: tokio::sync::RwLock<Option<KiwiTalkClient>>,
+    pub client: parking_lot::RwLock<Option<KiwiTalkClient>>,
 
     pub client_event_recv: parking_lot::Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
 }
@@ -93,8 +94,6 @@ async fn initialize_client(
 
     match credential {
         Some(credential) => {
-            let mut client_slot = app.client.write().await;
-
             let (sender, recv) = channel(256);
             let client = create_client(&credential, client_status, info, move |event| {
                 let sender = sender.clone();
@@ -105,10 +104,8 @@ async fn initialize_client(
             })
             .await?;
 
-            let mut client_events_slot = app.client_event_recv.lock();
-
-            *client_slot = Some(client);
-            *client_events_slot = Some(recv);
+            *app.client.write() = Some(client);
+            *app.client_event_recv.lock() = Some(recv);
 
             Ok(())
         }
@@ -132,7 +129,7 @@ fn next_client_event(
 
 #[tauri::command(async)]
 async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
-    let mut client = app.client.write().await;
+    let mut client = app.client.write();
     if client.is_none() {
         return Ok(false);
     }
@@ -140,6 +137,11 @@ async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
     *client = None;
     *app.client_event_recv.lock() = None;
     Ok(true)
+}
+
+#[tauri::command]
+fn client_user_id(app: State<'_, KiwiTalkApp>) -> Option<i64> {
+    Some(app.client.read().as_ref()?.user_id())
 }
 
 // Error without Result
