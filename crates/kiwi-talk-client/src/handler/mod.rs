@@ -148,5 +148,5 @@ fn map_data<T: DeserializeOwned>(
     doc: Document,
 ) -> Result<T, KiwiTalkClientHandlerError> {
     bson::de::from_document(doc)
-        .map_err(|_| KiwiTalkClientHandlerError::CommandDecode(method.to_string()))
+        .map_err(|err| KiwiTalkClientHandlerError::CommandDecode(method.to_string(), err))
 }

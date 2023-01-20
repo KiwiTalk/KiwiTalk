@@ -5,8 +5,8 @@ use crate::database::KiwiTalkDatabaseError;
 
 #[derive(Debug, Error)]
 pub enum KiwiTalkClientHandlerError {
-    #[error("Could not decode command. command: {0}")]
-    CommandDecode(String),
+    #[error("Could not decode command {0}. {1}")]
+    CommandDecode(String, bson::de::Error),
 
     #[error("Network failure while reading. {0}")]
     NetworkRead(#[from] ReadError),
