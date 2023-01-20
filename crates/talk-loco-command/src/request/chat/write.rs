@@ -17,7 +17,7 @@ pub struct WriteReq {
     ///
     /// Client send count??
     #[serde(rename = "msgId")]
-    pub msg_id: i32,
+    pub msg_id: i64,
 
     /// Message content
     ///

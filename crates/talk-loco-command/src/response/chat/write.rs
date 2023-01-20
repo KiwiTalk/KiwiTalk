@@ -24,7 +24,7 @@ pub struct WriteRes {
 
     /// Sent chat message id
     #[serde(rename = "msgId")]
-    pub msg_id: i32,
+    pub msg_id: i64,
 
     /// Sent message
     #[serde(rename = "chatLog")]
