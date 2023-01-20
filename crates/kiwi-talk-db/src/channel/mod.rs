@@ -47,6 +47,17 @@ impl<'a> ChannelEntry<'a> {
         rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
+    pub fn get_last_chat_log_id(
+        &self,
+        id: ChannelId,
+    ) -> Result<LogId, rusqlite::Error> {
+        self.0.query_row(
+            "SELECT last_chat_log_id FROM channel WHERE id = ?",
+            [id],
+            |row| row.get(0)
+        )
+    }
+
     pub fn set_last_chat_log_id(
         &self,
         id: ChannelId,
