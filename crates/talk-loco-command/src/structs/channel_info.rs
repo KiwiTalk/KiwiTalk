@@ -27,13 +27,17 @@ pub struct ChannelListData {
     #[serde(rename = "ll")]
     pub last_log_id: i64,
 
+    /// Last seen chat log id
+    #[serde(rename = "s")]
+    pub last_seen_log_id: i64,
+
     /// Last Chatlog
     #[serde(rename = "l")]
     pub chatlog: Option<Chatlog>,
 
-    /// Member count
+    /// Active member count
     #[serde(rename = "a")]
-    pub member_count: i32,
+    pub active_member_count: i32,
 
     /// Unread message count
     #[serde(rename = "n")]
@@ -60,9 +64,6 @@ pub struct ChannelListData {
 
     /// Unknown. Always 0 on openchat rooms.
     pub mmr: i64,
-
-    /// Unknown
-    pub s: i64,
 
     /// Openlink token.
     #[serde(rename = "o")]
