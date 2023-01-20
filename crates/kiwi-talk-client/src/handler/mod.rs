@@ -1,6 +1,9 @@
 pub mod error;
 
-use std::sync::{atomic::AtomicI64, Arc};
+use std::sync::{
+    atomic::{AtomicI64, Ordering},
+    Arc,
+};
 
 use bson::Document;
 use futures::Future;
@@ -123,12 +126,19 @@ where
     }
 
     async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
+        let should_update_last_seen = self.user_id.load(Ordering::Acquire) == data.user_id;
+
         self.pool
             .spawn_task(move |connection| {
+                if should_update_last_seen {
+                    connection
+                        .channel()
+                        .set_last_seen_log_id(data.chat_id, data.watermark)?;
+                }
+
                 connection
                     .user()
                     .update_watermark(data.user_id, data.chat_id, data.watermark)?;
-
                 Ok(())
             })
             .await?;
