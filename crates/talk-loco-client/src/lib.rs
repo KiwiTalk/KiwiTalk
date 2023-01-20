@@ -22,7 +22,7 @@ use tokio::{
     sync::{mpsc, oneshot},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LocoCommandSession {
     sender: mpsc::Sender<RequestCommand>,
 }
