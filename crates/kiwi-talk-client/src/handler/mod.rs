@@ -13,7 +13,7 @@ use talk_loco_command::{
 };
 
 use crate::{
-    database::{run_database_task, KiwiTalkDatabasePool},
+    database::{spawn_database_task, KiwiTalkDatabasePool},
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
@@ -77,7 +77,7 @@ where
 
     async fn on_chat(&self, data: chat::Msg) -> HandlerResult<()> {
         let chatlog = data.chatlog.clone();
-        run_database_task(self.pool.clone(), move |connection| {
+        spawn_database_task(self.pool.clone(), move |connection| {
             connection.chat().insert(&FullModel::new(
                 chatlog.log_id,
                 ChatModel {
@@ -115,7 +115,7 @@ where
     }
 
     async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
-        run_database_task(self.pool.clone(), move |connection| {
+        spawn_database_task(self.pool.clone(), move |connection| {
             connection
                 .user()
                 .update_watermark(data.user_id, data.chat_id, data.watermark)?;

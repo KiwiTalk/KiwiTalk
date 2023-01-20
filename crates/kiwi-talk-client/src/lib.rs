@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
-use database::{run_database_task, KiwiTalkDatabaseError, KiwiTalkDatabasePool};
+use database::{spawn_database_task, KiwiTalkDatabaseError, KiwiTalkDatabasePool};
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite, Future};
@@ -39,7 +39,7 @@ impl KiwiTalkClient {
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> Result<Self, KiwiTalkDatabaseError> {
-        run_database_task(pool.clone(), |mut connection| {
+        spawn_database_task(pool.clone(), |mut connection| {
             Ok(connection.migrate_to_latest()?)
         })
         .await?;

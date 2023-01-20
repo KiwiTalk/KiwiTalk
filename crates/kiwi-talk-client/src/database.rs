@@ -58,7 +58,7 @@ pub enum KiwiTalkDatabaseError {
     Initialization(#[from] rusqlite_migration::Error),
 }
 
-pub async fn run_database_task<
+pub async fn spawn_database_task<
     F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<(), KiwiTalkDatabaseError>,
 >(
     pool: KiwiTalkDatabasePool,
