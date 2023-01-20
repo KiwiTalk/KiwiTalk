@@ -10,11 +10,11 @@ pub struct SyncMsgRes {
 
     /// Chatlog list
     #[serde(rename = "chatLogs")]
-    pub chat_logs: Vec<Chatlog>,
+    pub chatlogs: Option<Vec<Chatlog>>,
 
     /// Unknown
     #[serde(rename = "jsi")]
-    pub jsi: i64,
+    pub jsi: Option<i64>,
 
     #[serde(rename = "lastTokenId")]
     pub last_token_id: i64,
