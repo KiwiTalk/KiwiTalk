@@ -48,13 +48,6 @@ impl KiwiTalkDatabaseManager {
             rusqlite: SqliteConnectionManager::file(path),
         }
     }
-
-    #[inline(always)]
-    pub fn memory() -> Self {
-        Self {
-            rusqlite: SqliteConnectionManager::memory(),
-        }
-    }
 }
 
 impl ManageConnection for KiwiTalkDatabaseManager {
