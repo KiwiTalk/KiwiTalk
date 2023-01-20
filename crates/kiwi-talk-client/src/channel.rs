@@ -1,4 +1,6 @@
-use crate::{database::conversion::chat_model_from_chatlog, ClientResult, KiwiTalkClient};
+use crate::{
+    chat::ChatContent, database::conversion::chat_model_from_chatlog, ClientResult, KiwiTalkClient,
+};
 use kiwi_talk_db::channel::model::ChannelId;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{request::chat::WriteReq, structs::chat::Chatlog};
@@ -19,16 +21,16 @@ impl<'a> KiwiTalkClientChannel<'a> {
         self.channel_id
     }
 
-    pub async fn send_chat(&self) -> ClientResult<Chatlog> {
+    pub async fn send_chat(&self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
         let res = TalkClient(self.client.session())
             .write(&WriteReq {
-                chat_id: todo!(),
-                chat_type: todo!(),
-                msg_id: todo!(),
-                message: todo!(),
-                no_seen: todo!(),
-                attachment: todo!(),
-                supplement: todo!(),
+                chat_id: self.channel_id,
+                chat_type: chat.chat_type,
+                msg_id: 0,
+                message: chat.message.clone(),
+                no_seen,
+                attachment: chat.attachment.clone(),
+                supplement: chat.supplement.clone(),
             })
             .await?;
 
@@ -36,26 +38,31 @@ impl<'a> KiwiTalkClientChannel<'a> {
             log_id: res.log_id,
             prev_log_id: Some(res.prev_id),
             chat_id: res.chat_id,
-            chat_type: todo!(),
-            author_id: todo!(),
-            message: todo!(),
-            send_at: todo!(),
-            attachment: todo!(),
-            referer: todo!(),
-            supplement: todo!(),
+            chat_type: chat.chat_type,
+            author_id: self.client.user_id(),
+            message: chat.message,
+            send_at: res.send_at,
+            attachment: chat.attachment,
+            // TODO::
+            referer: None,
+            supplement: chat.supplement,
             msg_id: res.msg_id,
         });
 
-        self.client
-            .pool()
-            .spawn_task(move |connection| {
-                connection
-                    .chat()
-                    .insert(&chat_model_from_chatlog(&chatlog))?;
+        {
+            let chatlog = chatlog.clone();
 
-                Ok(())
-            })
-            .await?;
+            self.client
+                .pool()
+                .spawn_task(move |connection| {
+                    connection
+                        .chat()
+                        .insert(&chat_model_from_chatlog(&chatlog))?;
+
+                    Ok(())
+                })
+                .await?;
+        }
 
         Ok(chatlog)
     }
