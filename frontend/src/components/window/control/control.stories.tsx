@@ -1,4 +1,4 @@
-import { Story } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
 
 import { WindowControl, ControlType, ControlButtons } from '.';
@@ -20,7 +20,7 @@ type StoryProp = {
   onControlClick?: (type: ControlType) => void
 };
 
-const Template: Story<StoryProp> = (args) => {
+const Template: StoryFn<StoryProp> = (args) => {
   const buttons: ControlButtons = {
     minimize: args.showMinimizeButton,
     maximize: args.showMaximizeButton,

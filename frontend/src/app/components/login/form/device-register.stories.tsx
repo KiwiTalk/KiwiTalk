@@ -1,4 +1,4 @@
-import { ComponentStory } from '@storybook/react';
+import { StoryFn } from '@storybook/react';
 
 import { DeviceRegisterForm } from './device-register';
 
@@ -10,7 +10,7 @@ export default {
   },
 };
 
-const Template: ComponentStory<typeof DeviceRegisterForm> = (args) =>
+const Template: StoryFn<typeof DeviceRegisterForm> = (args) =>
   <DeviceRegisterForm
     onSubmit={args.onSubmit}
   />;
