@@ -10,16 +10,15 @@ use std::sync::Arc;
 
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientConfig;
-use database::{spawn_database_task, KiwiTalkDatabaseError, KiwiTalkDatabasePool};
+use database::{
+    conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
+    spawn_database_task, KiwiTalkDatabaseError, KiwiTalkDatabasePool,
+};
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{pin_mut, AsyncRead, AsyncWrite, Future, StreamExt};
 use handler::KiwiTalkClientHandler;
-use kiwi_talk_db::{
-    channel::model::{ChannelId, ChannelModel},
-    chat::model::ChatModel,
-    model::FullModel,
-};
+use kiwi_talk_db::channel::model::ChannelId;
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
@@ -98,35 +97,14 @@ impl KiwiTalkClient {
         tokio::spawn(spawn_database_task(self.pool.clone(), move |connection| {
             while let Some(datas) = recv.blocking_recv() {
                 for data in datas {
-                    connection.channel().insert(&FullModel::new(
-                        data.id,
-                        ChannelModel {
-                            channel_type: data.channel_type,
-                            active_user_count: data.active_member_count,
-                            new_chat_count: data.unread_count,
-                            last_chat_log_id: data.last_log_id,
-                            last_seen_log_id: data.last_seen_log_id,
-                            push_alert: data.push_alert,
-                        },
-                    ))?;
+                    connection
+                        .channel()
+                        .insert(&channel_model_from_channel_list_data(&data))?;
 
-                    if let Some(chatlog) = data.chatlog {
-                        connection.chat().insert(&FullModel::new(
-                            chatlog.log_id,
-                            ChatModel {
-                                channel_id: chatlog.chat_id,
-                                prev_log_id: chatlog.prev_log_id,
-                                chat_type: chatlog.chat_type,
-                                message_id: chatlog.msg_id,
-                                send_at: chatlog.send_at,
-                                author_id: chatlog.author_id,
-                                message: chatlog.message,
-                                attachment: chatlog.attachment,
-                                supplement: chatlog.supplement,
-                                referer: chatlog.referer,
-                                deleted: false,
-                            },
-                        ))?;
+                    if let Some(ref chatlog) = data.chatlog {
+                        connection
+                            .chat()
+                            .insert(&chat_model_from_chatlog(chatlog))?;
                     }
                 }
             }

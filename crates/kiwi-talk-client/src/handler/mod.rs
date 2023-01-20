@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use bson::Document;
 use futures::Future;
-use kiwi_talk_db::{chat::model::ChatModel, model::FullModel};
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
 use talk_loco_command::{
@@ -13,7 +12,7 @@ use talk_loco_command::{
 };
 
 use crate::{
-    database::{spawn_database_task, KiwiTalkDatabasePool},
+    database::{spawn_database_task, KiwiTalkDatabasePool, conversion::chat_model_from_chatlog},
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
@@ -87,22 +86,7 @@ where
     async fn on_chat(&self, data: chat::Msg) -> HandlerResult<()> {
         let chatlog = data.chatlog.clone();
         spawn_database_task(self.pool.clone(), move |connection| {
-            connection.chat().insert(&FullModel::new(
-                chatlog.log_id,
-                ChatModel {
-                    channel_id: chatlog.chat_id,
-                    prev_log_id: chatlog.prev_log_id,
-                    chat_type: chatlog.chat_type,
-                    message_id: chatlog.msg_id,
-                    send_at: chatlog.send_at,
-                    author_id: chatlog.author_id,
-                    message: chatlog.message,
-                    attachment: chatlog.attachment,
-                    supplement: chatlog.supplement,
-                    referer: data.chatlog.referer,
-                    deleted: false,
-                },
-            ))?;
+            connection.chat().insert(&chat_model_from_chatlog(&chatlog))?;
 
             Ok(())
         })
