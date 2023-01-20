@@ -18,15 +18,15 @@ impl<'a> ChannelEntry<'a> {
         channel: &FullModel<ChannelId, ChannelModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            "INSERT OR REPLACE INTO channel VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
-                &channel.id,
+                channel.id,
                 &channel.model.channel_type,
-                &channel.model.active_user_count,
-                &channel.model.new_chat_count,
-                &channel.model.last_chat_log_id,
-                &channel.model.last_seen_log_id,
-                &channel.model.push_alert,
+                channel.model.active_user_count,
+                channel.model.new_chat_count,
+                channel.model.last_chat_log_id,
+                channel.model.last_seen_log_id,
+                channel.model.push_alert,
             ),
         )?;
 
