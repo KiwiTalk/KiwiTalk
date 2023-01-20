@@ -132,7 +132,7 @@ impl KiwiTalkClient {
                 .await?;
 
             for id in id_list {
-                self.channel(id).sync_chats().await?;
+                self.channel(id).sync_chats().await.ok();
             }
         }
 
