@@ -133,7 +133,10 @@ impl KiwiTalkClient {
             pin_mut!(stream);
             while let Some(res) = stream.next().await {
                 let res = res?;
-                sender.send(res.chat_datas).await.ok();
+
+                if sender.send(res.chat_datas).await.is_err() {
+                    break;
+                }
             }
         }
 
