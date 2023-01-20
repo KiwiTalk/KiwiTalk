@@ -12,7 +12,7 @@ pub struct ChatEntry<'a>(pub &'a Connection);
 impl<'a> ChatEntry<'a> {
     pub fn insert(&self, chat: &FullModel<LogId, ChatModel>) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT INTO chat VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+            "INSERT OR REPLACE INTO chat VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
             (
                 &chat.id,
                 &chat.model.channel_id,

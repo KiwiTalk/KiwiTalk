@@ -20,7 +20,7 @@ impl<'a> NormalChannelEntry<'a> {
         channel: FullModel<ChannelId, NormalChannelModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0 .0.execute(
-            "INSERT INTO normal_channel VALUES (?1, ?2)",
+            "INSERT OR REPLACE INTO normal_channel VALUES (?1, ?2)",
             (&channel.id, &channel.model.join_time),
         )?;
 
