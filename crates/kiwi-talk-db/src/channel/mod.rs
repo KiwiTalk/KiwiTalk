@@ -47,6 +47,17 @@ impl<'a> ChannelEntry<'a> {
         rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
+    pub fn set_push_alert(
+        &self,
+        id: ChannelId,
+        push_alert: bool,
+    ) -> Result<usize, rusqlite::Error> {
+        self.0.execute(
+            "UPDATE channel SET push_alert = ? WHERE id = ?",
+            (push_alert, id),
+        )
+    }
+
     pub fn map_row(row: &Row) -> Result<ChannelModel, rusqlite::Error> {
         Ok(ChannelModel {
             channel_type: row.get(1)?,
