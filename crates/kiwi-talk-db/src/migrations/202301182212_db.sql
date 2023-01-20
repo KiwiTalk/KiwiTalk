@@ -65,6 +65,6 @@ CREATE TABLE IF NOT EXISTS normal_channel_user (
     suspended BOOLEAN NOT NULL,
 
     PRIMARY KEY(id, channel_id),
-    FOREIGN KEY(id) REFERENCES channel_user(id),
+    FOREIGN KEY(id, channel_id) REFERENCES channel_user(id, channel_id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
