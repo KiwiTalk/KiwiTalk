@@ -17,11 +17,12 @@ impl KiwiTalkDatabasePool {
     }
 
     pub fn spawn_task<
-        F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<(), KiwiTalkDatabaseError>,
+        R: Send + 'static,
+        F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<R, KiwiTalkDatabaseError>,
     >(
         &self,
         closure: F,
-    ) -> impl Future<Output = Result<(), KiwiTalkDatabaseError>>
+    ) -> impl Future<Output = Result<R, KiwiTalkDatabaseError>>
     where
         F: Send + 'static,
     {
