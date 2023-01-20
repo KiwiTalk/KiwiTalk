@@ -58,18 +58,18 @@ impl TalkClient<'_> {
     async_client_method!(set_meta, "SETMETA", request::chat::SetMetaReq => response::chat::SetMetaRes);
 
     async_client_method!(sync_chat, "SYNCMSG", request::chat::SyncMsgReq => response::chat::SyncMsgRes);
-    pub fn sync_chat_stream<'a>(
-        &'a self,
-        req: &'a request::chat::SyncMsgReq,
-    ) -> impl Stream<Item = ClientRequestResult<response::chat::SyncMsgRes>> + 'a {
-        try_stream! {
-            let request::chat::SyncMsgReq {
-                chat_id,
-                mut current,
-                count,
-                max
-            } = *req;
+    pub fn sync_chat_stream(
+        &self,
+        req: &request::chat::SyncMsgReq,
+    ) -> impl Stream<Item = ClientRequestResult<response::chat::SyncMsgRes>> + '_ {
+        let request::chat::SyncMsgReq {
+            chat_id,
+            mut current,
+            count,
+            max
+        } = *req;
 
+        try_stream! {
             let mut is_ok = true;
             while is_ok {
                 let res = self.sync_chat(&request::chat::SyncMsgReq {
