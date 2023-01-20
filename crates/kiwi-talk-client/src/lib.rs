@@ -110,7 +110,8 @@ impl KiwiTalkClient {
         &self.pool
     }
 
-    pub fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
+    #[inline(always)]
+    pub const fn channel<'a>(&'a self, channel_id: ChannelId) -> KiwiTalkClientChannel<'a> {
         KiwiTalkClientChannel::new(self, channel_id)
     }
 
