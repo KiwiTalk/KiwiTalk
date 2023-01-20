@@ -1,7 +1,7 @@
 use crate::{
     chat::ChatContent, database::conversion::chat_model_from_chatlog, ClientResult, KiwiTalkClient,
 };
-use futures::{StreamExt, pin_mut};
+use futures::{pin_mut, StreamExt};
 use kiwi_talk_db::channel::model::ChannelId;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
@@ -79,46 +79,51 @@ impl<'a> KiwiTalkClientChannel<'a> {
     pub async fn sync_chats(&self) -> ClientResult<usize> {
         let client = TalkClient(self.client.session());
 
-        let current = {
+        let (current, max) = {
             let channel_id = self.channel_id;
             self.client
                 .pool()
-                .spawn_task(move |connection| Ok(connection.chat().get_lastest_chat_log_id(channel_id)?))
+                .spawn_task(move |connection| {
+                    Ok((
+                        connection.channel().get_last_chat_log_id(channel_id)?,
+                        connection.chat().get_lastest_chat_log_id(channel_id)?,
+                    ))
+                })
                 .await?
         };
 
         let mut count = 0;
 
-        if let Some(current) = current {
-            let stream = client.sync_chat_stream(&SyncMsgReq {
-                chat_id: self.channel_id,
-                current,
-                count: 300,
-                max: 0,
-            });
+        let stream = client.sync_chat_stream(&SyncMsgReq {
+            chat_id: self.channel_id,
+            current,
+            count: 300,
+            max,
+        });
 
-            let (sender, mut recv) = channel(4);
+        let (sender, mut recv) = channel(4);
 
-            let database_task = self.client.pool().spawn_task(move |connection| {
-                while let Some(list) = recv.blocking_recv() {
-                    for chatlog in list {
-                        connection.chat().insert(&chat_model_from_chatlog(&chatlog))?;
-                    }
+        let database_task = self.client.pool().spawn_task(move |connection| {
+            while let Some(list) = recv.blocking_recv() {
+                for chatlog in list {
+                    connection
+                        .chat()
+                        .insert(&chat_model_from_chatlog(&chatlog))?;
                 }
-
-                Ok(())
-            });
-
-            pin_mut!(stream);
-            while let Some(res) = stream.next().await {
-                let res = res?;
-
-                count += res.chat_logs.len();
-                sender.send(res.chat_logs).await.ok();
             }
 
-            database_task.await?;
+            Ok(())
+        });
+
+        pin_mut!(stream);
+        while let Some(res) = stream.next().await {
+            let res = res?;
+
+            count += res.chat_logs.len();
+            sender.send(res.chat_logs).await.ok();
         }
+
+        database_task.await?;
 
         Ok(count)
     }
