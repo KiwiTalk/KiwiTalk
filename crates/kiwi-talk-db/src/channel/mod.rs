@@ -47,6 +47,28 @@ impl<'a> ChannelEntry<'a> {
         rows.mapped(Self::map_full_row).into_iter().collect()
     }
 
+    pub fn set_last_chat_log_id(
+        &self,
+        id: ChannelId,
+        last_chat_log_id: LogId,
+    ) -> Result<usize, rusqlite::Error> {
+        self.0.execute(
+            "UPDATE channel SET last_chat_log_id = ? WHERE id = ?",
+            (last_chat_log_id, id),
+        )
+    }
+
+    pub fn set_last_seen_log_id(
+        &self,
+        id: ChannelId,
+        last_seen_log_id: LogId,
+    ) -> Result<usize, rusqlite::Error> {
+        self.0.execute(
+            "UPDATE channel SET last_seen_log_id = ? WHERE id = ?",
+            (last_seen_log_id, id),
+        )
+    }
+
     pub fn set_push_alert(
         &self,
         id: ChannelId,
