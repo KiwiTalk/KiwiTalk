@@ -54,7 +54,7 @@ impl KiwiTalkClient {
 
         let session = {
             let pool = pool.clone();
-            LocoCommandSession::new_with_handler_fn(stream, move |session| {
+            LocoCommandSession::new_with_handler(stream, move |session| {
                 let handler = Arc::new(KiwiTalkClientHandler::new(session, pool, listener));
 
                 move |read| {
