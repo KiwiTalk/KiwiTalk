@@ -23,7 +23,6 @@ use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
 pub struct KiwiTalkClientHandler<Listener> {
-    session: LocoCommandSession,
     pool: KiwiTalkDatabasePool,
     listener: Listener,
 }
@@ -33,16 +32,8 @@ where
     Fut: Future<Output = ()>,
     Listener: Fn(KiwiTalkClientEvent) -> Fut,
 {
-    pub const fn new(
-        session: LocoCommandSession,
-        pool: KiwiTalkDatabasePool,
-        listener: Listener,
-    ) -> Self {
-        Self {
-            session,
-            pool,
-            listener,
-        }
+    pub const fn new(pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
+        Self { pool, listener }
     }
 
     pub fn emit(&self, event: KiwiTalkClientEvent) -> Fut {

@@ -53,13 +53,9 @@ impl KiwiTalkClient {
             .await?;
 
         let session = {
-            let pool = pool.clone();
-            LocoCommandSession::new_with_handler(stream, move |session| {
-                let handler = Arc::new(KiwiTalkClientHandler::new(session, pool, listener));
-
-                move |read| {
-                    tokio::spawn(Arc::clone(&handler).handle(read));
-                }
+            let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
+            LocoCommandSession::new_with_handler(stream, move |read| {
+                tokio::spawn(Arc::clone(&handler).handle(read));
             })
         };
 
