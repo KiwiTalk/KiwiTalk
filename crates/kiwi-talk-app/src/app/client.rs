@@ -50,7 +50,10 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
             language: info.device_info.language().into(),
             device_type: TALK_DEVIVCE_TYPE,
         },
-        KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::file("file:memdb?mode=memory&cache=shared")).unwrap(),
+        KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::file(
+            "file:memdb?mode=memory&cache=shared",
+        ))
+        .unwrap(),
         listener,
     )
     .await

@@ -5,7 +5,7 @@ use std::sync::Arc;
 use bson::Document;
 use futures::Future;
 use serde::de::DeserializeOwned;
-use talk_loco_client::ReadResult;
+use talk_loco_client::{LocoCommandSession, ReadResult};
 use talk_loco_command::{
     command::BsonCommand,
     response::{chat, ResponseData},
@@ -23,6 +23,7 @@ use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
 pub struct KiwiTalkClientHandler<Listener> {
+    session: LocoCommandSession,
     pool: KiwiTalkDatabasePool,
     listener: Listener,
 }
@@ -32,8 +33,16 @@ where
     Fut: Future<Output = ()>,
     Listener: Fn(KiwiTalkClientEvent) -> Fut,
 {
-    pub const fn new(pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
-        Self { pool, listener }
+    pub const fn new(
+        session: LocoCommandSession,
+        pool: KiwiTalkDatabasePool,
+        listener: Listener,
+    ) -> Self {
+        Self {
+            session,
+            pool,
+            listener,
+        }
     }
 
     pub fn emit(&self, event: KiwiTalkClientEvent) -> Fut {

@@ -52,11 +52,16 @@ impl KiwiTalkClient {
         pool.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
             .await?;
 
-        let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
+        let session = {
+            let pool = pool.clone();
+            LocoCommandSession::new_with_handler_fn(stream, move |session| {
+                let handler = Arc::new(KiwiTalkClientHandler::new(session, pool, listener));
 
-        let session = LocoCommandSession::new(stream, move |read| {
-            tokio::spawn(Arc::clone(&handler).handle(read));
-        });
+                move |read| {
+                    tokio::spawn(Arc::clone(&handler).handle(read));
+                }
+            })
+        };
 
         Ok(KiwiTalkClient {
             config,

@@ -28,15 +28,26 @@ pub struct LocoCommandSession {
 }
 
 impl LocoCommandSession {
-    pub fn new<
+    pub fn new<S: AsyncRead + AsyncWrite + Send + 'static>(stream: S) -> Self {
+        let (sender, receiver) = mpsc::channel(128);
+        let session_handler = CommandSessionHandler::new(|_| {});
+        tokio::spawn(session_handler.run(stream, receiver));
+
+        Self { sender }
+    }
+
+    pub fn new_with_handler_fn<
         S: AsyncRead + AsyncWrite + Send + 'static,
+        HandlerFn: FnOnce(Self) -> Handler,
         Handler: Send + 'static + FnMut(ReadResult),
     >(
         stream: S,
-        handler: Handler,
+        handler_fn: HandlerFn,
     ) -> Self {
         let (sender, receiver) = mpsc::channel(128);
-        let session_handler = CommandSessionHandler::new(handler);
+        let session_handler = CommandSessionHandler::new(handler_fn(Self {
+            sender: sender.clone(),
+        }));
         tokio::spawn(session_handler.run(stream, receiver));
 
         Self { sender }
