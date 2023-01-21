@@ -14,7 +14,7 @@ use std::sync::{
 };
 
 use channel::KiwiTalkClientChannel;
-use config::KiwiTalkClientConfig;
+use config::{KiwiTalkClientInfo};
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
     KiwiTalkDatabaseError, KiwiTalkDatabasePool,
@@ -31,8 +31,6 @@ use tokio::sync::mpsc::channel;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
-    pub config: KiwiTalkClientConfig,
-
     session: LocoCommandSession,
 
     user_id: AtomicI64,
@@ -46,7 +44,6 @@ impl KiwiTalkClient {
         Fut: Future<Output = ()> + Send + 'static,
     >(
         stream: S,
-        config: KiwiTalkClientConfig,
         pool: KiwiTalkDatabasePool,
         listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
     ) -> Result<Self, KiwiTalkDatabaseError> {
@@ -61,7 +58,6 @@ impl KiwiTalkClient {
         };
 
         Ok(KiwiTalkClient {
-            config,
             session,
             user_id: AtomicI64::new(0),
             pool,
@@ -90,6 +86,7 @@ impl KiwiTalkClient {
 
     pub async fn login(
         &self,
+        info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
     ) -> ClientResult<()> {
@@ -99,12 +96,12 @@ impl KiwiTalkClient {
 
         let login_res = talk_client
             .login(&LoginListReq {
-                client: self.config.client.clone(),
+                client: info.create_client_info(),
                 protocol_version: "1.0".into(),
                 device_uuid: credential.device_uuid.into(),
                 oauth_token: credential.access_token.into(),
-                language: self.config.language.clone(),
-                device_type: Some(self.config.device_type),
+                language: info.language.to_string(),
+                device_type: Some(info.device_type),
                 pc_status: Some(client_status as _),
                 revision: None,
                 rp: vec![0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
