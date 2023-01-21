@@ -19,11 +19,16 @@ use talk_loco_command::{
     },
     response::ResponseData,
 };
-use tokio::sync::{mpsc, oneshot};
+use tokio::{
+    sync::{mpsc, oneshot},
+    task::JoinHandle,
+};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct LocoCommandSession {
     sender: mpsc::Sender<RequestCommand>,
+
+    tasks: (JoinHandle<()>, JoinHandle<()>),
 }
 
 impl LocoCommandSession {
@@ -42,10 +47,13 @@ impl LocoCommandSession {
         let (read_stream, write_stream) = stream.split();
         let (read_task, write_task) = session_task(handler);
 
-        tokio::spawn(read_task.run(read_stream));
-        tokio::spawn(write_task.run(write_stream, receiver));
+        let read_task = tokio::spawn(read_task.run(read_stream));
+        let write_task = tokio::spawn(write_task.run(write_stream, receiver));
 
-        Self { sender }
+        Self {
+            sender,
+            tasks: (read_task, write_task),
+        }
     }
 
     pub async fn send(&self, command: BsonCommand<Document>) -> CommandRequest {
@@ -57,6 +65,15 @@ impl LocoCommandSession {
             .ok();
 
         CommandRequest(receiver)
+    }
+}
+
+impl Drop for LocoCommandSession {
+    fn drop(&mut self) {
+        let (ref read_task, ref write_task) = self.tasks;
+
+        read_task.abort();
+        write_task.abort();
     }
 }
 
@@ -107,6 +124,7 @@ impl<Handler: FnMut(ReadResult)> ReadTask<Handler> {
 
                 Err(_) => {
                     (self.handler)(read);
+                    break;
                 }
             }
         }
