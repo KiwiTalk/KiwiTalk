@@ -34,7 +34,7 @@ impl Future for ClientCommandRequest {
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         Poll::Ready(match ready!(self.0.poll_unpin(cx)) {
-            Some(res) => Ok(res.data),
+            Some(res) => Ok(res),
             None => Err(ClientRequestError::Session),
         })
     }

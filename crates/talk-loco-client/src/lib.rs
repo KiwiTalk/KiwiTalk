@@ -80,19 +80,19 @@ impl Drop for LocoCommandSession {
 }
 
 #[derive(Debug)]
-pub struct CommandRequest(oneshot::Receiver<BsonCommand<ResponseData>>);
+pub struct CommandRequest(oneshot::Receiver<ResponseData>);
 
 impl Future for CommandRequest {
-    type Output = Option<BsonCommand<ResponseData>>;
+    type Output = Option<ResponseData>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         Poll::Ready(ready!(self.0.poll_unpin(cx)).ok())
     }
 }
 
-pub type ReadResult = Result<ReadBsonCommand<ResponseData>, ReadError>;
+pub type ReadResult = Result<ReadBsonCommand<Document>, ReadError>;
 
-type ResponseMap = HashMap<i32, oneshot::Sender<BsonCommand<ResponseData>>, BuildNoHashHasher<i32>>;
+type ResponseMap = HashMap<i32, oneshot::Sender<ResponseData>, BuildNoHashHasher<i32>>;
 
 #[derive(Debug)]
 struct ReadTask<S> {
@@ -115,7 +115,9 @@ impl<S: Sink<ReadResult> + Unpin> ReadTask<S> {
             match read {
                 Ok(read) => {
                     if let Some(sender) = self.response_map.lock().remove(&read.id) {
-                        sender.send(read.command).ok();
+                        sender
+                            .send(ResponseData::from_document(read.command.data).unwrap())
+                            .ok();
                         continue;
                     }
 
@@ -183,13 +185,13 @@ fn session_task<S: Sink<ReadResult> + Unpin>(sink: S) -> (ReadTask<S>, WriteTask
 #[derive(Debug)]
 struct RequestCommand {
     pub command: BsonCommand<Document>,
-    pub response_sender: oneshot::Sender<BsonCommand<ResponseData>>,
+    pub response_sender: oneshot::Sender<ResponseData>,
 }
 
 impl RequestCommand {
     pub const fn new(
         command: BsonCommand<Document>,
-        response_sender: oneshot::Sender<BsonCommand<ResponseData>>,
+        response_sender: oneshot::Sender<ResponseData>,
     ) -> Self {
         Self {
             command,

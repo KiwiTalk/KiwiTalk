@@ -4,10 +4,7 @@ use bson::Document;
 use futures::{Sink, SinkExt};
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
-use talk_loco_command::{
-    command::BsonCommand,
-    response::{chat, ResponseData},
-};
+use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
     database::{conversion::chat_model_from_chatlog, KiwiTalkDatabasePool},
@@ -49,11 +46,11 @@ impl<S: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<S> {
     }
 
     // TODO:: Use macro
-    async fn handle_command(&mut self, command: BsonCommand<ResponseData>) -> HandlerResult<()> {
+    async fn handle_command(&mut self, command: BsonCommand<Document>) -> HandlerResult<()> {
         match command.method.as_ref() {
-            "MSG" => Ok(self.on_chat(map_data("MSG", command.data.data)?).await?),
+            "MSG" => Ok(self.on_chat(map_data("MSG", command.data)?).await?),
             "DECUNREAD" => Ok(self
-                .on_chat_read(map_data("DECUNREAD", command.data.data)?)
+                .on_chat_read(map_data("DECUNREAD", command.data)?)
                 .await?),
 
             "CHANGESVR" => {
@@ -62,8 +59,7 @@ impl<S: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<S> {
             }
 
             "KICKOUT" => {
-                self.on_kickout(map_data("KICKOUT", command.data.data)?)
-                    .await;
+                self.on_kickout(map_data("KICKOUT", command.data)?).await;
                 Ok(())
             }
 
