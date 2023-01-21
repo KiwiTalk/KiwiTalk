@@ -6,7 +6,11 @@ pub mod stream;
 
 use std::{future::Future, task::Poll};
 
-use futures::{future::poll_fn, FutureExt};
+use futures::{
+    channel::mpsc::{channel, Receiver},
+    future::poll_fn,
+    FutureExt, StreamExt,
+};
 use kiwi_talk_client::{event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient};
 use serde::{Deserialize, Serialize};
 use tauri::{
@@ -15,7 +19,6 @@ use tauri::{
     Manager, Runtime, State,
 };
 use thiserror::Error;
-use tokio::sync::mpsc::{channel, Receiver};
 
 use crate::{error::impl_tauri_error, system::SystemInfo};
 
@@ -95,14 +98,7 @@ async fn initialize_client(
     match credential {
         Some(credential) => {
             let (sender, recv) = channel(256);
-            let client = create_client(&credential, client_status, info, move |event| {
-                let sender = sender.clone();
-
-                async move {
-                    sender.send(event).await.ok();
-                }
-            })
-            .await?;
+            let client = create_client(&credential, client_status, info, sender).await?;
 
             *app.client.write() = Some(client);
             *app.client_event_recv.lock() = Some(recv);
@@ -120,7 +116,7 @@ fn next_client_event(
     app: State<'_, KiwiTalkApp>,
 ) -> impl Future<Output = Result<Option<KiwiTalkClientEvent>, ()>> + '_ {
     poll_fn(move |cx| match &mut *app.client_event_recv.lock() {
-        Some(receiver) => receiver.poll_recv(cx),
+        Some(receiver) => receiver.poll_next_unpin(cx),
 
         None => Poll::Ready(None),
     })

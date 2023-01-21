@@ -8,26 +8,23 @@ pub mod handler;
 pub mod status;
 pub mod user;
 
-use std::sync::{
-    atomic::{AtomicI64, Ordering},
-    Arc,
-};
+use std::sync::atomic::{AtomicI64, Ordering};
 
 use channel::KiwiTalkClientChannel;
-use config::{KiwiTalkClientInfo};
+use config::KiwiTalkClientInfo;
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
     KiwiTalkDatabaseError, KiwiTalkDatabasePool,
 };
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
-use futures::{pin_mut, AsyncRead, AsyncWrite, Future, StreamExt};
+use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, StreamExt};
 use handler::KiwiTalkClientHandler;
 use kiwi_talk_db::channel::model::{ChannelId, ChannelUserId};
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
-use tokio::sync::mpsc::channel;
+use tokio::{sync::mpsc::channel, task::JoinHandle};
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
@@ -36,31 +33,34 @@ pub struct KiwiTalkClient {
     user_id: AtomicI64,
 
     pool: KiwiTalkDatabasePool,
+
+    handler_task: JoinHandle<()>,
 }
 
 impl KiwiTalkClient {
-    pub async fn new<
-        S: AsyncRead + AsyncWrite + Send + 'static,
-        Fut: Future<Output = ()> + Send + 'static,
-    >(
+    pub async fn new<S: AsyncRead + AsyncWrite + Send + 'static>(
         stream: S,
         pool: KiwiTalkDatabasePool,
-        listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
+        sink: impl Sink<KiwiTalkClientEvent> + Unpin + Send + 'static,
     ) -> Result<Self, KiwiTalkDatabaseError> {
         pool.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
             .await?;
 
-        let session = {
-            let handler = Arc::new(KiwiTalkClientHandler::new(pool.clone(), listener));
-            LocoCommandSession::new_with_handler(stream, move |read| {
-                tokio::spawn(Arc::clone(&handler).handle(read));
-            })
-        };
+        let (sender, mut recv) = futures::channel::mpsc::channel(128);
+        let session = LocoCommandSession::new_with_sink(stream, sender);
+
+        let mut handler = KiwiTalkClientHandler::new(pool.clone(), sink);
+        let handler_task = tokio::spawn(async move {
+            while let Some(read) = recv.next().await {
+                handler.handle(read).await;
+            }
+        });
 
         Ok(KiwiTalkClient {
             session,
             user_id: AtomicI64::new(0),
             pool,
+            handler_task,
         })
     }
 
@@ -174,6 +174,12 @@ impl KiwiTalkClient {
             .await?;
 
         Ok(())
+    }
+}
+
+impl Drop for KiwiTalkClient {
+    fn drop(&mut self) {
+        self.handler_task.abort();
     }
 }
 

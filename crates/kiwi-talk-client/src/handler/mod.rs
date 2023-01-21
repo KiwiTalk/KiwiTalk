@@ -1,11 +1,9 @@
 pub mod error;
 
-use std::sync::Arc;
-
 use bson::Document;
-use futures::Future;
+use futures::{Sink, SinkExt};
 use serde::de::DeserializeOwned;
-use talk_loco_client::{LocoCommandSession, ReadResult};
+use talk_loco_client::ReadResult;
 use talk_loco_command::{
     command::BsonCommand,
     response::{chat, ResponseData},
@@ -22,25 +20,21 @@ use crate::{
 use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
-pub struct KiwiTalkClientHandler<Listener> {
+pub struct KiwiTalkClientHandler<S> {
     pool: KiwiTalkDatabasePool,
-    listener: Listener,
+    sink: S,
 }
 
-impl<Fut, Listener> KiwiTalkClientHandler<Listener>
-where
-    Fut: Future<Output = ()>,
-    Listener: Fn(KiwiTalkClientEvent) -> Fut,
-{
-    pub const fn new(pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
-        Self { pool, listener }
+impl<S: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<S> {
+    pub const fn new(pool: KiwiTalkDatabasePool, sink: S) -> Self {
+        Self { pool, sink }
     }
 
-    pub fn emit(&self, event: KiwiTalkClientEvent) -> Fut {
-        (self.listener)(event)
+    pub async fn emit(&mut self, event: KiwiTalkClientEvent) {
+        self.sink.send(event).await.ok();
     }
 
-    pub async fn handle(self: Arc<Self>, read: ReadResult) {
+    pub async fn handle(&mut self, read: ReadResult) {
         match read {
             Ok(read) => {
                 if let Err(err) = self.handle_command(read.command).await {
@@ -55,7 +49,7 @@ where
     }
 
     // TODO:: Use macro
-    async fn handle_command(&self, command: BsonCommand<ResponseData>) -> HandlerResult<()> {
+    async fn handle_command(&mut self, command: BsonCommand<ResponseData>) -> HandlerResult<()> {
         match command.method.as_ref() {
             "MSG" => Ok(self.on_chat(map_data("MSG", command.data.data)?).await?),
             "DECUNREAD" => Ok(self
@@ -81,7 +75,7 @@ where
         }
     }
 
-    async fn on_chat(&self, data: chat::Msg) -> HandlerResult<()> {
+    async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
         let chatlog = data.chatlog.clone();
         self.pool
             .spawn_task(move |connection| {
@@ -107,7 +101,7 @@ where
         Ok(())
     }
 
-    async fn on_chat_read(&self, data: chat::DecunRead) -> HandlerResult<()> {
+    async fn on_chat_read(&mut self, data: chat::DecunRead) -> HandlerResult<()> {
         self.pool
             .spawn_task(move |connection| {
                 connection
@@ -130,11 +124,11 @@ where
         Ok(())
     }
 
-    async fn on_kickout(&self, data: chat::Kickout) {
+    async fn on_kickout(&mut self, data: chat::Kickout) {
         self.emit(KiwiTalkClientEvent::Kickout(data.reason)).await;
     }
 
-    async fn on_change_server(&self) {
+    async fn on_change_server(&mut self) {
         self.emit(KiwiTalkClientEvent::SwitchServer).await;
     }
 }

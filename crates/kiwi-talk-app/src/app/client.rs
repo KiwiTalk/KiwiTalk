@@ -1,4 +1,4 @@
-use futures::Future;
+use futures::{Future, Sink};
 use kiwi_talk_client::{
     config::KiwiTalkClientInfo,
     database::{KiwiTalkDatabaseManager, KiwiTalkDatabasePool},
@@ -19,11 +19,11 @@ use super::{
     AppCredential,
 };
 
-pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
+pub async fn create_client(
     credential: &AppCredential,
     client_status: ClientStatus,
     info: State<'_, SystemInfo>,
-    listener: impl Send + Sync + 'static + Fn(KiwiTalkClientEvent) -> Fut,
+    sink: impl Sink<KiwiTalkClientEvent> + Send + Unpin + 'static,
 ) -> Result<KiwiTalkClient, CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
@@ -42,7 +42,7 @@ pub async fn create_client<Fut: Future<Output = ()> + Send + 'static>(
             "file:memdb?mode=memory&cache=shared",
         ))
         .unwrap(),
-        listener,
+        sink,
     )
     .await
     .map_err(KiwiTalkClientError::from)?;
