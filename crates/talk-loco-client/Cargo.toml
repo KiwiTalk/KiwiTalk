@@ -18,6 +18,7 @@ talk-loco-command = { path = "../talk-loco-command" }
 loco-protocol = "5.4.0"
 thiserror = "1.0"
 async-stream = "0.3.3"
+parking_lot = "0.12.1"
 
 [dev-dependencies]
 tokio-native-tls = "0.3.0"

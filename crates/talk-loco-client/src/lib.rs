@@ -3,6 +3,7 @@ pub mod client;
 use std::{
     collections::HashMap,
     pin::Pin,
+    sync::Arc,
     task::{Context, Poll},
 };
 
@@ -10,6 +11,7 @@ use bson::Document;
 use futures::{ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::BuildNoHashHasher;
+use parking_lot::Mutex;
 use talk_loco_command::{
     command::{
         codec::{BsonCommandCodec, ReadError},
@@ -17,10 +19,7 @@ use talk_loco_command::{
     },
     response::ResponseData,
 };
-use tokio::{
-    select,
-    sync::{mpsc, oneshot},
-};
+use tokio::sync::{mpsc, oneshot};
 
 #[derive(Debug, Clone)]
 pub struct LocoCommandSession {
@@ -40,8 +39,11 @@ impl LocoCommandSession {
         handler: Handler,
     ) -> Self {
         let (sender, receiver) = mpsc::channel(128);
-        let session_handler = CommandSessionHandler::new(handler);
-        tokio::spawn(session_handler.run(stream, receiver));
+        let (read_stream, write_stream) = stream.split();
+        let (read_task, write_task) = session_task(handler);
+
+        tokio::spawn(read_task.run(read_stream));
+        tokio::spawn(write_task.run(write_stream, receiver));
 
         Self { sender }
     }
@@ -71,108 +73,93 @@ impl Future for CommandRequest {
 
 pub type ReadResult = Result<ReadBsonCommand<ResponseData>, ReadError>;
 
+type ResponseMap = HashMap<i32, oneshot::Sender<BsonCommand<ResponseData>>, BuildNoHashHasher<i32>>;
+
 #[derive(Debug)]
-struct CommandSessionHandler<Handler> {
-    read_map: HashMap<i32, oneshot::Sender<BsonCommand<ResponseData>>, BuildNoHashHasher<i32>>,
-    next_request_id: i32,
+struct ReadTask<Handler> {
+    response_map: Arc<Mutex<ResponseMap>>,
     handler: Handler,
 }
 
-impl<Handler: FnMut(ReadResult)> CommandSessionHandler<Handler> {
-    pub fn new(handler: Handler) -> Self {
-        CommandSessionHandler {
-            read_map: HashMap::default(),
-            next_request_id: 0,
+impl<Handler: FnMut(ReadResult)> ReadTask<Handler> {
+    #[inline(always)]
+    const fn new(response_map: Arc<Mutex<ResponseMap>>, handler: Handler) -> Self {
+        ReadTask {
+            response_map,
             handler,
         }
     }
 
-    pub fn add_response(&mut self, sender: oneshot::Sender<BsonCommand<ResponseData>>) -> i32 {
-        let request_id = self.next_request_id;
+    pub async fn run(mut self, read_stream: impl Send + AsyncRead + Unpin + 'static) {
+        let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
 
-        self.next_request_id += 1;
-        self.read_map.insert(request_id, sender);
+        loop {
+            let read = read_codec.read_async().await;
 
-        request_id
-    }
+            match read {
+                Ok(read) => {
+                    if let Some(sender) = self.response_map.lock().remove(&read.id) {
+                        sender.send(read.command).ok();
+                    } else {
+                        (self.handler)(Ok(read));
+                    }
+                }
 
-    pub fn take_response(&mut self, id: i32) -> Option<oneshot::Sender<BsonCommand<ResponseData>>> {
-        self.read_map.remove(&id)
-    }
-
-    pub fn handle_read(&mut self, read: ReadResult) {
-        match read {
-            Ok(read) => {
-                if let Some(sender) = self.read_map.remove(&read.id) {
-                    sender.send(read.command).ok();
-                } else {
-                    (self.handler)(Ok(read));
+                Err(_) => {
+                    (self.handler)(read);
                 }
             }
+        }
+    }
+}
 
-            Err(_) => {
-                (self.handler)(read);
-            }
+#[derive(Debug)]
+struct WriteTask {
+    response_map: Arc<Mutex<ResponseMap>>,
+    next_request_id: i32,
+}
+
+impl WriteTask {
+    #[inline(always)]
+    const fn new(response_map: Arc<Mutex<ResponseMap>>) -> Self {
+        WriteTask {
+            response_map,
+            next_request_id: 0,
         }
     }
 
     pub async fn run(
         mut self,
-        stream: impl Send + AsyncRead + AsyncWrite + 'static,
+        write_stream: impl Send + AsyncWrite + Unpin + 'static,
         mut request_recv: mpsc::Receiver<RequestCommand>,
     ) {
-        let (read_stream, write_stream) = stream.split();
-
-        let (read_sender, mut read_receiver) = mpsc::channel(8);
-
-        let read_handle = tokio::spawn(async move {
-            let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
-
-            loop {
-                let read = read_codec.read_async().await;
-                if read_sender.send(read).await.is_err() {
-                    break;
-                }
-            }
-        });
-
         let mut write_codec = BsonCommandCodec(CommandCodec::new(write_stream));
-        loop {
-            select! {
-                request = request_recv.recv() => {
-                    match request {
-                        Some(request) => {
-                            let request_id = self.add_response(request.response_sender);
+        while let Some(request) = request_recv.recv().await {
+            let request_id = self.next_request_id;
 
-                            if write_codec.write_async(request_id, &request.command).await.is_err() {
-                                self.take_response(request_id);
-                                continue;
-                            }
+            self.response_map
+                .lock()
+                .insert(request_id, request.response_sender);
 
-                            if write_codec.flush_async().await.is_err() {
-                                self.take_response(request_id);
-                                continue;
-                            }
-                        },
+            if write_codec
+                .write_async(request_id, &request.command)
+                .await
+                .is_err()
+                || write_codec.flush_async().await.is_err()
+            {
+                self.response_map.lock().remove(&request_id);
+                continue;
+            }
 
-                        None => break,
-                    }
-                }
-
-                read = read_receiver.recv() => {
-                    match read {
-                        Some(read) => self.handle_read(read),
-
-                        None => {
-                            break;
-                        }
-                    }
-                }
-            };
+            self.next_request_id += 1;
         }
-
-        read_handle.abort();
     }
+}
+
+fn session_task<Handler: FnMut(ReadResult)>(handler: Handler) -> (ReadTask<Handler>, WriteTask) {
+    let map = Arc::new(Mutex::new(HashMap::default()));
+
+    (ReadTask::new(map.clone(), handler), WriteTask::new(map))
 }
 
 #[derive(Debug)]
