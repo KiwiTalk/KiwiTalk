@@ -6,6 +6,7 @@ pub mod error;
 pub mod event;
 pub mod handler;
 pub mod status;
+pub mod user;
 
 use std::sync::{
     atomic::{AtomicI64, Ordering},
