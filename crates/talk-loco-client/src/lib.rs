@@ -8,7 +8,9 @@ use std::{
 };
 
 use bson::Document;
-use futures::{ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt};
+use futures::{
+    ready, sink::drain, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Sink, SinkExt,
+};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::BuildNoHashHasher;
 use parking_lot::Mutex;
@@ -32,20 +34,20 @@ pub struct LocoCommandSession {
 }
 
 impl LocoCommandSession {
-    pub fn new<S: AsyncRead + AsyncWrite + Send + 'static>(stream: S) -> Self {
-        Self::new_with_handler(stream, |_| {})
+    pub fn new<Stream: AsyncRead + AsyncWrite + Send + 'static>(stream: Stream) -> Self {
+        Self::new_with_sink(stream, drain())
     }
 
-    pub fn new_with_handler<
-        S: AsyncRead + AsyncWrite + Send + 'static,
-        Handler: Send + 'static + FnMut(ReadResult),
+    pub fn new_with_sink<
+        Stream: AsyncRead + AsyncWrite + Send + 'static,
+        S: Sink<ReadResult> + Send + Unpin + 'static,
     >(
-        stream: S,
-        handler: Handler,
+        stream: Stream,
+        sink: S,
     ) -> Self {
         let (sender, receiver) = mpsc::channel(128);
         let (read_stream, write_stream) = stream.split();
-        let (read_task, write_task) = session_task(handler);
+        let (read_task, write_task) = session_task(sink);
 
         let read_task = tokio::spawn(read_task.run(read_stream));
         let write_task = tokio::spawn(write_task.run(write_stream, receiver));
@@ -93,18 +95,15 @@ pub type ReadResult = Result<ReadBsonCommand<ResponseData>, ReadError>;
 type ResponseMap = HashMap<i32, oneshot::Sender<BsonCommand<ResponseData>>, BuildNoHashHasher<i32>>;
 
 #[derive(Debug)]
-struct ReadTask<Handler> {
+struct ReadTask<S> {
     response_map: Arc<Mutex<ResponseMap>>,
-    handler: Handler,
+    sink: S,
 }
 
-impl<Handler: FnMut(ReadResult)> ReadTask<Handler> {
+impl<S: Sink<ReadResult> + Unpin> ReadTask<S> {
     #[inline(always)]
-    const fn new(response_map: Arc<Mutex<ResponseMap>>, handler: Handler) -> Self {
-        ReadTask {
-            response_map,
-            handler,
-        }
+    const fn new(response_map: Arc<Mutex<ResponseMap>>, sink: S) -> Self {
+        ReadTask { response_map, sink }
     }
 
     pub async fn run(mut self, read_stream: impl Send + AsyncRead + Unpin + 'static) {
@@ -117,13 +116,14 @@ impl<Handler: FnMut(ReadResult)> ReadTask<Handler> {
                 Ok(read) => {
                     if let Some(sender) = self.response_map.lock().remove(&read.id) {
                         sender.send(read.command).ok();
-                    } else {
-                        (self.handler)(Ok(read));
+                        continue;
                     }
+
+                    self.sink.send(Ok(read)).await.ok();
                 }
 
                 Err(_) => {
-                    (self.handler)(read);
+                    self.sink.send(read).await.ok();
                     break;
                 }
             }
@@ -174,10 +174,10 @@ impl WriteTask {
     }
 }
 
-fn session_task<Handler: FnMut(ReadResult)>(handler: Handler) -> (ReadTask<Handler>, WriteTask) {
+fn session_task<S: Sink<ReadResult> + Unpin>(sink: S) -> (ReadTask<S>, WriteTask) {
     let map = Arc::new(Mutex::new(HashMap::default()));
 
-    (ReadTask::new(map.clone(), handler), WriteTask::new(map))
+    (ReadTask::new(map.clone(), sink), WriteTask::new(map))
 }
 
 #[derive(Debug)]
