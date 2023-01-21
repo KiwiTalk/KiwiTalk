@@ -7,8 +7,8 @@ use futures::{pin_mut, StreamExt};
 use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{ChatOnRoomReq, MemberReq, NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq},
-    structs::chat::Chatlog,
+    request::chat::{ChatOnRoomReq, MemberReq, NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq, ChatInfoReq},
+    structs::{chat::Chatlog, channel_info::ChannelInfo},
 };
 use tokio::sync::mpsc::channel;
 
@@ -211,6 +211,14 @@ impl<'a> KiwiTalkClientChannel<'a> {
 
         Ok(())
     }
+    
+    pub async fn info(&self) -> ClientResult<ChannelInfo> {
+        let res = TalkClient(self.client.session()).channel_info(&ChatInfoReq {
+            chat_id: self.channel_id,
+        }).await?;
+
+        Ok(res.chat_info)
+    }
 
     pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
         TalkClient(self.client.session())
@@ -235,3 +243,6 @@ impl<'a> KiwiTalkClientChannel<'a> {
         Ok(())
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct ChannelData {}
