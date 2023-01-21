@@ -15,7 +15,7 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
     #[error("Request returned status {0}")]
-    Request(i16),
+    Request(i32),
 
     #[error("Session closed before response")]
     Session,
