@@ -10,11 +10,11 @@ pub mod user;
 
 use std::{ops::Deref, sync::Arc};
 
-use channel::{KiwiTalkClientChannel, KiwiTalkChannelData};
+use channel::{ClientChannel, ChannelData};
 use config::KiwiTalkClientInfo;
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
-    KiwiTalkDatabasePool,
+    DatabasePool,
 };
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
@@ -52,7 +52,7 @@ pub struct KiwiTalkClientShared {
 
     user_id: ChannelUserId,
 
-    pool: KiwiTalkDatabasePool,
+    pool: DatabasePool,
 }
 
 impl KiwiTalkClientShared {
@@ -62,7 +62,7 @@ impl KiwiTalkClientShared {
     }
 
     #[inline(always)]
-    pub const fn pool(&self) -> &KiwiTalkDatabasePool {
+    pub const fn pool(&self) -> &DatabasePool {
         &self.pool
     }
 
@@ -72,8 +72,8 @@ impl KiwiTalkClientShared {
     }
 
     #[inline(always)]
-    pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_, KiwiTalkChannelData> {
-        KiwiTalkClientChannel::new(channel_id, self, todo!())
+    pub const fn channel(&self, channel_id: ChannelId) -> ClientChannel<'_, ChannelData> {
+        ClientChannel::new(channel_id, self, todo!())
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
@@ -90,7 +90,7 @@ impl KiwiTalkClientShared {
 #[derive(Debug)]
 pub struct KiwiTalkClientBuilder<Stream, Listener> {
     stream: Stream,
-    pool: KiwiTalkDatabasePool,
+    pool: DatabasePool,
 
     pub status: ClientStatus,
 
@@ -102,7 +102,7 @@ where
     Stream: AsyncRead + AsyncWrite + Send + 'static,
     Listener: Sink<KiwiTalkClientEvent> + Unpin + Send + Sync + Clone + 'static,
 {
-    pub fn new(stream: Stream, pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
+    pub fn new(stream: Stream, pool: DatabasePool, listener: Listener) -> Self {
         Self {
             stream,
             pool,

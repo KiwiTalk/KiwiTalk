@@ -1,10 +1,10 @@
 use talk_loco_command::command::codec::ReadError;
 use thiserror::Error;
 
-use crate::database::KiwiTalkDatabaseError;
+use crate::database::DatabaseError;
 
 #[derive(Debug, Error)]
-pub enum KiwiTalkClientHandlerError {
+pub enum ClientHandlerError {
     #[error("Could not decode command {0}. {1}")]
     CommandDecode(String, bson::de::Error),
 
@@ -12,5 +12,5 @@ pub enum KiwiTalkClientHandlerError {
     NetworkRead(#[from] ReadError),
 
     #[error("Database operation failed. {0}")]
-    Database(#[from] KiwiTalkDatabaseError),
+    Database(#[from] DatabaseError),
 }

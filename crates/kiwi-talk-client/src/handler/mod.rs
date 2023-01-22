@@ -11,12 +11,12 @@ use talk_loco_command::{command::BsonCommand, response::chat};
 use crate::{
     database::conversion::chat_model_from_chatlog,
     event::{
-        channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
+        channel::{ChatRead, ChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
     }, KiwiTalkClientShared,
 };
 
-use self::error::KiwiTalkClientHandlerError;
+use self::error::ClientHandlerError;
 
 #[derive(Debug)]
 pub(crate) struct HandlerTask {
@@ -111,7 +111,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
 
         self.emitter
             .emit(
-                KiwiTalkChannelEvent::Chat(ReceivedChat {
+                ChannelEvent::Chat(ReceivedChat {
                     channel_id: data.chat_id,
                     link_id: data.link_id,
                     log_id: data.log_id,
@@ -138,7 +138,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
 
         self.emitter
             .emit(
-                KiwiTalkChannelEvent::ChatRead(ChatRead {
+                ChannelEvent::ChatRead(ChatRead {
                     channel_id: data.chat_id,
                     user_id: data.user_id,
                     log_id: data.watermark,
@@ -170,12 +170,12 @@ impl<S: Sink<KiwiTalkClientEvent> + Unpin> HandlerEmitter<S> {
     }
 }
 
-pub type HandlerResult<T> = Result<T, KiwiTalkClientHandlerError>;
+pub type HandlerResult<T> = Result<T, ClientHandlerError>;
 
 fn map_data<T: DeserializeOwned>(
     method: &str,
     doc: Document,
-) -> Result<T, KiwiTalkClientHandlerError> {
+) -> Result<T, ClientHandlerError> {
     bson::de::from_document(doc)
-        .map_err(|err| KiwiTalkClientHandlerError::CommandDecode(method.to_string(), err))
+        .map_err(|err| ClientHandlerError::CommandDecode(method.to_string(), err))
 }

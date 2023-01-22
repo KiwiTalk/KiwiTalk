@@ -9,16 +9,16 @@ use r2d2_sqlite::SqliteConnectionManager;
 use thiserror::Error;
 
 #[derive(Debug, Clone)]
-pub struct KiwiTalkDatabasePool(Pool<KiwiTalkDatabaseManager>);
+pub struct DatabasePool(Pool<DatabaseManager>);
 
-impl KiwiTalkDatabasePool {
-    pub fn new(manager: KiwiTalkDatabaseManager) -> Result<Self, PoolError> {
+impl DatabasePool {
+    pub fn new(manager: DatabaseManager) -> Result<Self, PoolError> {
         Ok(Self(Pool::new(manager)?))
     }
 
     pub fn spawn_task<
         R: Send + 'static,
-        F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> DatabaseResult<R>,
+        F: FnOnce(PooledConnection<DatabaseManager>) -> DatabaseResult<R>,
     >(
         &self,
         closure: F,
@@ -41,14 +41,14 @@ impl KiwiTalkDatabasePool {
     }
 }
 
-pub type DatabaseResult<T> = Result<T, KiwiTalkDatabaseError>;
+pub type DatabaseResult<T> = Result<T, DatabaseError>;
 
 #[derive(Debug)]
-pub struct KiwiTalkDatabaseManager {
+pub struct DatabaseManager {
     rusqlite: SqliteConnectionManager,
 }
 
-impl KiwiTalkDatabaseManager {
+impl DatabaseManager {
     #[inline(always)]
     pub fn file(path: impl AsRef<Path>) -> Self {
         Self {
@@ -57,10 +57,10 @@ impl KiwiTalkDatabaseManager {
     }
 }
 
-impl ManageConnection for KiwiTalkDatabaseManager {
+impl ManageConnection for DatabaseManager {
     type Connection = KiwiTalkConnection;
 
-    type Error = KiwiTalkDatabaseError;
+    type Error = DatabaseError;
 
     fn connect(&self) -> Result<Self::Connection, Self::Error> {
         Ok(KiwiTalkConnection::new(self.rusqlite.connect()?))
@@ -80,7 +80,7 @@ impl ManageConnection for KiwiTalkDatabaseManager {
 pub struct PoolError(#[from] r2d2::Error);
 
 #[derive(Debug, Error)]
-pub enum KiwiTalkDatabaseError {
+pub enum DatabaseError {
     #[error(transparent)]
     Rusqlite(#[from] rusqlite::Error),
 

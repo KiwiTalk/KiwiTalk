@@ -3,7 +3,7 @@ use talk_loco_command::structs::chat::Chatlog;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
-pub enum KiwiTalkChannelEvent {
+pub enum ChannelEvent {
     Chat(ReceivedChat),
     ChatRead(ChatRead),
 }

@@ -18,7 +18,7 @@ use talk_loco_command::{
 use tokio::sync::mpsc::channel;
 
 #[derive(Debug, Clone)]
-pub struct KiwiTalkChannelData {
+pub struct ChannelData {
     pub channel_type: String,
 
     pub last_log_id: i64,
@@ -33,31 +33,31 @@ pub struct KiwiTalkChannelData {
 }
 
 #[derive(Debug, Clone)]
-pub struct KiwiTalkClientChannel<'a, Data> {
+pub struct ClientChannel<'a, Data> {
     id: ChannelId,
 
     client: &'a KiwiTalkClientShared,
-    data: &'a Data,
+    data: Data,
 }
 
-impl<'a, Data> KiwiTalkClientChannel<'a, Data> {
+impl<'a, Data> ClientChannel<'a, Data> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, client: &'a KiwiTalkClientShared, data: &'a Data) -> Self {
+    pub const fn new(id: ChannelId, client: &'a KiwiTalkClientShared, data: Data) -> Self {
         Self { id, client, data }
     }
-}
 
-impl KiwiTalkClientChannel<'_, KiwiTalkChannelData> {
     #[inline(always)]
     pub const fn channel_id(&self) -> ChannelId {
         self.id
     }
 
     #[inline(always)]
-    pub const fn data(&self) -> &KiwiTalkChannelData {
-        self.data
+    pub const fn data(&self) -> &Data {
+        &self.data
     }
+}
 
+impl ClientChannel<'_, ChannelData> {
     pub async fn send_chat(&self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
         let res = TalkClient(self.client.session())
             .write(&WriteReq {
