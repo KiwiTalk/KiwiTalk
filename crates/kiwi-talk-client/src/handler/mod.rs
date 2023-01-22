@@ -2,6 +2,7 @@ pub mod error;
 
 use bson::Document;
 use futures::{Sink, SinkExt};
+use kiwi_talk_db::channel::model::ChannelUserId;
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
@@ -17,18 +18,29 @@ use crate::{
 use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
-pub struct KiwiTalkClientHandler<S> {
+pub struct KiwiTalkClientHandler<Listener> {
     pool: KiwiTalkDatabasePool,
-    sink: S,
+
+    user_id: ChannelUserId,
+
+    listener: Listener,
 }
 
-impl<S: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<S> {
-    pub const fn new(pool: KiwiTalkDatabasePool, sink: S) -> Self {
-        Self { pool, sink }
+impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<Listener> {
+    pub const fn new(
+        pool: KiwiTalkDatabasePool,
+        user_id: ChannelUserId,
+        listener: Listener,
+    ) -> Self {
+        Self {
+            pool,
+            user_id,
+            listener,
+        }
     }
 
     pub async fn emit(&mut self, event: KiwiTalkClientEvent) {
-        self.sink.send(event).await.ok();
+        self.listener.send(event).await.ok();
     }
 
     pub async fn handle(&mut self, read: ReadResult) {

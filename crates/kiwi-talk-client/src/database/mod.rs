@@ -36,7 +36,8 @@ impl KiwiTalkDatabasePool {
     }
 
     pub async fn migrate_to_latest(&self) -> DatabaseResult<()> {
-        self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?)).await
+        self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
+            .await
     }
 }
 
