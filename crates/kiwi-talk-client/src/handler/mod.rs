@@ -1,7 +1,7 @@
 pub mod error;
 
 use bson::Document;
-use futures::{Sink, SinkExt};
+use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
 use kiwi_talk_db::channel::model::ChannelUserId;
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
@@ -18,47 +18,65 @@ use crate::{
 use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
-pub struct KiwiTalkClientHandler<Listener> {
+pub(crate) struct HandlerTask {
+    pool: KiwiTalkDatabasePool,
+    user_id: ChannelUserId,
+}
+
+impl HandlerTask {
+    pub const fn new(pool: KiwiTalkDatabasePool, user_id: ChannelUserId) -> Self {
+        Self { pool, user_id }
+    }
+
+    pub async fn run(
+        self,
+        stream: impl Stream<Item = ReadResult>,
+        listener: impl Sink<KiwiTalkClientEvent> + Clone + Send + Unpin + 'static,
+    ) {
+        let mut emitter = HandlerEmitter(listener);
+
+        pin_mut!(stream);
+        while let Some(read) = stream.next().await {
+            match read {
+                Ok(read) => {
+                    let mut handler = Handler {
+                        pool: self.pool.clone(),
+                        user_id: self.user_id,
+
+                        emitter: emitter.clone(),
+                    };
+
+                    tokio::spawn(async move {
+                        handler.handle(read.command).await;
+                    });
+                }
+
+                Err(err) => {
+                    emitter.emit(KiwiTalkClientEvent::Error(err.into())).await;
+                }
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Handler<Listener> {
     pool: KiwiTalkDatabasePool,
 
     user_id: ChannelUserId,
 
-    listener: Listener,
+    emitter: HandlerEmitter<Listener>,
 }
 
-impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<Listener> {
-    pub const fn new(
-        pool: KiwiTalkDatabasePool,
-        user_id: ChannelUserId,
-        listener: Listener,
-    ) -> Self {
-        Self {
-            pool,
-            user_id,
-            listener,
-        }
-    }
-
-    pub async fn emit(&mut self, event: KiwiTalkClientEvent) {
-        self.listener.send(event).await.ok();
-    }
-
-    pub async fn handle(&mut self, read: ReadResult) {
-        match read {
-            Ok(read) => {
-                if let Err(err) = self.handle_command(read.command).await {
-                    self.emit(KiwiTalkClientEvent::Error(err)).await;
-                }
-            }
-
-            Err(err) => {
-                self.emit(KiwiTalkClientEvent::Error(err.into())).await;
-            }
+impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
+    pub async fn handle(&mut self, command: BsonCommand<Document>) {
+        if let Err(err) = self.handle_inner(command).await {
+            self.emitter.emit(KiwiTalkClientEvent::Error(err)).await;
         }
     }
 
     // TODO:: Use macro
-    async fn handle_command(&mut self, command: BsonCommand<Document>) -> HandlerResult<()> {
+    async fn handle_inner(&mut self, command: BsonCommand<Document>) -> HandlerResult<()> {
         match command.method.as_ref() {
             "MSG" => Ok(self.on_chat(map_data("MSG", command.data)?).await?),
             "DECUNREAD" => Ok(self
@@ -76,7 +94,8 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<Listener
             }
 
             _ => {
-                self.emit(KiwiTalkClientEvent::Unhandled(command.into()))
+                self.emitter
+                    .emit(KiwiTalkClientEvent::Unhandled(command.into()))
                     .await;
                 Ok(())
             }
@@ -94,17 +113,18 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<Listener
             })
             .await?;
 
-        self.emit(
-            KiwiTalkChannelEvent::Chat(ReceivedChat {
-                channel_id: data.chat_id,
-                link_id: data.link_id,
-                log_id: data.log_id,
-                user_nickname: data.author_nickname,
-                chat: data.chatlog,
-            })
-            .into(),
-        )
-        .await;
+        self.emitter
+            .emit(
+                KiwiTalkChannelEvent::Chat(ReceivedChat {
+                    channel_id: data.chat_id,
+                    link_id: data.link_id,
+                    log_id: data.log_id,
+                    user_nickname: data.author_nickname,
+                    chat: data.chatlog,
+                })
+                .into(),
+            )
+            .await;
 
         Ok(())
     }
@@ -119,25 +139,37 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> KiwiTalkClientHandler<Listener
             })
             .await?;
 
-        self.emit(
-            KiwiTalkChannelEvent::ChatRead(ChatRead {
-                channel_id: data.chat_id,
-                user_id: data.user_id,
-                log_id: data.watermark,
-            })
-            .into(),
-        )
-        .await;
+        self.emitter
+            .emit(
+                KiwiTalkChannelEvent::ChatRead(ChatRead {
+                    channel_id: data.chat_id,
+                    user_id: data.user_id,
+                    log_id: data.watermark,
+                })
+                .into(),
+            )
+            .await;
 
         Ok(())
     }
 
     async fn on_kickout(&mut self, data: chat::Kickout) {
-        self.emit(KiwiTalkClientEvent::Kickout(data.reason)).await;
+        self.emitter
+            .emit(KiwiTalkClientEvent::Kickout(data.reason))
+            .await;
     }
 
     async fn on_change_server(&mut self) {
-        self.emit(KiwiTalkClientEvent::SwitchServer).await;
+        self.emitter.emit(KiwiTalkClientEvent::SwitchServer).await;
+    }
+}
+
+#[derive(Debug, Clone)]
+struct HandlerEmitter<S>(S);
+
+impl<S: Sink<KiwiTalkClientEvent> + Unpin> HandlerEmitter<S> {
+    pub async fn emit(&mut self, event: KiwiTalkClientEvent) {
+        self.0.send(event).await.ok();
     }
 }
 
