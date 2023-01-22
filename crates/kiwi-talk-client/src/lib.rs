@@ -137,64 +137,62 @@ where
             })
         };
 
-        {
-            let client = KiwiTalkClient {
-                session,
-                user_id: login_res.user_id,
-                pool: self.pool,
-                handler_task,
-            };
+        let client = KiwiTalkClient {
+            session,
+            user_id: login_res.user_id,
+            pool: self.pool,
+            handler_task,
+        };
 
-            let talk_client = TalkClient(client.session());
+        let talk_client = TalkClient(client.session());
 
-            let (sender, mut recv) = channel(4);
-            for data in &login_res.chat_list.chat_datas {
-                client.channel(data.id).sync_chats(data.last_log_id).await?;
-            }
-
-            let database_task = client.pool().spawn_task(move |connection| {
-                while let Some(datas) = recv.blocking_recv() {
-                    for data in datas {
-                        connection
-                            .channel()
-                            .insert(&channel_model_from_channel_list_data(&data))?;
-
-                        if let Some(ref chatlog) = data.chatlog {
-                            connection
-                                .chat()
-                                .insert(&chat_model_from_chatlog(chatlog))?;
-                        }
-                    }
-                }
-
-                Ok(())
-            });
-
-            sender.send(login_res.chat_list.chat_datas).await.unwrap();
-
-            if !login_res.chat_list.eof {
-                let stream = talk_client.channel_list_stream(
-                    login_res.chat_list.last_token_id.unwrap_or_default(),
-                    login_res.chat_list.last_chat_id,
-                );
-                pin_mut!(stream);
-                while let Some(res) = stream.next().await {
-                    let res = res?;
-
-                    for data in &res.chat_datas {
-                        client.channel(data.id).sync_chats(data.last_log_id).await?;
-                    }
-                    if sender.send(res.chat_datas).await.is_err() {
-                        break;
-                    }
-                }
-            }
-
-            drop(sender);
-            database_task.await?;
-
-            Ok(client)
+        let (sender, mut recv) = channel(4);
+        for data in &login_res.chat_list.chat_datas {
+            client.channel(data.id).sync_chats(data.last_log_id).await?;
         }
+
+        let database_task = client.pool().spawn_task(move |connection| {
+            while let Some(datas) = recv.blocking_recv() {
+                for data in datas {
+                    connection
+                        .channel()
+                        .insert(&channel_model_from_channel_list_data(&data))?;
+
+                    if let Some(ref chatlog) = data.chatlog {
+                        connection
+                            .chat()
+                            .insert(&chat_model_from_chatlog(chatlog))?;
+                    }
+                }
+            }
+
+            Ok(())
+        });
+
+        sender.send(login_res.chat_list.chat_datas).await.unwrap();
+
+        if !login_res.chat_list.eof {
+            let stream = talk_client.channel_list_stream(
+                login_res.chat_list.last_token_id.unwrap_or_default(),
+                login_res.chat_list.last_chat_id,
+            );
+            pin_mut!(stream);
+            while let Some(res) = stream.next().await {
+                let res = res?;
+
+                for data in &res.chat_datas {
+                    client.channel(data.id).sync_chats(data.last_log_id).await?;
+                }
+                if sender.send(res.chat_datas).await.is_err() {
+                    break;
+                }
+            }
+        }
+
+        drop(sender);
+        database_task.await?;
+
+        Ok(client)
     }
 }
 
