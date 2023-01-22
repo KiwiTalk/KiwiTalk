@@ -1,31 +1,31 @@
 pub mod error;
 
+use std::sync::{Arc, Weak};
+
 use bson::Document;
 use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
-use kiwi_talk_db::channel::model::ChannelUserId;
 use serde::de::DeserializeOwned;
 use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
-    database::{conversion::chat_model_from_chatlog, KiwiTalkDatabasePool},
+    database::conversion::chat_model_from_chatlog,
     event::{
         channel::{ChatRead, KiwiTalkChannelEvent, ReceivedChat},
         KiwiTalkClientEvent,
-    },
+    }, KiwiTalkClientShared,
 };
 
 use self::error::KiwiTalkClientHandlerError;
 
 #[derive(Debug)]
 pub(crate) struct HandlerTask {
-    pool: KiwiTalkDatabasePool,
-    user_id: ChannelUserId,
+    client: Weak<KiwiTalkClientShared>,
 }
 
 impl HandlerTask {
-    pub const fn new(pool: KiwiTalkDatabasePool, user_id: ChannelUserId) -> Self {
-        Self { pool, user_id }
+    pub const fn new(client: Weak<KiwiTalkClientShared>) -> Self {
+        Self { client }
     }
 
     pub async fn run(
@@ -40,9 +40,7 @@ impl HandlerTask {
             match read {
                 Ok(read) => {
                     let mut handler = Handler {
-                        pool: self.pool.clone(),
-                        user_id: self.user_id,
-
+                        client: self.client.upgrade().unwrap(),
                         emitter: emitter.clone(),
                     };
 
@@ -61,10 +59,7 @@ impl HandlerTask {
 
 #[derive(Debug)]
 struct Handler<Listener> {
-    pool: KiwiTalkDatabasePool,
-
-    user_id: ChannelUserId,
-
+    client: Arc<KiwiTalkClientShared>,
     emitter: HandlerEmitter<Listener>,
 }
 
@@ -104,7 +99,8 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
 
     async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
         let chatlog = data.chatlog.clone();
-        self.pool
+        self.client
+            .pool()
             .spawn_task(move |connection| {
                 connection
                     .chat()
@@ -130,7 +126,8 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
     }
 
     async fn on_chat_read(&mut self, data: chat::DecunRead) -> HandlerResult<()> {
-        self.pool
+        self.client
+            .pool()
             .spawn_task(move |connection| {
                 connection
                     .user()

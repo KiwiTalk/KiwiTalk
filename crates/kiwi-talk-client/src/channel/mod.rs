@@ -1,7 +1,7 @@
 use crate::{
     chat::ChatContent,
     database::conversion::{channel_user_model_from_user_variant, chat_model_from_chatlog},
-    ClientResult, KiwiTalkClient,
+    ClientResult, KiwiTalkClientShared,
 };
 use futures::{pin_mut, StreamExt};
 use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
@@ -14,14 +14,31 @@ use talk_loco_command::{
 };
 use tokio::sync::mpsc::channel;
 
+#[derive(Debug, Clone)]
+pub struct KiwiTalkChannelData {
+    id: ChannelId,
+
+    channel_type: String,
+
+    last_log_id: i64,
+    last_seen_log_id: i64,
+    last_chat: Option<Chatlog>,
+
+    active_user_count: i32,
+
+    unread_count: i32,
+
+    push_alert: bool,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct KiwiTalkClientChannel<'a> {
-    client: &'a KiwiTalkClient,
+    client: &'a KiwiTalkClientShared,
     channel_id: ChannelId,
 }
 
 impl<'a> KiwiTalkClientChannel<'a> {
-    pub const fn new(client: &'a KiwiTalkClient, channel_id: ChannelId) -> Self {
+    pub const fn new(client: &'a KiwiTalkClientShared, channel_id: ChannelId) -> Self {
         Self { client, channel_id }
     }
 

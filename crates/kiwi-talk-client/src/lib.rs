@@ -8,6 +8,8 @@ pub mod handler;
 pub mod status;
 pub mod user;
 
+use std::{ops::Deref, sync::Arc};
+
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientInfo;
 use database::{
@@ -26,16 +28,34 @@ use tokio::{sync::mpsc::channel, task::JoinHandle};
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
+    inner: Arc<KiwiTalkClientShared>,
+    handler_task: JoinHandle<()>,
+}
+
+impl Deref for KiwiTalkClient {
+    type Target = KiwiTalkClientShared;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl Drop for KiwiTalkClient {
+    fn drop(&mut self) {
+        self.handler_task.abort();
+    }
+}
+
+#[derive(Debug)]
+pub struct KiwiTalkClientShared {
     session: LocoCommandSession,
 
     user_id: ChannelUserId,
 
     pool: KiwiTalkDatabasePool,
-
-    handler_task: JoinHandle<()>,
 }
 
-impl KiwiTalkClient {
+impl KiwiTalkClientShared {
     #[inline(always)]
     pub const fn session(&self) -> &LocoCommandSession {
         &self.session
@@ -64,12 +84,6 @@ impl KiwiTalkClient {
             .await?;
 
         Ok(())
-    }
-}
-
-impl Drop for KiwiTalkClient {
-    fn drop(&mut self) {
-        self.handler_task.abort();
     }
 }
 
@@ -135,28 +149,25 @@ where
             })
             .await?;
 
-        let handler_task = {
-            tokio::spawn(
-                HandlerTask::new(self.pool.clone(), login_res.user_id)
-                    .run(session_recv, self.listener),
-            )
-        };
-
-        let client = KiwiTalkClient {
+        let client_shared = Arc::new(KiwiTalkClientShared {
             session,
             user_id: login_res.user_id,
             pool: self.pool,
-            handler_task,
+        });
+
+        let handler_task = {
+            let client_shared = Arc::downgrade(&client_shared);
+            tokio::spawn(HandlerTask::new(client_shared).run(session_recv, self.listener))
         };
 
-        let talk_client = TalkClient(client.session());
+        let talk_client = TalkClient(client_shared.session());
 
         let (sender, mut recv) = channel(4);
         for data in &login_res.chat_list.chat_datas {
-            client.channel(data.id).sync_chats(data.last_log_id).await?;
+            client_shared.channel(data.id).sync_chats(data.last_log_id).await?;
         }
 
-        let database_task = client.pool().spawn_task(move |connection| {
+        let database_task = client_shared.pool().spawn_task(move |connection| {
             while let Some(datas) = recv.blocking_recv() {
                 for data in datas {
                     connection
@@ -186,7 +197,7 @@ where
                 let res = res?;
 
                 for data in &res.chat_datas {
-                    client.channel(data.id).sync_chats(data.last_log_id).await?;
+                    client_shared.channel(data.id).sync_chats(data.last_log_id).await?;
                 }
                 if sender.send(res.chat_datas).await.is_err() {
                     break;
@@ -197,7 +208,10 @@ where
         drop(sender);
         database_task.await?;
 
-        Ok(client)
+        Ok(KiwiTalkClient {
+            inner: client_shared,
+            handler_task,
+        })
     }
 }
 
