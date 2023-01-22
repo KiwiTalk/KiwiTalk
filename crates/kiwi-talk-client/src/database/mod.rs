@@ -18,11 +18,11 @@ impl KiwiTalkDatabasePool {
 
     pub fn spawn_task<
         R: Send + 'static,
-        F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> Result<R, KiwiTalkDatabaseError>,
+        F: FnOnce(PooledConnection<KiwiTalkDatabaseManager>) -> DatabaseResult<R>,
     >(
         &self,
         closure: F,
-    ) -> impl Future<Output = Result<R, KiwiTalkDatabaseError>>
+    ) -> impl Future<Output = DatabaseResult<R>>
     where
         F: Send + 'static,
     {
@@ -34,7 +34,13 @@ impl KiwiTalkDatabasePool {
         })
         .map(|res| res.unwrap())
     }
+
+    pub async fn migrate_to_latest(&self) -> DatabaseResult<()> {
+        self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?)).await
+    }
 }
+
+pub type DatabaseResult<T> = Result<T, KiwiTalkDatabaseError>;
 
 #[derive(Debug)]
 pub struct KiwiTalkDatabaseManager {
