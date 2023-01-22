@@ -1,11 +1,11 @@
-use futures::{Future, Sink};
+use futures::Sink;
 use kiwi_talk_client::{
     config::KiwiTalkClientInfo,
-    database::{KiwiTalkDatabaseManager, KiwiTalkDatabasePool},
+    database::{KiwiTalkDatabaseError, KiwiTalkDatabaseManager, KiwiTalkDatabasePool},
     error::KiwiTalkClientError,
     event::KiwiTalkClientEvent,
     status::ClientStatus,
-    ClientCredential, KiwiTalkClient,
+    ClientCredential, KiwiTalkClient, KiwiTalkClientBuilder,
 };
 use tauri::State;
 use thiserror::Error;
@@ -36,18 +36,13 @@ pub async fn create_client(
     .await
     .map_err(|_| CreateClientError::LocoHandshake)?;
 
-    let client = KiwiTalkClient::new(
-        loco_session,
-        KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::file(
-            "file:memdb?mode=memory&cache=shared",
-        ))
-        .unwrap(),
-        sink,
-    )
-    .await
-    .map_err(KiwiTalkClientError::from)?;
+    let pool = KiwiTalkDatabasePool::new(KiwiTalkDatabaseManager::file(
+        "file:memdb?mode=memory&cache=shared",
+    ))
+    .map_err(|err| CreateClientError::Database(err.into()))?;
+    pool.migrate_to_latest().await?;
 
-    client
+    let client = KiwiTalkClientBuilder::new(loco_session, pool, sink)
         .login(
             KiwiTalkClientInfo {
                 os: TALK_OS,
@@ -76,6 +71,9 @@ pub enum CreateClientError {
 
     #[error("Loco stream handshake failed")]
     LocoHandshake,
+
+    #[error("Database initialization failed. {0}")]
+    Database(#[from] KiwiTalkDatabaseError),
 
     #[error(transparent)]
     Client(#[from] KiwiTalkClientError),

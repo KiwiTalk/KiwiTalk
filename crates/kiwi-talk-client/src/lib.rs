@@ -8,13 +8,11 @@ pub mod handler;
 pub mod status;
 pub mod user;
 
-use std::sync::atomic::{AtomicI64, Ordering};
-
 use channel::KiwiTalkClientChannel;
 use config::KiwiTalkClientInfo;
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
-    KiwiTalkDatabaseError, KiwiTalkDatabasePool,
+    KiwiTalkDatabasePool,
 };
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
@@ -30,7 +28,7 @@ use tokio::{sync::mpsc::channel, task::JoinHandle};
 pub struct KiwiTalkClient {
     session: LocoCommandSession,
 
-    user_id: AtomicI64,
+    user_id: ChannelUserId,
 
     pool: KiwiTalkDatabasePool,
 
@@ -38,32 +36,6 @@ pub struct KiwiTalkClient {
 }
 
 impl KiwiTalkClient {
-    pub async fn new<S: AsyncRead + AsyncWrite + Send + 'static>(
-        stream: S,
-        pool: KiwiTalkDatabasePool,
-        sink: impl Sink<KiwiTalkClientEvent> + Unpin + Send + 'static,
-    ) -> Result<Self, KiwiTalkDatabaseError> {
-        pool.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
-            .await?;
-
-        let (sender, mut recv) = futures::channel::mpsc::channel(128);
-        let session = LocoCommandSession::new_with_sink(stream, sender);
-
-        let mut handler = KiwiTalkClientHandler::new(pool.clone(), sink);
-        let handler_task = tokio::spawn(async move {
-            while let Some(read) = recv.next().await {
-                handler.handle(read).await;
-            }
-        });
-
-        Ok(KiwiTalkClient {
-            session,
-            user_id: AtomicI64::new(0),
-            pool,
-            handler_task,
-        })
-    }
-
     #[inline(always)]
     pub const fn session(&self) -> &LocoCommandSession {
         &self.session
@@ -76,7 +48,7 @@ impl KiwiTalkClient {
 
     #[inline(always)]
     pub fn user_id(&self) -> ChannelUserId {
-        self.user_id.load(Ordering::Acquire)
+        self.user_id
     }
 
     #[inline(always)]
@@ -84,17 +56,55 @@ impl KiwiTalkClient {
         KiwiTalkClientChannel::new(self, channel_id)
     }
 
+    pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
+        TalkClient(&self.session)
+            .set_status(&SetStReq {
+                status: client_status as _,
+            })
+            .await?;
+
+        Ok(())
+    }
+}
+
+impl Drop for KiwiTalkClient {
+    fn drop(&mut self) {
+        self.handler_task.abort();
+    }
+}
+
+#[derive(Debug)]
+pub struct KiwiTalkClientBuilder<Stream, Listener> {
+    stream: Stream,
+    pool: KiwiTalkDatabasePool,
+
+    listener: Listener,
+}
+
+impl<Stream, Listener> KiwiTalkClientBuilder<Stream, Listener>
+where
+    Stream: AsyncRead + AsyncWrite + Send + 'static,
+    Listener: Sink<KiwiTalkClientEvent> + Unpin + Send + 'static,
+{
+    pub fn new(stream: Stream, pool: KiwiTalkDatabasePool, listener: Listener) -> Self {
+        Self {
+            stream,
+            pool,
+
+            listener,
+        }
+    }
+
     pub async fn login(
-        &self,
+        self,
         info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
         client_status: ClientStatus,
-    ) -> ClientResult<()> {
-        let talk_client = TalkClient(&self.session);
+    ) -> ClientResult<KiwiTalkClient> {
+        let (session_sink, mut session_recv) = futures::channel::mpsc::channel(128);
+        let session = LocoCommandSession::new_with_sink(self.stream, session_sink);
 
-        let (sender, mut recv) = channel(4);
-
-        let login_res = talk_client
+        let login_res = TalkClient(&session)
             .login(&LoginListReq {
                 client: info.create_client_info(),
                 protocol_version: "1.0".into(),
@@ -116,70 +126,75 @@ impl KiwiTalkClient {
             })
             .await?;
 
-        self.user_id.store(login_res.user_id, Ordering::Release);
+        let handler_task = {
+            let mut handler =
+                KiwiTalkClientHandler::new(self.pool.clone(), login_res.user_id, self.listener);
 
-        for data in &login_res.chat_list.chat_datas {
-            self.channel(data.id).sync_chats(data.last_log_id).await?;
-        }
+            tokio::spawn(async move {
+                while let Some(read) = session_recv.next().await {
+                    handler.handle(read).await;
+                }
+            })
+        };
 
-        let database_task = self.pool.spawn_task(move |connection| {
-            while let Some(datas) = recv.blocking_recv() {
-                for data in datas {
-                    connection
-                        .channel()
-                        .insert(&channel_model_from_channel_list_data(&data))?;
+        {
+            let client = KiwiTalkClient {
+                session,
+                user_id: login_res.user_id,
+                pool: self.pool,
+                handler_task,
+            };
 
-                    if let Some(ref chatlog) = data.chatlog {
+            let talk_client = TalkClient(client.session());
+
+            let (sender, mut recv) = channel(4);
+            for data in &login_res.chat_list.chat_datas {
+                client.channel(data.id).sync_chats(data.last_log_id).await?;
+            }
+
+            let database_task = client.pool().spawn_task(move |connection| {
+                while let Some(datas) = recv.blocking_recv() {
+                    for data in datas {
                         connection
-                            .chat()
-                            .insert(&chat_model_from_chatlog(chatlog))?;
+                            .channel()
+                            .insert(&channel_model_from_channel_list_data(&data))?;
+
+                        if let Some(ref chatlog) = data.chatlog {
+                            connection
+                                .chat()
+                                .insert(&chat_model_from_chatlog(chatlog))?;
+                        }
+                    }
+                }
+
+                Ok(())
+            });
+
+            sender.send(login_res.chat_list.chat_datas).await.unwrap();
+
+            if !login_res.chat_list.eof {
+                let stream = talk_client.channel_list_stream(
+                    login_res.chat_list.last_token_id.unwrap_or_default(),
+                    login_res.chat_list.last_chat_id,
+                );
+                pin_mut!(stream);
+                while let Some(res) = stream.next().await {
+                    let res = res?;
+
+                    for data in &res.chat_datas {
+                        client.channel(data.id).sync_chats(data.last_log_id).await?;
+                    }
+                    if sender.send(res.chat_datas).await.is_err() {
+                        break;
                     }
                 }
             }
 
-            Ok(())
-        });
+            drop(sender);
+            database_task.await?;
 
-        sender.send(login_res.chat_list.chat_datas).await.unwrap();
-
-        if !login_res.chat_list.eof {
-            let stream = talk_client.channel_list_stream(
-                login_res.chat_list.last_token_id.unwrap_or_default(),
-                login_res.chat_list.last_chat_id,
-            );
-            pin_mut!(stream);
-            while let Some(res) = stream.next().await {
-                let res = res?;
-
-                for data in &res.chat_datas {
-                    self.channel(data.id).sync_chats(data.last_log_id).await?;
-                }
-                if sender.send(res.chat_datas).await.is_err() {
-                    break;
-                }
-            }
+            Ok(client)
         }
-
-        drop(sender);
-        database_task.await?;
-
-        Ok(())
-    }
-
-    pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
-        TalkClient(&self.session)
-            .set_status(&SetStReq {
-                status: client_status as _,
-            })
-            .await?;
-
-        Ok(())
-    }
-}
-
-impl Drop for KiwiTalkClient {
-    fn drop(&mut self) {
-        self.handler_task.abort();
     }
 }
 
