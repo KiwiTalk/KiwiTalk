@@ -12,7 +12,7 @@ use futures::{
     ready, sink::drain, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Sink, SinkExt,
 };
 use loco_protocol::command::codec::CommandCodec;
-use nohash_hasher::BuildNoHashHasher;
+use nohash_hasher::IntMap;
 use parking_lot::Mutex;
 use talk_loco_command::{
     command::{
@@ -92,7 +92,7 @@ impl Future for CommandRequest {
 
 pub type ReadResult = Result<ReadBsonCommand<Document>, ReadError>;
 
-type ResponseMap = HashMap<i32, oneshot::Sender<ResponseData>, BuildNoHashHasher<i32>>;
+type ResponseMap = IntMap<i32, oneshot::Sender<ResponseData>>;
 
 #[derive(Debug)]
 struct ReadTask<S> {
