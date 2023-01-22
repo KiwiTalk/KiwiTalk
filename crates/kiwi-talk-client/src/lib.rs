@@ -10,7 +10,7 @@ pub mod user;
 
 use std::{ops::Deref, sync::Arc};
 
-use channel::KiwiTalkClientChannel;
+use channel::{KiwiTalkClientChannel, KiwiTalkChannelData};
 use config::KiwiTalkClientInfo;
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
@@ -72,8 +72,8 @@ impl KiwiTalkClientShared {
     }
 
     #[inline(always)]
-    pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_> {
-        KiwiTalkClientChannel::new(self, channel_id)
+    pub const fn channel(&self, channel_id: ChannelId) -> KiwiTalkClientChannel<'_, KiwiTalkChannelData> {
+        KiwiTalkClientChannel::new(channel_id, self, todo!())
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {

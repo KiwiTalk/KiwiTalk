@@ -1,3 +1,6 @@
+pub mod normal;
+pub mod open;
+
 use crate::{
     chat::ChatContent,
     database::conversion::{channel_user_model_from_user_variant, chat_model_from_chatlog},
@@ -16,41 +19,49 @@ use tokio::sync::mpsc::channel;
 
 #[derive(Debug, Clone)]
 pub struct KiwiTalkChannelData {
+    pub channel_type: String,
+
+    pub last_log_id: i64,
+    pub last_seen_log_id: i64,
+    pub last_chat: Option<Chatlog>,
+
+    pub active_user_count: i32,
+
+    pub unread_count: i32,
+
+    pub push_alert: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct KiwiTalkClientChannel<'a, Data> {
     id: ChannelId,
 
-    channel_type: String,
-
-    last_log_id: i64,
-    last_seen_log_id: i64,
-    last_chat: Option<Chatlog>,
-
-    active_user_count: i32,
-
-    unread_count: i32,
-
-    push_alert: bool,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct KiwiTalkClientChannel<'a> {
     client: &'a KiwiTalkClientShared,
-    channel_id: ChannelId,
+    data: &'a Data,
 }
 
-impl<'a> KiwiTalkClientChannel<'a> {
-    pub const fn new(client: &'a KiwiTalkClientShared, channel_id: ChannelId) -> Self {
-        Self { client, channel_id }
+impl<'a, Data> KiwiTalkClientChannel<'a, Data> {
+    #[inline(always)]
+    pub const fn new(id: ChannelId, client: &'a KiwiTalkClientShared, data: &'a Data) -> Self {
+        Self { id, client, data }
+    }
+}
+
+impl KiwiTalkClientChannel<'_, KiwiTalkChannelData> {
+    #[inline(always)]
+    pub const fn channel_id(&self) -> ChannelId {
+        self.id
     }
 
     #[inline(always)]
-    pub const fn channel_id(&self) -> ChannelId {
-        self.channel_id
+    pub const fn data(&self) -> &KiwiTalkChannelData {
+        self.data
     }
 
     pub async fn send_chat(&self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
         let res = TalkClient(self.client.session())
             .write(&WriteReq {
-                chat_id: self.channel_id,
+                chat_id: self.id,
                 chat_type: chat.chat_type,
                 msg_id: 0,
                 message: chat.message.clone(),
@@ -96,14 +107,14 @@ impl<'a> KiwiTalkClientChannel<'a> {
     pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
         TalkClient(self.client.session())
             .read_chat(&NotiReadReq {
-                chat_id: self.channel_id,
+                chat_id: self.id,
                 watermark: log_id,
                 link_id: None,
             })
             .await?;
 
         let client_user_id = self.client.user_id();
-        let channel_id = self.channel_id;
+        let channel_id = self.id;
         self.client
             .pool()
             .spawn_task(move |connection| {
@@ -125,7 +136,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
         let client = TalkClient(self.client.session());
 
         let current = {
-            let channel_id = self.channel_id;
+            let channel_id = self.id;
             self.client
                 .pool()
                 .spawn_task(move |connection| {
@@ -157,7 +168,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
         });
 
         let stream = client.sync_chat_stream(&SyncMsgReq {
-            chat_id: self.channel_id,
+            chat_id: self.id,
             current,
             count: 0,
             max,
@@ -182,7 +193,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
     pub async fn chat_on(&self) -> ClientResult<()> {
         let res = TalkClient(self.client.session())
             .chat_on_channel(&ChatOnRoomReq {
-                chat_id: self.channel_id,
+                chat_id: self.id,
                 token: 0,
                 open_token: None,
             })
@@ -195,7 +206,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
             None => {
                 let res = TalkClient(self.client.session())
                     .user_info(&MemberReq {
-                        chat_id: self.channel_id,
+                        chat_id: self.id,
                         user_ids: res.user_ids.unwrap_or_default(),
                     })
                     .await?;
@@ -204,7 +215,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
             }
         };
 
-        let channel_id = self.channel_id;
+        let channel_id = self.id;
         self.client
             .pool()
             .spawn_task(move |connection| {
@@ -233,9 +244,7 @@ impl<'a> KiwiTalkClientChannel<'a> {
 
     pub async fn info(&self) -> ClientResult<ChannelInfo> {
         let res = TalkClient(self.client.session())
-            .channel_info(&ChatInfoReq {
-                chat_id: self.channel_id,
-            })
+            .channel_info(&ChatInfoReq { chat_id: self.id })
             .await?;
 
         Ok(res.chat_info)
@@ -244,12 +253,12 @@ impl<'a> KiwiTalkClientChannel<'a> {
     pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
         TalkClient(self.client.session())
             .update_channel(&UpdateChatReq {
-                chat_id: self.channel_id,
+                chat_id: self.id,
                 push_alert,
             })
             .await?;
 
-        let channel_id = self.channel_id;
+        let channel_id = self.id;
         self.client
             .pool()
             .spawn_task(move |connection| {
@@ -264,6 +273,3 @@ impl<'a> KiwiTalkClientChannel<'a> {
         Ok(())
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct ChannelData {}
