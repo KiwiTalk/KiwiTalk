@@ -43,6 +43,7 @@ pub async fn create_client(
     pool.migrate_to_latest().await?;
 
     let client = KiwiTalkClientBuilder::new(loco_session, pool, sink)
+        .status(client_status)
         .login(
             KiwiTalkClientInfo {
                 os: TALK_OS,
@@ -57,7 +58,6 @@ pub async fn create_client(
                 device_uuid: info.device_info.device_uuid.as_str(),
                 user_id: credential.user_id,
             },
-            client_status,
         )
         .await?;
 

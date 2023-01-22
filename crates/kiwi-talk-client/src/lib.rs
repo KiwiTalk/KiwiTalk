@@ -78,6 +78,8 @@ pub struct KiwiTalkClientBuilder<Stream, Listener> {
     stream: Stream,
     pool: KiwiTalkDatabasePool,
 
+    pub status: ClientStatus,
+
     listener: Listener,
 }
 
@@ -91,15 +93,22 @@ where
             stream,
             pool,
 
+            status: ClientStatus::Unlocked,
+
             listener,
         }
+    }
+
+    pub fn status(mut self, status: ClientStatus) -> Self {
+        self.status = status;
+
+        self
     }
 
     pub async fn login(
         self,
         info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
-        client_status: ClientStatus,
     ) -> ClientResult<KiwiTalkClient> {
         let (session_sink, mut session_recv) = futures::channel::mpsc::channel(128);
         let session = LocoCommandSession::new_with_sink(self.stream, session_sink);
@@ -112,7 +121,7 @@ where
                 oauth_token: credential.access_token.into(),
                 language: info.language.to_string(),
                 device_type: Some(info.device_type),
-                pc_status: Some(client_status as _),
+                pc_status: Some(self.status as _),
                 revision: None,
                 rp: vec![0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
                 chat_list: LChatListReq {
