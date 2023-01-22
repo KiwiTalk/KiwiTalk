@@ -23,7 +23,7 @@ pub async fn create_client(
     credential: &AppCredential,
     client_status: ClientStatus,
     info: State<'_, SystemInfo>,
-    sink: impl Sink<KiwiTalkClientEvent> + Send + Unpin + 'static,
+    sink: impl Sink<KiwiTalkClientEvent> + Send + Sync + Clone + Unpin + 'static,
 ) -> Result<KiwiTalkClient, CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
