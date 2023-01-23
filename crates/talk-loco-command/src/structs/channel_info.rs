@@ -68,10 +68,6 @@ pub struct ChannelListData {
     /// Unknown. Always 0 on openchat rooms.
     pub mmr: i64,
 
-    /// Openlink token.
-    #[serde(rename = "o")]
-    pub open_token: Option<i32>,
-
     /// Unknown. Only appears on non openchat rooms.
     pub jn: Option<i32>,
 }
