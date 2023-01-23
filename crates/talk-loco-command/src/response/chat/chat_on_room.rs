@@ -77,6 +77,6 @@ pub struct ChatOnRoomRes {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ChatOnRoomUserList {
-    List(#[serde(rename = "m")] Vec<UserVariant>),
+    Info(#[serde(rename = "m")] Vec<UserVariant>),
     Id(#[serde(rename = "mi")] Vec<i64>),
 }
