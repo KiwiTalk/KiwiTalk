@@ -137,7 +137,7 @@ async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
 
 #[tauri::command]
 fn client_user_id(app: State<'_, KiwiTalkApp>) -> Option<i64> {
-    Some(app.client.read().as_ref()?.user_id())
+    Some(app.client.read().as_ref()?.connection().user_id)
 }
 
 // Error without Result
