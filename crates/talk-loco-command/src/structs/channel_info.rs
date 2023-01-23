@@ -43,6 +43,9 @@ pub struct ChannelListData {
     #[serde(rename = "n")]
     pub unread_count: i32,
 
+    #[serde(rename = "o")]
+    pub last_update: i64,
+
     // /// Chatroom metadata(?)
     // #[serde(rename = "m")]
     // pub metadata: ()
