@@ -1,21 +1,38 @@
 pub mod normal;
 pub mod open;
 
+use std::ops::DerefMut;
+
 use crate::{
-    chat::ChatContent,
-    database::conversion::{channel_user_model_from_user_variant, chat_model_from_chatlog},
-    ClientResult, KiwiTalkClientShared,
+    chat::ChatContent, database::conversion::chat_model_from_chatlog, ClientConnection,
+    ClientResult,
 };
 use futures::{pin_mut, StreamExt};
 use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{
-        ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq, SyncMsgReq, UpdateChatReq, WriteReq,
-    },
-    structs::{channel_info::ChannelInfo, chat::Chatlog},
+    request::chat::{SyncMsgReq, UpdateChatReq, WriteReq},
+    structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
+
+#[derive(Debug)]
+pub struct ClientChannelList<'a, Data> {
+    connection: &'a ClientConnection,
+    data: Data,
+}
+
+impl<'a, Data> ClientChannelList<'a, Data> {
+    #[inline(always)]
+    pub const fn new(connection: &'a ClientConnection, data: Data) -> Self {
+        Self { connection, data }
+    }
+
+    #[inline(always)]
+    pub const fn data(&self) -> &Data {
+        &self.data
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct ChannelData {
@@ -36,14 +53,18 @@ pub struct ChannelData {
 pub struct ClientChannel<'a, Data> {
     id: ChannelId,
 
-    client: &'a KiwiTalkClientShared,
+    connection: &'a ClientConnection,
     data: Data,
 }
 
 impl<'a, Data> ClientChannel<'a, Data> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, client: &'a KiwiTalkClientShared, data: Data) -> Self {
-        Self { id, client, data }
+    pub const fn new(id: ChannelId, connection: &'a ClientConnection, data: Data) -> Self {
+        Self {
+            id,
+            connection,
+            data,
+        }
     }
 
     #[inline(always)]
@@ -57,9 +78,9 @@ impl<'a, Data> ClientChannel<'a, Data> {
     }
 }
 
-impl ClientChannel<'_, ChannelData> {
+impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> {
     pub async fn send_chat(&self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
-        let res = TalkClient(self.client.session())
+        let res = TalkClient(&self.connection.session)
             .write(&WriteReq {
                 chat_id: self.id,
                 chat_type: chat.chat_type,
@@ -76,11 +97,10 @@ impl ClientChannel<'_, ChannelData> {
             prev_log_id: Some(res.prev_id),
             chat_id: res.chat_id,
             chat_type: chat.chat_type,
-            author_id: self.client.user_id(),
+            author_id: self.connection.user_id,
             message: chat.message,
             send_at: res.send_at,
             attachment: chat.attachment,
-            // TODO::
             referer: None,
             supplement: chat.supplement,
             msg_id: res.msg_id,
@@ -89,8 +109,8 @@ impl ClientChannel<'_, ChannelData> {
         {
             let chatlog = chatlog.clone();
 
-            self.client
-                .pool()
+            self.connection
+                .pool
                 .spawn_task(move |connection| {
                     connection
                         .chat()
@@ -104,41 +124,13 @@ impl ClientChannel<'_, ChannelData> {
         Ok(chatlog)
     }
 
-    pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
-        TalkClient(self.client.session())
-            .read_chat(&NotiReadReq {
-                chat_id: self.id,
-                watermark: log_id,
-                link_id: None,
-            })
-            .await?;
-
-        let client_user_id = self.client.user_id();
-        let channel_id = self.id;
-        self.client
-            .pool()
-            .spawn_task(move |connection| {
-                connection
-                    .channel()
-                    .set_last_seen_log_id(channel_id, log_id)?;
-                connection
-                    .user()
-                    .update_watermark(client_user_id, channel_id, log_id)?;
-
-                Ok(())
-            })
-            .await?;
-
-        Ok(())
-    }
-
     pub async fn sync_chats(&self, max: LogId) -> ClientResult<usize> {
-        let client = TalkClient(self.client.session());
+        let client = TalkClient(&self.connection.session);
 
         let current = {
             let channel_id = self.id;
-            self.client
-                .pool()
+            self.connection
+                .pool
                 .spawn_task(move |connection| {
                     Ok(connection
                         .channel()
@@ -156,7 +148,7 @@ impl ClientChannel<'_, ChannelData> {
 
         let (sender, mut recv) = channel(4);
 
-        let database_task = self.client.pool().spawn_task(move |connection| {
+        let database_task = self.connection.pool.spawn_task(move |connection| {
             while let Some(list) = recv.blocking_recv() {
                 for chatlog in list {
                     connection
@@ -190,68 +182,8 @@ impl ClientChannel<'_, ChannelData> {
         Ok(count)
     }
 
-    pub async fn chat_on(&self) -> ClientResult<()> {
-        let res = TalkClient(self.client.session())
-            .chat_on_channel(&ChatOnRoomReq {
-                chat_id: self.id,
-                token: 0,
-                open_token: None,
-            })
-            .await?;
-
-        self.sync_chats(res.last_log_id).await?;
-
-        let users = match res.users {
-            Some(users) => users,
-            None => {
-                let res = TalkClient(self.client.session())
-                    .user_info(&MemberReq {
-                        chat_id: self.id,
-                        user_ids: res.user_ids.unwrap_or_default(),
-                    })
-                    .await?;
-
-                res.members
-            }
-        };
-
-        let channel_id = self.id;
-        self.client
-            .pool()
-            .spawn_task(move |connection| {
-                connection
-                    .channel()
-                    .set_last_chat_log_id(channel_id, res.last_log_id)?;
-
-                for user in users {
-                    connection
-                        .user()
-                        .insert(&channel_user_model_from_user_variant(channel_id, 0, &user))?;
-                }
-
-                for (id, watermark) in res.watermark_user_ids.into_iter().zip(res.watermarks) {
-                    connection
-                        .user()
-                        .update_watermark(id, channel_id, watermark)?;
-                }
-
-                Ok(())
-            })
-            .await?;
-
-        Ok(())
-    }
-
-    pub async fn info(&self) -> ClientResult<ChannelInfo> {
-        let res = TalkClient(self.client.session())
-            .channel_info(&ChatInfoReq { chat_id: self.id })
-            .await?;
-
-        Ok(res.chat_info)
-    }
-
     pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
-        TalkClient(self.client.session())
+        TalkClient(&self.connection.session)
             .update_channel(&UpdateChatReq {
                 chat_id: self.id,
                 push_alert,
@@ -259,8 +191,8 @@ impl ClientChannel<'_, ChannelData> {
             .await?;
 
         let channel_id = self.id;
-        self.client
-            .pool()
+        self.connection
+            .pool
             .spawn_task(move |connection| {
                 connection
                     .channel()
