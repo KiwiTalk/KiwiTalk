@@ -43,7 +43,8 @@ impl TalkClient<'_> {
 
     async_client_method!(channel_info, "CHATINFO", request::chat::ChatInfoReq => response::chat::ChatInfoRes);
 
-    async_client_method!(chat_on_channel, "CHATONROOM", request::chat::ChatOnRoomReq => response::chat::ChatOnRoomRes);
+    async_client_method!(chat_on_normal_channel, "CHATONROOM", request::chat::ChatOnRoomReq => response::chat::ChatOnRoomRes);
+    async_client_method!(chat_on_open_channel, "CHATONROOM", request::chat::ChatOnRoomOpenReq => response::chat::ChatOnRoomRes);
 
     async_client_method!(write, "WRITE", request::chat::WriteReq => response::chat::WriteRes);
 
@@ -53,7 +54,8 @@ impl TalkClient<'_> {
 
     async_client_method!(leave, "LEAVE", request::chat::LeaveReq => response::chat::LeaveRes);
 
-    async_client_method!(read_chat, "NOTIREAD", request::chat::NotiReadReq);
+    async_client_method!(read_chat_normal, "NOTIREAD", request::chat::NotiReadReq);
+    async_client_method!(read_chat_open, "NOTIREAD", request::chat::NotiReadOpenReq);
 
     async_client_method!(set_meta, "SETMETA", request::chat::SetMetaReq => response::chat::SetMetaRes);
 
