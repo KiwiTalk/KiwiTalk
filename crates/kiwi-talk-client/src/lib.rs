@@ -10,7 +10,10 @@ pub mod user;
 
 use std::{ops::Deref, sync::Arc};
 
-use channel::{ClientChannel, ChannelData};
+use channel::{
+    normal::{ClientNormalChannelList, NormalChannelDataList},
+    ClientChannelList,
+};
 use config::KiwiTalkClientInfo;
 use database::{
     conversion::{channel_model_from_channel_list_data, chat_model_from_chatlog},
@@ -20,7 +23,7 @@ use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, StreamExt};
 use handler::HandlerTask;
-use kiwi_talk_db::channel::model::{ChannelId, ChannelUserId};
+use kiwi_talk_db::channel::model::ChannelUserId;
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
@@ -28,12 +31,12 @@ use tokio::{sync::mpsc::channel, task::JoinHandle};
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
-    inner: Arc<KiwiTalkClientShared>,
+    inner: Arc<ClientShared>,
     handler_task: JoinHandle<()>,
 }
 
 impl Deref for KiwiTalkClient {
-    type Target = KiwiTalkClientShared;
+    type Target = ClientShared;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -47,37 +50,25 @@ impl Drop for KiwiTalkClient {
 }
 
 #[derive(Debug)]
-pub struct KiwiTalkClientShared {
-    session: LocoCommandSession,
+pub struct ClientShared {
+    connection: ClientConnection,
 
-    user_id: ChannelUserId,
-
-    pool: DatabasePool,
+    normal_channel_list: NormalChannelDataList,
 }
 
-impl KiwiTalkClientShared {
+impl ClientShared {
     #[inline(always)]
-    pub const fn session(&self) -> &LocoCommandSession {
-        &self.session
+    pub const fn connection(&self) -> &ClientConnection {
+        &self.connection
     }
 
     #[inline(always)]
-    pub const fn pool(&self) -> &DatabasePool {
-        &self.pool
-    }
-
-    #[inline(always)]
-    pub fn user_id(&self) -> ChannelUserId {
-        self.user_id
-    }
-
-    #[inline(always)]
-    pub const fn channel(&self, channel_id: ChannelId) -> ClientChannel<'_, ChannelData> {
-        ClientChannel::new(channel_id, self, todo!())
+    pub const fn normal_channel_list(&self) -> ClientNormalChannelList<'_> {
+        ClientChannelList::new(&self.connection, &self.normal_channel_list)
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
-        TalkClient(&self.session)
+        TalkClient(&self.connection.session)
             .set_status(&SetStReq {
                 status: client_status as _,
             })
@@ -85,6 +76,14 @@ impl KiwiTalkClientShared {
 
         Ok(())
     }
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct ClientConnection {
+    pub user_id: ChannelUserId,
+    pub session: LocoCommandSession,
+    pub pool: DatabasePool,
 }
 
 #[derive(Debug)]
@@ -149,10 +148,16 @@ where
             })
             .await?;
 
-        let client_shared = Arc::new(KiwiTalkClientShared {
-            session,
+        let connection = ClientConnection {
             user_id: login_res.user_id,
+            session,
             pool: self.pool,
+        };
+
+        let client_shared = Arc::new(ClientShared {
+            connection,
+
+            normal_channel_list: todo!(),
         });
 
         let handler_task = {
@@ -160,30 +165,38 @@ where
             tokio::spawn(HandlerTask::new(client_shared).run(session_recv, self.listener))
         };
 
-        let talk_client = TalkClient(client_shared.session());
+        let talk_client = TalkClient(&client_shared.connection().session);
 
         let (sender, mut recv) = channel(4);
         for data in &login_res.chat_list.chat_datas {
-            client_shared.channel(data.id).sync_chats(data.last_log_id).await?;
+            /*
+            client_shared
+                .channel(data.id)
+                .sync_chats(data.last_log_id)
+                .await?;
+            */
         }
 
-        let database_task = client_shared.pool().spawn_task(move |connection| {
-            while let Some(datas) = recv.blocking_recv() {
-                for data in datas {
-                    connection
-                        .channel()
-                        .insert(&channel_model_from_channel_list_data(&data))?;
-
-                    if let Some(ref chatlog) = data.chatlog {
+        let database_task = client_shared
+            .connection()
+            .pool
+            .spawn_task(move |connection| {
+                while let Some(datas) = recv.blocking_recv() {
+                    for data in datas {
                         connection
-                            .chat()
-                            .insert(&chat_model_from_chatlog(chatlog))?;
+                            .channel()
+                            .insert(&channel_model_from_channel_list_data(&data))?;
+
+                        if let Some(ref chatlog) = data.chatlog {
+                            connection
+                                .chat()
+                                .insert(&chat_model_from_chatlog(chatlog))?;
+                        }
                     }
                 }
-            }
 
-            Ok(())
-        });
+                Ok(())
+            });
 
         sender.send(login_res.chat_list.chat_datas).await.unwrap();
 
@@ -197,7 +210,12 @@ where
                 let res = res?;
 
                 for data in &res.chat_datas {
-                    client_shared.channel(data.id).sync_chats(data.last_log_id).await?;
+                    /*
+                    client_shared
+                        .channel(data.id)
+                        .sync_chats(data.last_log_id)
+                        .await?;
+                    */
                 }
                 if sender.send(res.chat_datas).await.is_err() {
                     break;
