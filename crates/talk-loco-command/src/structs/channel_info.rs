@@ -159,7 +159,7 @@ pub struct ChannelInfo {
 pub struct ChannelMeta {
     /// Meta type. See [ChannelMetaType] for predefined types.
     #[serde(rename = "type")]
-    pub meta_type: i8,
+    pub meta_type: i32,
 
     pub revision: i64,
 
@@ -169,13 +169,13 @@ pub struct ChannelMeta {
 
     /// Updated time in Unix time.
     #[serde(rename = "updatedAt")]
-    pub updated_at: i32,
+    pub updated_at: i64,
 
     /// Json or String content depending on type.
     pub content: String,
 }
 
-#[repr(i8)]
+#[repr(i32)]
 pub enum ChannelMetaType {
     Notice = 1,
     Group = 2,

@@ -26,6 +26,18 @@ CREATE TABLE IF NOT EXISTS channel (
     push_alert BOOLEAN NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS channel_meta (
+    type INTEGER NOT NULL,
+    channel_id INTEGER NOT NULL,
+    revision INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    content TEXT NOT NULL,
+
+    PRIMARY KEY(type, channel_id),
+    FOREIGN KEY(channel_id) REFERENCES channel(id)
+);
+
 -- See /src/channel/model.rs
 CREATE TABLE IF NOT EXISTS channel_user (
     id INTEGER NOT NULL,
