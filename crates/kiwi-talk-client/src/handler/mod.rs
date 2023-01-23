@@ -11,20 +11,21 @@ use talk_loco_command::{command::BsonCommand, response::chat};
 use crate::{
     database::conversion::chat_model_from_chatlog,
     event::{
-        channel::{ChatRead, ChannelEvent, ReceivedChat},
+        channel::{ChannelEvent, ChatRead, ReceivedChat},
         KiwiTalkClientEvent,
-    }, KiwiTalkClientShared,
+    },
+    ClientShared,
 };
 
 use self::error::ClientHandlerError;
 
 #[derive(Debug)]
 pub(crate) struct HandlerTask {
-    client: Weak<KiwiTalkClientShared>,
+    client: Weak<ClientShared>,
 }
 
 impl HandlerTask {
-    pub const fn new(client: Weak<KiwiTalkClientShared>) -> Self {
+    pub const fn new(client: Weak<ClientShared>) -> Self {
         Self { client }
     }
 
@@ -59,7 +60,7 @@ impl HandlerTask {
 
 #[derive(Debug)]
 struct Handler<Listener> {
-    client: Arc<KiwiTalkClientShared>,
+    client: Arc<ClientShared>,
     emitter: HandlerEmitter<Listener>,
 }
 
@@ -100,7 +101,8 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
     async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
         let chatlog = data.chatlog.clone();
         self.client
-            .pool()
+            .connection()
+            .pool
             .spawn_task(move |connection| {
                 connection
                     .chat()
@@ -127,7 +129,8 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
 
     async fn on_chat_read(&mut self, data: chat::DecunRead) -> HandlerResult<()> {
         self.client
-            .pool()
+            .connection()
+            .pool
             .spawn_task(move |connection| {
                 connection
                     .user()
@@ -172,10 +175,7 @@ impl<S: Sink<KiwiTalkClientEvent> + Unpin> HandlerEmitter<S> {
 
 pub type HandlerResult<T> = Result<T, ClientHandlerError>;
 
-fn map_data<T: DeserializeOwned>(
-    method: &str,
-    doc: Document,
-) -> Result<T, ClientHandlerError> {
+fn map_data<T: DeserializeOwned>(method: &str, doc: Document) -> Result<T, ClientHandlerError> {
     bson::de::from_document(doc)
         .map_err(|err| ClientHandlerError::CommandDecode(method.to_string(), err))
 }
