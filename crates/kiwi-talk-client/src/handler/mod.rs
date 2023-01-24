@@ -41,7 +41,7 @@ impl HandlerTask {
             match read {
                 Ok(read) => {
                     let mut handler = Handler {
-                        client: self.client.upgrade().unwrap(),
+                        client: self.client.clone(),
                         emitter: emitter.clone(),
                     };
 
