@@ -159,9 +159,8 @@ where
             .await?,
         );
 
-        let handler_task = {
-            tokio::spawn(HandlerTask::new(client_shared.clone()).run(session_recv, self.listener))
-        };
+        let handler_task =
+            tokio::spawn(HandlerTask::new(client_shared.clone()).run(session_recv, self.listener));
 
         Ok(KiwiTalkClient {
             inner: client_shared,
