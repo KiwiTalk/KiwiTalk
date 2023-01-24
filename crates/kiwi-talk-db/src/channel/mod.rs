@@ -18,7 +18,7 @@ impl<'a> ChannelEntry<'a> {
         channel: &FullModel<ChannelId, ChannelModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO channel VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 channel.id,
                 &channel.model.channel_type,
@@ -27,6 +27,7 @@ impl<'a> ChannelEntry<'a> {
                 channel.model.last_chat_log_id,
                 channel.model.last_seen_log_id,
                 channel.model.push_alert,
+                channel.model.last_update,
             ),
         )?;
 
@@ -49,6 +50,15 @@ impl<'a> ChannelEntry<'a> {
         &self,
     ) -> Result<Vec<FullModel<ChannelId, ChannelModel>>, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM channel")?;
+
+        let rows = statement.query(())?;
+        rows.mapped(Self::map_full_row).into_iter().collect()
+    }
+
+    pub fn get_all_normal_channel(
+        &self,
+    ) -> Result<Vec<FullModel<ChannelId, ChannelModel>>, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT channel.* FROM channel INNER JOIN normal_channel ON channel.id = normal_channel.id")?;
 
         let rows = statement.query(())?;
         rows.mapped(Self::map_full_row).into_iter().collect()
@@ -103,6 +113,7 @@ impl<'a> ChannelEntry<'a> {
             last_chat_log_id: row.get(4)?,
             last_seen_log_id: row.get(5)?,
             push_alert: row.get(6)?,
+            last_update: row.get(7)?,
         })
     }
 
@@ -225,6 +236,7 @@ mod tests {
             last_chat_log_id: 0,
             last_seen_log_id: 0,
             push_alert: true,
+            last_update: 0,
         };
 
         db.channel().insert(&FullModel::new(0, model.clone()))?;
@@ -246,6 +258,7 @@ mod tests {
                 last_chat_log_id: 0,
                 last_seen_log_id: 0,
                 push_alert: true,
+                last_update: 0,
             },
         ))?;
 
