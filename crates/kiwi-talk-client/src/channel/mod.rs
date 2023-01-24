@@ -19,18 +19,18 @@ use tokio::sync::mpsc::channel;
 #[derive(Debug)]
 pub struct ClientChannelList<'a, Data> {
     connection: &'a ClientConnection,
-    data: Data,
+    data: &'a Data,
 }
 
 impl<'a, Data> ClientChannelList<'a, Data> {
     #[inline(always)]
-    pub const fn new(connection: &'a ClientConnection, data: Data) -> Self {
+    pub const fn new(connection: &'a ClientConnection, data: &'a Data) -> Self {
         Self { connection, data }
     }
 
     #[inline(always)]
     pub const fn data(&self) -> &Data {
-        &self.data
+        self.data
     }
 }
 
@@ -47,6 +47,8 @@ pub struct ChannelData {
     pub unread_count: i32,
 
     pub push_alert: bool,
+
+    pub last_update: i64,
 }
 
 #[derive(Debug, Clone)]

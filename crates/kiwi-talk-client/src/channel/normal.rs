@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use dashmap::{
     mapref::one::{Ref, RefMut},
     DashMap,
@@ -22,6 +24,18 @@ pub struct NormalChannelDataList {
 
 impl NormalChannelDataList {
     #[inline(always)]
+    pub fn new() -> Self {
+        Self {
+            data_map: DashMap::default(),
+        }
+    }
+
+    #[inline(always)]
+    pub fn insert(&self, channel_id: ChannelId, data: NormalChannelData) {
+        self.data_map.insert(channel_id, data);
+    }
+
+    #[inline(always)]
     pub fn get(&self, channel_id: &ChannelId) -> Option<NormalChannelDataRef> {
         self.data_map.get(&channel_id)
     }
@@ -31,13 +45,43 @@ impl NormalChannelDataList {
         self.data_map.get_mut(&channel_id)
     }
 
+    pub fn remove(&self, channel_id: &ChannelId) -> Option<NormalChannelData> {
+        Some(self.data_map.remove(&channel_id)?.1)
+    }
+
     #[inline(always)]
     pub fn len(&self) -> usize {
         self.data_map.len()
     }
+
+    #[inline(always)]
+    pub fn contains_key(&self, channel_id: &ChannelId) -> bool {
+        self.data_map.contains_key(channel_id)
+    }
+
+    #[inline(always)]
+    pub fn iter(&self) -> impl Iterator<Item = impl Deref<Target = NormalChannelData> + '_> {
+        self.data_map.iter()
+    }
+
+    #[inline(always)]
+    pub fn iter_mut(&self) -> impl Iterator<Item = impl DerefMut<Target = NormalChannelData> + '_> {
+        self.data_map.iter_mut()
+    }
+
+    #[inline(always)]
+    pub fn retain(&self, func: impl FnMut(&ChannelId, &mut NormalChannelData) -> bool) {
+        self.data_map.retain(func)
+    }
 }
 
-pub type ClientNormalChannelList<'a> = ClientChannelList<'a, &'a NormalChannelDataList>;
+impl Default for NormalChannelDataList {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+pub type ClientNormalChannelList<'a> = ClientChannelList<'a, NormalChannelDataList>;
 
 impl<'a> ClientNormalChannelList<'a> {
     pub fn channel(&self, id: ChannelId) -> Option<ClientNormalChannel<'a>> {
@@ -51,7 +95,7 @@ impl<'a> ClientNormalChannelList<'a> {
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {
-    data: ChannelData,
+    pub data: ChannelData,
 }
 
 impl AsRef<ChannelData> for NormalChannelData {

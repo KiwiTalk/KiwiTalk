@@ -5,6 +5,8 @@ use kiwi_talk_db::{
 };
 use talk_loco_command::structs::{channel_info::ChannelListData, chat::Chatlog, user::UserVariant};
 
+use crate::channel::ChannelData;
+
 // TODO:: use trait
 pub fn chat_model_from_chatlog(chatlog: &Chatlog) -> FullModel<LogId, ChatModel> {
     FullModel::new(
@@ -26,7 +28,7 @@ pub fn chat_model_from_chatlog(chatlog: &Chatlog) -> FullModel<LogId, ChatModel>
 }
 
 // TODO:: use trait
-pub fn channel_model_from_channel_list_data(
+pub fn channel_model_from_channel_data(
     data: &ChannelListData,
 ) -> FullModel<ChannelId, ChannelModel> {
     FullModel::new(
@@ -38,8 +40,22 @@ pub fn channel_model_from_channel_list_data(
             last_chat_log_id: data.last_log_id,
             last_seen_log_id: data.last_seen_log_id,
             push_alert: data.push_alert,
+            last_update: data.last_update,
         },
     )
+}
+
+pub fn channel_data_from_channel_model(model: &ChannelModel) -> ChannelData {
+    ChannelData {
+        channel_type: model.channel_type.clone(),
+        last_log_id: model.last_chat_log_id,
+        last_seen_log_id: model.last_seen_log_id,
+        last_chat: None,
+        active_user_count: model.active_user_count,
+        unread_count: 0,
+        push_alert: model.push_alert,
+        last_update: model.last_update,
+    }
 }
 
 // TODO:: use trait
