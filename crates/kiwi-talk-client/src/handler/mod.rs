@@ -21,11 +21,11 @@ use self::error::ClientHandlerError;
 
 #[derive(Debug)]
 pub(crate) struct HandlerTask {
-    client: Weak<ClientShared>,
+    client: Arc<ClientShared>,
 }
 
 impl HandlerTask {
-    pub const fn new(client: Weak<ClientShared>) -> Self {
+    pub const fn new(client: Arc<ClientShared>) -> Self {
         Self { client }
     }
 
