@@ -8,6 +8,8 @@ pub struct ChannelModel {
     pub last_chat_log_id: i64,
     pub last_seen_log_id: i64,
     pub push_alert: bool,
+
+    pub last_update: i64,
 }
 
 pub type ChannelUserId = i64;
