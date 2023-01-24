@@ -17,20 +17,20 @@ use talk_loco_command::{
 use tokio::sync::mpsc::channel;
 
 #[derive(Debug)]
-pub struct ClientChannelList<'a, Data> {
+pub struct ClientChannelList<'a, Inner> {
     connection: &'a ClientConnection,
-    data: &'a Data,
+    inner: &'a Inner,
 }
 
-impl<'a, Data> ClientChannelList<'a, Data> {
+impl<'a, Inner> ClientChannelList<'a, Inner> {
     #[inline(always)]
-    pub const fn new(connection: &'a ClientConnection, data: &'a Data) -> Self {
-        Self { connection, data }
+    pub const fn new(connection: &'a ClientConnection, inner: &'a Inner) -> Self {
+        Self { connection, inner }
     }
 
     #[inline(always)]
-    pub const fn data(&self) -> &Data {
-        self.data
+    pub const fn inner(&self) -> &Inner {
+        self.inner
     }
 }
 
@@ -52,20 +52,20 @@ pub struct ChannelData {
 }
 
 #[derive(Debug, Clone)]
-pub struct ClientChannel<'a, Data> {
+pub struct ClientChannel<'a, Inner> {
     id: ChannelId,
 
     connection: &'a ClientConnection,
-    data: Data,
+    inner: Inner,
 }
 
-impl<'a, Data> ClientChannel<'a, Data> {
+impl<'a, Inner> ClientChannel<'a, Inner> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, connection: &'a ClientConnection, data: Data) -> Self {
+    pub const fn new(id: ChannelId, connection: &'a ClientConnection, inner: Inner) -> Self {
         Self {
             id,
             connection,
-            data,
+            inner,
         }
     }
 
@@ -75,8 +75,8 @@ impl<'a, Data> ClientChannel<'a, Data> {
     }
 
     #[inline(always)]
-    pub const fn data(&self) -> &Data {
-        &self.data
+    pub const fn inner(&self) -> &Inner {
+        &self.inner
     }
 }
 

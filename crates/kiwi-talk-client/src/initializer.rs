@@ -66,7 +66,7 @@ async fn init_normal_channel_list(pool: &DatabasePool) -> ClientResult<NormalCha
         .await?;
 
     for full_model in model_list {
-        normal_channel_list.insert(
+        normal_channel_list.data_map().insert(
             full_model.id,
             NormalChannelData {
                 data: channel_data_from_channel_model(&full_model.model),
@@ -81,7 +81,7 @@ async fn update_normal_channel_list(client: &ClientShared, server_list: Vec<Chan
     for data in server_list {
         if client
             .normal_channel_list()
-            .data()
+            .inner()
             .get(&data.id)
             .map(|normal_data| normal_data.data.last_update > data.last_update)
             .unwrap_or(false)

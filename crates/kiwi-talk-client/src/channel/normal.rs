@@ -24,15 +24,15 @@ pub struct NormalChannelDataList {
 
 impl NormalChannelDataList {
     #[inline(always)]
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             data_map: DashMap::default(),
         }
     }
 
     #[inline(always)]
-    pub fn insert(&self, channel_id: ChannelId, data: NormalChannelData) {
-        self.data_map.insert(channel_id, data);
+    pub(crate) fn data_map(&self) -> &DashMap<ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>> {
+        &self.data_map
     }
 
     #[inline(always)]
@@ -41,37 +41,18 @@ impl NormalChannelDataList {
     }
 
     #[inline(always)]
-    pub fn get_mut(&self, channel_id: &ChannelId) -> Option<NormalChannelDataMut> {
-        self.data_map.get_mut(&channel_id)
-    }
-
-    pub fn remove(&self, channel_id: &ChannelId) -> Option<NormalChannelData> {
-        Some(self.data_map.remove(&channel_id)?.1)
-    }
-
-    #[inline(always)]
     pub fn len(&self) -> usize {
         self.data_map.len()
     }
 
     #[inline(always)]
-    pub fn contains_key(&self, channel_id: &ChannelId) -> bool {
+    pub fn contains(&self, channel_id: &ChannelId) -> bool {
         self.data_map.contains_key(channel_id)
     }
 
     #[inline(always)]
     pub fn iter(&self) -> impl Iterator<Item = impl Deref<Target = NormalChannelData> + '_> {
         self.data_map.iter()
-    }
-
-    #[inline(always)]
-    pub fn iter_mut(&self) -> impl Iterator<Item = impl DerefMut<Target = NormalChannelData> + '_> {
-        self.data_map.iter_mut()
-    }
-
-    #[inline(always)]
-    pub fn retain(&self, func: impl FnMut(&ChannelId, &mut NormalChannelData) -> bool) {
-        self.data_map.retain(func)
     }
 }
 
@@ -88,7 +69,7 @@ impl<'a> ClientNormalChannelList<'a> {
         Some(ClientNormalChannel::new(
             id,
             &self.connection,
-            self.data.get_mut(&id)?,
+            self.inner.data_map().get_mut(&id)?,
         ))
     }
 }
