@@ -1,6 +1,6 @@
 pub mod error;
 
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 
 use bson::Document;
 use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
@@ -9,7 +9,7 @@ use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
-    database::conversion::chat_model_from_chatlog,
+    database::{conversion::chat_model_from_chatlog, KiwiTalkConnectionExt},
     event::{
         channel::{ChannelEvent, ChatRead, ReceivedChat},
         KiwiTalkClientEvent,

@@ -129,14 +129,15 @@ impl<'a> ChatEntry<'a> {
 mod tests {
     use std::error::Error;
 
+    use rusqlite::Connection;
+
     use crate::database::{
-        channel::model::ChannelModel, model::FullModel, tests::prepare_test_database,
-        KiwiTalkConnection,
+        channel::model::ChannelModel, model::FullModel, tests::prepare_test_database, KiwiTalkConnectionExt,
     };
 
     use super::model::ChatModel;
 
-    fn add_test_chat(db: &KiwiTalkConnection) -> Result<ChatModel, rusqlite::Error> {
+    fn add_test_chat(db: &Connection) -> Result<ChatModel, rusqlite::Error> {
         let model = ChatModel {
             channel_id: 0,
             prev_log_id: Some(0),

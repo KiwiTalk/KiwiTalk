@@ -1,7 +1,7 @@
 use futures::Sink;
 use kiwi_talk_client::{
     config::KiwiTalkClientInfo,
-    database::{DatabaseError, DatabaseManager, DatabasePool},
+    database::{DatabasePoolError, DatabaseManager, DatabasePool},
     error::KiwiTalkClientError,
     event::KiwiTalkClientEvent,
     status::ClientStatus,
@@ -71,7 +71,7 @@ pub enum CreateClientError {
     LocoHandshake,
 
     #[error("Database initialization failed. {0}")]
-    Database(#[from] DatabaseError),
+    Database(#[from] DatabasePoolError),
 
     #[error(transparent)]
     Client(#[from] KiwiTalkClientError),

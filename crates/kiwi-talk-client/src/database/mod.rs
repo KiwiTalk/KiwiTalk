@@ -17,46 +17,34 @@ use chat::ChatEntry;
 static MIGRATIONS: Lazy<Migrations<'static>> =
     Lazy::new(|| Migrations::new(vec![M::up(include_str!("./migrations/v0.1.0.sql"))]));
 
-#[derive(Debug)]
-pub struct KiwiTalkConnection {
-    connection: Connection,
+#[extend::ext(name = MigrationExt)]
+pub impl Connection {
+    fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
+        MIGRATIONS.to_latest(&mut self)
+    }
 }
 
-impl KiwiTalkConnection {
-    pub const fn new(connection: Connection) -> Self {
-        Self { connection }
+// TODO:: Remove
+#[extend::ext(name = KiwiTalkConnectionExt)]
+pub impl Connection {
+    fn channel(&self) -> ChannelEntry<'_> {
+        ChannelEntry(&self)
     }
 
-    pub fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
-        MIGRATIONS.to_latest(&mut self.connection)
+    fn user(&self) -> ChannelUserEntry<'_> {
+        ChannelUserEntry(&self)
     }
 
-    pub const fn channel(&self) -> ChannelEntry<'_> {
-        ChannelEntry(&self.connection)
-    }
-
-    pub const fn user(&self) -> ChannelUserEntry<'_> {
-        ChannelUserEntry(&self.connection)
-    }
-
-    pub const fn normal_channel(&self) -> NormalChannelEntry<'_> {
+    fn normal_channel(&self) -> NormalChannelEntry<'_> {
         NormalChannelEntry(self.channel())
     }
 
-    pub const fn normal_user(&self) -> NormalUserEntry<'_> {
+    fn normal_user(&self) -> NormalUserEntry<'_> {
         NormalUserEntry(self.user())
     }
 
-    pub const fn chat(&self) -> ChatEntry<'_> {
-        ChatEntry(&self.connection)
-    }
-
-    pub fn inner(&self) -> &Connection {
-        &self.connection
-    }
-
-    pub fn into_inner(self) -> Connection {
-        self.connection
+    fn chat(&self) -> ChatEntry<'_> {
+        ChatEntry(&self)
     }
 }
 
@@ -64,15 +52,15 @@ impl KiwiTalkConnection {
 mod tests {
     use rusqlite::Connection;
 
-    use super::{KiwiTalkConnection, MIGRATIONS};
+    use super::{MigrationExt, MIGRATIONS};
 
     #[test]
     fn migrations_test() {
         assert!(MIGRATIONS.validate().is_ok());
     }
 
-    pub fn prepare_test_database() -> Result<KiwiTalkConnection, Box<dyn std::error::Error>> {
-        let mut db = KiwiTalkConnection::new(Connection::open_in_memory()?);
+    pub fn prepare_test_database() -> Result<Connection, Box<dyn std::error::Error>> {
+        let mut db = Connection::open_in_memory()?;
         db.migrate_to_latest()?;
 
         Ok(db)

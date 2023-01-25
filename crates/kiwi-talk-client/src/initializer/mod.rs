@@ -6,7 +6,7 @@ use talk_loco_command::{response::chat::LoginListRes, structs::channel_info::Cha
 
 use crate::{
     channel::normal::{NormalChannelData, NormalChannelDataList},
-    database::pool::DatabasePool,
+    database::{pool::DatabasePool, KiwiTalkConnectionExt},
     ClientConnection, ClientResult, ClientShared,
 };
 

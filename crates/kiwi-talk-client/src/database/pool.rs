@@ -1,85 +1,54 @@
 use std::path::Path;
 
 use futures::{Future, FutureExt};
-use r2d2::{ManageConnection, Pool, PooledConnection};
+use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use thiserror::Error;
 
-use super::KiwiTalkConnection;
+use super::MigrationExt;
 
 #[derive(Debug, Clone)]
-pub struct DatabasePool(Pool<DatabaseManager>);
+pub struct DatabasePool(Pool<SqliteConnectionManager>);
 
 impl DatabasePool {
-    pub fn new(manager: DatabaseManager) -> Result<Self, PoolError> {
-        Ok(Self(Pool::new(manager)?))
+    pub fn file(path: impl AsRef<Path>) -> Result<Self, PoolError> {
+        Ok(Self(Pool::new(SqliteConnectionManager::file(path))?))
     }
 
-    pub fn spawn_task<
-        R: Send + 'static,
-        F: FnOnce(PooledConnection<DatabaseManager>) -> DatabaseResult<R>,
-    >(
+    pub fn get(&self) -> Result<PooledConnection, PoolError> {
+        self.0.get().map_err(PoolError)
+    }
+
+    pub fn spawn_task<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
         &self,
         closure: F,
-    ) -> impl Future<Output = DatabaseResult<R>>
+    ) -> impl Future<Output = PoolTaskResult<R>>
     where
         F: Send + 'static,
     {
-        let pool = self.0.clone();
+        let this = self.clone();
         tokio::task::spawn_blocking(move || {
-            let connection = pool.get().map_err(PoolError)?;
+            let connection = this.get()?;
 
             closure(connection)
         })
         .map(|res| res.unwrap())
     }
 
-    pub async fn migrate_to_latest(&self) -> DatabaseResult<()> {
+    pub async fn migrate_to_latest(&self) -> PoolTaskResult<()> {
         self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
             .await
     }
 }
 
-pub type DatabaseResult<T> = Result<T, DatabasePoolError>;
-
-#[derive(Debug)]
-pub struct DatabaseManager {
-    rusqlite: SqliteConnectionManager,
-}
-
-impl DatabaseManager {
-    #[inline(always)]
-    pub fn file(path: impl AsRef<Path>) -> Self {
-        Self {
-            rusqlite: SqliteConnectionManager::file(path),
-        }
-    }
-}
-
-impl ManageConnection for DatabaseManager {
-    type Connection = KiwiTalkConnection;
-
-    type Error = DatabasePoolError;
-
-    fn connect(&self) -> Result<Self::Connection, Self::Error> {
-        Ok(KiwiTalkConnection::new(self.rusqlite.connect()?))
-    }
-
-    fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
-        conn.inner().execute_batch("").map_err(Into::into)
-    }
-
-    fn has_broken(&self, _: &mut Self::Connection) -> bool {
-        false
-    }
-}
+pub type PooledConnection = r2d2::PooledConnection<SqliteConnectionManager>;
 
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub struct PoolError(#[from] r2d2::Error);
 
 #[derive(Debug, Error)]
-pub enum DatabasePoolError {
+pub enum PoolTaskError {
     #[error(transparent)]
     Rusqlite(#[from] rusqlite::Error),
 
@@ -89,3 +58,5 @@ pub enum DatabasePoolError {
     #[error(transparent)]
     Initialization(#[from] rusqlite_migration::Error),
 }
+
+pub type PoolTaskResult<T> = Result<T, PoolTaskError>;

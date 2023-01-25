@@ -6,7 +6,7 @@ use std::ops::DerefMut;
 
 use crate::{
     chat::{ChatContent, LogId},
-    database::conversion::chat_model_from_chatlog,
+    database::{conversion::chat_model_from_chatlog, KiwiTalkConnectionExt},
     ClientConnection, ClientResult,
 };
 use futures::{pin_mut, StreamExt};

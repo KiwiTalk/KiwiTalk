@@ -224,7 +224,7 @@ mod tests {
     use crate::database::{
         channel::model::{ChannelModel, ChannelUserModel},
         model::FullModel,
-        tests::prepare_test_database,
+        tests::prepare_test_database, KiwiTalkConnectionExt,
     };
 
     #[test]
