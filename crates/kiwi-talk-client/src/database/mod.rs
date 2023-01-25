@@ -14,11 +14,8 @@ use rusqlite_migration::{Migrations, M};
 
 use chat::ChatEntry;
 
-static MIGRATIONS: Lazy<Migrations<'static>> = Lazy::new(|| {
-    Migrations::new(vec![M::up(include_str!(
-        "./migrations/v0.1.0.sql"
-    ))])
-});
+static MIGRATIONS: Lazy<Migrations<'static>> =
+    Lazy::new(|| Migrations::new(vec![M::up(include_str!("./migrations/v0.1.0.sql"))]));
 
 #[derive(Debug)]
 pub struct KiwiTalkConnection {
