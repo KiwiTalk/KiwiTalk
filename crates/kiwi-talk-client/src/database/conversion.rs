@@ -1,4 +1,4 @@
-use crate::{chat::LogId, channel::ChannelId, user::ChannelUserId};
+use crate::{chat::LogId, channel::{ChannelId, user::UserId}};
 
 use super::{
     channel::model::{ChannelUserModel},
@@ -32,7 +32,7 @@ pub fn channel_user_model_from_user_variant(
     channel_id: ChannelId,
     watermark: LogId,
     user: &UserVariant,
-) -> FullModel<ChannelUserId, ChannelUserModel> {
+) -> FullModel<UserId, ChannelUserModel> {
     match *user {
         UserVariant::Normal(ref user) => FullModel::new(
             user.user_id,

@@ -5,7 +5,7 @@ pub mod open;
 
 use rusqlite::{Connection, Row};
 
-use crate::{database::model::FullModel, channel::ChannelId, chat::LogId, user::ChannelUserId};
+use crate::{database::model::FullModel, channel::{ChannelId, user::UserId}, chat::LogId};
 
 use self::model::{ChannelModel, ChannelUserModel};
 
@@ -131,7 +131,7 @@ pub struct ChannelUserEntry<'a>(pub &'a Connection);
 impl<'a> ChannelUserEntry<'a> {
     pub fn insert(
         &self,
-        user: &FullModel<ChannelUserId, ChannelUserModel>,
+        user: &FullModel<UserId, ChannelUserModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0.execute(
             "INSERT OR REPLACE INTO channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
@@ -152,7 +152,7 @@ impl<'a> ChannelUserEntry<'a> {
 
     pub fn get(
         &self,
-        id: ChannelUserId,
+        id: UserId,
         channel_id: ChannelId,
     ) -> Result<ChannelUserModel, rusqlite::Error> {
         self.0.query_row(
@@ -162,7 +162,7 @@ impl<'a> ChannelUserEntry<'a> {
         )
     }
 
-    pub fn get_all(&self, id: ChannelUserId) -> Result<Vec<ChannelUserModel>, rusqlite::Error> {
+    pub fn get_all(&self, id: UserId) -> Result<Vec<ChannelUserModel>, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM channel_user WHERE id = ?")?;
 
         let rows = statement.query([id])?;
@@ -172,7 +172,7 @@ impl<'a> ChannelUserEntry<'a> {
     pub fn get_all_users_in(
         &self,
         id: ChannelId,
-    ) -> Result<Vec<FullModel<ChannelUserId, ChannelUserModel>>, rusqlite::Error> {
+    ) -> Result<Vec<FullModel<UserId, ChannelUserModel>>, rusqlite::Error> {
         let mut statement = self
             .0
             .prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;
@@ -183,7 +183,7 @@ impl<'a> ChannelUserEntry<'a> {
 
     pub fn update_watermark(
         &self,
-        id: ChannelUserId,
+        id: UserId,
         channel_id: ChannelId,
         watermark: LogId,
     ) -> Result<usize, rusqlite::Error> {
@@ -207,7 +207,7 @@ impl<'a> ChannelUserEntry<'a> {
 
     pub fn map_full_row(
         row: &Row,
-    ) -> Result<FullModel<ChannelUserId, ChannelUserModel>, rusqlite::Error> {
+    ) -> Result<FullModel<UserId, ChannelUserModel>, rusqlite::Error> {
         Ok(FullModel {
             id: row.get(0)?,
             model: Self::map_row(row)?,

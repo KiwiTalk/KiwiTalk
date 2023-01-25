@@ -1,10 +1,12 @@
 pub mod normal;
 pub mod open;
+pub mod user;
 
 use std::ops::DerefMut;
 
 use crate::{
-    chat::{ChatContent, LogId}, database::conversion::chat_model_from_chatlog, user::DisplayUser,
+    chat::{ChatContent, LogId},
+    database::conversion::chat_model_from_chatlog,
     ClientConnection, ClientResult,
 };
 use futures::{pin_mut, StreamExt};
@@ -17,6 +19,8 @@ use talk_loco_command::{
     structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
+
+use self::user::DisplayUser;
 
 pub type ChannelId = i64;
 

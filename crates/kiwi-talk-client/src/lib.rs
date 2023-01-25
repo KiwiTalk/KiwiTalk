@@ -7,13 +7,12 @@ pub mod event;
 pub mod handler;
 mod initializer;
 pub mod status;
-pub mod user;
 
 use std::{ops::Deref, sync::Arc};
 
 use channel::{
     normal::{ClientNormalChannelList, NormalChannelDataList},
-    ClientChannelList,
+    ClientChannelList, user::UserId,
 };
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
@@ -26,7 +25,6 @@ use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
 use tokio::task::JoinHandle;
-use user::ChannelUserId;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
@@ -80,7 +78,7 @@ impl ClientShared {
 #[derive(Debug)]
 #[non_exhaustive]
 pub struct ClientConnection {
-    pub user_id: ChannelUserId,
+    pub user_id: UserId,
     pub session: LocoCommandSession,
     pub pool: DatabasePool,
 }

@@ -2,7 +2,7 @@ pub mod model;
 
 use rusqlite::Row;
 
-use crate::{database::model::FullModel, channel::ChannelId, user::ChannelUserId};
+use crate::{database::model::FullModel, channel::{ChannelId, user::UserId}};
 
 use self::model::{NormalChannelModel, NormalUserModel};
 
@@ -48,7 +48,7 @@ pub struct NormalUserEntry<'a>(pub ChannelUserEntry<'a>);
 impl<'a> NormalUserEntry<'a> {
     pub fn insert(
         &self,
-        user: &FullModel<ChannelUserId, NormalUserModel>,
+        user: &FullModel<UserId, NormalUserModel>,
     ) -> Result<(), rusqlite::Error> {
         self.0 .0.execute(
             "INSERT INTO normal_channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
@@ -68,7 +68,7 @@ impl<'a> NormalUserEntry<'a> {
 
     pub fn get(
         &self,
-        id: ChannelUserId,
+        id: UserId,
         channel_id: ChannelId,
     ) -> Result<NormalUserModel, rusqlite::Error> {
         self.0 .0.query_row(
@@ -78,7 +78,7 @@ impl<'a> NormalUserEntry<'a> {
         )
     }
 
-    pub fn get_all(&self, id: ChannelUserId) -> Result<Vec<NormalUserModel>, rusqlite::Error> {
+    pub fn get_all(&self, id: UserId) -> Result<Vec<NormalUserModel>, rusqlite::Error> {
         let mut statement = self
             .0
              .0
@@ -91,7 +91,7 @@ impl<'a> NormalUserEntry<'a> {
     pub fn get_all_users_in(
         &self,
         id: ChannelId,
-    ) -> Result<Vec<FullModel<ChannelUserId, NormalUserModel>>, rusqlite::Error> {
+    ) -> Result<Vec<FullModel<UserId, NormalUserModel>>, rusqlite::Error> {
         let mut statement = self
             .0
              .0
@@ -114,7 +114,7 @@ impl<'a> NormalUserEntry<'a> {
 
     pub fn map_full_row(
         row: &Row,
-    ) -> Result<FullModel<ChannelUserId, NormalUserModel>, rusqlite::Error> {
+    ) -> Result<FullModel<UserId, NormalUserModel>, rusqlite::Error> {
         Ok(FullModel {
             id: row.get(0)?,
             model: Self::map_row(row)?,
