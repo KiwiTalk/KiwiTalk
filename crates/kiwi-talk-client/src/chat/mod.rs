@@ -1,5 +1,7 @@
 pub mod builder;
 
+pub type LogId = i64;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChatContent {
     pub chat_type: i32,

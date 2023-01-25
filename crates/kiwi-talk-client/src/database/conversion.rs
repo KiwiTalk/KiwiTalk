@@ -1,11 +1,11 @@
-use kiwi_talk_db::{
-    channel::model::{ChannelId, ChannelModel, ChannelUserId, ChannelUserModel},
-    chat::model::{ChatModel, LogId},
+use crate::{chat::LogId, channel::ChannelId, user::ChannelUserId};
+
+use super::{
+    channel::model::{ChannelUserModel},
+    chat::model::{ChatModel},
     model::FullModel,
 };
-use talk_loco_command::structs::{channel_info::ChannelListData, chat::Chatlog, user::UserVariant};
-
-use crate::channel::ChannelData;
+use talk_loco_command::structs::{chat::Chatlog, user::UserVariant};
 
 // TODO:: use trait
 pub fn chat_model_from_chatlog(chatlog: &Chatlog) -> FullModel<LogId, ChatModel> {
@@ -25,37 +25,6 @@ pub fn chat_model_from_chatlog(chatlog: &Chatlog) -> FullModel<LogId, ChatModel>
             deleted: false,
         },
     )
-}
-
-// TODO:: use trait
-pub fn channel_model_from_channel_data(
-    data: &ChannelListData,
-) -> FullModel<ChannelId, ChannelModel> {
-    FullModel::new(
-        data.id,
-        ChannelModel {
-            channel_type: data.channel_type.clone(),
-            active_user_count: data.active_member_count,
-            new_chat_count: data.unread_count,
-            last_chat_log_id: data.last_log_id,
-            last_seen_log_id: data.last_seen_log_id,
-            push_alert: data.push_alert,
-            last_update: data.last_update,
-        },
-    )
-}
-
-pub fn channel_data_from_channel_model(model: &ChannelModel) -> ChannelData {
-    ChannelData {
-        channel_type: model.channel_type.clone(),
-        last_log_id: model.last_chat_log_id,
-        last_seen_log_id: model.last_seen_log_id,
-        last_chat: None,
-        active_user_count: model.active_user_count,
-        unread_count: 0,
-        push_alert: model.push_alert,
-        last_update: model.last_update,
-    }
 }
 
 // TODO:: use trait

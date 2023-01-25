@@ -1,7 +1,7 @@
 use talk_loco_command::command::codec::ReadError;
 use thiserror::Error;
 
-use crate::database::DatabaseError;
+use crate::database::pool::DatabasePoolError;
 
 #[derive(Debug, Error)]
 pub enum ClientHandlerError {
@@ -12,5 +12,5 @@ pub enum ClientHandlerError {
     NetworkRead(#[from] ReadError),
 
     #[error("Database operation failed. {0}")]
-    Database(#[from] DatabaseError),
+    Database(#[from] DatabasePoolError),
 }

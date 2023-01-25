@@ -1,92 +1,83 @@
+pub mod channel;
+pub mod chat;
 pub mod conversion;
+pub mod model;
+pub mod pool;
 
-use std::path::Path;
+use channel::{
+    normal::{NormalChannelEntry, NormalUserEntry},
+    ChannelEntry, ChannelUserEntry,
+};
+use once_cell::sync::Lazy;
+use rusqlite::Connection;
+use rusqlite_migration::{Migrations, M};
 
-use futures::{Future, FutureExt};
-use kiwi_talk_db::{rusqlite, rusqlite_migration, KiwiTalkConnection};
-use r2d2::{ManageConnection, Pool, PooledConnection};
-use r2d2_sqlite::SqliteConnectionManager;
-use thiserror::Error;
+use chat::ChatEntry;
 
-#[derive(Debug, Clone)]
-pub struct DatabasePool(Pool<DatabaseManager>);
-
-impl DatabasePool {
-    pub fn new(manager: DatabaseManager) -> Result<Self, PoolError> {
-        Ok(Self(Pool::new(manager)?))
-    }
-
-    pub fn spawn_task<
-        R: Send + 'static,
-        F: FnOnce(PooledConnection<DatabaseManager>) -> DatabaseResult<R>,
-    >(
-        &self,
-        closure: F,
-    ) -> impl Future<Output = DatabaseResult<R>>
-    where
-        F: Send + 'static,
-    {
-        let pool = self.0.clone();
-        tokio::task::spawn_blocking(move || {
-            let connection = pool.get().map_err(PoolError)?;
-
-            closure(connection)
-        })
-        .map(|res| res.unwrap())
-    }
-
-    pub async fn migrate_to_latest(&self) -> DatabaseResult<()> {
-        self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
-            .await
-    }
-}
-
-pub type DatabaseResult<T> = Result<T, DatabaseError>;
+static MIGRATIONS: Lazy<Migrations<'static>> = Lazy::new(|| {
+    Migrations::new(vec![M::up(include_str!(
+        "./migrations/202301182212_db.sql"
+    ))])
+});
 
 #[derive(Debug)]
-pub struct DatabaseManager {
-    rusqlite: SqliteConnectionManager,
+pub struct KiwiTalkConnection {
+    connection: Connection,
 }
 
-impl DatabaseManager {
-    #[inline(always)]
-    pub fn file(path: impl AsRef<Path>) -> Self {
-        Self {
-            rusqlite: SqliteConnectionManager::file(path),
-        }
+impl KiwiTalkConnection {
+    pub const fn new(connection: Connection) -> Self {
+        Self { connection }
+    }
+
+    pub fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
+        MIGRATIONS.to_latest(&mut self.connection)
+    }
+
+    pub const fn channel(&self) -> ChannelEntry<'_> {
+        ChannelEntry(&self.connection)
+    }
+
+    pub const fn user(&self) -> ChannelUserEntry<'_> {
+        ChannelUserEntry(&self.connection)
+    }
+
+    pub const fn normal_channel(&self) -> NormalChannelEntry<'_> {
+        NormalChannelEntry(self.channel())
+    }
+
+    pub const fn normal_user(&self) -> NormalUserEntry<'_> {
+        NormalUserEntry(self.user())
+    }
+
+    pub const fn chat(&self) -> ChatEntry<'_> {
+        ChatEntry(&self.connection)
+    }
+
+    pub fn inner(&self) -> &Connection {
+        &self.connection
+    }
+
+    pub fn into_inner(self) -> Connection {
+        self.connection
     }
 }
 
-impl ManageConnection for DatabaseManager {
-    type Connection = KiwiTalkConnection;
+#[cfg(test)]
+mod tests {
+    use rusqlite::Connection;
 
-    type Error = DatabaseError;
+    use super::{KiwiTalkConnection, MIGRATIONS};
 
-    fn connect(&self) -> Result<Self::Connection, Self::Error> {
-        Ok(KiwiTalkConnection::new(self.rusqlite.connect()?))
+    #[test]
+    fn migrations_test() {
+        assert!(MIGRATIONS.validate().is_ok());
     }
 
-    fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
-        conn.inner().execute_batch("").map_err(Into::into)
+    pub fn prepare_test_database() -> Result<KiwiTalkConnection, Box<dyn std::error::Error>> {
+        let mut db = KiwiTalkConnection::new(Connection::open_in_memory()?);
+        db.migrate_to_latest()?;
+
+        Ok(db)
     }
-
-    fn has_broken(&self, _: &mut Self::Connection) -> bool {
-        false
-    }
-}
-
-#[derive(Debug, Error)]
-#[error(transparent)]
-pub struct PoolError(#[from] r2d2::Error);
-
-#[derive(Debug, Error)]
-pub enum DatabaseError {
-    #[error(transparent)]
-    Rusqlite(#[from] rusqlite::Error),
-
-    #[error(transparent)]
-    Pool(#[from] PoolError),
-
-    #[error(transparent)]
-    Initialization(#[from] rusqlite_migration::Error),
 }

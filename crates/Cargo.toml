@@ -5,7 +5,6 @@ members = [
     "kiwi-talk-app",
     
     "kiwi-talk-client",
-    "kiwi-talk-db",
 
     "talk-api-client",
     "talk-loco-command",

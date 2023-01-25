@@ -1,4 +1,7 @@
-# KiwiTalk database
+# KiwiTalk Client
+KiwiTalk client
+
+## Database
 키위톡에서 사용하는 채팅, 채팅방 정보와 채팅방 설정 데이터베이스 구현체. SQLite를 사용합니다.
 
 ## Migrations

@@ -5,9 +5,9 @@ pub mod open;
 
 use rusqlite::{Connection, Row};
 
-use crate::{chat::model::LogId, model::FullModel};
+use crate::{database::model::FullModel, channel::ChannelId, chat::LogId, user::ChannelUserId};
 
-use self::model::{ChannelId, ChannelModel, ChannelUserId, ChannelUserModel};
+use self::model::{ChannelModel, ChannelUserModel};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChannelEntry<'a>(pub &'a Connection);
@@ -219,7 +219,7 @@ impl<'a> ChannelUserEntry<'a> {
 mod tests {
     use std::error::Error;
 
-    use crate::{
+    use crate::database::{
         channel::model::{ChannelModel, ChannelUserModel},
         model::FullModel,
         tests::prepare_test_database,

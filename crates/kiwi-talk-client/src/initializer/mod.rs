@@ -1,11 +1,12 @@
+pub mod channel;
+
 use futures::{pin_mut, StreamExt};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{response::chat::LoginListRes, structs::channel_info::ChannelListData};
 
 use crate::{
     channel::normal::{NormalChannelData, NormalChannelDataList},
-    database::{conversion::channel_data_from_channel_model, DatabasePool},
-    ClientConnection, ClientResult, ClientShared,
+    ClientConnection, ClientResult, ClientShared, database::pool::DatabasePool,
 };
 
 pub async fn initialize_client(
@@ -83,11 +84,13 @@ async fn update_normal_channel_list(client: &ClientShared, server_list: Vec<Chan
             .normal_channel_list()
             .inner()
             .get(&data.id)
-            .map(|normal_data| normal_data.data.last_update > data.last_update)
+            .map(|normal_data| normal_data.data.last_update >= data.last_update)
             .unwrap_or(false)
         {
             continue;
         }
+
+        
     }
 
     Ok(())

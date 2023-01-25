@@ -1,5 +1,3 @@
-pub type ChannelId = i64;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChannelModel {
     pub channel_type: String,
@@ -11,8 +9,6 @@ pub struct ChannelModel {
 
     pub last_update: i64,
 }
-
-pub type ChannelUserId = i64;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChannelUserModel {

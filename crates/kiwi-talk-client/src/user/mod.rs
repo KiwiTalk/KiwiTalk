@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
 
+pub type ChannelUserId = i64;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DisplayUser {
-    pub user_id: i64,
+    pub id: ChannelUserId,
 
     pub nickname: String,
 

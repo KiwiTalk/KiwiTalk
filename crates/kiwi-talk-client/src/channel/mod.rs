@@ -4,17 +4,42 @@ pub mod open;
 use std::ops::DerefMut;
 
 use crate::{
-    chat::ChatContent, database::conversion::chat_model_from_chatlog, ClientConnection,
-    ClientResult,
+    chat::{ChatContent, LogId}, database::conversion::chat_model_from_chatlog, user::DisplayUser,
+    ClientConnection, ClientResult,
 };
 use futures::{pin_mut, StreamExt};
-use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
+use nohash_hasher::IntMap;
+use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{SyncMsgReq, UpdateChatReq, WriteReq},
     structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
+
+pub type ChannelId = i64;
+
+#[derive(Debug, Clone)]
+pub struct ChannelData {
+    pub channel_type: String,
+
+    pub display_users: SmallVec<[DisplayUser; 4]>,
+
+    pub metas: IntMap<i32, ChannelMeta>,
+
+    pub push_alert: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChannelMeta {
+    pub author_id: i64,
+
+    pub updated_at: i64,
+    pub revision: i64,
+
+    pub content: String,
+}
 
 #[derive(Debug)]
 pub struct ClientChannelList<'a, Inner> {
@@ -32,23 +57,6 @@ impl<'a, Inner> ClientChannelList<'a, Inner> {
     pub const fn inner(&self) -> &Inner {
         self.inner
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct ChannelData {
-    pub channel_type: String,
-
-    pub last_log_id: i64,
-    pub last_seen_log_id: i64,
-    pub last_chat: Option<Chatlog>,
-
-    pub active_user_count: i32,
-
-    pub unread_count: i32,
-
-    pub push_alert: bool,
-
-    pub last_update: i64,
 }
 
 #[derive(Debug, Clone)]
@@ -78,10 +86,15 @@ impl<'a, Inner> ClientChannel<'a, Inner> {
     pub const fn inner(&self) -> &Inner {
         &self.inner
     }
+
+    #[inline(always)]
+    pub const fn inner_mut(&mut self) -> &Inner {
+        &mut self.inner
+    }
 }
 
 impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> {
-    pub async fn send_chat(&self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
+    pub async fn send_chat(&mut self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
         let res = TalkClient(&self.connection.session)
             .write(&WriteReq {
                 chat_id: self.id,
@@ -126,7 +139,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
         Ok(chatlog)
     }
 
-    pub async fn sync_chats(&self, max: LogId) -> ClientResult<usize> {
+    pub async fn sync_chats(&mut self, max: LogId) -> ClientResult<usize> {
         let client = TalkClient(&self.connection.session);
 
         let current = {
@@ -184,13 +197,15 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
         Ok(count)
     }
 
-    pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
+    pub async fn update(&mut self, push_alert: bool) -> ClientResult<()> {
         TalkClient(&self.connection.session)
             .update_channel(&UpdateChatReq {
                 chat_id: self.id,
                 push_alert,
             })
             .await?;
+
+        self.inner.as_mut().push_alert = push_alert;
 
         let channel_id = self.id;
         self.connection

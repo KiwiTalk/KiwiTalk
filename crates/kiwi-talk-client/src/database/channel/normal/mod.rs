@@ -2,12 +2,11 @@ pub mod model;
 
 use rusqlite::Row;
 
-use crate::model::FullModel;
+use crate::{database::model::FullModel, channel::ChannelId, user::ChannelUserId};
 
 use self::model::{NormalChannelModel, NormalUserModel};
 
 use super::{
-    model::{ChannelId, ChannelUserId},
     ChannelEntry, ChannelUserEntry,
 };
 

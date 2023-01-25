@@ -1,5 +1,3 @@
-pub type LogId = i64;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChatModel {
     pub channel_id: i64,

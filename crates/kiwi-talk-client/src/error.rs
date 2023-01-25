@@ -1,7 +1,7 @@
 use talk_loco_client::client::ClientRequestError;
 use thiserror::Error;
 
-use crate::database::DatabaseError;
+use crate::database::pool::DatabasePoolError;
 
 #[derive(Debug, Error)]
 pub enum KiwiTalkClientError {
@@ -9,5 +9,5 @@ pub enum KiwiTalkClientError {
     Request(#[from] ClientRequestError),
 
     #[error("Database operation failed. {0}")]
-    Database(#[from] DatabaseError),
+    Database(#[from] DatabasePoolError),
 }

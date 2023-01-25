@@ -2,9 +2,11 @@ pub mod model;
 
 use rusqlite::{Connection, OptionalExtension, Row};
 
-use crate::{channel::model::ChannelId, model::FullModel};
+use crate::{chat::LogId, channel::ChannelId};
 
-use self::model::{ChatModel, LogId};
+use super::model::FullModel;
+
+use self::model::ChatModel;
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChatEntry<'a>(pub &'a Connection);
@@ -127,10 +129,12 @@ impl<'a> ChatEntry<'a> {
 mod tests {
     use std::error::Error;
 
-    use crate::{
-        channel::model::ChannelModel, chat::model::ChatModel, model::FullModel,
-        tests::prepare_test_database, KiwiTalkConnection,
+    use crate::database::{
+        channel::model::ChannelModel, model::FullModel, tests::prepare_test_database,
+        KiwiTalkConnection,
     };
+
+    use super::model::ChatModel;
 
     fn add_test_chat(db: &KiwiTalkConnection) -> Result<ChatModel, rusqlite::Error> {
         let model = ChatModel {
@@ -156,6 +160,8 @@ mod tests {
                 last_chat_log_id: 0,
                 last_seen_log_id: 0,
                 push_alert: true,
+
+                last_update: 0,
             },
         ))?;
 

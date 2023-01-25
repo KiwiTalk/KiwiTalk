@@ -16,17 +16,17 @@ use channel::{
     ClientChannelList,
 };
 use config::KiwiTalkClientInfo;
-use database::DatabasePool;
+use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{AsyncRead, AsyncWrite, Sink};
 use handler::HandlerTask;
 use initializer::initialize_client;
-use kiwi_talk_db::channel::model::ChannelUserId;
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
 use tokio::task::JoinHandle;
+use user::ChannelUserId;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {

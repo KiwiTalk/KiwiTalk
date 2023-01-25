@@ -1,21 +1,19 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 
 use dashmap::{
     mapref::one::{Ref, RefMut},
     DashMap,
 };
-use kiwi_talk_db::{channel::model::ChannelId, chat::model::LogId};
 use nohash_hasher::BuildNoHashHasher;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
+    request::chat::{ChatOnRoomReq, MemberReq, NotiReadReq},
     response::chat::chat_on_room::ChatOnRoomUserList,
-    structs::channel_info::ChannelInfo,
 };
 
-use crate::{database::conversion::channel_user_model_from_user_variant, ClientResult};
+use crate::{database::conversion::channel_user_model_from_user_variant, ClientResult, chat::LogId};
 
-use super::{ChannelData, ClientChannel, ClientChannelList};
+use super::{ChannelData, ClientChannel, ClientChannelList, ChannelId};
 
 #[derive(Debug)]
 pub struct NormalChannelDataList {
@@ -31,7 +29,9 @@ impl NormalChannelDataList {
     }
 
     #[inline(always)]
-    pub(crate) fn data_map(&self) -> &DashMap<ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>> {
+    pub(crate) fn data_map(
+        &self,
+    ) -> &DashMap<ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>> {
         &self.data_map
     }
 
@@ -99,7 +99,7 @@ pub type NormalChannelDataMut<'a> =
 pub type ClientNormalChannel<'a> = ClientChannel<'a, NormalChannelDataMut<'a>>;
 
 impl<'a> ClientNormalChannel<'a> {
-    pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
+    pub async fn read_chat(&mut self, log_id: LogId) -> ClientResult<()> {
         TalkClient(&self.connection.session)
             .read_chat_normal(&NotiReadReq {
                 chat_id: self.id,
@@ -126,7 +126,7 @@ impl<'a> ClientNormalChannel<'a> {
         Ok(())
     }
 
-    pub async fn chat_on(&self) -> ClientResult<()> {
+    pub async fn chat_on(&mut self) -> ClientResult<()> {
         let res = TalkClient(&self.connection.session)
             .chat_on_normal_channel(&ChatOnRoomReq {
                 chat_id: self.id,
@@ -175,13 +175,5 @@ impl<'a> ClientNormalChannel<'a> {
             .await?;
 
         Ok(())
-    }
-
-    pub async fn info(&self) -> ClientResult<ChannelInfo> {
-        let res = TalkClient(&self.connection.session)
-            .channel_info(&ChatInfoReq { chat_id: self.id })
-            .await?;
-
-        Ok(res.chat_info)
     }
 }
