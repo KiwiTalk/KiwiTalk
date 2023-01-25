@@ -2,13 +2,14 @@ pub mod model;
 
 use rusqlite::Row;
 
-use crate::{database::model::FullModel, channel::{ChannelId, user::UserId}};
+use crate::{
+    channel::{user::UserId, ChannelId},
+    database::model::FullModel,
+};
 
 use self::model::{NormalChannelModel, NormalUserModel};
 
-use super::{
-    ChannelEntry, ChannelUserEntry,
-};
+use super::{ChannelEntry, ChannelUserEntry};
 
 #[derive(Debug, Clone, Copy)]
 pub struct NormalChannelEntry<'a>(pub ChannelEntry<'a>);
@@ -46,10 +47,7 @@ impl<'a> NormalChannelEntry<'a> {
 pub struct NormalUserEntry<'a>(pub ChannelUserEntry<'a>);
 
 impl<'a> NormalUserEntry<'a> {
-    pub fn insert(
-        &self,
-        user: &FullModel<UserId, NormalUserModel>,
-    ) -> Result<(), rusqlite::Error> {
+    pub fn insert(&self, user: &FullModel<UserId, NormalUserModel>) -> Result<(), rusqlite::Error> {
         self.0 .0.execute(
             "INSERT INTO normal_channel_user VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             (
@@ -112,9 +110,7 @@ impl<'a> NormalUserEntry<'a> {
         })
     }
 
-    pub fn map_full_row(
-        row: &Row,
-    ) -> Result<FullModel<UserId, NormalUserModel>, rusqlite::Error> {
+    pub fn map_full_row(row: &Row) -> Result<FullModel<UserId, NormalUserModel>, rusqlite::Error> {
         Ok(FullModel {
             id: row.get(0)?,
             model: Self::map_row(row)?,

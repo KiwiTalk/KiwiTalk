@@ -12,7 +12,8 @@ use std::{ops::Deref, sync::Arc};
 
 use channel::{
     normal::{ClientNormalChannelList, NormalChannelDataList},
-    ClientChannelList, user::UserId,
+    user::UserId,
+    ClientChannelList,
 };
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;

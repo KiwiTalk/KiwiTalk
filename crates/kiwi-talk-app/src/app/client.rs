@@ -36,10 +36,8 @@ pub async fn create_client(
     .await
     .map_err(|_| CreateClientError::LocoHandshake)?;
 
-    let pool = DatabasePool::new(DatabaseManager::file(
-        "file:memdb?mode=memory&cache=shared",
-    ))
-    .map_err(|err| CreateClientError::Database(err.into()))?;
+    let pool = DatabasePool::new(DatabaseManager::file("file:memdb?mode=memory&cache=shared"))
+        .map_err(|err| CreateClientError::Database(err.into()))?;
     pool.migrate_to_latest().await?;
 
     let client = KiwiTalkClientBuilder::new(loco_session, pool, sink)

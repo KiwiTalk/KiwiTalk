@@ -6,7 +6,8 @@ use talk_loco_command::{response::chat::LoginListRes, structs::channel_info::Cha
 
 use crate::{
     channel::normal::{NormalChannelData, NormalChannelDataList},
-    ClientConnection, ClientResult, ClientShared, database::pool::DatabasePool,
+    database::pool::DatabasePool,
+    ClientConnection, ClientResult, ClientShared,
 };
 
 pub async fn initialize_client(
@@ -78,7 +79,10 @@ async fn init_normal_channel_list(pool: &DatabasePool) -> ClientResult<NormalCha
     Ok(normal_channel_list)
 }
 
-async fn update_normal_channel_list(client: &ClientShared, server_list: Vec<ChannelListData>) -> ClientResult<()> {
+async fn update_normal_channel_list(
+    client: &ClientShared,
+    server_list: Vec<ChannelListData>,
+) -> ClientResult<()> {
     for data in server_list {
         if client
             .normal_channel_list()
@@ -89,8 +93,6 @@ async fn update_normal_channel_list(client: &ClientShared, server_list: Vec<Chan
         {
             continue;
         }
-
-        
     }
 
     Ok(())

@@ -2,7 +2,7 @@ pub mod model;
 
 use rusqlite::{Connection, OptionalExtension, Row};
 
-use crate::{chat::LogId, channel::ChannelId};
+use crate::{channel::ChannelId, chat::LogId};
 
 use super::model::FullModel;
 

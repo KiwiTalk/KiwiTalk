@@ -17,7 +17,7 @@ pub mod update_chat;
 pub mod write;
 
 pub use chat_info::ChatInfoReq;
-pub use chat_on_room::{ChatOnRoomReq, ChatOnRoomOpenReq};
+pub use chat_on_room::{ChatOnRoomOpenReq, ChatOnRoomReq};
 pub use delete_msg::DeleteMsgReq;
 pub use forward::ForwardReq;
 pub use get_mem::GetMemReq;
@@ -26,7 +26,7 @@ pub use l_chat_list::LChatListReq;
 pub use leave::LeaveReq;
 pub use login_list::LoginListReq;
 pub use member::MemberReq;
-pub use noti_read::{NotiReadReq, NotiReadOpenReq};
+pub use noti_read::{NotiReadOpenReq, NotiReadReq};
 pub use set_meta::SetMetaReq;
 pub use set_st::SetStReq;
 pub use sync_msg::SyncMsgReq;

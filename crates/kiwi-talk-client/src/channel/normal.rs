@@ -11,9 +11,11 @@ use talk_loco_command::{
     response::chat::chat_on_room::ChatOnRoomUserList,
 };
 
-use crate::{database::conversion::channel_user_model_from_user_variant, ClientResult, chat::LogId};
+use crate::{
+    chat::LogId, database::conversion::channel_user_model_from_user_variant, ClientResult,
+};
 
-use super::{ChannelData, ClientChannel, ClientChannelList, ChannelId};
+use super::{ChannelData, ChannelId, ClientChannel, ClientChannelList};
 
 #[derive(Debug)]
 pub struct NormalChannelDataList {

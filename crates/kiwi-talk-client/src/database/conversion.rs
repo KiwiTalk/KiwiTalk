@@ -1,10 +1,9 @@
-use crate::{chat::LogId, channel::{ChannelId, user::UserId}};
-
-use super::{
-    channel::model::{ChannelUserModel},
-    chat::model::{ChatModel},
-    model::FullModel,
+use crate::{
+    channel::{user::UserId, ChannelId},
+    chat::LogId,
 };
+
+use super::{channel::model::ChannelUserModel, chat::model::ChatModel, model::FullModel};
 use talk_loco_command::structs::{chat::Chatlog, user::UserVariant};
 
 // TODO:: use trait

@@ -5,7 +5,11 @@ pub mod open;
 
 use rusqlite::{Connection, Row};
 
-use crate::{database::model::FullModel, channel::{ChannelId, user::UserId}, chat::LogId};
+use crate::{
+    channel::{user::UserId, ChannelId},
+    chat::LogId,
+    database::model::FullModel,
+};
 
 use self::model::{ChannelModel, ChannelUserModel};
 
@@ -205,9 +209,7 @@ impl<'a> ChannelUserEntry<'a> {
         })
     }
 
-    pub fn map_full_row(
-        row: &Row,
-    ) -> Result<FullModel<UserId, ChannelUserModel>, rusqlite::Error> {
+    pub fn map_full_row(row: &Row) -> Result<FullModel<UserId, ChannelUserModel>, rusqlite::Error> {
         Ok(FullModel {
             id: row.get(0)?,
             model: Self::map_row(row)?,
