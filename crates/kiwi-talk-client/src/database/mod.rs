@@ -16,7 +16,7 @@ use chat::ChatEntry;
 
 static MIGRATIONS: Lazy<Migrations<'static>> = Lazy::new(|| {
     Migrations::new(vec![M::up(include_str!(
-        "./migrations/202301182212_db.sql"
+        "./migrations/v0.1.0.sql"
     ))])
 });
 
