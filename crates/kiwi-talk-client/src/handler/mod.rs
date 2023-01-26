@@ -9,7 +9,11 @@ use talk_loco_client::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
-    database::{conversion::chat_model_from_chatlog, KiwiTalkConnectionExt},
+    chat::LoggedChat,
+    database::{
+        chat::{ChatDatabaseExt, ChatModel},
+        KiwiTalkConnectionExt,
+    },
     event::{
         channel::{ChannelEvent, ChatRead, ReceivedChat},
         KiwiTalkClientEvent,
@@ -104,9 +108,11 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
             .connection()
             .pool
             .spawn_task(move |connection| {
-                connection
-                    .chat()
-                    .insert(&chat_model_from_chatlog(&chatlog))?;
+                connection.insert_chat(&ChatModel {
+                    logged: LoggedChat::from(chatlog),
+                    deleted: false,
+                })?;
+
                 Ok(())
             })
             .await?;
