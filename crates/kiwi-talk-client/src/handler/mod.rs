@@ -103,19 +103,23 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
     }
 
     async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
-        let chatlog = data.chatlog.clone();
-        self.client
-            .connection()
-            .pool
-            .spawn_task(move |connection| {
-                connection.insert_chat(&ChatModel {
-                    logged: LoggedChat::from(chatlog),
-                    deleted: false,
-                })?;
+        let chat = LoggedChat::from(data.chatlog);
 
-                Ok(())
-            })
-            .await?;
+        {
+            let logged = chat.clone();
+            self.client
+                .connection()
+                .pool
+                .spawn_task(move |connection| {
+                    connection.insert_chat(&ChatModel {
+                        logged,
+                        deleted: false,
+                    })?;
+
+                    Ok(())
+                })
+                .await?;
+        }
 
         self.emitter
             .emit(
@@ -124,7 +128,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
                     link_id: data.link_id,
                     log_id: data.log_id,
                     user_nickname: data.author_nickname,
-                    chat: data.chatlog,
+                    chat,
                 })
                 .into(),
             )
