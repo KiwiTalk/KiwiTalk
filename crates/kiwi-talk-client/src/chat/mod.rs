@@ -1,11 +1,50 @@
+use serde::{Deserialize, Serialize};
+use talk_loco_command::structs::chat::Chatlog;
+
 pub mod builder;
 
 pub type LogId = i64;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ChatContent {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct LoggedChat {
+    pub log_id: LogId,
+    pub prev_log_id: Option<i64>,
+
+    pub chat: Chat,
+
+    pub referer: Option<i32>,
+}
+
+impl From<Chatlog> for LoggedChat {
+    fn from(chatlog: Chatlog) -> Self {
+        LoggedChat {
+            log_id: chatlog.log_id,
+            prev_log_id: chatlog.prev_log_id,
+            chat: Chat {
+                chat_type: chatlog.chat_type,
+                content: ChatContent {
+                    message: chatlog.message,
+                    attachment: chatlog.attachment,
+                    supplement: chatlog.supplement,
+                },
+                message_id: chatlog.msg_id,
+            },
+            referer: chatlog.referer,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct Chat {
     pub chat_type: i32,
 
+    pub content: ChatContent,
+
+    pub message_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ChatContent {
     pub message: Option<String>,
     pub attachment: Option<String>,
     pub supplement: Option<String>,
