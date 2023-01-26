@@ -5,7 +5,7 @@ use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{response::chat::LoginListRes, structs::channel_info::ChannelListData};
 
 use crate::{
-    channel::normal::NormalChannelDataList, database::pool::DatabasePool, ClientConnection,
+    channel::normal::NormalChannelDataList, database::{pool::DatabasePool, channel::normal::NormalChannelDatabaseExt}, ClientConnection,
     ClientResult, ClientShared,
 };
 
@@ -63,7 +63,7 @@ async fn init_normal_channel_list(pool: &DatabasePool) -> ClientResult<NormalCha
     let normal_channel_list = NormalChannelDataList::new();
 
     let model_list = pool
-        .spawn_task(|connection| Ok(connection.channel().get_all_normal_channel()?))
+        .spawn_task(|connection| Ok(connection.normal_channel().get_all_channel()?))
         .await?;
 
     for full_model in model_list {}

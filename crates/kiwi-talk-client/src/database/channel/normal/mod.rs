@@ -35,7 +35,7 @@ impl NormalChannelEntry<'_> {
         Ok(())
     }
 
-    pub fn get_all_normal(&self) -> Result<Vec<ChannelModel>, rusqlite::Error> {
+    pub fn get_all_channel(&self) -> Result<Vec<ChannelModel>, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT channel.* FROM channel INNER JOIN normal_channel ON channel.id = normal_channel.id")?;
 
         let rows = statement.query(())?;
