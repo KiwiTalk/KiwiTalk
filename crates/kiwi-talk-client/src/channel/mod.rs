@@ -14,7 +14,6 @@ use crate::{
 };
 use futures::{pin_mut, StreamExt};
 use nohash_hasher::IntMap;
-use rusqlite::DropBehavior;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
@@ -174,8 +173,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
         let (sender, mut recv) = channel(4);
 
         let database_task = self.connection.pool.spawn_task(move |mut connection| {
-            let mut transaction = connection.transaction()?;
-            transaction.set_drop_behavior(DropBehavior::Commit);
+            let transaction = connection.transaction()?;
 
             while let Some(list) = recv.blocking_recv() {
                 for chatlog in list {
@@ -186,6 +184,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
                 }
             }
 
+            transaction.commit()?;
             Ok(())
         });
 
