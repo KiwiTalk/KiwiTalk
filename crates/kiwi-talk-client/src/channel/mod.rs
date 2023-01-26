@@ -5,7 +5,7 @@ pub mod user;
 use std::ops::DerefMut;
 
 use crate::{
-    chat::{ChatContent, LogId},
+    chat::{Chat, LogId, LoggedChat},
     database::{conversion::chat_model_from_chatlog, KiwiTalkConnectionExt},
     ClientConnection, ClientResult,
 };
@@ -16,7 +16,6 @@ use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{SyncMsgReq, UpdateChatReq, WriteReq},
-    structs::chat::Chatlog,
 };
 use tokio::sync::mpsc::channel;
 
@@ -98,32 +97,28 @@ impl<'a, Inner> ClientChannel<'a, Inner> {
 }
 
 impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> {
-    pub async fn send_chat(&mut self, chat: ChatContent, no_seen: bool) -> ClientResult<Chatlog> {
+    pub async fn send_chat(&mut self, chat: Chat, no_seen: bool) -> ClientResult<LoggedChat> {
         let res = TalkClient(&self.connection.session)
             .write(&WriteReq {
                 chat_id: self.id,
                 chat_type: chat.chat_type,
-                msg_id: 0,
-                message: chat.message.clone(),
+                msg_id: chat.message_id,
+                message: chat.content.message.clone(),
                 no_seen,
-                attachment: chat.attachment.clone(),
-                supplement: chat.supplement.clone(),
+                attachment: chat.content.attachment.clone(),
+                supplement: chat.content.supplement.clone(),
             })
             .await?;
 
-        let chatlog = res.chatlog.unwrap_or_else(|| Chatlog {
-            log_id: res.log_id,
-            prev_log_id: Some(res.prev_id),
-            chat_id: res.chat_id,
-            chat_type: chat.chat_type,
-            author_id: self.connection.user_id,
-            message: chat.message,
-            send_at: res.send_at,
-            attachment: chat.attachment,
-            referer: None,
-            supplement: chat.supplement,
-            msg_id: res.msg_id,
-        });
+        let chatlog = res
+            .chatlog
+            .map(LoggedChat::from)
+            .unwrap_or_else(|| LoggedChat {
+                log_id: res.log_id,
+                prev_log_id: Some(res.prev_id),
+                chat,
+                referer: None,
+            });
 
         {
             let chatlog = chatlog.clone();
