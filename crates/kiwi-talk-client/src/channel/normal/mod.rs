@@ -1,3 +1,5 @@
+pub mod user;
+
 use std::ops::Deref;
 
 use dashmap::{
@@ -9,15 +11,20 @@ use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{ChatOnRoomReq, MemberReq, NotiReadReq},
     response::chat::chat_on_room::ChatOnRoomUserList,
+    structs::user::UserVariant,
 };
 
 use crate::{
     chat::LogId,
-    database::channel::{user::UserDatabaseExt, ChannelDatabaseExt},
+    database::channel::{
+        normal::user::{NormalUserDatabaseExt, NormalUserModel},
+        user::{UserDatabaseExt, UserModel},
+        ChannelDatabaseExt,
+    },
     ClientResult,
 };
 
-use super::{ChannelData, ChannelId, ClientChannel, ClientChannelList};
+use super::{user::UserData, ChannelData, ChannelId, ClientChannel, ClientChannelList};
 
 #[derive(Debug)]
 pub struct NormalChannelDataList {
@@ -163,9 +170,23 @@ impl<'a> ClientNormalChannel<'a> {
                     .set_last_chat_log_id(channel_id, res.last_log_id)?;
 
                 for user in users {
-                    connection
-                        .user()
-                        .insert(&channel_user_model_from_user_variant(channel_id, 0, &user))?;
+                    if let UserVariant::Normal(user) = user {
+                        let id = user.user_id;
+                        let data = UserData::from(user);
+
+                        connection.user().insert(&UserModel {
+                            id,
+                            channel_id,
+                            profile: data.profile,
+                            watermark: 0,
+                        })?;
+
+                        connection.normal_user().insert(&NormalUserModel {
+                            id,
+                            channel_id,
+                            info: data.info,
+                        });
+                    }
                 }
 
                 for (id, watermark) in res.watermark_user_ids.into_iter().zip(res.watermarks) {

@@ -13,16 +13,22 @@ pub struct DisplayUser {
     pub country_iso: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
-pub struct UserData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct UserProfile {
     pub user_type: i32,
 
     pub nickname: String,
+    pub image: UserProfileImage,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct UserData<Info> {
     pub profile: UserProfile,
+    pub info: Info,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-pub struct UserProfile {
+pub struct UserProfileImage {
     pub image_url: Option<String>,
     pub full_image_url: Option<String>,
     pub original_image_url: Option<String>,

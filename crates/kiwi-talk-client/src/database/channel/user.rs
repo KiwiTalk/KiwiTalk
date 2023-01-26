@@ -2,7 +2,7 @@ use rusqlite::{Connection, OptionalExtension, Row};
 
 use crate::{
     channel::{
-        user::{UserData, UserId, UserProfile},
+        user::{UserProfile, UserId, UserProfileImage},
         ChannelId,
     },
     chat::LogId,
@@ -13,7 +13,7 @@ pub struct UserModel {
     pub id: UserId,
     pub channel_id: i64,
 
-    pub data: UserData,
+    pub profile: UserProfile,
 
     pub watermark: i64,
 }
@@ -24,11 +24,11 @@ impl UserModel {
             id: row.get(0)?,
             channel_id: row.get(1)?,
 
-            data: UserData {
+            profile: UserProfile {
                 user_type: row.get(2)?,
 
                 nickname: row.get(3)?,
-                profile: UserProfile {
+                image: UserProfileImage {
                     image_url: row.get(4)?,
                     full_image_url: row.get(5)?,
                     original_image_url: row.get(6)?,
@@ -57,11 +57,11 @@ impl UserEntry<'_> {
             (
                 model.id,
                 model.channel_id,
-                model.data.user_type,
-                &model.data.nickname,
-                model.data.profile.image_url.as_ref(),
-                model.data.profile.full_image_url.as_ref(),
-                model.data.profile.original_image_url.as_ref(),
+                model.profile.user_type,
+                &model.profile.nickname,
+                model.profile.image.image_url.as_ref(),
+                model.profile.image.full_image_url.as_ref(),
+                model.profile.image.original_image_url.as_ref(),
                 model.watermark,
             ),
         )?;
@@ -117,7 +117,7 @@ pub(crate) mod tests {
 
     use crate::{
         channel::{
-            user::{UserData, UserId},
+            user::{UserProfile, UserId},
             ChannelId,
         },
         database::{
@@ -136,10 +136,10 @@ pub(crate) mod tests {
         let model = UserModel {
             id,
             channel_id,
-            data: UserData {
+            profile: UserProfile {
                 user_type: 0,
                 nickname: "".into(),
-                profile: Default::default(),
+                image: Default::default(),
             },
             watermark: 0,
         };
