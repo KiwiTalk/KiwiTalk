@@ -168,7 +168,7 @@ impl WriteTask {
                 || write_codec.flush_async().await.is_err()
             {
                 self.response_map.lock().remove(&request_id);
-                continue;
+                break;
             }
 
             self.next_request_id += 1;
