@@ -170,7 +170,7 @@ impl ChannelEntry<'_> {
                 model.meta.author_id,
                 model.meta.updated_at,
                 model.meta.revision,
-                model.meta.content,
+                &model.meta.content,
             ),
         )?;
 
