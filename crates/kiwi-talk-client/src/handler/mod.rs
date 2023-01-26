@@ -11,7 +11,8 @@ use talk_loco_command::{command::BsonCommand, response::chat};
 use crate::{
     chat::LoggedChat,
     database::{
-        chat::{ChatDatabaseExt, ChatModel}, channel::user::UserDatabaseExt,
+        channel::user::UserDatabaseExt,
+        chat::{ChatDatabaseExt, ChatModel},
     },
     event::{
         channel::{ChannelEvent, ChatRead, ReceivedChat},

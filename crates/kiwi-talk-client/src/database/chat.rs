@@ -77,12 +77,13 @@ impl ChatEntry<'_> {
     }
 
     pub fn get_from_log_id(&self, log_id: LogId) -> Result<Option<ChatModel>, rusqlite::Error> {
-        self.0.query_row(
-            "SELECT * FROM chat WHERE log_id = ?",
-            [log_id],
-            ChatModel::map_row,
-        )
-        .optional()
+        self.0
+            .query_row(
+                "SELECT * FROM chat WHERE log_id = ?",
+                [log_id],
+                ChatModel::map_row,
+            )
+            .optional()
     }
 
     pub fn update_type(&self, log_id: LogId, chat_type: i32) -> Result<usize, rusqlite::Error> {
@@ -92,7 +93,11 @@ impl ChatEntry<'_> {
         )
     }
 
-    pub fn update_deleted_time(&self, log_id: LogId, deleted_time: Option<i64>) -> Result<usize, rusqlite::Error> {
+    pub fn update_deleted_time(
+        &self,
+        log_id: LogId,
+        deleted_time: Option<i64>,
+    ) -> Result<usize, rusqlite::Error> {
         self.0.execute(
             "UPDATE chat SET deleted = ? WHERE log_id = ?",
             (deleted_time, log_id),
@@ -104,7 +109,8 @@ impl ChatEntry<'_> {
     }
 
     pub fn clear_all_in(&self, channel_id: ChannelId) -> Result<usize, rusqlite::Error> {
-        self.0.execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
+        self.0
+            .execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
     }
 
     pub fn get_from_latest(
@@ -113,7 +119,8 @@ impl ChatEntry<'_> {
         offset: u64,
         limit: u64,
     ) -> Result<Vec<ChatModel>, rusqlite::Error> {
-        let mut statement = self.0
+        let mut statement = self
+            .0
             .prepare("SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT ?, ?")?;
 
         let rows = statement.query((channel_id, offset, limit))?;

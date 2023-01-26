@@ -1,6 +1,6 @@
 use rusqlite::{Connection, OptionalExtension, Row};
 
-use crate::channel::{user::UserId, ChannelId, normal::user::NormalUserInfo};
+use crate::channel::{normal::user::NormalUserInfo, user::UserId, ChannelId};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NormalUserModel {
@@ -26,7 +26,6 @@ impl NormalUserModel {
         })
     }
 }
-
 
 #[extend::ext(name = NormalUserDatabaseExt)]
 pub impl Connection {

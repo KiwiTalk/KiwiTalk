@@ -2,7 +2,7 @@ use rusqlite::{Connection, OptionalExtension, Row};
 
 use crate::{
     channel::{
-        user::{UserProfile, UserId, UserProfileImage},
+        user::{UserId, UserProfile, UserProfileImage},
         ChannelId,
     },
     chat::LogId,
@@ -74,12 +74,13 @@ impl UserEntry<'_> {
         id: UserId,
         channel_id: ChannelId,
     ) -> Result<Option<UserModel>, rusqlite::Error> {
-        self.0.query_row(
-            "SELECT * FROM channel_user WHERE id = ? AND channel_id = ?",
-            (id, channel_id),
-            UserModel::map_row,
-        )
-        .optional()
+        self.0
+            .query_row(
+                "SELECT * FROM channel_user WHERE id = ? AND channel_id = ?",
+                (id, channel_id),
+                UserModel::map_row,
+            )
+            .optional()
     }
 
     pub fn get_all(&self, id: UserId) -> Result<Vec<UserModel>, rusqlite::Error> {
@@ -90,7 +91,9 @@ impl UserEntry<'_> {
     }
 
     pub fn get_all_in(&self, id: ChannelId) -> Result<Vec<UserModel>, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;
+        let mut statement = self
+            .0
+            .prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;
 
         let rows = statement.query([id])?;
         rows.mapped(UserModel::map_row).collect()
@@ -117,7 +120,7 @@ pub(crate) mod tests {
 
     use crate::{
         channel::{
-            user::{UserProfile, UserId},
+            user::{UserId, UserProfile},
             ChannelId,
         },
         database::{
