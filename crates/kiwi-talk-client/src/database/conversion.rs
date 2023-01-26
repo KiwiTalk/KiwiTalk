@@ -3,8 +3,8 @@ use crate::{
     chat::LogId,
 };
 
-use super::{channel::model::ChannelUserModel, chat::model::ChatModel, model::FullModel};
-use talk_loco_command::structs::{chat::Chatlog, user::UserVariant};
+use super::{channel::model::ChannelUserModel, model::FullModel};
+use talk_loco_command::structs::user::UserVariant;
 
 // TODO:: use trait
 pub fn channel_user_model_from_user_variant(

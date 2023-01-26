@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use talk_loco_command::structs::chat::Chatlog;
 
-use crate::channel::{ChannelId, user::UserId};
+use crate::channel::{user::UserId, ChannelId};
 
 pub mod builder;
 
@@ -28,7 +28,7 @@ impl From<Chatlog> for LoggedChat {
         LoggedChat {
             log_id: chatlog.log_id,
             prev_log_id: chatlog.prev_log_id,
-            
+
             channel_id: chatlog.chat_id,
 
             sender_id: chatlog.author_id,

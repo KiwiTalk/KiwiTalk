@@ -1,7 +1,7 @@
 use futures::Sink;
 use kiwi_talk_client::{
     config::KiwiTalkClientInfo,
-    database::{DatabasePoolError, DatabaseManager, DatabasePool},
+    database::{DatabaseManager, DatabasePool, DatabasePoolError},
     error::KiwiTalkClientError,
     event::KiwiTalkClientEvent,
     status::ClientStatus,

@@ -19,7 +19,7 @@ impl ChatModel {
             logged: LoggedChat {
                 log_id: row.get(0)?,
                 prev_log_id: row.get(2)?,
-                
+
                 channel_id: row.get(1)?,
 
                 sender_id: row.get(6)?,
@@ -130,12 +130,15 @@ mod tests {
 
     use rusqlite::Connection;
 
-    use crate::{database::{
-        channel::model::ChannelModel, model::FullModel, tests::prepare_test_database,
-        KiwiTalkConnectionExt,
-    }, chat::{LoggedChat, Chat}};
+    use crate::{
+        chat::{Chat, LoggedChat},
+        database::{
+            channel::model::ChannelModel, model::FullModel, tests::prepare_test_database,
+            KiwiTalkConnectionExt,
+        },
+    };
 
-    use super::{ChatModel, ChatDatabaseExt};
+    use super::{ChatDatabaseExt, ChatModel};
 
     fn add_test_chat(db: &Connection) -> Result<ChatModel, rusqlite::Error> {
         let model = ChatModel {
@@ -189,12 +192,7 @@ mod tests {
         let db = prepare_test_database()?;
         let chat = add_test_chat(&db)?;
 
-        assert_eq!(
-            chat,
-            db.get_chats_from_latest(0, 0, 1)?
-                .pop()
-                .unwrap()
-        );
+        assert_eq!(chat, db.get_chats_from_latest(0, 0, 1)?.pop().unwrap());
 
         Ok(())
     }

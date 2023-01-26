@@ -12,7 +12,9 @@ use talk_loco_command::{
 };
 
 use crate::{
-    chat::LogId, database::{conversion::channel_user_model_from_user_variant, KiwiTalkConnectionExt}, ClientResult,
+    chat::LogId,
+    database::{conversion::channel_user_model_from_user_variant, KiwiTalkConnectionExt},
+    ClientResult,
 };
 
 use super::{ChannelData, ChannelId, ClientChannel, ClientChannelList};
