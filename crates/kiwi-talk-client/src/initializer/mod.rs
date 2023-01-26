@@ -5,9 +5,8 @@ use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{response::chat::LoginListRes, structs::channel_info::ChannelListData};
 
 use crate::{
-    channel::normal::{NormalChannelData, NormalChannelDataList},
-    database::{pool::DatabasePool, KiwiTalkConnectionExt},
-    ClientConnection, ClientResult, ClientShared,
+    channel::normal::NormalChannelDataList, database::pool::DatabasePool, ClientConnection,
+    ClientResult, ClientShared,
 };
 
 pub async fn initialize_client(
@@ -67,14 +66,7 @@ async fn init_normal_channel_list(pool: &DatabasePool) -> ClientResult<NormalCha
         .spawn_task(|connection| Ok(connection.channel().get_all_normal_channel()?))
         .await?;
 
-    for full_model in model_list {
-        normal_channel_list.data_map().insert(
-            full_model.id,
-            NormalChannelData {
-                data: channel_data_from_channel_model(&full_model.model),
-            },
-        );
-    }
+    for full_model in model_list {}
 
     Ok(normal_channel_list)
 }
@@ -83,17 +75,7 @@ async fn update_normal_channel_list(
     client: &ClientShared,
     server_list: Vec<ChannelListData>,
 ) -> ClientResult<()> {
-    for data in server_list {
-        if client
-            .normal_channel_list()
-            .inner()
-            .get(&data.id)
-            .map(|normal_data| normal_data.data.last_update >= data.last_update)
-            .unwrap_or(false)
-        {
-            continue;
-        }
-    }
+    for data in server_list {}
 
     Ok(())
 }

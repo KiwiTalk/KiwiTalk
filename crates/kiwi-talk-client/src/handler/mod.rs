@@ -11,8 +11,7 @@ use talk_loco_command::{command::BsonCommand, response::chat};
 use crate::{
     chat::LoggedChat,
     database::{
-        chat::{ChatDatabaseExt, ChatModel},
-        KiwiTalkConnectionExt,
+        chat::{ChatDatabaseExt, ChatModel}, channel::user::UserDatabaseExt,
     },
     event::{
         channel::{ChannelEvent, ChatRead, ReceivedChat},
@@ -111,7 +110,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
                 .connection()
                 .pool
                 .spawn_task(move |connection| {
-                    connection.insert_chat(&ChatModel {
+                    connection.chat().insert(&ChatModel {
                         logged,
                         deleted_time: None,
                     })?;

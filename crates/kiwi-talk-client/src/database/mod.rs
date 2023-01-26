@@ -1,13 +1,8 @@
 pub mod channel;
 pub mod chat;
-pub mod conversion;
 pub mod model;
 pub mod pool;
 
-use channel::{
-    normal::{NormalChannelEntry, NormalUserEntry},
-    ChannelEntry, ChannelUserEntry,
-};
 use once_cell::sync::Lazy;
 use rusqlite::Connection;
 use rusqlite_migration::{Migrations, M};
@@ -19,26 +14,6 @@ static MIGRATIONS: Lazy<Migrations<'static>> =
 pub impl Connection {
     fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
         MIGRATIONS.to_latest(self)
-    }
-}
-
-// TODO:: Remove
-#[extend::ext(name = KiwiTalkConnectionExt)]
-pub impl Connection {
-    fn channel(&self) -> ChannelEntry<'_> {
-        ChannelEntry(&self)
-    }
-
-    fn user(&self) -> ChannelUserEntry<'_> {
-        ChannelUserEntry(&self)
-    }
-
-    fn normal_channel(&self) -> NormalChannelEntry<'_> {
-        NormalChannelEntry(self.channel())
-    }
-
-    fn normal_user(&self) -> NormalUserEntry<'_> {
-        NormalUserEntry(self.user())
     }
 }
 

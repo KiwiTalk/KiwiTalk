@@ -13,7 +13,7 @@ use talk_loco_command::{
 
 use crate::{
     chat::LogId,
-    database::{conversion::channel_user_model_from_user_variant, KiwiTalkConnectionExt},
+    database::channel::{user::UserDatabaseExt, ChannelDatabaseExt},
     ClientResult,
 };
 

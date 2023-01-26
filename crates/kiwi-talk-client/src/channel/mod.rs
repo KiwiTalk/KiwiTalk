@@ -7,8 +7,8 @@ use std::ops::DerefMut;
 use crate::{
     chat::{Chat, LogId, LoggedChat},
     database::{
+        channel::ChannelDatabaseExt,
         chat::{ChatDatabaseExt, ChatModel},
-        KiwiTalkConnectionExt,
     },
     ClientConnection, ClientResult,
 };
@@ -24,7 +24,12 @@ use self::user::DisplayUser;
 
 pub type ChannelId = i64;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ChannelSettings {
+    pub push_alert: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChannelData {
     pub channel_type: String,
 
@@ -32,7 +37,7 @@ pub struct ChannelData {
 
     pub metas: IntMap<i32, ChannelMeta>,
 
-    pub push_alert: bool,
+    pub settings: ChannelSettings,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -135,7 +140,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
             self.connection
                 .pool
                 .spawn_task(move |connection| {
-                    connection.insert_chat(&ChatModel {
+                    connection.chat().insert(&ChatModel {
                         logged,
                         deleted_time: None,
                     })?;
@@ -177,7 +182,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
 
             while let Some(list) = recv.blocking_recv() {
                 for chatlog in list {
-                    transaction.insert_chat(&ChatModel {
+                    transaction.chat().insert(&ChatModel {
                         logged: LoggedChat::from(chatlog),
                         deleted_time: None,
                     })?;
@@ -219,7 +224,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
             })
             .await?;
 
-        self.inner.as_mut().push_alert = push_alert;
+        self.inner.as_mut().settings.push_alert = push_alert;
 
         let channel_id = self.id;
         self.connection

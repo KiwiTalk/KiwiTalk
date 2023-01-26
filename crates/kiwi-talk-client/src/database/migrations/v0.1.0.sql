@@ -1,3 +1,4 @@
+-- See /src/database/chat.rs
 CREATE TABLE IF NOT EXISTS chat (
     log_id INTEGER PRIMARY KEY,
     channel_id INTEGER NOT NULL,
@@ -14,43 +15,40 @@ CREATE TABLE IF NOT EXISTS chat (
     deleted_time INTEGER
 );
 
--- See /src/channel/model.rs
 CREATE TABLE IF NOT EXISTS channel (
     id INTEGER PRIMARY KEY,
     type VARCHAR(16) NOT NULL,
 
-    active_user_count INTEGER NOT NULL,
-    new_chat_count INTEGER NOT NULL,
     last_chat_log_id INTEGER NOT NULL,
     last_seen_log_id INTEGER NOT NULL,
     last_update INTEGER NOT NULL,
-    
+
     push_alert BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channel_meta (
-    type INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
-    revision INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    type INTEGER NOT NULL,
+
+    author_id INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
+    revision INTEGER NOT NULL,
     content TEXT NOT NULL,
 
-    PRIMARY KEY(type, channel_id),
+    PRIMARY KEY(channel_id, type),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 
--- See /src/channel/model.rs
 CREATE TABLE IF NOT EXISTS channel_user (
     id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
 
+    user_type INTEGER NOT NULL,
     nickname VARCHAR NOT NULL,
 
     profile_url TEXT,
     full_profile_url TEXT,
     original_profile_url TEXT,
-    user_type INTEGER NOT NULL,
 
     watermark INTEGER NOT NULL,
 
@@ -58,7 +56,6 @@ CREATE TABLE IF NOT EXISTS channel_user (
     FOREIGN KEY(channel_id) REFERENCES channel(id)
 );
 
--- See /src/channel/normal/model.rs
 CREATE TABLE IF NOT EXISTS normal_channel (
     id INTEGER PRIMARY KEY,
 
@@ -67,7 +64,6 @@ CREATE TABLE IF NOT EXISTS normal_channel (
     FOREIGN KEY(id) REFERENCES channel(id)
 );
 
--- See /src/channel/normal/model.rs
 CREATE TABLE IF NOT EXISTS normal_channel_user (
     id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
