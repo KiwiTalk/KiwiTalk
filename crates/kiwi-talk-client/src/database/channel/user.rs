@@ -13,6 +13,8 @@ pub struct UserModel {
     pub id: UserId,
     pub channel_id: i64,
 
+    pub user_type: i32,
+
     pub profile: UserProfile,
 
     pub watermark: i64,
@@ -23,10 +25,10 @@ impl UserModel {
         Ok(Self {
             id: row.get(0)?,
             channel_id: row.get(1)?,
+            
+            user_type: row.get(2)?,
 
             profile: UserProfile {
-                user_type: row.get(2)?,
-
                 nickname: row.get(3)?,
                 image: UserProfileImage {
                     image_url: row.get(4)?,
@@ -57,7 +59,7 @@ impl UserEntry<'_> {
             (
                 model.id,
                 model.channel_id,
-                model.profile.user_type,
+                model.user_type,
                 &model.profile.nickname,
                 model.profile.image.image_url.as_ref(),
                 model.profile.image.full_image_url.as_ref(),
@@ -139,8 +141,8 @@ pub(crate) mod tests {
         let model = UserModel {
             id,
             channel_id,
+            user_type: 0,
             profile: UserProfile {
-                user_type: 0,
                 nickname: "".into(),
                 image: Default::default(),
             },

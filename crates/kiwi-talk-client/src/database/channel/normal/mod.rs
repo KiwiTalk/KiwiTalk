@@ -1,6 +1,6 @@
 pub mod user;
 
-use rusqlite::{Connection, Row};
+use rusqlite::{Connection, OptionalExtension, Row};
 
 use crate::channel::ChannelId;
 
@@ -57,6 +57,17 @@ impl NormalChannelEntry<'_> {
         )?;
 
         Ok(())
+    }
+
+    pub fn get_joined(
+        &self,
+        id: ChannelId,
+    ) -> Result<Option<JoinedNormalChannelModel>, rusqlite::Error> {
+        self.0.query_row(
+            "SELECT channel.*, normal_channel.* FROM channel INNER JOIN normal_channel ON channel.id = normal_channel.id WHERE channel.id = ?",
+            [id],
+            JoinedNormalChannelModel::map_row
+        ).optional()
     }
 
     pub fn get_all_channel(&self) -> Result<Vec<JoinedNormalChannelModel>, rusqlite::Error> {

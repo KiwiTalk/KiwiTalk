@@ -163,7 +163,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
                 .spawn_task(move |connection| {
                     Ok(connection
                         .channel()
-                        .get_last_chat_log_id(channel_id)
+                        .get_last_chat_log_id(channel_id)?
                         .unwrap_or(0))
                 })
                 .await?

@@ -24,7 +24,9 @@ use crate::{
     ClientResult,
 };
 
-use super::{user::UserData, ChannelData, ChannelId, ClientChannel, ClientChannelList};
+use super::{
+    user::UserData, ChannelData, ChannelId, ClientChannel, ClientChannelList,
+};
 
 #[derive(Debug)]
 pub struct NormalChannelDataList {
@@ -181,6 +183,7 @@ impl<'a> ClientNormalChannel<'a> {
                         transaction.user().insert(&UserModel {
                             id,
                             channel_id,
+                            user_type: data.user_type,
                             profile: data.profile,
                             watermark: 0,
                         })?;
@@ -189,7 +192,7 @@ impl<'a> ClientNormalChannel<'a> {
                             id,
                             channel_id,
                             info: data.info,
-                        });
+                        })?;
                     }
                 }
 

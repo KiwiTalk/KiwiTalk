@@ -15,14 +15,13 @@ pub struct DisplayUser {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct UserProfile {
-    pub user_type: i32,
-
     pub nickname: String,
     pub image: UserProfileImage,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct UserData<Info> {
+    pub user_type: i32,
     pub profile: UserProfile,
     pub info: Info,
 }

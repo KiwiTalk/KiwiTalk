@@ -15,8 +15,8 @@ pub struct NormalUserInfo {
 impl From<User> for UserData<NormalUserInfo> {
     fn from(user: User) -> Self {
         Self {
+            user_type: user.user_type,
             profile: UserProfile {
-                user_type: user.user_type,
                 nickname: user.nickname,
                 image: UserProfileImage {
                     image_url: user.profile_image_url,
