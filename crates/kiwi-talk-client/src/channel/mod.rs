@@ -6,7 +6,10 @@ use std::ops::DerefMut;
 
 use crate::{
     chat::{Chat, LogId, LoggedChat},
-    database::{chat::{ChatModel, ChatDatabaseExt}, KiwiTalkConnectionExt},
+    database::{
+        chat::{ChatDatabaseExt, ChatModel},
+        KiwiTalkConnectionExt,
+    },
     ClientConnection, ClientResult,
 };
 use futures::{pin_mut, StreamExt};
@@ -169,15 +172,19 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
 
         let (sender, mut recv) = channel(4);
 
-        let database_task = self.connection.pool.spawn_task(move |connection| {
+        let database_task = self.connection.pool.spawn_task(move |mut connection| {
+            let transaction = connection.transaction()?;
+
             while let Some(list) = recv.blocking_recv() {
                 for chatlog in list {
-                    connection.insert_chat(&ChatModel {
+                    transaction.insert_chat(&ChatModel {
                         logged: LoggedChat::from(chatlog),
                         deleted: false,
                     })?;
                 }
             }
+
+            transaction.commit()?;
             Ok(())
         });
 
