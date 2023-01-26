@@ -6,7 +6,7 @@ use std::ops::DerefMut;
 
 use crate::{
     chat::{Chat, LogId, LoggedChat},
-    database::{conversion::chat_model_from_chatlog, KiwiTalkConnectionExt},
+    database::{chat::{ChatModel, ChatDatabaseExt}, KiwiTalkConnectionExt},
     ClientConnection, ClientResult,
 };
 use futures::{pin_mut, StreamExt};
@@ -14,9 +14,7 @@ use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
-use talk_loco_command::{
-    request::chat::{SyncMsgReq, UpdateChatReq, WriteReq},
-};
+use talk_loco_command::request::chat::{SyncMsgReq, UpdateChatReq, WriteReq};
 use tokio::sync::mpsc::channel;
 
 use self::user::DisplayUser;
@@ -110,32 +108,41 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
             })
             .await?;
 
-        let chatlog = res
+        let logged = res
             .chatlog
             .map(LoggedChat::from)
             .unwrap_or_else(|| LoggedChat {
+                channel_id: self.id,
+
                 log_id: res.log_id,
                 prev_log_id: Some(res.prev_id),
+
+                sender_id: self.connection.user_id,
+
+                send_at: res.send_at,
+
                 chat,
+
                 referer: None,
             });
 
         {
-            let chatlog = chatlog.clone();
+            let logged = logged.clone();
 
             self.connection
                 .pool
                 .spawn_task(move |connection| {
-                    connection
-                        .chat()
-                        .insert(&chat_model_from_chatlog(&chatlog))?;
+                    connection.insert_chat(&ChatModel {
+                        logged,
+                        deleted: false,
+                    })?;
 
                     Ok(())
                 })
                 .await?;
         }
 
-        Ok(chatlog)
+        Ok(logged)
     }
 
     pub async fn sync_chats(&mut self, max: LogId) -> ClientResult<usize> {
@@ -165,9 +172,10 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
         let database_task = self.connection.pool.spawn_task(move |connection| {
             while let Some(list) = recv.blocking_recv() {
                 for chatlog in list {
-                    connection
-                        .chat()
-                        .insert(&chat_model_from_chatlog(&chatlog))?;
+                    connection.insert_chat(&ChatModel {
+                        logged: LoggedChat::from(chatlog),
+                        deleted: false,
+                    })?;
                 }
             }
             Ok(())

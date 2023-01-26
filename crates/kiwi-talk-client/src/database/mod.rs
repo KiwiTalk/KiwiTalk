@@ -12,8 +12,6 @@ use once_cell::sync::Lazy;
 use rusqlite::Connection;
 use rusqlite_migration::{Migrations, M};
 
-use chat::ChatEntry;
-
 static MIGRATIONS: Lazy<Migrations<'static>> =
     Lazy::new(|| Migrations::new(vec![M::up(include_str!("./migrations/v0.1.0.sql"))]));
 
@@ -41,10 +39,6 @@ pub impl Connection {
 
     fn normal_user(&self) -> NormalUserEntry<'_> {
         NormalUserEntry(self.user())
-    }
-
-    fn chat(&self) -> ChatEntry<'_> {
-        ChatEntry(&self)
     }
 }
 
