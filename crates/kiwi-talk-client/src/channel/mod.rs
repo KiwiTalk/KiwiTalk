@@ -93,7 +93,7 @@ impl<'a, Inner> ClientChannel<'a, Inner> {
     }
 
     #[inline(always)]
-    pub const fn inner_mut(&mut self) -> &Inner {
+    pub(crate) fn inner_mut(&mut self) -> &Inner {
         &mut self.inner
     }
 }

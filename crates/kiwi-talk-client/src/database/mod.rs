@@ -18,7 +18,7 @@ static MIGRATIONS: Lazy<Migrations<'static>> =
 #[extend::ext(name = MigrationExt)]
 pub impl Connection {
     fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
-        MIGRATIONS.to_latest(&mut self)
+        MIGRATIONS.to_latest(self)
     }
 }
 

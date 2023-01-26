@@ -1,7 +1,7 @@
 use futures::Sink;
 use kiwi_talk_client::{
     config::KiwiTalkClientInfo,
-    database::{DatabaseManager, DatabasePool, DatabasePoolError},
+    database::pool::{DatabasePool, PoolTaskError},
     error::KiwiTalkClientError,
     event::KiwiTalkClientEvent,
     status::ClientStatus,
@@ -36,7 +36,7 @@ pub async fn create_client(
     .await
     .map_err(|_| CreateClientError::LocoHandshake)?;
 
-    let pool = DatabasePool::new(DatabaseManager::file("file:memdb?mode=memory&cache=shared"))
+    let pool = DatabasePool::file("file:memdb?mode=memory&cache=shared")
         .map_err(|err| CreateClientError::Database(err.into()))?;
     pool.migrate_to_latest().await?;
 
@@ -71,7 +71,7 @@ pub enum CreateClientError {
     LocoHandshake,
 
     #[error("Database initialization failed. {0}")]
-    Database(#[from] DatabasePoolError),
+    Database(#[from] PoolTaskError),
 
     #[error(transparent)]
     Client(#[from] KiwiTalkClientError),
