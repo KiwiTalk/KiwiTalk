@@ -164,8 +164,10 @@ impl<'a> ClientNormalChannel<'a> {
         let channel_id = self.id;
         self.connection
             .pool
-            .spawn_task(move |connection| {
-                connection
+            .spawn_task(move |mut connection| {
+                let transaction = connection.transaction()?;
+
+                transaction
                     .channel()
                     .set_last_chat_log_id(channel_id, res.last_log_id)?;
 
@@ -174,14 +176,14 @@ impl<'a> ClientNormalChannel<'a> {
                         let id = user.user_id;
                         let data = UserData::from(user);
 
-                        connection.user().insert(&UserModel {
+                        transaction.user().insert(&UserModel {
                             id,
                             channel_id,
                             profile: data.profile,
                             watermark: 0,
                         })?;
 
-                        connection.normal_user().insert(&NormalUserModel {
+                        transaction.normal_user().insert(&NormalUserModel {
                             id,
                             channel_id,
                             info: data.info,
@@ -190,11 +192,12 @@ impl<'a> ClientNormalChannel<'a> {
                 }
 
                 for (id, watermark) in res.watermark_user_ids.into_iter().zip(res.watermarks) {
-                    connection
+                    transaction
                         .user()
                         .update_watermark(id, channel_id, watermark)?;
                 }
 
+                transaction.commit()?;
                 Ok(())
             })
             .await?;
