@@ -113,7 +113,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
                 .spawn_task(move |connection| {
                     connection.insert_chat(&ChatModel {
                         logged,
-                        deleted: false,
+                        deleted_time: None,
                     })?;
 
                     Ok(())

@@ -1,4 +1,3 @@
--- See /src/chat/model.rs
 CREATE TABLE IF NOT EXISTS chat (
     log_id INTEGER PRIMARY KEY,
     channel_id INTEGER NOT NULL,
@@ -12,20 +11,21 @@ CREATE TABLE IF NOT EXISTS chat (
     supplement TEXT,
     referer INTEGER,
 
-    deleted BOOLEAN NOT NULL
+    deleted_time INTEGER
 );
 
 -- See /src/channel/model.rs
 CREATE TABLE IF NOT EXISTS channel (
     id INTEGER PRIMARY KEY,
     type VARCHAR(16) NOT NULL,
+
     active_user_count INTEGER NOT NULL,
     new_chat_count INTEGER NOT NULL,
     last_chat_log_id INTEGER NOT NULL,
     last_seen_log_id INTEGER NOT NULL,
-    push_alert BOOLEAN NOT NULL,
-
-    last_update INTEGER NOT NULL
+    last_update INTEGER NOT NULL,
+    
+    push_alert BOOLEAN NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channel_meta (

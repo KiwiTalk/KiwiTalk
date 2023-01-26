@@ -10,7 +10,7 @@ use crate::{
 pub struct ChatModel {
     pub logged: LoggedChat,
 
-    pub deleted: bool,
+    pub deleted_time: Option<i64>,
 }
 
 impl ChatModel {
@@ -38,7 +38,7 @@ impl ChatModel {
                 referer: row.get(10)?,
             },
 
-            deleted: row.get(11)?,
+            deleted_time: row.get(11)?,
         })
     }
 }
@@ -60,7 +60,7 @@ pub impl Connection {
                 model.logged.chat.content.attachment.as_ref(),
                 model.logged.chat.content.supplement.as_ref(),
                 model.logged.referer,
-                model.deleted,
+                model.deleted_time,
             ),
         )?;
 
@@ -155,7 +155,7 @@ mod tests {
                 },
                 referer: None,
             },
-            deleted: false,
+            deleted_time: None,
         };
 
         db.channel().insert(&FullModel::new(

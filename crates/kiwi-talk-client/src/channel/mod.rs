@@ -137,7 +137,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
                 .spawn_task(move |connection| {
                     connection.insert_chat(&ChatModel {
                         logged,
-                        deleted: false,
+                        deleted_time: None,
                     })?;
 
                     Ok(())
@@ -179,7 +179,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
                 for chatlog in list {
                     transaction.insert_chat(&ChatModel {
                         logged: LoggedChat::from(chatlog),
-                        deleted: false,
+                        deleted_time: None,
                     })?;
                 }
             }
