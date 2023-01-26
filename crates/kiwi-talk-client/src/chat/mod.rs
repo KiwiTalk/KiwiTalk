@@ -9,10 +9,10 @@ pub type LogId = i64;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct LoggedChat {
-    pub channel_id: ChannelId,
-
     pub log_id: LogId,
     pub prev_log_id: Option<i64>,
+
+    pub channel_id: ChannelId,
 
     pub sender_id: UserId,
 
@@ -26,10 +26,10 @@ pub struct LoggedChat {
 impl From<Chatlog> for LoggedChat {
     fn from(chatlog: Chatlog) -> Self {
         LoggedChat {
-            channel_id: chatlog.chat_id,
-
             log_id: chatlog.log_id,
             prev_log_id: chatlog.prev_log_id,
+            
+            channel_id: chatlog.chat_id,
 
             sender_id: chatlog.author_id,
 
@@ -59,7 +59,7 @@ pub struct Chat {
     pub message_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct ChatContent {
     pub message: Option<String>,
     pub attachment: Option<String>,
