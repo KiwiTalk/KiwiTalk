@@ -88,6 +88,8 @@ impl<'a> ClientNormalChannelList<'a> {
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {
     pub data: ChannelData,
+
+    pub join_time: i64,
 }
 
 impl AsRef<ChannelData> for NormalChannelData {

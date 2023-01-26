@@ -1,6 +1,5 @@
 pub mod channel;
 pub mod chat;
-pub mod model;
 pub mod pool;
 
 use once_cell::sync::Lazy;
