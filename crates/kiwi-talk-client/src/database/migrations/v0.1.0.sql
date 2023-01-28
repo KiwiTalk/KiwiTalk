@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS channel_user (
 CREATE TABLE IF NOT EXISTS normal_channel (
     id INTEGER PRIMARY KEY,
 
-    join_time INTEGER,
+    joined_at_for_new_mem INTEGER,
 
     FOREIGN KEY(id) REFERENCES channel(id)
 );

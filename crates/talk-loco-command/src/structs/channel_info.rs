@@ -144,7 +144,7 @@ pub struct ChannelInfo {
 
     /// Unknown. Client user join time. (?) Does not present on openchat room.
     #[serde(rename = "joinedAtForNewMem")]
-    pub joined_at: Option<i64>,
+    pub joined_at_for_new_mem: Option<i64>,
 
     /// true if room is invalid(Only client user left, etc.). (?) Does not present on openchat room.
     pub left: Option<bool>,
