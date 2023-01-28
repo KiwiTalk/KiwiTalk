@@ -2,8 +2,10 @@ pub mod normal;
 pub mod open;
 pub mod user;
 
+use nohash_hasher::IntMap;
 use rusqlite::{Connection, OptionalExtension, Row};
 use serde::{Deserialize, Serialize};
+use talk_loco_command::structs::channel_info::ChannelListData;
 
 use crate::{
     channel::{ChannelId, ChannelMeta, ChannelSettings},
@@ -43,6 +45,27 @@ impl ChannelModel {
                 push_alert: row.get(5)?,
             },
         })
+    }
+}
+
+impl From<ChannelListData> for ChannelModel {
+    fn from(data: ChannelListData) -> Self {
+        let tracking_data = ChannelTrackingData {
+            last_chat_log_id: data.last_log_id,
+            last_seen_log_id: data.last_seen_log_id,
+            last_update: data.last_update,
+        };
+
+        let settings = ChannelSettings {
+            push_alert: data.push_alert,
+        };
+
+        Self {
+            id: data.id,
+            channel_type: data.channel_type,
+            tracking_data,
+            settings,
+        }
     }
 }
 
@@ -120,12 +143,35 @@ impl ChannelEntry<'_> {
         rows.mapped(ChannelModel::map_row).into_iter().collect()
     }
 
-    pub fn get_last_chat_log_id(&self, id: ChannelId) -> Result<LogId, rusqlite::Error> {
-        self.0.query_row(
-            "SELECT last_chat_log_id FROM channel WHERE id = ?",
-            [id],
-            |row| row.get(0),
-        )
+    pub fn get_all_map(&self) -> Result<IntMap<ChannelId, ChannelModel>, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT * FROM channel")?;
+
+        let rows = statement.query(())?;
+
+        rows.mapped(ChannelModel::map_row)
+            .into_iter()
+            .map(|model| model.map(|model| (model.id, model)))
+            .collect()
+    }
+
+    pub fn get_last_update(&self, id: ChannelId) -> Result<Option<i64>, rusqlite::Error> {
+        self.0
+            .query_row(
+                "SELECT last_update FROM channel WHERE id = ?",
+                [id],
+                |row| row.get(0),
+            )
+            .optional()
+    }
+
+    pub fn get_last_chat_log_id(&self, id: ChannelId) -> Result<Option<LogId>, rusqlite::Error> {
+        self.0
+            .query_row(
+                "SELECT last_chat_log_id FROM channel WHERE id = ?",
+                [id],
+                |row| row.get(0),
+            )
+            .optional()
     }
 
     pub fn set_last_chat_log_id(

@@ -17,7 +17,11 @@ use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
-use talk_loco_command::request::chat::{SyncMsgReq, UpdateChatReq, WriteReq};
+use talk_loco_command::structs::channel_info::ChannelMeta as LocoChannelMeta;
+use talk_loco_command::{
+    request::chat::{SyncMsgReq, UpdateChatReq, WriteReq},
+    structs::channel_info::ChannelInfo,
+};
 use tokio::sync::mpsc::channel;
 
 use self::user::DisplayUser;
@@ -40,6 +44,31 @@ pub struct ChannelData {
     pub settings: ChannelSettings,
 }
 
+impl From<ChannelInfo> for ChannelData {
+    fn from(info: ChannelInfo) -> Self {
+        let display_users = info
+            .display_members
+            .into_iter()
+            .map(DisplayUser::from)
+            .collect();
+
+        let metas = info
+            .channel_metas
+            .into_iter()
+            .map(|meta| (meta.meta_type, ChannelMeta::from(meta)))
+            .collect();
+
+        Self {
+            channel_type: info.channel_type,
+            display_users,
+            metas,
+            settings: ChannelSettings {
+                push_alert: info.push_alert,
+            },
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelMeta {
     pub author_id: i64,
@@ -48,6 +77,17 @@ pub struct ChannelMeta {
     pub revision: i64,
 
     pub content: String,
+}
+
+impl From<LocoChannelMeta> for ChannelMeta {
+    fn from(meta: LocoChannelMeta) -> Self {
+        Self {
+            author_id: meta.author_id,
+            updated_at: meta.updated_at,
+            revision: meta.revision,
+            content: meta.content,
+        }
+    }
 }
 
 #[derive(Debug)]

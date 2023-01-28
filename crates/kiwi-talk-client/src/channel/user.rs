@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use talk_loco_command::structs::user::DisplayUserInfo;
 
 pub type UserId = i64;
 
@@ -6,11 +7,25 @@ pub type UserId = i64;
 pub struct DisplayUser {
     pub id: UserId,
 
-    pub nickname: String,
-
-    pub profile_image_url: Option<String>,
+    pub profile: UserProfile,
 
     pub country_iso: Option<String>,
+}
+
+impl From<DisplayUserInfo> for DisplayUser {
+    fn from(info: DisplayUserInfo) -> Self {
+        Self {
+            id: info.user_id,
+            profile: UserProfile {
+                nickname: info.nickname,
+                image: UserProfileImage {
+                    image_url: info.profile_image_url,
+                    ..Default::default()
+                },
+            },
+            country_iso: info.country_iso,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

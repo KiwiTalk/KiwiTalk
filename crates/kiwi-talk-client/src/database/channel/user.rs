@@ -25,7 +25,7 @@ impl UserModel {
         Ok(Self {
             id: row.get(0)?,
             channel_id: row.get(1)?,
-            
+
             user_type: row.get(2)?,
 
             profile: UserProfile {

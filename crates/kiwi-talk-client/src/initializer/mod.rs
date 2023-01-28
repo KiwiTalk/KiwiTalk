@@ -1,52 +1,56 @@
 pub mod channel;
 
-use futures::{pin_mut, StreamExt};
-use talk_loco_client::client::talk::TalkClient;
-use talk_loco_command::{response::chat::LoginListRes, structs::channel_info::ChannelListData};
+use futures::{stream::FuturesUnordered, TryStreamExt};
+use talk_loco_command::structs::channel_info::ChannelListData;
 
 use crate::{
-    channel::normal::NormalChannelDataList, database::{pool::DatabasePool, channel::normal::NormalChannelDatabaseExt}, ClientConnection,
-    ClientResult, ClientShared,
+    channel::normal::{NormalChannelData, NormalChannelDataList, NormalChannelInitializer},
+    database::channel::ChannelDatabaseExt,
+    error::KiwiTalkClientError,
+    ClientConnection, ClientResult, ClientShared,
 };
 
 pub async fn initialize_client(
     connection: ClientConnection,
-    login_res: LoginListRes,
+    channel_list_data: Vec<ChannelListData>,
 ) -> ClientResult<ClientShared> {
-    let mut normal_list = Vec::new();
-    let mut open_list = Vec::new();
+    let normal_channel_list = NormalChannelDataList::new();
 
-    for data in login_res.chat_list.chat_datas {
-        if data.link.is_some() {
-            open_list.push(data);
-        } else {
-            normal_list.push(data);
-        }
-    }
+    {
+        let channel_model_map = connection
+            .pool
+            .spawn_task(move |connection| Ok(connection.channel().get_all_map()?))
+            .await?;
 
-    if !login_res.chat_list.eof {
-        let talk_client = TalkClient(&connection.session);
-        let stream = talk_client.channel_list_stream(
-            login_res.chat_list.last_token_id.unwrap_or_default(),
-            login_res.chat_list.last_chat_id,
-        );
+        let connection = &connection;
 
-        pin_mut!(stream);
-        while let Some(res) = stream.next().await {
-            let res = res?;
+        let normal_channel_list = &normal_channel_list;
 
-            for data in res.chat_datas {
-                if data.link.is_some() {
-                    open_list.push(data);
+        channel_list_data
+            .into_iter()
+            .map(|list_data| {
+                let should_update = channel_model_map
+                    .get(&list_data.id)
+                    .map(|model| model.tracking_data.last_update < list_data.last_update)
+                    .unwrap_or(true);
+
+                (should_update, list_data)
+            })
+            .map(|(should_update, list_data)| async move {
+                if list_data.link.is_some() {
+                    // TODO::
                 } else {
-                    normal_list.push(data);
+                    let id = list_data.id;
+                    let chan = init_normal_channel(connection, should_update, list_data).await?;
+                    normal_channel_list.data_map().insert(id, chan);
                 }
-            }
-        }
-    }
 
-    let normal_channel_list = init_normal_channel_list(&connection.pool).await?;
-    let _ = init_open_channel_list(&connection.pool).await?;
+                Ok::<(), KiwiTalkClientError>(())
+            })
+            .collect::<FuturesUnordered<_>>()
+            .try_collect()
+            .await?;
+    }
 
     let client = ClientShared {
         connection,
@@ -54,32 +58,22 @@ pub async fn initialize_client(
         normal_channel_list,
     };
 
-    update_normal_channel_list(&client, normal_list).await?;
-
     Ok(client)
 }
 
-async fn init_normal_channel_list(pool: &DatabasePool) -> ClientResult<NormalChannelDataList> {
-    let normal_channel_list = NormalChannelDataList::new();
-
-    let model_list = pool
-        .spawn_task(|connection| Ok(connection.normal_channel().get_all_channel()?))
-        .await?;
-
-    for full_model in model_list {}
-
-    Ok(normal_channel_list)
-}
-
-async fn update_normal_channel_list(
-    client: &ClientShared,
-    server_list: Vec<ChannelListData>,
-) -> ClientResult<()> {
-    for data in server_list {}
-
-    Ok(())
-}
-
-async fn init_open_channel_list(_: &DatabasePool) -> ClientResult<()> {
-    Ok(())
+async fn init_normal_channel(
+    connection: &ClientConnection,
+    should_update: bool,
+    list_data: ChannelListData,
+) -> ClientResult<NormalChannelData> {
+    if should_update {
+        Ok(NormalChannelInitializer::new(list_data.id, connection)
+            .initialize()
+            .await?)
+    } else {
+        // TODO
+        Ok(NormalChannelInitializer::new(list_data.id, connection)
+            .initialize()
+            .await?)
+    }
 }

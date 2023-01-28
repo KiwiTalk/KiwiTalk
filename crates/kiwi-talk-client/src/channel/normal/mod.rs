@@ -1,6 +1,6 @@
 pub mod user;
 
-use std::ops::Deref;
+use std::{ops::Deref, time::SystemTime};
 
 use dashmap::{
     mapref::one::{Ref, RefMut},
@@ -9,7 +9,7 @@ use dashmap::{
 use nohash_hasher::BuildNoHashHasher;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
-    request::chat::{ChatOnRoomReq, MemberReq, NotiReadReq},
+    request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
     response::chat::chat_on_room::ChatOnRoomUserList,
     structs::user::UserVariant,
 };
@@ -17,16 +17,18 @@ use talk_loco_command::{
 use crate::{
     chat::LogId,
     database::channel::{
-        normal::user::{NormalUserDatabaseExt, NormalUserModel},
+        normal::{
+            user::{NormalUserDatabaseExt, NormalUserModel},
+            NormalChannelDatabaseExt, NormalChannelModel,
+        },
         user::{UserDatabaseExt, UserModel},
         ChannelDatabaseExt,
     },
-    ClientResult,
+    initializer::channel::ChannelInitialData,
+    ClientConnection, ClientResult,
 };
 
-use super::{
-    user::UserData, ChannelData, ChannelId, ClientChannel, ClientChannelList,
-};
+use super::{user::UserData, ChannelData, ChannelId, ClientChannel, ClientChannelList};
 
 #[derive(Debug)]
 pub struct NormalChannelDataList {
@@ -89,20 +91,20 @@ impl<'a> ClientNormalChannelList<'a> {
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {
-    pub data: ChannelData,
+    pub common: ChannelData,
 
     pub join_time: i64,
 }
 
 impl AsRef<ChannelData> for NormalChannelData {
     fn as_ref(&self) -> &ChannelData {
-        &self.data
+        &self.common
     }
 }
 
 impl AsMut<ChannelData> for NormalChannelData {
     fn as_mut(&mut self) -> &mut ChannelData {
-        &mut self.data
+        &mut self.common
     }
 }
 
@@ -208,5 +210,57 @@ impl<'a> ClientNormalChannel<'a> {
             .await?;
 
         Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub struct NormalChannelInitializer<'a> {
+    id: ChannelId,
+
+    connection: &'a ClientConnection,
+}
+
+impl<'a> NormalChannelInitializer<'a> {
+    #[inline(always)]
+    pub const fn new(id: ChannelId, connection: &'a ClientConnection) -> Self {
+        Self { id, connection }
+    }
+
+    pub async fn initialize(self) -> ClientResult<NormalChannelData> {
+        let res = TalkClient(&self.connection.session)
+            .channel_info(&ChatInfoReq { chat_id: self.id })
+            .await?;
+
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as _;
+
+        let joined_at_for_new_mem = res.chat_info.joined_at_for_new_mem.unwrap_or_default();
+
+        let initial = ChannelInitialData::from(res.chat_info);
+        {
+            let model = initial.create_channel_model(now);
+
+            let normal_model = NormalChannelModel {
+                id: self.id,
+                joined_at_for_new_mem,
+            };
+
+            self.connection
+                .pool
+                .spawn_task(move |connection| {
+                    connection.channel().insert(&model)?;
+                    connection.normal_channel().insert(&normal_model)?;
+
+                    Ok(())
+                })
+                .await?;
+        }
+
+        Ok(NormalChannelData {
+            join_time: joined_at_for_new_mem,
+            common: initial.data,
+        })
     }
 }

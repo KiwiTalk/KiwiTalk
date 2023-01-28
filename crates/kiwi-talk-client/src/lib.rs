@@ -19,7 +19,7 @@ use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
-use futures::{AsyncRead, AsyncWrite, Sink};
+use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, TryStreamExt};
 use handler::HandlerTask;
 use initializer::initialize_client;
 use status::ClientStatus;
@@ -146,6 +146,21 @@ where
             })
             .await?;
 
+        let mut channel_list_data = login_res.chat_list.chat_datas;
+
+        if !login_res.chat_list.eof {
+            let talk_client = TalkClient(&session);
+            let stream = talk_client.channel_list_stream(
+                login_res.chat_list.last_token_id.unwrap_or_default(),
+                login_res.chat_list.last_chat_id,
+            );
+
+            pin_mut!(stream);
+            while let Some(res) = stream.try_next().await? {
+                channel_list_data.extend(res.chat_datas);
+            }
+        }
+
         let client_shared = Arc::new(
             initialize_client(
                 ClientConnection {
@@ -153,7 +168,7 @@ where
                     session,
                     pool: self.pool,
                 },
-                login_res,
+                channel_list_data,
             )
             .await?,
         );
