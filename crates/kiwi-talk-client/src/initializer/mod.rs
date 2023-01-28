@@ -17,9 +17,9 @@ pub async fn initialize_client(
     let normal_channel_list = NormalChannelDataList::new();
 
     {
-        let channel_model_map = connection
+        let update_map = connection
             .pool
-            .spawn_task(move |connection| Ok(connection.channel().get_all_map()?))
+            .spawn_task(move |connection| Ok(connection.channel().get_update_map()?))
             .await?;
 
         let connection = &connection;
@@ -29,9 +29,9 @@ pub async fn initialize_client(
         channel_list_data
             .into_iter()
             .map(|list_data| {
-                let should_update = channel_model_map
+                let should_update = update_map
                     .get(&list_data.id)
-                    .map(|model| model.tracking_data.last_update < list_data.last_update)
+                    .map(|last_update| *last_update < list_data.last_update)
                     .unwrap_or(true);
 
                 (should_update, list_data)

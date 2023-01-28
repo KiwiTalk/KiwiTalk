@@ -143,14 +143,13 @@ impl ChannelEntry<'_> {
         rows.mapped(ChannelModel::map_row).into_iter().collect()
     }
 
-    pub fn get_all_map(&self) -> Result<IntMap<ChannelId, ChannelModel>, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT * FROM channel")?;
+    pub fn get_update_map(&self) -> Result<IntMap<ChannelId, i64>, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT id, last_update FROM channel")?;
 
         let rows = statement.query(())?;
 
-        rows.mapped(ChannelModel::map_row)
+        rows.mapped(|row| Ok((row.get(0)?, row.get(1)?)))
             .into_iter()
-            .map(|model| model.map(|model| (model.id, model)))
             .collect()
     }
 
