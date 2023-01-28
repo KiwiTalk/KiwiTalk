@@ -104,6 +104,9 @@ pub struct ChannelInfo {
     #[serde(rename = "invalidNewMessageCount")]
     pub new_chat_count_invalid: Option<bool>,
 
+    #[serde(rename = "inviterId")]
+    pub inviter_id: Option<i64>,
+
     // /// Chatroom metadata(?)
     // #[serde(rename = "m")]
     // pub metadata: (),
