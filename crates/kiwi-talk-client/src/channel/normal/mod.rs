@@ -93,7 +93,7 @@ impl<'a> ClientNormalChannelList<'a> {
 pub struct NormalChannelData {
     pub common: ChannelData,
 
-    pub join_time: i64,
+    pub joined_at_for_new_mem: i64,
 }
 
 impl AsRef<ChannelData> for NormalChannelData {
@@ -259,7 +259,7 @@ impl<'a> NormalChannelInitializer<'a> {
         }
 
         Ok(NormalChannelData {
-            join_time: joined_at_for_new_mem,
+            joined_at_for_new_mem,
             common: initial.data,
         })
     }
