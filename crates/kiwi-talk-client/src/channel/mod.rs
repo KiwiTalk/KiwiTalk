@@ -2,8 +2,6 @@ pub mod normal;
 pub mod open;
 pub mod user;
 
-use std::ops::DerefMut;
-
 use crate::{
     chat::{Chat, LogId, LoggedChat},
     database::{
@@ -90,60 +88,27 @@ impl From<LocoChannelMeta> for ChannelMeta {
     }
 }
 
-#[derive(Debug)]
-pub struct ClientChannelList<'a, Inner> {
-    connection: &'a ClientConnection,
-    inner: &'a Inner,
-}
-
-impl<'a, Inner> ClientChannelList<'a, Inner> {
-    #[inline(always)]
-    pub const fn new(connection: &'a ClientConnection, inner: &'a Inner) -> Self {
-        Self { connection, inner }
-    }
-
-    #[inline(always)]
-    pub const fn inner(&self) -> &Inner {
-        self.inner
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ClientChannel<'a, Inner> {
+#[derive(Debug, Clone, Copy)]
+pub struct ClientChannel<'a> {
     id: ChannelId,
 
     connection: &'a ClientConnection,
-    inner: Inner,
 }
 
-impl<'a, Inner> ClientChannel<'a, Inner> {
+impl<'a> ClientChannel<'a> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, connection: &'a ClientConnection, inner: Inner) -> Self {
-        Self {
-            id,
-            connection,
-            inner,
-        }
+    pub const fn new(id: ChannelId, connection: &'a ClientConnection) -> Self {
+        Self { id, connection }
     }
 
     #[inline(always)]
     pub const fn channel_id(&self) -> ChannelId {
         self.id
     }
-
-    #[inline(always)]
-    pub const fn inner(&self) -> &Inner {
-        &self.inner
-    }
-
-    #[inline(always)]
-    pub(crate) fn inner_mut(&mut self) -> &Inner {
-        &mut self.inner
-    }
 }
 
-impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> {
-    pub async fn send_chat(&mut self, chat: Chat, no_seen: bool) -> ClientResult<LoggedChat> {
+impl ClientChannel<'_> {
+    pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<LoggedChat> {
         let res = TalkClient(&self.connection.session)
             .write(&WriteReq {
                 chat_id: self.id,
@@ -193,7 +158,7 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
         Ok(logged)
     }
 
-    pub async fn sync_chats(&mut self, max: LogId) -> ClientResult<usize> {
+    pub async fn sync_chats(&self, max: LogId) -> ClientResult<usize> {
         let client = TalkClient(&self.connection.session);
 
         let current = {
@@ -256,15 +221,13 @@ impl<Data: AsMut<ChannelData>, D: DerefMut<Target = Data>> ClientChannel<'_, D> 
         Ok(count)
     }
 
-    pub async fn update(&mut self, push_alert: bool) -> ClientResult<()> {
+    pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
         TalkClient(&self.connection.session)
             .update_channel(&UpdateChatReq {
                 chat_id: self.id,
                 push_alert,
             })
             .await?;
-
-        self.inner.as_mut().settings.push_alert = push_alert;
 
         let channel_id = self.id;
         self.connection

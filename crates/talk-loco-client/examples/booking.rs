@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use talk_loco_client::{client::booking::BookingClient, LocoCommandSession};
+use talk_loco_client::{client::booking::BookingClient, LocoRequestSession};
 use talk_loco_command::request;
 use tokio::{io::BufStream, net::TcpStream};
 use tokio_native_tls::native_tls;
@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap()
         .compat();
 
-    let booking_conn = LocoCommandSession::new(stream);
+    let (booking_conn, _) = LocoRequestSession::new(stream);
     let booking_client = BookingClient(&booking_conn);
     let booking_res = booking_client
         .get_conf(&request::booking::GetConfReq {

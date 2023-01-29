@@ -8,13 +8,7 @@ pub mod handler;
 mod initializer;
 pub mod status;
 
-use std::{ops::Deref, sync::Arc};
-
-use channel::{
-    normal::{ClientNormalChannelList, NormalChannelDataList},
-    user::UserId,
-    ClientChannelList,
-};
+use channel::user::UserId;
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
@@ -23,46 +17,21 @@ use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, TryStreamExt};
 use handler::HandlerTask;
 use initializer::initialize_client;
 use status::ClientStatus;
-use talk_loco_client::{client::talk::TalkClient, LocoCommandSession};
+use talk_loco_client::{client::talk::TalkClient, LocoRequestSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
 use tokio::task::JoinHandle;
 
 #[derive(Debug)]
 pub struct KiwiTalkClient {
-    inner: Arc<ClientShared>,
+    connection: ClientConnection,
+
     handler_task: JoinHandle<()>,
 }
 
-impl Deref for KiwiTalkClient {
-    type Target = ClientShared;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl Drop for KiwiTalkClient {
-    fn drop(&mut self) {
-        self.handler_task.abort();
-    }
-}
-
-#[derive(Debug)]
-pub struct ClientShared {
-    connection: ClientConnection,
-
-    normal_channel_list: NormalChannelDataList,
-}
-
-impl ClientShared {
+impl KiwiTalkClient {
     #[inline(always)]
     pub const fn connection(&self) -> &ClientConnection {
         &self.connection
-    }
-
-    #[inline(always)]
-    pub const fn normal_channel_list(&self) -> ClientNormalChannelList<'_> {
-        ClientChannelList::new(&self.connection, &self.normal_channel_list)
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
@@ -76,11 +45,17 @@ impl ClientShared {
     }
 }
 
+impl Drop for KiwiTalkClient {
+    fn drop(&mut self) {
+        self.handler_task.abort();
+    }
+}
+
 #[derive(Debug)]
 #[non_exhaustive]
 pub struct ClientConnection {
     pub user_id: UserId,
-    pub session: LocoCommandSession,
+    pub session: LocoRequestSession,
     pub pool: DatabasePool,
 }
 
@@ -97,7 +72,7 @@ pub struct KiwiTalkClientBuilder<Stream, Listener> {
 impl<Stream, Listener> KiwiTalkClientBuilder<Stream, Listener>
 where
     Stream: AsyncRead + AsyncWrite + Send + 'static,
-    Listener: Sink<KiwiTalkClientEvent> + Unpin + Send + Sync + Clone + 'static,
+    Listener: Sink<KiwiTalkClientEvent> + Send + Clone + Unpin + 'static,
 {
     pub fn new(stream: Stream, pool: DatabasePool, listener: Listener) -> Self {
         Self {
@@ -121,8 +96,9 @@ where
         info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
     ) -> ClientResult<KiwiTalkClient> {
-        let (session_sink, session_recv) = futures::channel::mpsc::channel(128);
-        let session = LocoCommandSession::new_with_sink(self.stream, session_sink);
+        let (session, broadcast_stream) = LocoRequestSession::new(self.stream);
+
+        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(broadcast_stream));
 
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
@@ -161,25 +137,18 @@ where
             }
         }
 
-        let client_shared = Arc::new(
-            initialize_client(
-                ClientConnection {
-                    user_id: login_res.user_id,
-                    session,
-                    pool: self.pool,
-                },
-                channel_list_data,
-            )
-            .await?,
-        );
-
-        let handler_task =
-            tokio::spawn(HandlerTask::new(client_shared.clone()).run(session_recv, self.listener));
-
-        Ok(KiwiTalkClient {
-            inner: client_shared,
+        let client = KiwiTalkClient {
+            connection: ClientConnection {
+                user_id: login_res.user_id,
+                session,
+                pool: self.pool,
+            },
             handler_task,
-        })
+        };
+
+        initialize_client(client.connection(), channel_list_data).await?;
+
+        Ok(client)
     }
 }
 

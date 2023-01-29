@@ -2,7 +2,7 @@ pub mod booking;
 pub mod checkin;
 pub mod talk;
 
-use crate::{CommandRequest, LocoCommandSession};
+use crate::{CommandRequest, LocoRequestSession};
 use futures::{ready, Future, FutureExt};
 use serde::Serialize;
 use std::{
@@ -42,11 +42,11 @@ impl Future for ClientCommandRequest {
 
 /// Convenience method for requesting command asynchronously
 pub async fn request_response_async(
-    session: &LocoCommandSession,
+    session: &LocoRequestSession,
     command: &BsonCommand<impl Serialize>,
 ) -> ClientCommandRequest {
     let req = session
-        .send(BsonCommand {
+        .request(BsonCommand {
             method: command.method.clone(),
             data_type: command.data_type,
             data: bson::ser::to_document(&command.data).unwrap(),

@@ -1,51 +1,39 @@
 pub mod error;
 
-use std::sync::Arc;
-
 use bson::Document;
-use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
+use futures::{pin_mut, Sink, SinkExt, StreamExt};
 use serde::de::DeserializeOwned;
-use talk_loco_client::ReadResult;
+use talk_loco_client::LocoBroadcastStream;
 use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
     chat::LoggedChat,
-    database::{
-        channel::user::UserDatabaseExt,
-        chat::{ChatDatabaseExt, ChatModel},
-    },
     event::{
         channel::{ChannelEvent, ChatRead, ReceivedChat},
         KiwiTalkClientEvent,
     },
-    ClientShared,
 };
 
 use self::error::ClientHandlerError;
 
 #[derive(Debug)]
-pub(crate) struct HandlerTask {
-    client: Arc<ClientShared>,
+pub(crate) struct HandlerTask<Listener> {
+    listener: Listener,
 }
 
-impl HandlerTask {
-    pub const fn new(client: Arc<ClientShared>) -> Self {
-        Self { client }
+impl<Listener: Sink<KiwiTalkClientEvent> + Send + Clone + Unpin + 'static> HandlerTask<Listener> {
+    pub const fn new(listener: Listener) -> Self {
+        Self { listener }
     }
 
-    pub async fn run(
-        self,
-        stream: impl Stream<Item = ReadResult>,
-        listener: impl Sink<KiwiTalkClientEvent> + Clone + Send + Unpin + 'static,
-    ) {
-        let mut emitter = HandlerEmitter(listener);
+    pub async fn run(self, stream: LocoBroadcastStream) {
+        let mut emitter = HandlerEmitter(self.listener);
 
         pin_mut!(stream);
         while let Some(read) = stream.next().await {
             match read {
                 Ok(read) => {
                     let mut handler = Handler {
-                        client: self.client.clone(),
                         emitter: emitter.clone(),
                     };
 
@@ -64,7 +52,6 @@ impl HandlerTask {
 
 #[derive(Debug)]
 struct Handler<Listener> {
-    client: Arc<ClientShared>,
     emitter: HandlerEmitter<Listener>,
 }
 
@@ -105,22 +92,6 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
     async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
         let chat = LoggedChat::from(data.chatlog);
 
-        {
-            let logged = chat.clone();
-            self.client
-                .connection()
-                .pool
-                .spawn_task(move |connection| {
-                    connection.chat().insert(&ChatModel {
-                        logged,
-                        deleted_time: None,
-                    })?;
-
-                    Ok(())
-                })
-                .await?;
-        }
-
         self.emitter
             .emit(
                 ChannelEvent::Chat(ReceivedChat {
@@ -138,17 +109,6 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
     }
 
     async fn on_chat_read(&mut self, data: chat::DecunRead) -> HandlerResult<()> {
-        self.client
-            .connection()
-            .pool
-            .spawn_task(move |connection| {
-                connection
-                    .user()
-                    .update_watermark(data.user_id, data.chat_id, data.watermark)?;
-                Ok(())
-            })
-            .await?;
-
         self.emitter
             .emit(
                 ChannelEvent::ChatRead(ChatRead {

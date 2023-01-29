@@ -2,11 +2,6 @@ pub mod user;
 
 use std::{ops::Deref, time::SystemTime};
 
-use dashmap::{
-    mapref::one::{Ref, RefMut},
-    DashMap,
-};
-use nohash_hasher::BuildNoHashHasher;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
@@ -28,66 +23,7 @@ use crate::{
     ClientConnection, ClientResult,
 };
 
-use super::{user::UserData, ChannelData, ChannelId, ClientChannel, ClientChannelList};
-
-#[derive(Debug)]
-pub struct NormalChannelDataList {
-    data_map: DashMap<ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>>,
-}
-
-impl NormalChannelDataList {
-    #[inline(always)]
-    pub(crate) fn new() -> Self {
-        Self {
-            data_map: DashMap::default(),
-        }
-    }
-
-    #[inline(always)]
-    pub(crate) fn data_map(
-        &self,
-    ) -> &DashMap<ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>> {
-        &self.data_map
-    }
-
-    #[inline(always)]
-    pub fn get(&self, channel_id: &ChannelId) -> Option<NormalChannelDataRef> {
-        self.data_map.get(&channel_id)
-    }
-
-    #[inline(always)]
-    pub fn len(&self) -> usize {
-        self.data_map.len()
-    }
-
-    #[inline(always)]
-    pub fn contains(&self, channel_id: &ChannelId) -> bool {
-        self.data_map.contains_key(channel_id)
-    }
-
-    #[inline(always)]
-    pub fn iter(&self) -> impl Iterator<Item = impl Deref<Target = NormalChannelData> + '_> {
-        self.data_map.iter()
-    }
-}
-
-impl Default for NormalChannelDataList {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-pub type ClientNormalChannelList<'a> = ClientChannelList<'a, NormalChannelDataList>;
-
-impl<'a> ClientNormalChannelList<'a> {
-    pub fn channel(&self, id: ChannelId) -> Option<ClientNormalChannel<'a>> {
-        Some(ClientNormalChannel::new(
-            id,
-            &self.connection,
-            self.inner.data_map().get_mut(&id)?,
-        ))
-    }
-}
+use super::{user::UserData, ChannelData, ChannelId, ClientChannel};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {
@@ -96,27 +32,16 @@ pub struct NormalChannelData {
     pub joined_at_for_new_mem: i64,
 }
 
-impl AsRef<ChannelData> for NormalChannelData {
-    fn as_ref(&self) -> &ChannelData {
-        &self.common
-    }
-}
-
-impl AsMut<ChannelData> for NormalChannelData {
-    fn as_mut(&mut self) -> &mut ChannelData {
-        &mut self.common
-    }
-}
-
-pub type NormalChannelDataRef<'a> =
-    Ref<'a, ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>>;
-pub type NormalChannelDataMut<'a> =
-    RefMut<'a, ChannelId, NormalChannelData, BuildNoHashHasher<ChannelId>>;
-
-pub type ClientNormalChannel<'a> = ClientChannel<'a, NormalChannelDataMut<'a>>;
+#[derive(Debug, Clone, Copy)]
+pub struct ClientNormalChannel<'a>(ClientChannel<'a>);
 
 impl<'a> ClientNormalChannel<'a> {
-    pub async fn read_chat(&mut self, log_id: LogId) -> ClientResult<()> {
+    #[inline(always)]
+    pub const fn new(channel: ClientChannel<'a>) -> Self {
+        Self(channel)
+    }
+
+    pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
         TalkClient(&self.connection.session)
             .read_chat_normal(&NotiReadReq {
                 chat_id: self.id,
@@ -143,7 +68,7 @@ impl<'a> ClientNormalChannel<'a> {
         Ok(())
     }
 
-    pub async fn chat_on(&mut self) -> ClientResult<()> {
+    pub async fn chat_on(&self) -> ClientResult<()> {
         let res = TalkClient(&self.connection.session)
             .chat_on_normal_channel(&ChatOnRoomReq {
                 chat_id: self.id,
@@ -210,6 +135,14 @@ impl<'a> ClientNormalChannel<'a> {
             .await?;
 
         Ok(())
+    }
+}
+
+impl<'a> Deref for ClientNormalChannel<'a> {
+    type Target = ClientChannel<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 

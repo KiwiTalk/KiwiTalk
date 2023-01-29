@@ -2,18 +2,18 @@ pub mod client;
 
 use std::{
     collections::HashMap,
+    num::NonZeroUsize,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
 };
 
 use bson::Document;
-use futures::{
-    ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, pin_mut,
-};
+use futures::{pin_mut, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Stream, StreamExt};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::IntMap;
 use parking_lot::Mutex;
+use ring_channel::{ring_channel, RingReceiver};
 use talk_loco_command::{
     command::{
         codec::{BsonCommandCodec, ReadError},
@@ -27,38 +27,37 @@ use tokio::{
 };
 
 #[derive(Debug)]
-pub struct LocoCommandSession {
+pub struct LocoRequestSession {
     sender: mpsc::Sender<RequestCommand>,
 
     tasks: (JoinHandle<()>, JoinHandle<()>),
 }
 
-impl LocoCommandSession {
-    pub fn new<Stream: AsyncRead + AsyncWrite + Send + 'static>(stream: Stream) -> Self {
-        Self::new_with_handler(stream, |_| {})
-    }
-
-    pub fn new_with_handler<
-        Stream: AsyncRead + AsyncWrite + Send + 'static,
-        Handler: FnMut(ReadResult) + Send + 'static,
-    >(
-        stream: Stream,
-        handler: Handler,
-    ) -> Self {
+impl LocoRequestSession {
+    pub fn new(
+        stream: impl AsyncRead + AsyncWrite + Send + 'static,
+    ) -> (Self, LocoBroadcastStream) {
         let (sender, receiver) = mpsc::channel(32);
         let (read_stream, write_stream) = stream.split();
         let (read_task, write_task) = session_task();
 
-        let read_task = tokio::spawn(read_task.run(read_stream, handler));
+        let (mut read_sender, read_recv) = ring_channel(NonZeroUsize::new(128).unwrap());
+
+        let read_task = tokio::spawn(read_task.run(read_stream, move |read| {
+            read_sender.send(read).ok();
+        }));
         let write_task = tokio::spawn(write_task.run(write_stream, receiver));
 
-        Self {
-            sender,
-            tasks: (read_task, write_task),
-        }
+        (
+            Self {
+                sender,
+                tasks: (read_task, write_task),
+            },
+            LocoBroadcastStream(read_recv),
+        )
     }
 
-    pub async fn send(&self, command: BsonCommand<Document>) -> CommandRequest {
+    pub async fn request(&self, command: BsonCommand<Document>) -> CommandRequest {
         let (sender, receiver) = oneshot::channel();
 
         self.sender
@@ -70,12 +69,23 @@ impl LocoCommandSession {
     }
 }
 
-impl Drop for LocoCommandSession {
+impl Drop for LocoRequestSession {
     fn drop(&mut self) {
         let (ref read_task, ref write_task) = self.tasks;
 
         read_task.abort();
         write_task.abort();
+    }
+}
+
+#[derive(Debug)]
+pub struct LocoBroadcastStream(RingReceiver<ReadResult>);
+
+impl Stream for LocoBroadcastStream {
+    type Item = ReadResult;
+
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        self.0.poll_next_unpin(cx)
     }
 }
 
