@@ -45,7 +45,7 @@ impl LocoCommandSession {
         stream: Stream,
         sink: S,
     ) -> Self {
-        let (sender, receiver) = mpsc::channel(128);
+        let (sender, receiver) = mpsc::channel(32);
         let (read_stream, write_stream) = stream.split();
         let (read_task, write_task) = session_task(sink);
 
