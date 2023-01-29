@@ -36,8 +36,13 @@ pub struct ChatOnRoomRes {
     /// If there are too many users it will be null. See user_ids instead.
     ///
     /// TODO: Figure out the max limit.
-    #[serde(flatten)]
-    pub users: ChatOnRoomUserList,
+    #[serde(rename = "m")]
+    pub users: Option<Vec<UserVariant>>,
+
+    /// If there are too many users, server will send this instead.
+    /// The list may not have every user data, especially non active users.
+    #[serde(rename = "mi")]
+    pub user_ids: Option<Vec<i64>>,
 
     /// Latest chat log id
     #[serde(rename = "l")]
@@ -72,11 +77,4 @@ pub struct ChatOnRoomRes {
     // pub unknown_sui: unknown,
     #[serde(rename = "msr")]
     pub unknown_msr: Option<i64>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ChatOnRoomUserList {
-    Info(#[serde(rename = "m")] Vec<UserVariant>),
-    Id(#[serde(rename = "mi")] Vec<i64>),
 }
