@@ -89,7 +89,7 @@ impl From<LocoChannelMeta> for ChannelMeta {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChannelInitialData {
     pub id: ChannelId,
 
@@ -128,6 +128,7 @@ impl ChannelInitialData {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type", content = "data")]
 pub enum ChannelDataVariant {
     Normal(NormalChannelData),
     Open(()),
