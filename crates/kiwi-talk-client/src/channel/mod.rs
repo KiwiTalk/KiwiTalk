@@ -14,7 +14,6 @@ use crate::{
 use futures::{pin_mut, StreamExt};
 use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
-use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::structs::channel_info::ChannelMeta as LocoChannelMeta;
 use talk_loco_command::{
@@ -23,7 +22,7 @@ use talk_loco_command::{
 };
 use tokio::sync::mpsc::channel;
 
-use self::{normal::NormalChannelData, user::DisplayUser};
+use self::normal::NormalChannelData;
 
 pub type ChannelId = i64;
 
@@ -36,8 +35,6 @@ pub struct ChannelSettings {
 pub struct ChannelData {
     pub channel_type: String,
 
-    pub display_users: SmallVec<[DisplayUser; 4]>,
-
     pub metas: IntMap<i32, ChannelMeta>,
 
     pub settings: ChannelSettings,
@@ -45,12 +42,6 @@ pub struct ChannelData {
 
 impl From<ChannelInfo> for ChannelData {
     fn from(info: ChannelInfo) -> Self {
-        let display_users = info
-            .display_members
-            .into_iter()
-            .map(DisplayUser::from)
-            .collect();
-
         let metas = info
             .channel_metas
             .into_iter()
@@ -59,7 +50,6 @@ impl From<ChannelInfo> for ChannelData {
 
         Self {
             channel_type: info.channel_type,
-            display_users,
             metas,
             settings: ChannelSettings {
                 push_alert: info.push_alert,

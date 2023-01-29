@@ -2,8 +2,9 @@ use futures::{stream::FuturesUnordered, TryStreamExt};
 use talk_loco_command::structs::channel_info::ChannelListData;
 
 use crate::{
-    database::channel::ChannelDatabaseExt, error::KiwiTalkClientError, ClientConnection,
-    ClientResult,
+    database::channel::{normal::NormalChannelDatabaseExt, ChannelDatabaseExt},
+    error::KiwiTalkClientError,
+    ClientConnection, ClientResult,
 };
 
 use super::{
@@ -55,18 +56,24 @@ async fn load_normal_channel(
     should_update: bool,
     list_data: ChannelListData,
 ) -> ClientResult<NormalChannelData> {
-    if should_update {
-        Ok(
-            ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
-                .initialize()
-                .await?,
-        )
-    } else {
-        // TODO
-        Ok(
-            ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
-                .initialize()
-                .await?,
-        )
+    if !should_update {
+        let data = {
+            let id = list_data.id;
+
+            connection
+                .pool
+                .spawn_task(move |connection| Ok(connection.normal_channel().load_data(id)?))
+                .await?
+        };
+
+        if let Some(data) = data {
+            return Ok(data);
+        }
     }
+
+    Ok(
+        ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
+            .initialize()
+            .await?,
+    )
 }

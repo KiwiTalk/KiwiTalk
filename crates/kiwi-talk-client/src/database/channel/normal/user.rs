@@ -1,6 +1,11 @@
 use rusqlite::{Connection, OptionalExtension, Row};
+use smallvec::SmallVec;
 
-use crate::channel::{normal::user::NormalUserInfo, user::UserId, ChannelId};
+use crate::channel::{
+    normal::user::NormalUserInfo,
+    user::{DisplayUser, UserId, UserProfile, UserProfileImage},
+    ChannelId,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NormalUserModel {
@@ -85,5 +90,36 @@ impl NormalUserEntry<'_> {
 
         let rows = statement.query([id])?;
         rows.mapped(NormalUserModel::map_row).collect()
+    }
+
+    pub fn get_display_users_in(
+        &self,
+        id: ChannelId,
+    ) -> Result<SmallVec<[DisplayUser; 4]>, rusqlite::Error> {
+        let mut statement = self
+            .0
+            .prepare(
+                "SELECT channel_user.id, channel_user.nickname, channel_user.profile_url, normal_channel_user.country_iso \
+                FROM normal_channel_user \
+                INNER JOIN channel_user \
+                ON channel_user.id = normal_channel_user.id \
+                WHERE channel_id = ?"
+            )?;
+
+        let rows = statement.query([id])?;
+        rows.mapped(|row| {
+            Ok(DisplayUser {
+                id: row.get(0)?,
+                profile: UserProfile {
+                    nickname: row.get(1)?,
+                    image: UserProfileImage {
+                        image_url: row.get(2)?,
+                        ..Default::default()
+                    },
+                },
+                country_iso: row.get(3)?,
+            })
+        })
+        .collect()
     }
 }

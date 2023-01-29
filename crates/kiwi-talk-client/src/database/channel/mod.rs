@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use talk_loco_command::structs::channel_info::ChannelListData;
 
 use crate::{
-    channel::{ChannelId, ChannelMeta, ChannelSettings},
+    channel::{ChannelData, ChannelId, ChannelMeta, ChannelSettings},
     chat::LogId,
 };
 
@@ -127,6 +127,25 @@ impl ChannelEntry<'_> {
                 ChannelModel::map_row,
             )
             .optional()
+    }
+
+    pub fn load_data(&self, id: ChannelId) -> Result<Option<ChannelData>, rusqlite::Error> {
+        let model = self.get(id)?;
+        let model = match model {
+            Some(model) => model,
+            _ => return Ok(None),
+        };
+
+        let metas = self.get_all_meta_in(id)?;
+
+        Ok(Some(ChannelData {
+            channel_type: model.channel_type,
+            metas: metas
+                .into_iter()
+                .map(|model| (model.meta_type, model.meta))
+                .collect(),
+            settings: model.settings,
+        }))
     }
 
     pub fn get_all_id(&self) -> Result<Vec<ChannelId>, rusqlite::Error> {

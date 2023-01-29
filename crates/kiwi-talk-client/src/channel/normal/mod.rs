@@ -2,7 +2,8 @@ pub mod user;
 
 use std::{ops::Deref, time::SystemTime};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
@@ -23,11 +24,16 @@ use crate::{
     ClientResult,
 };
 
-use super::{user::UserData, ChannelData, ChannelInitialData, ClientChannel};
+use super::{
+    user::{DisplayUser, UserData},
+    ChannelData, ChannelInitialData, ClientChannel,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NormalChannelData {
     pub common: ChannelData,
+
+    pub display_users: SmallVec<[DisplayUser; 4]>,
 
     pub joined_at_for_new_mem: i64,
 }
@@ -147,6 +153,14 @@ impl<'a> ClientNormalChannel<'a> {
             .unwrap()
             .as_secs() as _;
 
+        let display_users = res
+            .chat_info
+            .display_members
+            .iter()
+            .cloned()
+            .map(DisplayUser::from)
+            .collect();
+
         let joined_at_for_new_mem = res.chat_info.joined_at_for_new_mem.unwrap_or_default();
 
         let initial = ChannelInitialData::from(res.chat_info);
@@ -170,6 +184,7 @@ impl<'a> ClientNormalChannel<'a> {
         }
 
         Ok(NormalChannelData {
+            display_users,
             joined_at_for_new_mem,
             common: initial.data,
         })
