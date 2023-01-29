@@ -98,8 +98,6 @@ where
     ) -> ClientResult<KiwiTalkClient> {
         let (session, broadcast_stream) = LocoRequestSession::new(self.stream);
 
-        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(broadcast_stream));
-
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
                 client: info.create_client_info(),
@@ -137,16 +135,20 @@ where
             }
         }
 
-        let client = KiwiTalkClient {
-            connection: ClientConnection {
-                user_id: login_res.user_id,
-                session,
-                pool: self.pool,
-            },
-            handler_task,
+        let connection = ClientConnection {
+            user_id: login_res.user_id,
+            session,
+            pool: self.pool,
         };
 
-        initialize_client(client.connection(), channel_list_data).await?;
+        initialize_client(&connection, channel_list_data).await?;
+
+        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(broadcast_stream));
+
+        let client = KiwiTalkClient {
+            connection,
+            handler_task,
+        };
 
         Ok(client)
     }
