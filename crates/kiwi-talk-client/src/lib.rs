@@ -86,7 +86,7 @@ pub struct KiwiTalkClientBuilder<Stream, Listener> {
 impl<Stream, Listener> KiwiTalkClientBuilder<Stream, Listener>
 where
     Stream: AsyncRead + AsyncWrite + Send + 'static,
-    Listener: Sink<KiwiTalkClientEvent> + Send + Clone + Unpin + 'static,
+    Listener: Sink<KiwiTalkClientEvent> + Send + Unpin + 'static,
 {
     pub fn new(stream: Stream, pool: DatabasePool, listener: Listener) -> Self {
         Self {
