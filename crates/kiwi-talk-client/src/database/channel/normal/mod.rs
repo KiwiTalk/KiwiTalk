@@ -64,7 +64,7 @@ impl NormalChannelEntry<'_> {
     pub fn get(&self, id: ChannelId) -> Result<Option<NormalChannelModel>, rusqlite::Error> {
         self.0
             .query_row(
-                "SELECT * FROM channel WHERE id = ?",
+                "SELECT * FROM normal_channel WHERE id = ?",
                 [id],
                 NormalChannelModel::map_row,
             )

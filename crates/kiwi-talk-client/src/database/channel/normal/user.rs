@@ -103,7 +103,7 @@ impl NormalUserEntry<'_> {
                 FROM normal_channel_user \
                 INNER JOIN channel_user \
                 ON channel_user.id = normal_channel_user.id \
-                WHERE channel_id = ?"
+                WHERE normal_channel_user.id = ?"
             )?;
 
         let rows = statement.query([id])?;
