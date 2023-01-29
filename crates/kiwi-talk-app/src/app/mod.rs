@@ -28,12 +28,17 @@ use self::{
     configuration::GlobalConfiguration,
 };
 
+type Credential = RwLock<Option<AppCredential>>;
+type Configuration = RwLock<GlobalConfiguration>;
+
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     // TODO:: load & save global configuration from disk
     let app = KiwiTalkApp::default();
 
     Builder::new(name)
         .setup(|handle| {
+            handle.manage(Configuration::default());
+            handle.manage(Credential::default());
             handle.manage(app);
 
             Ok(())
@@ -52,12 +57,7 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
 
 #[derive(Default)]
 struct KiwiTalkApp {
-    pub global_configuration: RwLock<GlobalConfiguration>,
-
-    pub credential: RwLock<Option<AppCredential>>,
-
     pub client: RwLock<Option<KiwiTalkClient>>,
-
     pub client_event_recv: Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
 }
 
@@ -71,9 +71,9 @@ pub struct AppCredential {
 #[tauri::command]
 fn set_credential(
     credential: Option<AppCredential>,
-    app: State<'_, KiwiTalkApp>,
+    state: State<'_, Credential>,
 ) -> Result<(), ()> {
-    *app.credential.write() = credential;
+    *state.write() = credential;
     Ok(())
 }
 
@@ -91,15 +91,17 @@ impl_tauri_error!(ClientInitializeError);
 #[tauri::command(async)]
 async fn initialize_client(
     client_status: ClientStatus,
+    credential: State<'_, Credential>,
     app: State<'_, KiwiTalkApp>,
     info: State<'_, SystemInfo>,
 ) -> Result<(), ClientInitializeError> {
-    let credential = app.credential.read().clone();
+    let credential = credential.read().clone();
 
     match credential {
         Some(credential) => {
             let (sender, recv) = channel(256);
-            let client = create_client(&credential, client_status, info, sender).await?;
+            let (client, channel_datas) =
+                create_client(&credential, client_status, info, sender).await?;
 
             *app.client.write() = Some(client);
             *app.client_event_recv.lock() = Some(recv);
@@ -143,11 +145,16 @@ fn client_user_id(app: State<'_, KiwiTalkApp>) -> Option<i64> {
 
 // Error without Result
 #[tauri::command]
-async fn get_global_configuration(app: State<'_, KiwiTalkApp>) -> Result<GlobalConfiguration, ()> {
-    Ok(app.global_configuration.read().clone())
+async fn get_global_configuration(
+    configuration: State<'_, Configuration>,
+) -> Result<GlobalConfiguration, ()> {
+    Ok(configuration.read().clone())
 }
 
 #[tauri::command]
-fn set_global_configuration(configuration: GlobalConfiguration, app: State<'_, KiwiTalkApp>) {
-    *app.global_configuration.write() = configuration;
+fn set_global_configuration(
+    configuration: GlobalConfiguration,
+    configuration_state: State<'_, Configuration>,
+) {
+    *configuration_state.write() = configuration;
 }

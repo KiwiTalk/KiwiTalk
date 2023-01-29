@@ -1,7 +1,7 @@
+pub(crate) mod loader;
 pub mod normal;
 pub mod open;
 pub mod user;
-pub(crate) mod loader;
 
 use crate::{
     chat::{Chat, LogId, LoggedChat},
@@ -23,7 +23,7 @@ use talk_loco_command::{
 };
 use tokio::sync::mpsc::channel;
 
-use self::{user::DisplayUser, normal::NormalChannelData};
+use self::{normal::NormalChannelData, user::DisplayUser};
 
 pub type ChannelId = i64;
 

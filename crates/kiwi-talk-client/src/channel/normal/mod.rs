@@ -22,7 +22,7 @@ use crate::{
     ClientResult,
 };
 
-use super::{user::UserData, ChannelData, ClientChannel, ChannelInitialData};
+use super::{user::UserData, ChannelData, ChannelInitialData, ClientChannel};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {

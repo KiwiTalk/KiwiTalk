@@ -7,7 +7,7 @@ pub mod event;
 pub mod handler;
 pub mod status;
 
-use channel::{user::UserId, ChannelDataVariant, loader::load_channel_data};
+use channel::{loader::load_channel_data, user::UserId, ChannelDataVariant};
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
