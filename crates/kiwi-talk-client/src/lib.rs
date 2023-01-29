@@ -8,14 +8,14 @@ pub mod handler;
 mod initializer;
 pub mod status;
 
-use channel::user::UserId;
+use channel::{user::UserId, ChannelDataVariant};
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, TryStreamExt};
 use handler::HandlerTask;
-use initializer::initialize_client;
+use initializer::load_channel_data;
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoRequestSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
@@ -42,6 +42,22 @@ impl KiwiTalkClient {
             .await?;
 
         Ok(())
+    }
+
+    pub async fn load_channel_list(&self) -> ClientResult<Vec<ChannelDataVariant>> {
+        let mut channel_list_data = Vec::new();
+
+        {
+            let client = TalkClient(&self.connection.session);
+            let stream = client.channel_list_stream(0, None);
+            pin_mut!(stream);
+
+            while let Some(res) = stream.try_next().await? {
+                channel_list_data.extend(res.chat_datas);
+            }
+        }
+
+        load_channel_data(&self.connection, channel_list_data).await
     }
 }
 
@@ -95,7 +111,7 @@ where
         self,
         info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
-    ) -> ClientResult<KiwiTalkClient> {
+    ) -> ClientResult<(KiwiTalkClient, Vec<ChannelDataVariant>)> {
         let (session, broadcast_stream) = LocoRequestSession::new(self.stream);
 
         let login_res = TalkClient(&session)
@@ -141,7 +157,7 @@ where
             pool: self.pool,
         };
 
-        initialize_client(&connection, channel_list_data).await?;
+        let channel_data = load_channel_data(&connection, channel_list_data).await?;
 
         let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(broadcast_stream));
 
@@ -150,7 +166,7 @@ where
             handler_task,
         };
 
-        Ok(client)
+        Ok((client, channel_data))
     }
 }
 

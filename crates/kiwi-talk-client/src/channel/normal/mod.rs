@@ -20,10 +20,10 @@ use crate::{
         ChannelDatabaseExt,
     },
     initializer::channel::ChannelInitialData,
-    ClientConnection, ClientResult,
+    ClientResult,
 };
 
-use super::{user::UserData, ChannelData, ChannelId, ClientChannel};
+use super::{user::UserData, ChannelData, ClientChannel};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {
@@ -33,7 +33,7 @@ pub struct NormalChannelData {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct ClientNormalChannel<'a>(ClientChannel<'a>);
+pub struct ClientNormalChannel<'a>(pub ClientChannel<'a>);
 
 impl<'a> ClientNormalChannel<'a> {
     #[inline(always)]
@@ -136,28 +136,6 @@ impl<'a> ClientNormalChannel<'a> {
 
         Ok(())
     }
-}
-
-impl<'a> Deref for ClientNormalChannel<'a> {
-    type Target = ClientChannel<'a>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-#[derive(Debug)]
-pub struct NormalChannelInitializer<'a> {
-    id: ChannelId,
-
-    connection: &'a ClientConnection,
-}
-
-impl<'a> NormalChannelInitializer<'a> {
-    #[inline(always)]
-    pub const fn new(id: ChannelId, connection: &'a ClientConnection) -> Self {
-        Self { id, connection }
-    }
 
     pub async fn initialize(self) -> ClientResult<NormalChannelData> {
         let res = TalkClient(&self.connection.session)
@@ -195,5 +173,13 @@ impl<'a> NormalChannelInitializer<'a> {
             joined_at_for_new_mem,
             common: initial.data,
         })
+    }
+}
+
+impl<'a> Deref for ClientNormalChannel<'a> {
+    type Target = ClientChannel<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

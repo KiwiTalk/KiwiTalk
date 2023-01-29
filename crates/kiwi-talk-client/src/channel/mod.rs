@@ -22,7 +22,7 @@ use talk_loco_command::{
 };
 use tokio::sync::mpsc::channel;
 
-use self::user::DisplayUser;
+use self::{user::DisplayUser, normal::NormalChannelData};
 
 pub type ChannelId = i64;
 
@@ -86,6 +86,12 @@ impl From<LocoChannelMeta> for ChannelMeta {
             content: meta.content,
         }
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum ChannelDataVariant {
+    Normal(NormalChannelData),
+    Open(()),
 }
 
 #[derive(Debug, Clone, Copy)]

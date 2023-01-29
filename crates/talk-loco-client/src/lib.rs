@@ -9,7 +9,9 @@ use std::{
 };
 
 use bson::Document;
-use futures::{pin_mut, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Stream, StreamExt};
+use futures::{
+    pin_mut, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Stream, StreamExt,
+};
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::IntMap;
 use parking_lot::Mutex;
