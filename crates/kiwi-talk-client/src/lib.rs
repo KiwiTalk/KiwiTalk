@@ -5,17 +5,15 @@ pub mod database;
 pub mod error;
 pub mod event;
 pub mod handler;
-mod initializer;
 pub mod status;
 
-use channel::{user::UserId, ChannelDataVariant};
+use channel::{user::UserId, ChannelDataVariant, loader::load_channel_data};
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
 use event::KiwiTalkClientEvent;
 use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, TryStreamExt};
 use handler::HandlerTask;
-use initializer::load_channel_data;
 use status::ClientStatus;
 use talk_loco_client::{client::talk::TalkClient, LocoRequestSession};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};

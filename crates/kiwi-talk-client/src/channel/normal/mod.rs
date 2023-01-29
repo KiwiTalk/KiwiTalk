@@ -19,11 +19,10 @@ use crate::{
         user::{UserDatabaseExt, UserModel},
         ChannelDatabaseExt,
     },
-    initializer::channel::ChannelInitialData,
     ClientResult,
 };
 
-use super::{user::UserData, ChannelData, ClientChannel};
+use super::{user::UserData, ChannelData, ClientChannel, ChannelInitialData};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelData {

@@ -1,13 +1,14 @@
-pub mod channel;
-
 use futures::{stream::FuturesUnordered, TryStreamExt};
 use talk_loco_command::structs::channel_info::ChannelListData;
 
 use crate::{
-    channel::{normal::ClientNormalChannel, ChannelDataVariant, ClientChannel},
-    database::channel::ChannelDatabaseExt,
-    error::KiwiTalkClientError,
-    ClientConnection, ClientResult,
+    database::channel::ChannelDatabaseExt, error::KiwiTalkClientError, ClientConnection,
+    ClientResult,
+};
+
+use super::{
+    normal::{ClientNormalChannel, NormalChannelData},
+    ChannelDataVariant, ClientChannel,
 };
 
 pub async fn load_channel_data(
@@ -21,7 +22,7 @@ pub async fn load_channel_data(
 
     let connection = &connection;
 
-    channel_list_data_iter
+    let list = channel_list_data_iter
         .into_iter()
         .map(|list_data| {
             let should_update = update_map
@@ -32,34 +33,40 @@ pub async fn load_channel_data(
             (should_update, list_data)
         })
         .map(|(should_update, list_data)| async move {
-            if list_data.link.is_some() {
-                // TODO::
+            let variant = if list_data.link.is_some() {
+                ChannelDataVariant::Open(())
             } else {
-                init_normal_channel(connection, should_update, list_data).await?;
-            }
+                ChannelDataVariant::Normal(
+                    load_normal_channel(connection, should_update, list_data).await?,
+                )
+            };
 
-            Ok::<(), KiwiTalkClientError>(())
+            Ok::<ChannelDataVariant, KiwiTalkClientError>(variant)
         })
         .collect::<FuturesUnordered<_>>()
         .try_collect()
         .await?;
 
-    Ok(vec![])
+    Ok(list)
 }
 
-async fn init_normal_channel(
+async fn load_normal_channel(
     connection: &ClientConnection,
     should_update: bool,
     list_data: ChannelListData,
-) -> ClientResult<()> {
-    ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
-        .initialize()
-        .await?;
-
+) -> ClientResult<NormalChannelData> {
     if should_update {
-        Ok(())
+        Ok(
+            ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
+                .initialize()
+                .await?,
+        )
     } else {
         // TODO
-        Ok(())
+        Ok(
+            ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
+                .initialize()
+                .await?,
+        )
     }
 }
