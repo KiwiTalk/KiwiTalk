@@ -105,7 +105,7 @@ impl<S: Sink<ReadResult>> ReadTask<S> {
         ReadTask { response_map, sink }
     }
 
-    pub async fn run(self, read_stream: impl Send + AsyncRead + 'static) {
+    pub async fn run(self, read_stream: impl AsyncRead) {
         pin_mut!(read_stream);
         let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
 
@@ -153,7 +153,7 @@ impl WriteTask {
 
     pub async fn run(
         mut self,
-        write_stream: impl Send + AsyncWrite + 'static,
+        write_stream: impl AsyncWrite,
         mut request_recv: mpsc::Receiver<RequestCommand>,
     ) {
         pin_mut!(write_stream);
