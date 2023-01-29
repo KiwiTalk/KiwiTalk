@@ -86,8 +86,7 @@ impl NormalChannelEntry<'_> {
         let mut statement = self.0.prepare("SELECT channel.*, normal_channel.* FROM normal_channel INNER JOIN channel ON channel.id = normal_channel.id")?;
 
         let rows = statement.query(())?;
-        rows.mapped(JoinedNormalChannelModel::map_row)
-            .collect()
+        rows.mapped(JoinedNormalChannelModel::map_row).collect()
     }
 
     pub fn load_data(&self, id: ChannelId) -> Result<Option<NormalChannelData>, rusqlite::Error> {
