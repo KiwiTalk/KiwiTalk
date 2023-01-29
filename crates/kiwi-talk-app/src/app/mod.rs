@@ -12,6 +12,7 @@ use futures::{
     FutureExt, StreamExt,
 };
 use kiwi_talk_client::{event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient};
+use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
     generate_handler,
@@ -51,13 +52,13 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
 
 #[derive(Default)]
 struct KiwiTalkApp {
-    pub global_configuration: parking_lot::RwLock<GlobalConfiguration>,
+    pub global_configuration: RwLock<GlobalConfiguration>,
 
-    pub credential: parking_lot::RwLock<Option<AppCredential>>,
+    pub credential: RwLock<Option<AppCredential>>,
 
-    pub client: parking_lot::RwLock<Option<KiwiTalkClient>>,
+    pub client: RwLock<Option<KiwiTalkClient>>,
 
-    pub client_event_recv: parking_lot::Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
+    pub client_event_recv: Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
