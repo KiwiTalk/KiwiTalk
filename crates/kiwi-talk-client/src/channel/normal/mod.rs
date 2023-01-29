@@ -2,6 +2,7 @@ pub mod user;
 
 use std::{ops::Deref, time::SystemTime};
 
+use serde::{Serialize, Deserialize};
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
@@ -24,7 +25,7 @@ use crate::{
 
 use super::{user::UserData, ChannelData, ChannelInitialData, ClientChannel};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NormalChannelData {
     pub common: ChannelData,
 

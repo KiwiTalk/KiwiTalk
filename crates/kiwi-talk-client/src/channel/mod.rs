@@ -127,7 +127,7 @@ impl ChannelInitialData {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum ChannelDataVariant {
     Normal(NormalChannelData),
     Open(()),
