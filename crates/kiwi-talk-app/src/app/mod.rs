@@ -11,7 +11,9 @@ use futures::{
     future::poll_fn,
     FutureExt, StreamExt,
 };
-use kiwi_talk_client::{event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient};
+use kiwi_talk_client::{
+    channel::ChannelDataVariant, event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient,
+};
 use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
@@ -33,13 +35,12 @@ type Configuration = RwLock<GlobalConfiguration>;
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     // TODO:: load & save global configuration from disk
-    let app = KiwiTalkApp::default();
 
     Builder::new(name)
         .setup(|handle| {
             handle.manage(Configuration::default());
             handle.manage(Credential::default());
-            handle.manage(app);
+            handle.manage(Client::default());
 
             Ok(())
         })
@@ -49,16 +50,11 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
             next_client_event,
             client_user_id,
             destroy_client,
+            channels,
             get_global_configuration,
             set_global_configuration
         ])
         .build()
-}
-
-#[derive(Default)]
-struct KiwiTalkApp {
-    pub client: RwLock<Option<KiwiTalkClient>>,
-    pub client_event_recv: Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -77,6 +73,41 @@ fn set_credential(
     Ok(())
 }
 
+#[derive(Default)]
+struct Client {
+    pub client: RwLock<Option<KiwiTalkClient>>,
+
+    pub event_recv: Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
+
+    pub channels: RwLock<Vec<ChannelDataVariant>>,
+}
+
+#[tauri::command(async)]
+async fn initialize_client(
+    client_status: ClientStatus,
+    credential: State<'_, Credential>,
+    state: State<'_, Client>,
+    info: State<'_, SystemInfo>,
+) -> Result<(), ClientInitializeError> {
+    let credential = credential.read().clone();
+
+    match credential {
+        Some(credential) => {
+            let (sender, recv) = channel(256);
+            let (client, channels) =
+                create_client(&credential, client_status, info, sender).await?;
+
+            *state.client.write() = Some(client);
+            *state.event_recv.lock() = Some(recv);
+            *state.channels.write() = channels;
+
+            Ok(())
+        }
+
+        None => Err(ClientInitializeError::CredentialNotSet),
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum ClientInitializeError {
     #[error("Credential is not set")]
@@ -88,37 +119,12 @@ pub enum ClientInitializeError {
 
 impl_tauri_error!(ClientInitializeError);
 
-#[tauri::command(async)]
-async fn initialize_client(
-    client_status: ClientStatus,
-    credential: State<'_, Credential>,
-    app: State<'_, KiwiTalkApp>,
-    info: State<'_, SystemInfo>,
-) -> Result<(), ClientInitializeError> {
-    let credential = credential.read().clone();
-
-    match credential {
-        Some(credential) => {
-            let (sender, recv) = channel(256);
-            let (client, channel_datas) =
-                create_client(&credential, client_status, info, sender).await?;
-
-            *app.client.write() = Some(client);
-            *app.client_event_recv.lock() = Some(recv);
-
-            Ok(())
-        }
-
-        None => Err(ClientInitializeError::CredentialNotSet),
-    }
-}
-
 // Async command using state must return Result. see tauri#4317
 #[tauri::command(async)]
 fn next_client_event(
-    app: State<'_, KiwiTalkApp>,
+    state: State<'_, Client>,
 ) -> impl Future<Output = Result<Option<KiwiTalkClientEvent>, ()>> + '_ {
-    poll_fn(move |cx| match &mut *app.client_event_recv.lock() {
+    poll_fn(move |cx| match &mut *state.event_recv.lock() {
         Some(receiver) => receiver.poll_next_unpin(cx),
 
         None => Poll::Ready(None),
@@ -127,20 +133,27 @@ fn next_client_event(
 }
 
 #[tauri::command(async)]
-async fn destroy_client(app: State<'_, KiwiTalkApp>) -> Result<bool, ()> {
-    let mut client = app.client.write();
+async fn destroy_client(state: State<'_, Client>) -> Result<bool, ()> {
+    let mut client = state.client.write();
     if client.is_none() {
         return Ok(false);
     }
 
     *client = None;
-    *app.client_event_recv.lock() = None;
+    *state.event_recv.lock() = None;
+    state.channels.write().clear();
+
     Ok(true)
 }
 
 #[tauri::command]
-fn client_user_id(app: State<'_, KiwiTalkApp>) -> Option<i64> {
-    Some(app.client.read().as_ref()?.connection().user_id)
+fn client_user_id(state: State<'_, Client>) -> Option<i64> {
+    Some(state.client.read().as_ref()?.connection().user_id)
+}
+
+#[tauri::command]
+fn channels(state: State<'_, Client>) -> Vec<ChannelDataVariant> {
+    state.channels.read().clone()
 }
 
 // Error without Result
