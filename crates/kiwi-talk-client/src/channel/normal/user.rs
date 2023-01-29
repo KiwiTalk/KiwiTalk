@@ -3,6 +3,8 @@ use talk_loco_command::structs::user::User;
 
 use crate::channel::user::{UserData, UserProfile, UserProfileImage};
 
+pub type NormalUserData = UserData<NormalUserInfo>;
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct NormalUserInfo {
     pub country_iso: String,
@@ -15,6 +17,7 @@ pub struct NormalUserInfo {
 impl From<User> for UserData<NormalUserInfo> {
     fn from(user: User) -> Self {
         Self {
+            id: user.user_id,
             user_type: user.user_type,
             profile: UserProfile {
                 nickname: user.nickname,

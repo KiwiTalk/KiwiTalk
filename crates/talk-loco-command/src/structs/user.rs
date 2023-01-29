@@ -42,7 +42,7 @@ pub struct User {
     #[serde(rename = "fullProfileImageUrl")]
     pub full_profile_image_url: Option<String>,
 
-    #[serde(rename = "OriginalProfileImageUrl")]
+    #[serde(rename = "originalProfileImageUrl")]
     pub original_profile_image_url: Option<String>,
 
     /// See UserType for types.

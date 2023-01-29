@@ -36,6 +36,7 @@ pub struct UserProfile {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct UserData<Info> {
+    pub id: UserId,
     pub user_type: i32,
     pub profile: UserProfile,
     pub info: Info,

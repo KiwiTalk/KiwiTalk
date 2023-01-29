@@ -7,7 +7,6 @@ use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
-    response::chat::chat_on_room::ChatOnRoomUserList,
     structs::user::UserVariant,
 };
 
@@ -24,10 +23,9 @@ use crate::{
     ClientResult,
 };
 
-use super::{
-    user::{DisplayUser, UserData},
-    ChannelData, ChannelInitialData, ClientChannel,
-};
+use self::user::NormalUserData;
+
+use super::{user::DisplayUser, ChannelData, ChannelInitialData, ClientChannel};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NormalChannelData {
@@ -74,7 +72,7 @@ impl<'a> ClientNormalChannel<'a> {
         Ok(())
     }
 
-    pub async fn chat_on(&self) -> ClientResult<()> {
+    pub async fn chat_on(&self) -> ClientResult<Vec<NormalUserData>> {
         let res = TalkClient(&self.connection.session)
             .chat_on_normal_channel(&ChatOnRoomReq {
                 chat_id: self.id,
@@ -82,68 +80,74 @@ impl<'a> ClientNormalChannel<'a> {
             })
             .await?;
 
-        self.sync_chats(res.last_log_id).await?;
+        let users = if let Some(users) = res.users {
+            users
+        } else if let Some(user_ids) = res.user_ids {
+            let res = TalkClient(&self.connection.session)
+                .user_info(&MemberReq {
+                    chat_id: self.id,
+                    user_ids,
+                })
+                .await?;
 
-        let users = match res.users {
-            ChatOnRoomUserList::Info(users) => users,
-            ChatOnRoomUserList::Id(user_ids) => {
-                let res = TalkClient(&self.connection.session)
-                    .user_info(&MemberReq {
-                        chat_id: self.id,
-                        user_ids,
-                    })
-                    .await?;
-
-                res.members
-            }
+            res.members
+        } else {
+            Vec::new()
         };
+        let users: Vec<_> = users
+            .into_iter()
+            .filter_map(|user| {
+                if let UserVariant::Normal(user) = user {
+                    Some(NormalUserData::from(user))
+                } else {
+                    None
+                }
+            })
+            .collect();
 
-        let channel_id = self.id;
         self.connection
             .pool
-            .spawn_task(move |mut connection| {
-                let transaction = connection.transaction()?;
+            .spawn_task({
+                let users = users.clone();
+                let channel_id = self.id;
 
-                transaction
-                    .channel()
-                    .set_last_chat_log_id(channel_id, res.last_log_id)?;
+                move |mut connection| {
+                    let transaction = connection.transaction()?;
 
-                for user in users {
-                    if let UserVariant::Normal(user) = user {
-                        let id = user.user_id;
-                        let data = UserData::from(user);
-
+                    for user in users {
                         transaction.user().insert(&UserModel {
-                            id,
+                            id: user.id,
                             channel_id,
-                            user_type: data.user_type,
-                            profile: data.profile,
+                            user_type: user.user_type,
+                            profile: user.profile,
                             watermark: 0,
                         })?;
 
                         transaction.normal_user().insert(&NormalUserModel {
-                            id,
+                            id: user.id,
                             channel_id,
-                            info: data.info,
+                            info: user.info,
                         })?;
                     }
-                }
 
-                for (id, watermark) in res.watermark_user_ids.into_iter().zip(res.watermarks) {
-                    transaction
-                        .user()
-                        .update_watermark(id, channel_id, watermark)?;
-                }
+                    for (id, watermark) in res.watermark_user_ids.into_iter().zip(res.watermarks) {
+                        transaction
+                            .user()
+                            .update_watermark(id, channel_id, watermark)?;
+                    }
 
-                transaction.commit()?;
-                Ok(())
+                    transaction.commit()?;
+                    Ok(())
+                }
             })
             .await?;
 
-        Ok(())
+        self.sync_chats(res.last_log_id).await?;
+
+        Ok(users)
     }
 
-    pub async fn initialize(self) -> ClientResult<NormalChannelData> {
+    pub async fn initialize(self) -> ClientResult<(NormalChannelData, Vec<NormalUserData>)> {
         let res = TalkClient(&self.connection.session)
             .channel_info(&ChatInfoReq { chat_id: self.id })
             .await?;
@@ -183,11 +187,15 @@ impl<'a> ClientNormalChannel<'a> {
                 .await?;
         }
 
-        Ok(NormalChannelData {
+        let user_data = self.chat_on().await?;
+
+        let channel_data = NormalChannelData {
             display_users,
             joined_at_for_new_mem,
             common: initial.data,
-        })
+        };
+
+        Ok((channel_data, user_data))
     }
 }
 
