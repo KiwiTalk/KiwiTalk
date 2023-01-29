@@ -28,13 +28,13 @@ impl From<DisplayUserInfo> for DisplayUser {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct UserProfile {
     pub nickname: String,
     pub image: UserProfileImage,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct UserData<Info> {
     pub id: UserId,
     pub user_type: i32,

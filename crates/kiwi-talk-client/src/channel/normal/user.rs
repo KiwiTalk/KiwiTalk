@@ -5,7 +5,7 @@ use crate::channel::user::{UserData, UserProfile, UserProfileImage};
 
 pub type NormalUserData = UserData<NormalUserInfo>;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct NormalUserInfo {
     pub country_iso: String,
     pub account_id: i64,

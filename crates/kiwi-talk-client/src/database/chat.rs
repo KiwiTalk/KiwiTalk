@@ -6,7 +6,7 @@ use crate::{
     chat::{Chat, ChatContent, LogId, LoggedChat},
 };
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ChatModel {
     pub logged: LoggedChat,
 

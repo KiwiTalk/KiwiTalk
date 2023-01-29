@@ -8,7 +8,7 @@ use self::user::NormalUserDatabaseExt;
 
 use super::{ChannelDatabaseExt, ChannelModel};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NormalChannelModel {
     pub id: ChannelId,
     pub joined_at_for_new_mem: i64,
@@ -23,7 +23,7 @@ impl NormalChannelModel {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JoinedNormalChannelModel {
     pub model: ChannelModel,
     pub normal: NormalChannelModel,

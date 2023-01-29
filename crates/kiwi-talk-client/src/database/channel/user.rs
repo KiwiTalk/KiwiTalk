@@ -8,7 +8,7 @@ use crate::{
     chat::LogId,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserModel {
     pub id: UserId,
     pub channel_id: i64,

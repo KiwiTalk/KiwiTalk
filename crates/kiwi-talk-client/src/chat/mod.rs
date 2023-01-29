@@ -7,7 +7,7 @@ pub mod builder;
 
 pub type LogId = i64;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct LoggedChat {
     pub log_id: LogId,
     pub prev_log_id: Option<i64>,
@@ -50,7 +50,7 @@ impl From<Chatlog> for LoggedChat {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Chat {
     pub chat_type: i32,
 

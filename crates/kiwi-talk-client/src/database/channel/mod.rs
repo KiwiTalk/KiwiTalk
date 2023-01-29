@@ -12,14 +12,14 @@ use crate::{
     chat::LogId,
 };
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ChannelTrackingData {
     pub last_chat_log_id: LogId,
     pub last_seen_log_id: LogId,
     pub last_update: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ChannelModel {
     pub id: ChannelId,
     pub channel_type: String,

@@ -7,7 +7,7 @@ use crate::channel::{
     ChannelId,
 };
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NormalUserModel {
     pub id: UserId,
     pub channel_id: i64,
