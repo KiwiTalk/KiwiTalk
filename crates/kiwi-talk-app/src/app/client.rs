@@ -14,7 +14,7 @@ use crate::{error::impl_tauri_error, system::SystemInfo};
 
 use super::{
     conn::checkin,
-    constants::{TALK_DEVIVCE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION},
+    constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION},
     stream::{create_secure_stream, LOCO_CLIENT_SECURE_SESSION},
     AppCredential,
 };
@@ -49,7 +49,7 @@ pub async fn create_client(
                 app_version: TALK_VERSION,
                 mccmnc: TALK_MCCMNC,
                 language: info.device_info.language(),
-                device_type: TALK_DEVIVCE_TYPE,
+                device_type: TALK_DEVICE_TYPE,
             },
             ClientCredential {
                 access_token: &credential.access_token,
