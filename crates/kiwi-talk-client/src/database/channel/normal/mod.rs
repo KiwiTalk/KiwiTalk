@@ -87,7 +87,6 @@ impl NormalChannelEntry<'_> {
 
         let rows = statement.query(())?;
         rows.mapped(JoinedNormalChannelModel::map_row)
-            .into_iter()
             .collect()
     }
 

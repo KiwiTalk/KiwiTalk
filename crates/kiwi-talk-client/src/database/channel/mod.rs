@@ -152,14 +152,14 @@ impl ChannelEntry<'_> {
         let mut statement = self.0.prepare("SELECT id FROM channel")?;
 
         let rows = statement.query(())?;
-        rows.mapped(|row| row.get(0)).into_iter().collect()
+        rows.mapped(|row| row.get(0)).collect()
     }
 
     pub fn get_all(&self) -> Result<Vec<ChannelModel>, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM channel")?;
 
         let rows = statement.query(())?;
-        rows.mapped(ChannelModel::map_row).into_iter().collect()
+        rows.mapped(ChannelModel::map_row).collect()
     }
 
     pub fn get_update_map(&self) -> Result<IntMap<ChannelId, i64>, rusqlite::Error> {
@@ -167,9 +167,7 @@ impl ChannelEntry<'_> {
 
         let rows = statement.query(())?;
 
-        rows.mapped(|row| Ok((row.get(0)?, row.get(1)?)))
-            .into_iter()
-            .collect()
+        rows.mapped(|row| Ok((row.get(0)?, row.get(1)?))).collect()
     }
 
     pub fn get_last_update(&self, id: ChannelId) -> Result<Option<i64>, rusqlite::Error> {
@@ -265,7 +263,7 @@ impl ChannelEntry<'_> {
 
         let rows = statement.query([channel_id])?;
 
-        rows.mapped(ChannelMetaModel::map_row).into_iter().collect()
+        rows.mapped(ChannelMetaModel::map_row).collect()
     }
 }
 
