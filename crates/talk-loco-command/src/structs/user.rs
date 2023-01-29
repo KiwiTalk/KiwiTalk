@@ -16,7 +16,7 @@ pub struct DisplayUserInfo {
     pub nickname: String,
 
     /// Profile image URL. None if profile image is default.
-    #[serde(rename = "pi")]
+    #[serde(rename = "profileImageUrl")]
     pub profile_image_url: Option<String>,
 
     /// Country Iso, does not present on openchat.
