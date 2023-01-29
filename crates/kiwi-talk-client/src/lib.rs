@@ -7,7 +7,10 @@ pub mod event;
 pub mod handler;
 pub mod status;
 
-use channel::{loader::load_channel_data, user::UserId, ChannelDataVariant};
+use channel::{
+    loader::load_channel_data, normal::ClientNormalChannel, user::UserId, ChannelDataVariant,
+    ChannelId, ClientChannel,
+};
 use config::KiwiTalkClientInfo;
 use database::pool::DatabasePool;
 use error::KiwiTalkClientError;
@@ -40,6 +43,16 @@ impl KiwiTalkClient {
             .await?;
 
         Ok(())
+    }
+
+    #[inline(always)]
+    pub fn channel(&self, id: ChannelId) -> ClientChannel {
+        ClientChannel::new(id, &self.connection)
+    }
+
+    #[inline(always)]
+    pub fn normal_channel(&self, id: ChannelId) -> ClientNormalChannel {
+        ClientNormalChannel::new(self.channel(id))
     }
 
     pub async fn load_channel_list(&self) -> ClientResult<Vec<ChannelDataVariant>> {
