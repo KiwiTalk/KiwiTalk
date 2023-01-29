@@ -9,7 +9,7 @@ use std::{
 
 use bson::Document;
 use futures::{
-    ready, sink::drain, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Sink, SinkExt,
+    ready, sink::drain, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Sink, SinkExt, pin_mut,
 };
 use loco_protocol::command::codec::CommandCodec;
 use nohash_hasher::IntMap;
@@ -40,7 +40,7 @@ impl LocoCommandSession {
 
     pub fn new_with_sink<
         Stream: AsyncRead + AsyncWrite + Send + 'static,
-        S: Sink<ReadResult> + Send + Unpin + 'static,
+        S: Sink<ReadResult> + Send + 'static,
     >(
         stream: Stream,
         sink: S,
@@ -94,20 +94,23 @@ pub type ReadResult = Result<ReadBsonCommand<Document>, ReadError>;
 
 type ResponseMap = IntMap<i32, oneshot::Sender<ResponseData>>;
 
-#[derive(Debug)]
 struct ReadTask<S> {
     response_map: Arc<Mutex<ResponseMap>>,
     sink: S,
 }
 
-impl<S: Sink<ReadResult> + Unpin> ReadTask<S> {
+impl<S: Sink<ReadResult>> ReadTask<S> {
     #[inline(always)]
     const fn new(response_map: Arc<Mutex<ResponseMap>>, sink: S) -> Self {
         ReadTask { response_map, sink }
     }
 
-    pub async fn run(mut self, read_stream: impl Send + AsyncRead + Unpin + 'static) {
+    pub async fn run(self, read_stream: impl Send + AsyncRead + 'static) {
+        pin_mut!(read_stream);
         let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
+
+        let sink = self.sink;
+        pin_mut!(sink);
 
         loop {
             let read = read_codec.read_async().await;
@@ -121,11 +124,11 @@ impl<S: Sink<ReadResult> + Unpin> ReadTask<S> {
                         continue;
                     }
 
-                    self.sink.send(Ok(read)).await.ok();
+                    sink.send(Ok(read)).await.ok();
                 }
 
                 Err(_) => {
-                    self.sink.send(read).await.ok();
+                    sink.send(read).await.ok();
                     break;
                 }
             }
@@ -150,9 +153,11 @@ impl WriteTask {
 
     pub async fn run(
         mut self,
-        write_stream: impl Send + AsyncWrite + Unpin + 'static,
+        write_stream: impl Send + AsyncWrite + 'static,
         mut request_recv: mpsc::Receiver<RequestCommand>,
     ) {
+        pin_mut!(write_stream);
+
         let mut write_codec = BsonCommandCodec(CommandCodec::new(write_stream));
         while let Some(request) = request_recv.recv().await {
             let request_id = self.next_request_id;
@@ -176,7 +181,7 @@ impl WriteTask {
     }
 }
 
-fn session_task<S: Sink<ReadResult> + Unpin>(sink: S) -> (ReadTask<S>, WriteTask) {
+fn session_task<S: Sink<ReadResult>>(sink: S) -> (ReadTask<S>, WriteTask) {
     let map = Arc::new(Mutex::new(HashMap::default()));
 
     (ReadTask::new(map.clone(), sink), WriteTask::new(map))
