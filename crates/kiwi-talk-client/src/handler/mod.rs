@@ -18,47 +18,32 @@ use self::error::ClientHandlerError;
 
 #[derive(Debug)]
 pub(crate) struct HandlerTask<Listener> {
-    listener: Listener,
+    emitter: HandlerEmitter<Listener>,
 }
 
-impl<Listener: Sink<KiwiTalkClientEvent> + Send + Clone + Unpin + 'static> HandlerTask<Listener> {
+impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener> {
     pub const fn new(listener: Listener) -> Self {
-        Self { listener }
+        Self {
+            emitter: HandlerEmitter(listener),
+        }
     }
 
-    pub async fn run(self, stream: LocoBroadcastStream) {
-        let mut emitter = HandlerEmitter(self.listener);
-
+    pub async fn run(mut self, stream: LocoBroadcastStream) {
         pin_mut!(stream);
         while let Some(read) = stream.next().await {
             match read {
                 Ok(read) => {
-                    let mut handler = Handler {
-                        emitter: emitter.clone(),
-                    };
-
-                    tokio::spawn(async move {
-                        handler.handle(read.command).await;
-                    });
+                    if let Err(err) = self.handle_inner(read.command).await {
+                        self.emitter.emit(KiwiTalkClientEvent::Error(err)).await;
+                    }
                 }
 
                 Err(err) => {
-                    emitter.emit(KiwiTalkClientEvent::Error(err.into())).await;
+                    self.emitter
+                        .emit(KiwiTalkClientEvent::Error(err.into()))
+                        .await;
                 }
             }
-        }
-    }
-}
-
-#[derive(Debug)]
-struct Handler<Listener> {
-    emitter: HandlerEmitter<Listener>,
-}
-
-impl<Listener: Sink<KiwiTalkClientEvent> + Unpin> Handler<Listener> {
-    pub async fn handle(&mut self, command: BsonCommand<Document>) {
-        if let Err(err) = self.handle_inner(command).await {
-            self.emitter.emit(KiwiTalkClientEvent::Error(err)).await;
         }
     }
 
