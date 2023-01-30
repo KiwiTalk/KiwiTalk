@@ -36,6 +36,14 @@ impl UserModel {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InitialUserModel {
+    pub id: UserId,
+    pub channel_id: i64,
+
+    pub profile: UserProfile,
+}
+
 #[extend::ext(name = UserDatabaseExt)]
 pub impl Connection {
     fn user(&self) -> UserEntry {
@@ -58,6 +66,25 @@ impl UserEntry<'_> {
                 model.profile.full_image_url.as_ref(),
                 model.profile.original_image_url.as_ref(),
                 model.watermark,
+            ),
+        )?;
+
+        Ok(())
+    }
+
+    pub fn insert_or_update_profile(
+        &self,
+        model: &InitialUserModel,
+    ) -> Result<(), rusqlite::Error> {
+        self.0.execute(
+            "INSERT OR REPLACE INTO channel_user VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                model.id,
+                model.channel_id,
+                &model.profile.nickname,
+                model.profile.image_url.as_ref(),
+                model.profile.full_image_url.as_ref(),
+                model.profile.original_image_url.as_ref(),
             ),
         )?;
 

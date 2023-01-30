@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS channel_user (
     full_profile_url TEXT,
     original_profile_url TEXT,
 
-    watermark INTEGER NOT NULL,
+    watermark INTEGER NOT NULL DEFAULT 0,
 
     PRIMARY KEY(id, channel_id),
     FOREIGN KEY(channel_id) REFERENCES channel(id)
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS channel_user (
 CREATE TABLE IF NOT EXISTS normal_channel (
     id INTEGER PRIMARY KEY,
 
-    joined_at_for_new_mem INTEGER,
+    joined_at_for_new_mem INTEGER NOT NULL,
 
     FOREIGN KEY(id) REFERENCES channel(id)
 );
