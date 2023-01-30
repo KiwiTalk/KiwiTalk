@@ -17,7 +17,7 @@ use crate::{
             user::{NormalUserDatabaseExt, NormalUserModel},
             NormalChannelDatabaseExt, NormalChannelModel,
         },
-        user::{UserDatabaseExt, UserModel},
+        user::{InitialUserModel, UserDatabaseExt},
         ChannelDatabaseExt,
     },
     ClientResult,
@@ -25,7 +25,10 @@ use crate::{
 
 use self::user::NormalUserData;
 
-use super::{user::DisplayUser, ChannelData, ChannelInitialData, ClientChannel};
+use super::{
+    user::{DisplayUser, UserId},
+    ChannelData, ChannelInitialData, ClientChannel,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NormalChannelData {
@@ -82,28 +85,20 @@ impl<'a> ClientNormalChannel<'a> {
 
         let users = if let Some(users) = res.users {
             users
-        } else if let Some(user_ids) = res.user_ids {
-            let res = TalkClient(&self.connection.session)
-                .user_info(&MemberReq {
-                    chat_id: self.id,
-                    user_ids,
+                .into_iter()
+                .filter_map(|user| {
+                    if let UserVariant::Normal(user) = user {
+                        Some(NormalUserData::from(user))
+                    } else {
+                        None
+                    }
                 })
-                .await?;
-
-            res.members
+                .collect()
+        } else if let Some(user_ids) = res.user_ids {
+            self.get_user_data_inner(user_ids).await?
         } else {
             Vec::new()
         };
-        let users: Vec<_> = users
-            .into_iter()
-            .filter_map(|user| {
-                if let UserVariant::Normal(user) = user {
-                    Some(NormalUserData::from(user))
-                } else {
-                    None
-                }
-            })
-            .collect();
 
         self.connection
             .pool
@@ -115,12 +110,13 @@ impl<'a> ClientNormalChannel<'a> {
                     let transaction = connection.transaction()?;
 
                     for user in users {
-                        transaction.user().insert(&UserModel {
-                            id: user.id,
-                            channel_id,
-                            profile: user.profile,
-                            watermark: 0,
-                        })?;
+                        transaction
+                            .user()
+                            .insert_or_update_profile(&InitialUserModel {
+                                id: user.id,
+                                channel_id,
+                                profile: user.profile,
+                            })?;
 
                         transaction.normal_user().insert(&NormalUserModel {
                             id: user.id,
@@ -146,7 +142,31 @@ impl<'a> ClientNormalChannel<'a> {
         Ok(users)
     }
 
-    pub async fn initialize(self) -> ClientResult<NormalChannelData> {
+    async fn get_user_data_inner(
+        &self,
+        user_ids: Vec<UserId>,
+    ) -> ClientResult<Vec<NormalUserData>> {
+        let res = TalkClient(&self.connection.session)
+            .user_info(&MemberReq {
+                chat_id: self.id,
+                user_ids,
+            })
+            .await?;
+
+        Ok(res
+            .members
+            .into_iter()
+            .filter_map(|user| {
+                if let UserVariant::Normal(user) = user {
+                    Some(NormalUserData::from(user))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>())
+    }
+
+    pub async fn initialize(&self) -> ClientResult<NormalChannelData> {
         let res = TalkClient(&self.connection.session)
             .channel_info(&ChatInfoReq { chat_id: self.id })
             .await?;
@@ -162,7 +182,11 @@ impl<'a> ClientNormalChannel<'a> {
             .iter()
             .cloned()
             .map(DisplayUser::from)
-            .collect();
+            .collect::<SmallVec<[DisplayUser; 4]>>();
+
+        let users = self
+            .get_user_data_inner(display_users.iter().map(|user| user.id).collect())
+            .await?;
 
         let joined_at_for_new_mem = res.chat_info.joined_at_for_new_mem.unwrap_or_default();
 
@@ -175,12 +199,33 @@ impl<'a> ClientNormalChannel<'a> {
                 joined_at_for_new_mem,
             };
 
+            let channel_id = self.id;
+
             self.connection
                 .pool
-                .spawn_task(move |connection| {
-                    connection.channel().insert(&model)?;
-                    connection.normal_channel().insert(&normal_model)?;
+                .spawn_task(move |mut connection| {
+                    let transaction = connection.transaction()?;
 
+                    transaction.channel().insert(&model)?;
+                    transaction.normal_channel().insert(&normal_model)?;
+
+                    for user in users {
+                        transaction
+                            .user()
+                            .insert_or_update_profile(&InitialUserModel {
+                                id: user.id,
+                                channel_id,
+                                profile: user.profile,
+                            })?;
+
+                        transaction.normal_user().insert(&NormalUserModel {
+                            id: user.id,
+                            channel_id,
+                            info: user.info,
+                        })?;
+                    }
+
+                    transaction.commit()?;
                     Ok(())
                 })
                 .await?;
