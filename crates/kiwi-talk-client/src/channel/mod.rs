@@ -219,18 +219,19 @@ impl ClientChannel<'_> {
         let (sender, mut recv) = channel(4);
 
         let database_task = self.connection.pool.spawn_task(move |mut connection| {
-            let transaction = connection.transaction()?;
-
             while let Some(list) = recv.blocking_recv() {
+                let transaction = connection.transaction()?;
+
                 for chatlog in list {
                     transaction.chat().insert(&ChatModel {
                         logged: LoggedChat::from(chatlog),
                         deleted_time: None,
                     })?;
                 }
+
+                transaction.commit()?;
             }
 
-            transaction.commit()?;
             Ok(())
         });
 
