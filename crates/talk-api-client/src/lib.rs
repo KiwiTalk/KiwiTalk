@@ -27,9 +27,7 @@ impl Deref for ApiURL {
 }
 
 #[derive(Debug, Error)]
-pub enum ApiRequestError {
-    #[error(transparent)]
-    Request(#[from] reqwest::Error),
-}
+#[error(transparent)]
+pub struct ApiRequestError(#[from] reqwest::Error);
 
 type ApiResult<T> = Result<T, ApiRequestError>;
