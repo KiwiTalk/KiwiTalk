@@ -108,7 +108,6 @@ impl ChannelInitialData {
             id: self.id,
             channel_type: self.data.channel_type.clone(),
             tracking_data: ChannelTrackingData {
-                last_chat_log_id: self.last_chat_log_id,
                 last_seen_log_id: self.last_seen_log_id,
                 last_update,
             },
@@ -203,8 +202,8 @@ impl ClientChannel<'_> {
                 .pool
                 .spawn_task(move |connection| {
                     Ok(connection
-                        .channel()
-                        .get_last_chat_log_id(channel_id)?
+                        .chat()
+                        .get_lastest_log_id(channel_id)?
                         .unwrap_or(0))
                 })
                 .await?

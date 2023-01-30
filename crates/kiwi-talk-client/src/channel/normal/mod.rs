@@ -194,6 +194,8 @@ impl<'a> ClientNormalChannel<'a> {
 
         let joined_at_for_new_mem = res.chat_info.joined_at_for_new_mem.unwrap_or_default();
 
+        let last_log_id = res.chat_info.last_log_id;
+
         let initial = ChannelInitialData::from(res.chat_info);
         {
             let model = initial.create_channel_model(now);
@@ -240,6 +242,8 @@ impl<'a> ClientNormalChannel<'a> {
             joined_at_for_new_mem,
             common: initial.data,
         };
+
+        self.sync_chats(last_log_id).await?;
 
         Ok(channel_data)
     }

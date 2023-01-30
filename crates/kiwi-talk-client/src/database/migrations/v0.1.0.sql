@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS channel (
     id INTEGER PRIMARY KEY,
     type VARCHAR(16) NOT NULL,
 
-    last_chat_log_id INTEGER NOT NULL,
     last_seen_log_id INTEGER NOT NULL,
     last_update INTEGER NOT NULL,
 

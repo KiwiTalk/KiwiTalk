@@ -14,7 +14,6 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ChannelTrackingData {
-    pub last_chat_log_id: LogId,
     pub last_seen_log_id: LogId,
     pub last_update: i64,
 }
@@ -36,13 +35,12 @@ impl ChannelModel {
             channel_type: row.get(1)?,
 
             tracking_data: ChannelTrackingData {
-                last_chat_log_id: row.get(2)?,
-                last_seen_log_id: row.get(3)?,
-                last_update: row.get(4)?,
+                last_seen_log_id: row.get(2)?,
+                last_update: row.get(3)?,
             },
 
             settings: ChannelSettings {
-                push_alert: row.get(5)?,
+                push_alert: row.get(4)?,
             },
         })
     }
@@ -51,7 +49,6 @@ impl ChannelModel {
 impl From<ChannelListData> for ChannelModel {
     fn from(data: ChannelListData) -> Self {
         let tracking_data = ChannelTrackingData {
-            last_chat_log_id: data.last_log_id,
             last_seen_log_id: data.last_seen_log_id,
             last_update: data.last_update,
         };
@@ -105,11 +102,10 @@ pub struct ChannelEntry<'a>(pub &'a Connection);
 impl ChannelEntry<'_> {
     pub fn insert(&self, model: &ChannelModel) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO channel VALUES (?, ?, ?, ?, ?)",
             (
                 model.id,
                 &model.channel_type,
-                model.tracking_data.last_chat_log_id,
                 model.tracking_data.last_seen_log_id,
                 model.tracking_data.last_update,
                 model.settings.push_alert,
@@ -178,27 +174,6 @@ impl ChannelEntry<'_> {
                 |row| row.get(0),
             )
             .optional()
-    }
-
-    pub fn get_last_chat_log_id(&self, id: ChannelId) -> Result<Option<LogId>, rusqlite::Error> {
-        self.0
-            .query_row(
-                "SELECT last_chat_log_id FROM channel WHERE id = ?",
-                [id],
-                |row| row.get(0),
-            )
-            .optional()
-    }
-
-    pub fn set_last_chat_log_id(
-        &self,
-        id: ChannelId,
-        last_chat_log_id: LogId,
-    ) -> Result<usize, rusqlite::Error> {
-        self.0.execute(
-            "UPDATE channel SET last_chat_log_id = ? WHERE id = ?",
-            (last_chat_log_id, id),
-        )
     }
 
     pub fn set_last_seen_log_id(
@@ -291,7 +266,6 @@ pub(crate) mod tests {
             id,
             channel_type: "OM".into(),
             tracking_data: ChannelTrackingData {
-                last_chat_log_id: 0,
                 last_seen_log_id: 0,
                 last_update: 0,
             },

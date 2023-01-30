@@ -127,12 +127,30 @@ impl ChatEntry<'_> {
         rows.mapped(ChatModel::map_row).collect()
     }
 
-    pub fn get_lastest_log_id(&self, channel_id: ChannelId) -> Result<LogId, rusqlite::Error> {
-        self.0.query_row(
-            "SELECT log_id FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT 1",
-            [channel_id],
-            |row| row.get(0),
-        )
+    pub fn get_lastest_in(
+        &self,
+        channel_id: ChannelId,
+    ) -> Result<Option<ChatModel>, rusqlite::Error> {
+        self.0
+            .query_row(
+                "SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT 1",
+                [channel_id],
+                ChatModel::map_row,
+            )
+            .optional()
+    }
+
+    pub fn get_lastest_log_id_in(
+        &self,
+        channel_id: ChannelId,
+    ) -> Result<Option<LogId>, rusqlite::Error> {
+        self.0
+            .query_row(
+                "SELECT log_id FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT 1",
+                [channel_id],
+                |row| row.get(0),
+            )
+            .optional()
     }
 }
 
