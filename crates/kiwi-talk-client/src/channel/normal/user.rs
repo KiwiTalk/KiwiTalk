@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use talk_loco_command::structs::user::User;
 
-use crate::channel::user::{UserData, UserProfile, UserProfileImage};
+use crate::channel::user::{UserData, UserProfile};
 
 pub type NormalUserData = UserData<NormalUserInfo>;
 
@@ -21,11 +21,9 @@ impl From<User> for UserData<NormalUserInfo> {
             user_type: user.user_type,
             profile: UserProfile {
                 nickname: user.nickname,
-                image: UserProfileImage {
-                    image_url: user.profile_image_url,
-                    full_image_url: user.full_profile_image_url,
-                    original_image_url: user.original_profile_image_url,
-                },
+                image_url: user.profile_image_url,
+                full_image_url: user.full_profile_image_url,
+                original_image_url: user.original_profile_image_url,
             },
             info: NormalUserInfo {
                 country_iso: user.country_iso,

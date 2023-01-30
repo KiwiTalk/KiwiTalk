@@ -2,7 +2,7 @@ use rusqlite::{Connection, OptionalExtension, Row};
 
 use crate::{
     channel::{
-        user::{UserId, UserProfile, UserProfileImage},
+        user::{UserId, UserProfile},
         ChannelId,
     },
     chat::LogId,
@@ -26,11 +26,9 @@ impl UserModel {
 
             profile: UserProfile {
                 nickname: row.get(2)?,
-                image: UserProfileImage {
-                    image_url: row.get(3)?,
-                    full_image_url: row.get(4)?,
-                    original_image_url: row.get(5)?,
-                },
+                image_url: row.get(3)?,
+                full_image_url: row.get(4)?,
+                original_image_url: row.get(5)?,
             },
 
             watermark: row.get(6)?,
@@ -56,9 +54,9 @@ impl UserEntry<'_> {
                 model.id,
                 model.channel_id,
                 &model.profile.nickname,
-                model.profile.image.image_url.as_ref(),
-                model.profile.image.full_image_url.as_ref(),
-                model.profile.image.original_image_url.as_ref(),
+                model.profile.image_url.as_ref(),
+                model.profile.full_image_url.as_ref(),
+                model.profile.original_image_url.as_ref(),
                 model.watermark,
             ),
         )?;
@@ -138,7 +136,7 @@ pub(crate) mod tests {
             channel_id,
             profile: UserProfile {
                 nickname: "".into(),
-                image: Default::default(),
+                ..Default::default()
             },
             watermark: 0,
         };

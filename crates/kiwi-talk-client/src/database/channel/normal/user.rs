@@ -3,7 +3,7 @@ use smallvec::SmallVec;
 
 use crate::channel::{
     normal::user::NormalUserInfo,
-    user::{DisplayUser, UserId, UserProfile, UserProfileImage},
+    user::{DisplayUser, DisplayUserProfile, UserId},
     ChannelId,
 };
 
@@ -110,14 +110,11 @@ impl NormalUserEntry<'_> {
         rows.mapped(|row| {
             Ok(DisplayUser {
                 id: row.get(0)?,
-                profile: UserProfile {
+                profile: DisplayUserProfile {
                     nickname: row.get(1)?,
-                    image: UserProfileImage {
-                        image_url: row.get(2)?,
-                        ..Default::default()
-                    },
+                    image_url: row.get(2)?,
+                    country_iso: row.get(3)?,
                 },
-                country_iso: row.get(3)?,
             })
         })
         .collect()
