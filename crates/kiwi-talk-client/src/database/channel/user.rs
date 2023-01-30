@@ -77,7 +77,8 @@ impl UserEntry<'_> {
         model: &InitialUserModel,
     ) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel_user VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO channel_user (id, channel_id, nickname, profile_url, full_profile_url, original_profile_url) \
+            VALUES (?, ?, ?, ?, ?, ?)",
             (
                 model.id,
                 model.channel_id,

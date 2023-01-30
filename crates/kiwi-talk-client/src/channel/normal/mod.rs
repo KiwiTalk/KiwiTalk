@@ -146,6 +146,10 @@ impl<'a> ClientNormalChannel<'a> {
         &self,
         user_ids: Vec<UserId>,
     ) -> ClientResult<Vec<NormalUserData>> {
+        if user_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+
         let res = TalkClient(&self.connection.session)
             .user_info(&MemberReq {
                 chat_id: self.id,
