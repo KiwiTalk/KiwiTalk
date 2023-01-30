@@ -23,13 +23,16 @@ const KiwiIcon = styled(KiwiSvg)`
   color: rgba(0, 0, 0, 0.5);
   mix-blend-mode: overlay;
 
-  width: 75%;
-  height: 75%;
+  min-width: 72%;
+  min-height: 72%;
+
+  max-width: 120%;
+  max-height: 120%;
 
   position: absolute;
 
-  left: 45%;
-  top: 70%;
+  right: -30%;
+  bottom: -40%;
 `;
 
 const Background = styled(BackgroundSvg)`
