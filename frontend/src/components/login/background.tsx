@@ -9,9 +9,7 @@ const BackgroundContainer = styled.div`
 `;
 
 const BackgroundInner = styled.div`
-  position: absolute;
-  left: 0%;
-  top: 0%;
+  position: relative;
 
   width: 100%;
   height: 100%;
