@@ -43,7 +43,6 @@ CREATE TABLE IF NOT EXISTS channel_user (
     id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
 
-    user_type INTEGER NOT NULL,
     nickname VARCHAR NOT NULL,
 
     profile_url TEXT,

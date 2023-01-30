@@ -13,8 +13,6 @@ pub struct UserModel {
     pub id: UserId,
     pub channel_id: i64,
 
-    pub user_type: i32,
-
     pub profile: UserProfile,
 
     pub watermark: i64,
@@ -26,18 +24,16 @@ impl UserModel {
             id: row.get(0)?,
             channel_id: row.get(1)?,
 
-            user_type: row.get(2)?,
-
             profile: UserProfile {
-                nickname: row.get(3)?,
+                nickname: row.get(2)?,
                 image: UserProfileImage {
-                    image_url: row.get(4)?,
-                    full_image_url: row.get(5)?,
-                    original_image_url: row.get(6)?,
+                    image_url: row.get(3)?,
+                    full_image_url: row.get(4)?,
+                    original_image_url: row.get(5)?,
                 },
             },
 
-            watermark: row.get(7)?,
+            watermark: row.get(6)?,
         })
     }
 }
@@ -55,11 +51,10 @@ pub struct UserEntry<'a>(pub &'a Connection);
 impl UserEntry<'_> {
     pub fn insert(&self, model: &UserModel) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel_user VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO channel_user VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 model.id,
                 model.channel_id,
-                model.user_type,
                 &model.profile.nickname,
                 model.profile.image.image_url.as_ref(),
                 model.profile.image.full_image_url.as_ref(),
@@ -141,7 +136,6 @@ pub(crate) mod tests {
         let model = UserModel {
             id,
             channel_id,
-            user_type: 0,
             profile: UserProfile {
                 nickname: "".into(),
                 image: Default::default(),
