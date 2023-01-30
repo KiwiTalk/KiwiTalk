@@ -118,7 +118,6 @@ impl<'a> ClientNormalChannel<'a> {
                         transaction.user().insert(&UserModel {
                             id: user.id,
                             channel_id,
-                            user_type: user.user_type,
                             profile: user.profile,
                             watermark: 0,
                         })?;
@@ -147,7 +146,7 @@ impl<'a> ClientNormalChannel<'a> {
         Ok(users)
     }
 
-    pub async fn initialize(self) -> ClientResult<(NormalChannelData, Vec<NormalUserData>)> {
+    pub async fn initialize(self) -> ClientResult<NormalChannelData> {
         let res = TalkClient(&self.connection.session)
             .channel_info(&ChatInfoReq { chat_id: self.id })
             .await?;
@@ -187,15 +186,13 @@ impl<'a> ClientNormalChannel<'a> {
                 .await?;
         }
 
-        let user_data = self.chat_on().await?;
-
         let channel_data = NormalChannelData {
             display_users,
             joined_at_for_new_mem,
             common: initial.data,
         };
 
-        Ok((channel_data, user_data))
+        Ok(channel_data)
     }
 }
 
