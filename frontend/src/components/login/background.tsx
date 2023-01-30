@@ -9,7 +9,10 @@ const BackgroundContainer = styled.div`
 `;
 
 const BackgroundInner = styled.div`
-  position: relative;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+
   width: 100%;
   height: 100%;
   background: linear-gradient(107.56deg, #FFFFFF 0%, #FFFAE0 100%);
@@ -38,11 +41,11 @@ const Background = styled(BackgroundSvg)`
 const BackgroundPattern = styled(BackgroundPatternSvg)`
   position: absolute;
 
-  width: 70%;
-  height: 70%;
+  width: 64%;
+  height: 64%;
 
-  right: 51%;
-  bottom: 32%;
+  left: 0%;
+  top: 0%;
 `;
 
 export type LoginBackgroundProp = {
