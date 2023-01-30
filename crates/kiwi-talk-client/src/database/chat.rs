@@ -127,7 +127,7 @@ impl ChatEntry<'_> {
         rows.mapped(ChatModel::map_row).collect()
     }
 
-    pub fn get_lastest_in(
+    pub fn get_latest_in(
         &self,
         channel_id: ChannelId,
     ) -> Result<Option<ChatModel>, rusqlite::Error> {
@@ -140,7 +140,7 @@ impl ChatEntry<'_> {
             .optional()
     }
 
-    pub fn get_lastest_log_id_in(
+    pub fn get_latest_log_id_in(
         &self,
         channel_id: ChannelId,
     ) -> Result<Option<LogId>, rusqlite::Error> {

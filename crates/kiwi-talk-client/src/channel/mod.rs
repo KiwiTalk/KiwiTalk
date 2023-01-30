@@ -203,7 +203,7 @@ impl ClientChannel<'_> {
                 .spawn_task(move |connection| {
                     Ok(connection
                         .chat()
-                        .get_lastest_log_id(channel_id)?
+                        .get_latest_log_id_in(channel_id)?
                         .unwrap_or(0))
                 })
                 .await?
