@@ -26,13 +26,7 @@ fn init_logger() {
 }
 
 async fn init_app(handle: &AppHandle<impl Runtime>) -> Result<(), Box<dyn Error + 'static>> {
-    handle.plugin(
-        system::init_plugin(
-            handle.config().package.product_name.as_ref().unwrap(),
-            "system",
-        )
-        .await?,
-    )?;
+    handle.plugin(system::init_plugin("system", handle.path_resolver()).await?)?;
 
     handle.plugin(auth::init_plugin("auth"))?;
     handle.plugin(app::init_plugin("app"))?;

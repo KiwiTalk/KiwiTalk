@@ -1,11 +1,10 @@
 use std::path::PathBuf;
 
-use platform_dirs::AppDirs;
 use rand::Rng;
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
-    Manager, Runtime, State,
+    Manager, PathResolver, Runtime, State,
 };
 use thiserror::Error;
 use tokio::{
@@ -18,10 +17,10 @@ use crate::constants::{
 };
 
 pub async fn init_plugin<R: Runtime>(
-    app_name: &str,
     name: &'static str,
+    path_resolver: PathResolver,
 ) -> tauri::plugin::Result<TauriPlugin<R>> {
-    let info = init_system_info(app_name).await?;
+    let info = init_system_info(path_resolver).await?;
 
     Ok(Builder::new(name)
         .setup(|handle| {
@@ -96,10 +95,10 @@ pub fn gen_device_uuid() -> DeviceUuid {
     DeviceUuid::new(&random_bytes)
 }
 
-pub async fn init_system_info(app_name: &str) -> Result<SystemInfo, SystemInitError> {
-    let device_data_dir = AppDirs::new(Some(app_name), false)
-        .ok_or(SystemInitError::DeviceDataDirectoryNotFound)?
-        .data_dir;
+pub async fn init_system_info(path_resolver: PathResolver) -> Result<SystemInfo, SystemInitError> {
+    let device_data_dir = path_resolver
+        .app_data_dir()
+        .ok_or(SystemInitError::DeviceDataDirectoryNotFound)?;
 
     let data_dir = if fs::metadata(APP_PORTABLE_DATA_DIR)
         .await
