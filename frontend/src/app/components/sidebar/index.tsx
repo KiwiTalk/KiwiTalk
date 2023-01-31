@@ -53,7 +53,7 @@ type SidebarItemProp = {
   onClick?: () => void,
 };
 
-export const SidebarItem = ({
+const SidebarItem = ({
   icon,
   activated,
   onClick,
