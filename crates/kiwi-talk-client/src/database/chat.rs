@@ -140,6 +140,21 @@ impl ChatEntry<'_> {
             .optional()
     }
 
+    pub fn get_latest_not_deleted_in(
+        &self,
+        channel_id: ChannelId,
+    ) -> Result<Option<ChatModel>, rusqlite::Error> {
+        self.0
+            .query_row(
+                "SELECT * FROM chat \
+                WHERE channel_id = ? AND deleted_time IS NULL \
+                ORDER BY log_id DESC LIMIT 1",
+                [channel_id],
+                ChatModel::map_row,
+            )
+            .optional()
+    }
+
     pub fn get_latest_log_id_in(
         &self,
         channel_id: ChannelId,

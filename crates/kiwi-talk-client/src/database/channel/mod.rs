@@ -12,6 +12,8 @@ use crate::{
     chat::LogId,
 };
 
+use super::chat::ChatDatabaseExt;
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ChannelTrackingData {
     pub last_seen_log_id: LogId,
@@ -134,9 +136,16 @@ impl ChannelEntry<'_> {
 
         let metas = self.get_all_meta_in(id)?;
 
+        let last_chat = self
+            .0
+            .chat()
+            .get_latest_not_deleted_in(id)?
+            .map(|model| model.logged);
+
         Ok(Some(ChannelData {
             channel_type: model.channel_type,
 
+            last_chat,
             last_seen_log_id: model.tracking_data.last_seen_log_id,
 
             metas: metas

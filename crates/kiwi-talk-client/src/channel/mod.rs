@@ -35,6 +35,7 @@ pub struct ChannelSettings {
 pub struct ChannelData {
     pub channel_type: String,
 
+    pub last_chat: Option<LoggedChat>,
     pub last_seen_log_id: LogId,
 
     pub metas: IntMap<i32, ChannelMeta>,
@@ -67,6 +68,7 @@ impl From<ChannelInfo> for ChannelData {
         Self {
             channel_type: info.channel_type,
 
+            last_chat: info.last_chat_log.map(LoggedChat::from),
             last_seen_log_id: info.last_seen_log_id,
 
             metas,
