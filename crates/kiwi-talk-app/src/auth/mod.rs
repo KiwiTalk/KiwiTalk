@@ -1,20 +1,21 @@
 pub mod constants;
 
-use serde::Serialize;
 use talk_api_client::{
     auth::{
         resources::LoginData, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, LoginMethod,
         TalkAuthClient,
     },
     response::TalkStatusResponse,
+    ApiRequestError,
 };
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
     Runtime, State,
 };
+use thiserror::Error;
 
-use crate::{app::constants::TALK_VERSION, system::SystemInfo};
+use crate::{app::constants::TALK_VERSION, error::impl_tauri_error, system::SystemInfo};
 
 use self::constants::{TALK_AGENT, XVC_HASHER};
 
@@ -24,16 +25,10 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
         .build()
 }
 
-#[derive(Debug, Clone, Copy)]
-struct AuthApiError;
-impl Serialize for AuthApiError {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str("HTTP API Request failed")
-    }
-}
+#[derive(Debug, Error)]
+#[error("Auth API Request failed. {0}")]
+struct AuthApiError(#[from] ApiRequestError);
+impl_tauri_error!(AuthApiError);
 
 type ApiResult<T> = Result<T, AuthApiError>;
 
@@ -54,8 +49,7 @@ async fn login(
             }),
             forced,
         )
-        .await
-        .or(Err(AuthApiError))?;
+        .await?;
 
     Ok(res)
 }
@@ -73,8 +67,7 @@ async fn request_passcode(
             email: &email,
             password: &password,
         })
-        .await
-        .or(Err(AuthApiError))?;
+        .await?;
 
     Ok(res)
 }
@@ -98,8 +91,7 @@ async fn register_device(
             },
             permanent,
         )
-        .await
-        .or(Err(AuthApiError))?;
+        .await?;
 
     Ok(res)
 }
