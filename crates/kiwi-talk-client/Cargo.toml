@@ -13,7 +13,6 @@ thiserror = "1.0"
 futures = "0.3.25"
 bson = "2.5.0"
 log = "0.4.17"
-dashmap = "5.4.0"
 nohash-hasher = "0.2.0"
 smallvec = { version = "1.10.0", features = ["serde", "const_generics"] }
 rusqlite = { version = "0.28.0", features = ["bundled"] }
