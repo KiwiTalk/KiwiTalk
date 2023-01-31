@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS normal_channel (
     id INTEGER PRIMARY KEY,
 
     joined_at_for_new_mem INTEGER,
+    inviter_user_id INTEGER,
 
     FOREIGN KEY(id) REFERENCES channel(id)
 );

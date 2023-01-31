@@ -2,7 +2,7 @@ pub mod user;
 
 use rusqlite::{Connection, OptionalExtension, Row};
 
-use crate::channel::{normal::NormalChannelData, ChannelId};
+use crate::channel::{normal::NormalChannelData, user::UserId, ChannelId};
 
 use self::user::NormalUserDatabaseExt;
 
@@ -12,6 +12,7 @@ use super::{ChannelDatabaseExt, ChannelModel};
 pub struct NormalChannelModel {
     pub id: ChannelId,
     pub joined_at_for_new_mem: Option<i64>,
+    pub inviter_id: Option<UserId>,
 }
 
 impl NormalChannelModel {
@@ -19,6 +20,7 @@ impl NormalChannelModel {
         Ok(Self {
             id: row.get(0)?,
             joined_at_for_new_mem: row.get(1)?,
+            inviter_id: row.get(2)?,
         })
     }
 }
@@ -36,6 +38,7 @@ impl JoinedNormalChannelModel {
             normal: NormalChannelModel {
                 id: row.get(6)?,
                 joined_at_for_new_mem: row.get(7)?,
+                inviter_id: row.get(8)?,
             },
         })
     }
@@ -76,14 +79,21 @@ impl NormalChannelEntry<'_> {
         id: ChannelId,
     ) -> Result<Option<JoinedNormalChannelModel>, rusqlite::Error> {
         self.0.query_row(
-            "SELECT channel.*, normal_channel.* FROM normal_channel INNER JOIN channel ON channel.id = normal_channel.id WHERE channel.id = ?",
+            "SELECT channel.*, normal_channel.* \
+            FROM normal_channel \
+            INNER JOIN channel ON channel.id = normal_channel.id \
+            WHERE channel.id = ?",
             [id],
             JoinedNormalChannelModel::map_row
         ).optional()
     }
 
     pub fn get_all_channel(&self) -> Result<Vec<JoinedNormalChannelModel>, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT channel.*, normal_channel.* FROM normal_channel INNER JOIN channel ON channel.id = normal_channel.id")?;
+        let mut statement = self.0.prepare(
+            "SELECT channel.*, normal_channel.* \
+            FROM normal_channel \
+            INNER JOIN channel ON channel.id = normal_channel.id",
+        )?;
 
         let rows = statement.query(())?;
         rows.mapped(JoinedNormalChannelModel::map_row).collect()
@@ -106,6 +116,7 @@ impl NormalChannelEntry<'_> {
             common,
             display_users: self.0.normal_user().get_display_users_in(id)?,
             joined_at_for_new_mem: model.joined_at_for_new_mem,
+            inviter_id: model.inviter_id,
         }))
     }
 }
