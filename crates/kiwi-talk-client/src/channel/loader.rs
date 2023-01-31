@@ -23,7 +23,7 @@ pub async fn load_channel_data<C: Default + Extend<(ChannelId, ChannelDataVarian
 
     let connection = &connection;
 
-    Ok(channel_list_data_iter
+    channel_list_data_iter
         .into_iter()
         .map(|list_data| {
             let should_update = update_map
@@ -48,7 +48,7 @@ pub async fn load_channel_data<C: Default + Extend<(ChannelId, ChannelDataVarian
         })
         .collect::<FuturesUnordered<_>>()
         .try_collect()
-        .await?)
+        .await
 }
 
 async fn load_normal_channel(
@@ -71,9 +71,7 @@ async fn load_normal_channel(
         }
     }
 
-    Ok(
-        ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
+    ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
             .initialize()
-            .await?,
-    )
+            .await
 }

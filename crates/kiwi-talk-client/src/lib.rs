@@ -55,7 +55,9 @@ impl KiwiTalkClient {
         ClientNormalChannel::new(self.channel(id))
     }
 
-    pub async fn load_channel_list<C: Default + Extend<(ChannelId, ChannelDataVariant)>>(&self) -> ClientResult<C> {
+    pub async fn load_channel_list<C: Default + Extend<(ChannelId, ChannelDataVariant)>>(
+        &self,
+    ) -> ClientResult<C> {
         let mut channel_list_data = Vec::new();
 
         {
