@@ -136,6 +136,9 @@ impl ChannelEntry<'_> {
 
         Ok(Some(ChannelData {
             channel_type: model.channel_type,
+
+            last_seen_log_id: model.tracking_data.last_seen_log_id,
+
             metas: metas
                 .into_iter()
                 .map(|model| (model.meta_type, model.meta))

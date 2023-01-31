@@ -35,9 +35,25 @@ pub struct ChannelSettings {
 pub struct ChannelData {
     pub channel_type: String,
 
+    pub last_seen_log_id: LogId,
+
     pub metas: IntMap<i32, ChannelMeta>,
 
     pub settings: ChannelSettings,
+}
+
+impl ChannelData {
+    pub fn create_model(&self, id: i64, last_update: i64) -> ChannelModel {
+        ChannelModel {
+            id,
+            channel_type: self.channel_type.clone(),
+            tracking_data: ChannelTrackingData {
+                last_seen_log_id: self.last_seen_log_id,
+                last_update,
+            },
+            settings: self.settings.clone(),
+        }
+    }
 }
 
 impl From<ChannelInfo> for ChannelData {
@@ -50,6 +66,9 @@ impl From<ChannelInfo> for ChannelData {
 
         Self {
             channel_type: info.channel_type,
+
+            last_seen_log_id: info.last_seen_log_id,
+
             metas,
             settings: ChannelSettings {
                 push_alert: info.push_alert,
@@ -80,47 +99,23 @@ impl From<LocoChannelMeta> for ChannelMeta {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ChannelInitialData {
-    pub id: ChannelId,
-
-    pub last_chat_log_id: LogId,
-    pub last_seen_log_id: LogId,
-
-    pub data: ChannelData,
-}
-
-impl From<ChannelInfo> for ChannelInitialData {
-    fn from(info: ChannelInfo) -> Self {
-        Self {
-            id: info.chat_id,
-
-            last_chat_log_id: info.last_log_id,
-            last_seen_log_id: info.last_seen_log_id,
-
-            data: ChannelData::from(info),
-        }
-    }
-}
-
-impl ChannelInitialData {
-    pub fn create_channel_model(&self, last_update: i64) -> ChannelModel {
-        ChannelModel {
-            id: self.id,
-            channel_type: self.data.channel_type.clone(),
-            tracking_data: ChannelTrackingData {
-                last_seen_log_id: self.last_seen_log_id,
-                last_update,
-            },
-            settings: self.data.settings.clone(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum ChannelDataVariant {
     Normal(NormalChannelData),
     Open(()),
+}
+
+impl From<NormalChannelData> for ChannelDataVariant {
+    fn from(data: NormalChannelData) -> Self {
+        Self::Normal(data)
+    }
+}
+
+// TODO
+impl From<()> for ChannelDataVariant {
+    fn from(data: ()) -> Self {
+        Self::Open(data)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

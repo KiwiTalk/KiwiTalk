@@ -7,7 +7,7 @@ use smallvec::SmallVec;
 use talk_loco_client::client::talk::TalkClient;
 use talk_loco_command::{
     request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
-    structs::user::UserVariant,
+    structs::{channel_info::ChannelInfo, user::UserVariant},
 };
 
 use crate::{
@@ -27,16 +27,45 @@ use self::user::NormalUserData;
 
 use super::{
     user::{DisplayUser, UserId},
-    ChannelData, ChannelInitialData, ClientChannel,
+    ChannelData, ClientChannel,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NormalChannelData {
-    pub common: ChannelData,
-
     pub display_users: SmallVec<[DisplayUser; 4]>,
 
-    pub joined_at_for_new_mem: i64,
+    pub joined_at_for_new_mem: Option<i64>,
+    pub inviter_id: Option<UserId>,
+
+    pub common: ChannelData,
+}
+
+impl NormalChannelData {
+    pub fn create_model(&self, id: i64) -> NormalChannelModel {
+        NormalChannelModel {
+            id,
+            joined_at_for_new_mem: self.joined_at_for_new_mem,
+            inviter_id: self.inviter_id,
+        }
+    }
+}
+
+impl From<ChannelInfo> for NormalChannelData {
+    fn from(info: ChannelInfo) -> Self {
+        Self {
+            display_users: info
+                .display_members
+                .iter()
+                .cloned()
+                .map(DisplayUser::from)
+                .collect::<SmallVec<[DisplayUser; 4]>>(),
+
+            joined_at_for_new_mem: info.joined_at_for_new_mem,
+            inviter_id: info.inviter_id,
+
+            common: ChannelData::from(info),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -192,18 +221,12 @@ impl<'a> ClientNormalChannel<'a> {
             .get_user_data_inner(display_users.iter().map(|user| user.id).collect())
             .await?;
 
-        let joined_at_for_new_mem = res.chat_info.joined_at_for_new_mem.unwrap_or_default();
-
         let last_log_id = res.chat_info.last_log_id;
 
-        let initial = ChannelInitialData::from(res.chat_info);
+        let data = NormalChannelData::from(res.chat_info);
         {
-            let model = initial.create_channel_model(now);
-
-            let normal_model = NormalChannelModel {
-                id: self.id,
-                joined_at_for_new_mem,
-            };
+            let model = data.common.create_model(self.id, now);
+            let normal_model = data.create_model(self.id);
 
             let channel_id = self.id;
 
@@ -237,15 +260,9 @@ impl<'a> ClientNormalChannel<'a> {
                 .await?;
         }
 
-        let channel_data = NormalChannelData {
-            display_users,
-            joined_at_for_new_mem,
-            common: initial.data,
-        };
-
         self.sync_chats(last_log_id).await?;
 
-        Ok(channel_data)
+        Ok(data)
     }
 }
 
