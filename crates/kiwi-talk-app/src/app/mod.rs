@@ -12,8 +12,12 @@ use futures::{
     FutureExt, StreamExt,
 };
 use kiwi_talk_client::{
-    channel::ChannelDataVariant, event::KiwiTalkClientEvent, status::ClientStatus, KiwiTalkClient,
+    channel::{ChannelDataVariant, ChannelId},
+    event::KiwiTalkClientEvent,
+    status::ClientStatus,
+    KiwiTalkClient,
 };
+use nohash_hasher::IntMap;
 use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use tauri::{
@@ -79,7 +83,7 @@ struct Client {
 
     pub event_recv: Mutex<Option<Receiver<KiwiTalkClientEvent>>>,
 
-    pub channels: RwLock<Vec<ChannelDataVariant>>,
+    pub channels: RwLock<IntMap<ChannelId, ChannelDataVariant>>,
 }
 
 #[tauri::command(async)]
@@ -152,8 +156,13 @@ fn client_user_id(state: State<'_, Client>) -> Option<i64> {
 }
 
 #[tauri::command]
-fn channels(state: State<'_, Client>) -> Vec<ChannelDataVariant> {
-    state.channels.read().clone()
+fn channels(state: State<'_, Client>) -> Vec<(ChannelId, ChannelDataVariant)> {
+    state
+        .channels
+        .read()
+        .iter()
+        .map(|(id, data)| (*id, data.clone()))
+        .collect()
 }
 
 // Error without Result

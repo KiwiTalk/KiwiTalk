@@ -9,13 +9,13 @@ use crate::{
 
 use super::{
     normal::{ClientNormalChannel, NormalChannelData},
-    ChannelDataVariant, ClientChannel, ChannelId,
+    ChannelDataVariant, ChannelId, ClientChannel,
 };
 
-pub async fn load_channel_data(
+pub async fn load_channel_data<C: Default + Extend<(ChannelId, ChannelDataVariant)>>(
     connection: &ClientConnection,
     channel_list_data_iter: impl IntoIterator<Item = ChannelListData>,
-) -> ClientResult<Vec<(ChannelId, ChannelDataVariant)>> {
+) -> ClientResult<C> {
     let update_map = connection
         .pool
         .spawn_task(move |connection| Ok(connection.channel().get_update_map()?))
@@ -23,7 +23,7 @@ pub async fn load_channel_data(
 
     let connection = &connection;
 
-    let list = channel_list_data_iter
+    Ok(channel_list_data_iter
         .into_iter()
         .map(|list_data| {
             let should_update = update_map
@@ -48,9 +48,7 @@ pub async fn load_channel_data(
         })
         .collect::<FuturesUnordered<_>>()
         .try_collect()
-        .await?;
-
-    Ok(list)
+        .await?)
 }
 
 async fn load_normal_channel(

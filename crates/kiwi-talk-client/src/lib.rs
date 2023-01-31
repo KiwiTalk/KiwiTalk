@@ -55,7 +55,7 @@ impl KiwiTalkClient {
         ClientNormalChannel::new(self.channel(id))
     }
 
-    pub async fn load_channel_list(&self) -> ClientResult<Vec<(ChannelId, ChannelDataVariant)>> {
+    pub async fn load_channel_list<C: Default + Extend<(ChannelId, ChannelDataVariant)>>(&self) -> ClientResult<C> {
         let mut channel_list_data = Vec::new();
 
         {
@@ -118,11 +118,11 @@ where
         self
     }
 
-    pub async fn login(
+    pub async fn login<C: Default + Extend<(ChannelId, ChannelDataVariant)>>(
         self,
         info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
-    ) -> ClientResult<(KiwiTalkClient, Vec<(ChannelId, ChannelDataVariant)>)> {
+    ) -> ClientResult<(KiwiTalkClient, C)> {
         let (session, broadcast_stream) = LocoRequestSession::new(self.stream);
 
         let login_res = TalkClient(&session)

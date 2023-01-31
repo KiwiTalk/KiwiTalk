@@ -1,6 +1,6 @@
 use futures::Sink;
 use kiwi_talk_client::{
-    channel::ChannelDataVariant,
+    channel::{ChannelDataVariant, ChannelId},
     config::KiwiTalkClientInfo,
     database::pool::{DatabasePool, PoolTaskError},
     error::KiwiTalkClientError,
@@ -20,12 +20,12 @@ use super::{
     AppCredential,
 };
 
-pub async fn create_client(
+pub async fn create_client<C: Default + Extend<(ChannelId, ChannelDataVariant)>>(
     credential: &AppCredential,
     client_status: ClientStatus,
     info: State<'_, SystemInfo>,
     sink: impl Sink<KiwiTalkClientEvent> + Send + Unpin + 'static,
-) -> Result<(KiwiTalkClient, Vec<ChannelDataVariant>), CreateClientError> {
+) -> Result<(KiwiTalkClient, C), CreateClientError> {
     let checkin_res = checkin(credential.user_id.unwrap_or(1))
         .await
         .map_err(|_| CreateClientError::Checkin)?;
