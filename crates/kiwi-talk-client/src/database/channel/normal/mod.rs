@@ -57,8 +57,8 @@ pub struct NormalChannelEntry<'a>(pub &'a Connection);
 impl NormalChannelEntry<'_> {
     pub fn insert(&self, model: &NormalChannelModel) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO normal_channel VALUES (?, ?)",
-            (model.id, model.joined_at_for_new_mem),
+            "INSERT OR REPLACE INTO normal_channel VALUES (?, ?, ?)",
+            (model.id, model.joined_at_for_new_mem, model.inviter_id),
         )?;
 
         Ok(())
