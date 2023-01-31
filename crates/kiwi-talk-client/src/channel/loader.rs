@@ -9,13 +9,13 @@ use crate::{
 
 use super::{
     normal::{ClientNormalChannel, NormalChannelData},
-    ChannelDataVariant, ClientChannel,
+    ChannelDataVariant, ClientChannel, ChannelId,
 };
 
 pub async fn load_channel_data(
     connection: &ClientConnection,
     channel_list_data_iter: impl IntoIterator<Item = ChannelListData>,
-) -> ClientResult<Vec<ChannelDataVariant>> {
+) -> ClientResult<Vec<(ChannelId, ChannelDataVariant)>> {
     let update_map = connection
         .pool
         .spawn_task(move |connection| Ok(connection.channel().get_update_map()?))
@@ -34,6 +34,8 @@ pub async fn load_channel_data(
             (should_update, list_data)
         })
         .map(|(should_update, list_data)| async move {
+            let id = list_data.id;
+
             let variant = if list_data.link.is_some() {
                 ChannelDataVariant::Open(())
             } else {
@@ -42,7 +44,7 @@ pub async fn load_channel_data(
                 )
             };
 
-            Ok::<ChannelDataVariant, KiwiTalkClientError>(variant)
+            Ok::<_, KiwiTalkClientError>((id, variant))
         })
         .collect::<FuturesUnordered<_>>()
         .try_collect()
