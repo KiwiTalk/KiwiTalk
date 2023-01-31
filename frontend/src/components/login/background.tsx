@@ -10,6 +10,7 @@ const BackgroundContainer = styled.div`
 
 const BackgroundInner = styled.div`
   position: relative;
+
   width: 100%;
   height: 100%;
   background: linear-gradient(107.56deg, #FFFFFF 0%, #FFFAE0 100%);
@@ -20,17 +21,24 @@ const KiwiIcon = styled(KiwiSvg)`
   color: rgba(0, 0, 0, 0.5);
   mix-blend-mode: overlay;
 
-  width: 75%;
-  height: 75%;
+  min-width: 72%;
+  min-height: 72%;
+
+  max-width: 120%;
+  max-height: 120%;
 
   position: absolute;
 
-  left: 45%;
-  top: 70%;
+  right: -30%;
+  bottom: -40%;
 `;
 
 const Background = styled(BackgroundSvg)`
-  position: absolute;
+  position: relative;
+
+  left: 0%;
+  top: 0%;
+
   width: 100%;
   height: 100%;
 `;
@@ -38,11 +46,11 @@ const Background = styled(BackgroundSvg)`
 const BackgroundPattern = styled(BackgroundPatternSvg)`
   position: absolute;
 
-  width: 70%;
-  height: 70%;
+  width: 64%;
+  height: 64%;
 
-  right: 51%;
-  bottom: 32%;
+  left: 0%;
+  top: 0%;
 `;
 
 export type LoginBackgroundProp = {
