@@ -134,7 +134,7 @@ impl ChannelEntry<'_> {
             _ => return Ok(None),
         };
 
-        let metas = self.get_all_meta_in(id)?;
+        let metas = self.get_all_meta_in::<Vec<_>>(id)?;
 
         let last_chat = self
             .0
@@ -156,14 +156,14 @@ impl ChannelEntry<'_> {
         }))
     }
 
-    pub fn get_all_id(&self) -> Result<Vec<ChannelId>, rusqlite::Error> {
+    pub fn get_all_id<B: FromIterator<ChannelId>>(&self) -> Result<B, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT id FROM channel")?;
 
         let rows = statement.query(())?;
         rows.mapped(|row| row.get(0)).collect()
     }
 
-    pub fn get_all(&self) -> Result<Vec<ChannelModel>, rusqlite::Error> {
+    pub fn get_all<B: FromIterator<ChannelModel>>(&self) -> Result<B, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM channel")?;
 
         let rows = statement.query(())?;
@@ -240,10 +240,10 @@ impl ChannelEntry<'_> {
             .optional()
     }
 
-    pub fn get_all_meta_in(
+    pub fn get_all_meta_in<B: FromIterator<ChannelMetaModel>>(
         &self,
         channel_id: ChannelId,
-    ) -> Result<Vec<ChannelMetaModel>, rusqlite::Error> {
+    ) -> Result<B, rusqlite::Error> {
         let mut statement = self
             .0
             .prepare("SELECT * FROM channel_meta WHERE channel_id = ?")?;

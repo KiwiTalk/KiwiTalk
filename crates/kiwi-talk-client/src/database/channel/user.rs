@@ -106,14 +106,17 @@ impl UserEntry<'_> {
             .optional()
     }
 
-    pub fn get_all(&self, id: UserId) -> Result<Vec<UserModel>, rusqlite::Error> {
+    pub fn get_all<B: FromIterator<UserModel>>(&self, id: UserId) -> Result<B, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM channel_user WHERE id = ?")?;
 
         let rows = statement.query([id])?;
         rows.mapped(UserModel::map_row).collect()
     }
 
-    pub fn get_all_in(&self, id: ChannelId) -> Result<Vec<UserModel>, rusqlite::Error> {
+    pub fn get_all_in<B: FromIterator<UserModel>>(
+        &self,
+        id: ChannelId,
+    ) -> Result<B, rusqlite::Error> {
         let mut statement = self
             .0
             .prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;

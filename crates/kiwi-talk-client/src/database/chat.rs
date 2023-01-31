@@ -113,12 +113,12 @@ impl ChatEntry<'_> {
             .execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
     }
 
-    pub fn get_from_latest(
+    pub fn get_from_latest<B: FromIterator<ChatModel>>(
         &self,
         channel_id: ChannelId,
         offset: u64,
         limit: u64,
-    ) -> Result<Vec<ChatModel>, rusqlite::Error> {
+    ) -> Result<B, rusqlite::Error> {
         let mut statement = self
             .0
             .prepare("SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT ?, ?")?;
@@ -225,7 +225,10 @@ pub(crate) mod tests {
         let db = prepare_test_database()?;
         let chat = add_test_chat(&db, 0, 0)?;
 
-        assert_eq!(chat, db.chat().get_from_latest(0, 0, 1)?.pop().unwrap());
+        assert_eq!(
+            chat,
+            db.chat().get_from_latest::<Vec<_>>(0, 0, 1)?.pop().unwrap()
+        );
 
         Ok(())
     }

@@ -78,17 +78,21 @@ impl NormalChannelEntry<'_> {
         &self,
         id: ChannelId,
     ) -> Result<Option<JoinedNormalChannelModel>, rusqlite::Error> {
-        self.0.query_row(
-            "SELECT channel.*, normal_channel.* \
+        self.0
+            .query_row(
+                "SELECT channel.*, normal_channel.* \
             FROM normal_channel \
             INNER JOIN channel ON channel.id = normal_channel.id \
             WHERE channel.id = ?",
-            [id],
-            JoinedNormalChannelModel::map_row
-        ).optional()
+                [id],
+                JoinedNormalChannelModel::map_row,
+            )
+            .optional()
     }
 
-    pub fn get_all_channel(&self) -> Result<Vec<JoinedNormalChannelModel>, rusqlite::Error> {
+    pub fn get_all_channel<B: FromIterator<JoinedNormalChannelModel>>(
+        &self,
+    ) -> Result<B, rusqlite::Error> {
         let mut statement = self.0.prepare(
             "SELECT channel.*, normal_channel.* \
             FROM normal_channel \
