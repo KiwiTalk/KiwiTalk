@@ -6,11 +6,15 @@ import { AppLogin } from './login';
 import i18next from 'i18next';
 import { getGlobalConfiguration, setCredential, initializeClient } from '../backend/app';
 import { getDeviceLocale } from '../backend/system';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { LoginAccessData } from '../backend/auth';
 import { createClientSession } from './session';
+import { AppMain } from './main';
 
 export const App = () => {
+  // TODO:: replace to proper implementation
+  const [logon, setLogon] = useState(false);
+
   const data = useAsync(async () => {
     const configuration = await getGlobalConfiguration();
     const deviceLocale = await getDeviceLocale();
@@ -43,11 +47,13 @@ export const App = () => {
 
       await initializeClient({ status: 'Unlocked' });
 
-      for await (const event of createClientSession()) {
-        // TODO::
-      }
+      setLogon(true);
     })().then();
   }
 
-  return <AppLogin onLogin={onLogin} />;
+  if (logon) {
+    return <AppMain />;
+  } else {
+    return <AppLogin onLogin={onLogin} />;
+  }
 };
