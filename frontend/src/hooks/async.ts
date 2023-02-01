@@ -40,23 +40,23 @@ export function useAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []
   const [status, setStatus] = useState<AsyncHook<T>>({ status: 'pending' });
 
   useEffect(() => {
-    let canceled = false;
+    let cancelFn = () => { };
+    const cancelPromise = new Promise<void>((resolve) => cancelFn = resolve);
+
+    if (status.status !== 'pending') {
+      setStatus({ status: 'pending' });
+    }
 
     (async () => {
-      if (status.status !== 'pending') {
-        setStatus({ status: 'pending' });
-      }
-
       try {
-        const value = await asyncFn();
+        const value = await Promise.race([asyncFn(), cancelPromise]);
 
-        if (canceled) return;
+        if (!value) return;
         setStatus({
           status: 'resolved',
           value,
         });
       } catch (error) {
-        if (canceled) return;
         setStatus({
           status: 'error',
           error,
@@ -64,9 +64,7 @@ export function useAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []
       }
     })().then();
 
-    return () => {
-      canceled = true;
-    };
+    return cancelFn;
   }, deps);
 
   return status;
