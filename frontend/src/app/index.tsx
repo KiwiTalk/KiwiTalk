@@ -49,7 +49,5 @@ export const App = () => {
     })().then();
   }
 
-  return <>
-    <AppLogin onLogin={onLogin} />
-  </>;
+  return <AppLogin onLogin={onLogin} />;
 };

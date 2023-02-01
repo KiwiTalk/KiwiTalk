@@ -5,6 +5,7 @@ import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
 import { LoginAccessData } from '../../backend/auth';
+import { PropsWithChildren } from 'react';
 
 export type AppLoginProp = {
   defaultInput?: LoginFormInput,
@@ -17,20 +18,33 @@ export const AppLogin = ({
 
   onLogin,
 }: AppLoginProp) => {
-  return <>
+  return <Window>
+    <AppLoginContent defaultInput={defaultInput} onLogin={onLogin} />
+  </Window>;
+};
+
+const Window = ({
+  children,
+}: PropsWithChildren) => {
+  return <WindowContainer>
     <WindowTitle />
     <LoginScreen>
-      <AppLoginContent defaultInput={defaultInput} onLogin={onLogin}/>
+      {children}
     </LoginScreen>
-  </>;
-};
+  </WindowContainer>;
+}
+
+const WindowContainer = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 const TitleBar = styled(WindowTitleBar)`
   display: flex;
-  position: fixed;
+  position: absolute;
   width: 100%;
-  left: 0px;
   top: 0px;
+
   z-index: 999999;
 `;
 
