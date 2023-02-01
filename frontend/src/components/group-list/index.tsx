@@ -31,7 +31,7 @@ export const GroupList = ({
     </Header>
     {expanded && childrenCount > 0 ? <ItemList>{children}</ItemList> : null}
   </Container>;
-}
+};
 
 const Container = styled.div`
   background-color: rgba(255, 255, 255, 0.5);
