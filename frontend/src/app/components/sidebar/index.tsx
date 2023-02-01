@@ -99,10 +99,8 @@ const MenuList = ({
   }
 
   return <List className={className}>
-    {[
-      createSelectionItem(<PeopleSvg />, 'friend'),
-      createSelectionItem(<ChatSvg />, 'chat'),
-    ]}
+    {createSelectionItem(<PeopleSvg />, 'friend')}
+    {createSelectionItem(<ChatSvg />, 'chat')}
   </List>;
 };
 
