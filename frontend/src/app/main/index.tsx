@@ -12,7 +12,7 @@ export const AppMain = ({ }: AppMainProp) => {
   return <Window>
     <Sidebar />
   </Window>;
-}
+};
 
 const TitleBar = styled(WindowTitleBar)`
   position: relative;

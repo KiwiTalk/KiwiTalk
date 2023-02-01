@@ -32,7 +32,7 @@ const Window = ({
       {children}
     </LoginScreen>
   </WindowContainer>;
-}
+};
 
 const WindowContainer = styled.div`
   width: 100%;
