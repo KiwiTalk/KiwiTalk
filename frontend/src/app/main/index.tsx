@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { WindowControl } from '../../components/window/control';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { Sidebar } from '../components/sidebar';
+import { ReactComponent as LogoTextSvg } from './images/logo_text_small.svg';
 
 export type AppMainProp = {
 };
@@ -21,6 +22,8 @@ const TitleBar = styled(WindowTitleBar)`
 
 const Control = styled(WindowControl)`
   margin-left: auto;
+
+  color: rgba(0, 0, 0, .5);
 `;
 
 const ContentContainer = styled.div`
@@ -41,11 +44,16 @@ const WindowContainer = styled.div`
   height: 100%;
 `;
 
+const LogoText = styled(LogoTextSvg)`
+  margin: auto 4px;
+`;
+
 const Window = ({
   children,
 }: PropsWithChildren) => {
   return <WindowContainer>
     <TitleBar>
+      <LogoText />
       <Control />
     </TitleBar>
     <ContentContainer>
