@@ -1,8 +1,8 @@
 import { PropsWithChildren } from 'react';
 import styled from 'styled-components';
-import { WindowControl } from '../../components/window/control';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { Sidebar } from '../components/sidebar';
+import { AppWindowControl } from '../window/control';
 import { ReactComponent as LogoTextSvg } from './images/logo_text_small.svg';
 
 export type AppMainProp = {
@@ -20,7 +20,7 @@ const TitleBar = styled(WindowTitleBar)`
   width: 100%;
 `;
 
-const Control = styled(WindowControl)`
+const Control = styled(AppWindowControl)`
   margin-left: auto;
 
   color: rgba(0, 0, 0, .5);
