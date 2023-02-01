@@ -38,6 +38,8 @@ const Control = styled(AppWindowControl)`
   margin-left: auto;
   background-color: rgba(0, 0, 0, .25);
   color: white;
+  
+  border-bottom-left-radius: 3px;
 `;
 
 const WindowTitle = () => {

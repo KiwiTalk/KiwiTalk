@@ -4,7 +4,6 @@ import { ReactComponent as IconMaximizeSvg } from './icons/icon_maximize.svg';
 import { ReactComponent as IconCloseSvg } from './icons/icon_close.svg';
 
 const ControlContainer = styled.div`
-  border-bottom-left-radius: 3px;
   font-size: 0px;
   display: inline-block;
   vertical-align: top;
