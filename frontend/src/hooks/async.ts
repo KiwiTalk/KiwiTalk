@@ -40,7 +40,7 @@ export function useAsync<T>(asyncFn: () => Promise<T>, deps: DependencyList = []
   const [status, setStatus] = useState<AsyncHook<T>>({ status: 'pending' });
 
   useEffect(() => {
-    let cancelFn = () => { };
+    let cancelFn!: () => void;
     const cancelPromise = new Promise<void>((resolve) => cancelFn = resolve);
 
     if (status.status !== 'pending') {
