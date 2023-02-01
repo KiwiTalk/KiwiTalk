@@ -4,9 +4,14 @@ import { App } from './app';
 import './global.css';
 
 function main() {
-  const root = createRoot(document.body);
+  const rootElement = document.getElementById('root');
+  if (!rootElement) {
+    throw new Error('Cannot find root element');
+  }
+
+  const root = createRoot(rootElement);
 
   root.render(<React.StrictMode><App /></React.StrictMode>);
 }
 
-main();
+window.addEventListener('DOMContentLoaded', () => main());
