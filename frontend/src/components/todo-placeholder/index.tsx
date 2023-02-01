@@ -2,14 +2,18 @@ import styled from 'styled-components';
 import { ReactComponent as InfoIconSvg } from './icons/info_black_24dp.svg';
 
 const Container = styled.div`
-  padding: 1rem;
+  margin: 1rem;
+
+  border: 1px solid #DFDEE0;
+  border-radius: 8px;
+
+  display: flex;
 `;
 
 const Inner = styled.div`
   padding: 1rem;
 
-  border: 1px solid #DFDEE0;
-  border-radius: 8px;
+  margin: auto auto;
 
   color: gray;
   
