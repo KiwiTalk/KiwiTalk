@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 import styled from 'styled-components';
+import { TodoPlaceholder } from '../../components/todo-placeholder';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { Sidebar } from '../components/sidebar';
 import { AppWindowControl } from '../window/control';
@@ -11,6 +12,7 @@ export type AppMainProp = {
 export const AppMain = ({ }: AppMainProp) => {
   return <Window>
     <Sidebar />
+    <TodoPlaceholder part="MainWindow" />
   </Window>;
 };
 
