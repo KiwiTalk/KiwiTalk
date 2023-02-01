@@ -18,14 +18,14 @@ export const AppLogin = ({
   onLogin,
 }: AppLoginProp) => {
   return <>
-    <AppLoginWindowTitleBar />
+    <WindowTitle />
     <LoginScreen>
       <AppLoginContent defaultInput={defaultInput} onLogin={onLogin}/>
     </LoginScreen>
   </>;
 };
 
-const LoginTitleBar = styled(WindowTitleBar)`
+const TitleBar = styled(WindowTitleBar)`
   display: flex;
   position: fixed;
   width: 100%;
@@ -34,14 +34,14 @@ const LoginTitleBar = styled(WindowTitleBar)`
   z-index: 999999;
 `;
 
-const LoginWindowControl = styled(AppWindowControl)`
+const Control = styled(AppWindowControl)`
   margin-left: auto;
   background-color: rgba(0, 0, 0, .25);
   color: white;
 `;
 
-const AppLoginWindowTitleBar = () => {
-  return <LoginTitleBar>
-    <LoginWindowControl />
-  </LoginTitleBar>;
+const WindowTitle = () => {
+  return <TitleBar>
+    <Control />
+  </TitleBar>;
 };
