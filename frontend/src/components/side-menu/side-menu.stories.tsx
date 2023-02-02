@@ -17,12 +17,12 @@ const Container = styled.div`
 const Template: StoryFn<typeof SideMenu> = (args) => {
   return <Container>
     <SideMenu {...args}>
-      <SideMenuGroupList icon='A'>
+      <SideMenuGroupList name='ABC' icon='A'>
         <li>A</li>
         <li>B</li>
         <li>C</li>
       </SideMenuGroupList>
-      <SideMenuGroupList icon='X'>
+      <SideMenuGroupList name='XYZ' icon='X'>
         <li>X</li>
         <li>Y</li>
         <li>Z</li>
