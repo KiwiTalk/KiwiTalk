@@ -1,6 +1,6 @@
 import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
-import { SideMenu, type SideMenuProp } from '.';
+import { SideMenu } from '.';
 
 export default {
   title: 'KiwiTalk/SideMenu',
@@ -13,7 +13,7 @@ const Container = styled.div`
   height: 480px;
 `;
 
-const Template: StoryFn<SideMenuProp> = (args) => {
+const Template: StoryFn<typeof SideMenu> = (args) => {
   return <Container>
     <SideMenu {...args}>
       <div>A</div>
