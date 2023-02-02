@@ -1,11 +1,11 @@
-import { Children, PropsWithChildren, useState } from 'react';
+import { Children, PropsWithChildren, ReactNode, useState } from 'react';
 import styled from 'styled-components';
 import { SideMenuIconContent } from '../icon-content';
 import { SideMenuItemContainer } from '../item-container';
 import { ReactComponent as ExpandMoreSvg } from './icons/expand_more.svg';
 
 export type SideMenuGroupListProp = {
-  icon: JSX.Element,
+  icon: ReactNode,
   name?: string,
 
   defaultExpanded?: boolean,
