@@ -1,22 +1,22 @@
 import { StoryFn } from '@storybook/react';
-import { GroupList } from '.';
+import { SideMenuGroupList } from '.';
 
 import { ReactComponent as IconSvg } from './icons/expand_more.svg';
 
 export default {
-  title: 'KiwiTalk/GroupList',
-  component: GroupList,
+  title: 'KiwiTalk/SideMenu/GroupList',
+  component: SideMenuGroupList,
 };
 
-const Template: StoryFn<typeof GroupList> = (args) =>
-  <GroupList {...args}>
+const Template: StoryFn<typeof SideMenuGroupList> = (args) =>
+  <SideMenuGroupList {...args}>
     <li>A</li>
     <li>B</li>
     <li>C</li>
     <li>D</li>
     <li>E</li>
     <li>F</li>
-  </GroupList>;
+  </SideMenuGroupList>;
 
 export const Default = Template.bind({});
 Default.args = {
