@@ -84,15 +84,15 @@ const ButtonList = ({
   </List>;
 };
 
-const BottomButtonList = styled(ButtonList)`
-  margin-top: auto;
-`;
-
 const List = styled.ul`
   margin: 0px;
 
   padding: 0px;
   list-style-type: none;
+`;
+
+const BottomButtonList = styled(ButtonList)`
+  margin-top: auto;
 `;
 
 const ListItem = styled.li`
