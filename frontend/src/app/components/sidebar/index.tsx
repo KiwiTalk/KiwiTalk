@@ -5,6 +5,89 @@ import { ReactComponent as LockSvg } from './icons/lock.svg';
 import { ReactComponent as SettingsSvg } from './icons/settings.svg';
 import { useState } from 'react';
 
+export type SidebarProp = {
+  className?: string
+} & MenuListProp & ButtonListProp;
+
+export const Sidebar = ({
+  defaultMenu,
+  className,
+  onMenuSelect,
+  onButtonClick,
+}: SidebarProp) => {
+  return <Container className={className}>
+    <Inner>
+      <MenuList defaultMenu={defaultMenu} onMenuSelect={onMenuSelect} />
+      <BottomButtonList onButtonClick={onButtonClick} />
+    </Inner>
+  </Container>;
+};
+
+export type SidebarMenuItem = 'friend' | 'chat';
+
+type MenuListProp = {
+  defaultMenu: SidebarMenuItem,
+  className?: string,
+  onMenuSelect?: (item?: SidebarMenuItem) => void,
+};
+
+const MenuList = ({
+  defaultMenu,
+  className,
+  onMenuSelect,
+}: MenuListProp) => {
+  const [current, setCurrent] = useState<SidebarMenuItem>(defaultMenu);
+
+  function createSelectionHandler(selection: SidebarMenuItem) {
+    return () => {
+      if (current !== selection) {
+        setCurrent(selection);
+        onMenuSelect?.(selection);
+      }
+    };
+  }
+
+  function createSelectionItem(icon: JSX.Element, item: SidebarMenuItem) {
+    return <SidebarItem
+      icon={icon}
+      activated={current === item}
+      onClick={createSelectionHandler(item)}
+    />;
+  }
+
+  return <List className={className}>
+    {createSelectionItem(<PeopleSvg />, 'friend')}
+    {createSelectionItem(<ChatSvg />, 'chat')}
+  </List>;
+};
+
+export type SidebarButtonItem = 'lock' | 'settings';
+
+type ButtonListProp = {
+  className?: string,
+  onButtonClick?: (item: SidebarButtonItem) => void,
+};
+
+const ButtonList = ({
+  className,
+  onButtonClick,
+}: ButtonListProp) => {
+  function createButtonHandler(item: SidebarButtonItem) {
+    return () => {
+      onButtonClick?.(item);
+    };
+  }
+
+  return <List className={className}>
+    <SidebarItem icon={<LockSvg />} onClick={createButtonHandler('lock')} />
+    <SidebarItem icon={<SettingsSvg />} onClick={createButtonHandler('settings')} />
+  </List>;
+};
+
+const BottomButtonList = styled(ButtonList)`
+  margin-top: auto;
+`;
+
 const List = styled.ul`
   margin: 0px;
 
@@ -63,87 +146,4 @@ const SidebarItem = ({
       {icon}
     </IconContainer>
   </ListItem>;
-};
-
-export type SidebarMenuItem = 'friend' | 'chat';
-
-type MenuListProp = {
-  className?: string,
-  onMenuSelect?: (item?: SidebarMenuItem) => void,
-};
-
-const MenuList = ({
-  className,
-  onMenuSelect,
-}: MenuListProp) => {
-  const [current, setCurrent] = useState<SidebarMenuItem | null>(null);
-
-  function createSelectionHandler(selection: SidebarMenuItem) {
-    return () => {
-      if (current === selection) {
-        setCurrent(null);
-        onMenuSelect?.();
-      } else {
-        setCurrent(selection);
-        onMenuSelect?.(selection);
-      }
-    };
-  }
-
-  function createSelectionItem(icon: JSX.Element, item: SidebarMenuItem) {
-    return <SidebarItem
-      icon={icon}
-      activated={current === item}
-      onClick={createSelectionHandler(item)}
-    />;
-  }
-
-  return <List className={className}>
-    {createSelectionItem(<PeopleSvg />, 'friend')}
-    {createSelectionItem(<ChatSvg />, 'chat')}
-  </List>;
-};
-
-export type SidebarButtonItem = 'lock' | 'settings';
-
-type ButtonListProp = {
-  className?: string,
-  onButtonClick?: (item: SidebarButtonItem) => void,
-};
-
-const ButtonList = ({
-  className,
-  onButtonClick,
-}: ButtonListProp) => {
-  function createButtonHandler(item: SidebarButtonItem) {
-    return () => {
-      onButtonClick?.(item);
-    };
-  }
-
-  return <List className={className}>
-    <SidebarItem icon={<LockSvg />} onClick={createButtonHandler('lock')} />
-    <SidebarItem icon={<SettingsSvg />} onClick={createButtonHandler('settings')} />
-  </List>;
-};
-
-const BottomButtonList = styled(ButtonList)`
-  margin-top: auto;
-`;
-
-export type SidebarProp = {
-  className?: string
-} & MenuListProp & ButtonListProp;
-
-export const Sidebar = ({
-  className,
-  onMenuSelect,
-  onButtonClick,
-}: SidebarProp) => {
-  return <Container className={className}>
-    <Inner>
-      <MenuList onMenuSelect={onMenuSelect} />
-      <BottomButtonList onButtonClick={onButtonClick} />
-    </Inner>
-  </Container>;
 };

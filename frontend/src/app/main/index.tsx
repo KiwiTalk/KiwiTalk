@@ -11,7 +11,7 @@ export type AppMainProp = {
 
 export const AppMain = ({ }: AppMainProp) => {
   return <Window>
-    <Sidebar />
+    <Sidebar defaultMenu='friend' />
     <TodoPlaceholder part="MainWindow" />
   </Window>;
 };

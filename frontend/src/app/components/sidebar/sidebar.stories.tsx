@@ -22,5 +22,5 @@ const Template: StoryFn<SidebarProp> = (args) =>
 
 export const Default = Template.bind({});
 Default.args = {
-
+  defaultMenu: 'friend',
 };
