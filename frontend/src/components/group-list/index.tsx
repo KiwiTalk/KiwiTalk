@@ -69,8 +69,6 @@ const Name = styled.span`
 
   overflow: hidden;
   text-overflow: ellipsis;
-
-  color: #1E2019;
 `;
 
 const CountText = styled.span`
