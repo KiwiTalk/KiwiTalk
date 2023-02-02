@@ -1,6 +1,7 @@
 import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
 import { SideMenu } from '.';
+import { SideMenuGroupList } from './group-list';
 
 export default {
   title: 'KiwiTalk/SideMenu',
@@ -16,9 +17,16 @@ const Container = styled.div`
 const Template: StoryFn<typeof SideMenu> = (args) => {
   return <Container>
     <SideMenu {...args}>
-      <div>A</div>
-      <div>B</div>
-      <div>C</div>
+      <SideMenuGroupList icon='A'>
+        <li>A</li>
+        <li>B</li>
+        <li>C</li>
+      </SideMenuGroupList>
+      <SideMenuGroupList icon='X'>
+        <li>X</li>
+        <li>Y</li>
+        <li>Z</li>
+      </SideMenuGroupList>
     </SideMenu>
   </Container>;
 };
