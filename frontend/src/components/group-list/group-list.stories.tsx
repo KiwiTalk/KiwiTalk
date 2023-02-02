@@ -5,7 +5,7 @@ import { ReactComponent as IconSvg } from './icons/expand_more.svg';
 
 export default {
   title: 'KiwiTalk/GroupList',
-  component: GroupList
+  component: GroupList,
 };
 
 const Template: StoryFn<typeof GroupList> = (args) =>

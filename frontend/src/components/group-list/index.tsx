@@ -14,7 +14,7 @@ export const GroupList = ({
   name,
   defaultExpanded,
 
-  children
+  children,
 }: PropsWithChildren<GroupListProp>) => {
   const [expanded, setExpanded] = useState(!!defaultExpanded);
 
@@ -66,6 +66,9 @@ const HeaderTitle = styled.div`
 const Name = styled.span`
   user-select: none;
   margin-right: 0.5rem;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   color: #1E2019;
 `;
