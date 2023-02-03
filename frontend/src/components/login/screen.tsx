@@ -3,7 +3,6 @@ import { LoginContainer } from './container';
 import { ReactComponent as TextLogoSvg } from './icons/text_logo.svg';
 
 const ContentContainer = styled.div`
-  position: relative;
   left: 0px;
   top: 0px;
   padding: 3rem 3rem;

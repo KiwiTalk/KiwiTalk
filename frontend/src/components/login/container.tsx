@@ -31,13 +31,8 @@ const BackgroundPattern = styled(BackgroundPatternSvg)`
 
 const Container = styled.div`
   background: linear-gradient(107.56deg, #FFFFFF 0%, #FFFAE0 100%);
-`;
 
-const Inner = styled.div`
   position: relative;
-
-  width: 100%;
-  height: 100%;
 `;
 
 export type LoginBackgroundProp = {
@@ -50,12 +45,10 @@ export const LoginContainer = ({
   children,
 }: PropsWithChildren<LoginBackgroundProp>) => {
   return <Container className={className}>
-    <Inner>
-      <BackgroundPattern />
-      <Background />
-      <ContentContainer>
-        {children}
-      </ContentContainer>
-    </Inner>
+    <BackgroundPattern />
+    <Background />
+    <ContentContainer>
+      {children}
+    </ContentContainer>
   </Container>;
 };
