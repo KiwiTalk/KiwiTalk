@@ -31,7 +31,7 @@ export const SideMenu = ({
 };
 
 const Container = styled.div`
-  margin: 1rem 1rem 0px 1rem;
+  padding: 1rem 1rem 0px 1rem;
 `;
 
 const Head = styled.div`
