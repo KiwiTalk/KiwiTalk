@@ -8,7 +8,6 @@ import { getGlobalConfiguration, setCredential, initializeClient } from '../back
 import { getDeviceLocale } from '../backend/system';
 import { useEffect, useState } from 'react';
 import { LoginAccessData } from '../backend/auth';
-import { createClientSession } from './session';
 import { AppMain } from './main';
 
 export const App = () => {
@@ -52,7 +51,7 @@ export const App = () => {
   }
 
   if (logon) {
-    return <AppMain />;
+    return <AppMain profile={{ name: 'Example', contact: 'example@example.com' }} />;
   } else {
     return <AppLogin onLogin={onLogin} />;
   }
