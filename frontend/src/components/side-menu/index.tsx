@@ -32,6 +32,8 @@ export const SideMenu = ({
 
 const Container = styled.div`
   padding: 1rem 1rem 0px 1rem;
+  
+  box-sizing: border-box;
 `;
 
 const Head = styled.div`
