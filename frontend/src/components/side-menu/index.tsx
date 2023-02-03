@@ -45,6 +45,8 @@ const Head = styled.div`
 const Name = styled.span`
   font-size: 1.5rem;
 
+  font-weight: bold;
+
   user-select: None;
 
   overflow: hidden;
