@@ -24,7 +24,7 @@ export const Profile = ({
       <Name>{name}</Name>
       <Contact>{contact}</Contact>
     </Info>
-    <EditButton onClick={onEditClick}>
+    <EditButton onClick={onEditClick} type='button'>
       <EditIcon />
     </EditButton>
   </Container>;
