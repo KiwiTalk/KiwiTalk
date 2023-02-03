@@ -17,7 +17,7 @@ export const AppMain = ({
 }: AppMainProp) => {
   return <AppWindow>
     <AppMenu defaultMenu={defaultMenu} profile={profile} />
-    <TodoPlaceholder part="ChatWindow" />
+    <TodoPlaceholder part='ChatWindow' />
   </AppWindow>;
 };
 
@@ -33,13 +33,17 @@ const AppMenu = ({
   const [menu, setMenu] = useState<SidebarMenuItem>(defaultMenu ?? 'friend');
 
   return <>
-    <Sidebar defaultMenu={menu} onMenuSelect={setMenu} />
+    <AppSidebar defaultMenu={menu} onMenuSelect={setMenu} />
     <SideMenuContainer>
-      <AppSideMenu name='Test'></AppSideMenu>
+      <AppSideMenu name='TODO'></AppSideMenu>
       <Profile {...profile} />
     </SideMenuContainer>
   </>;
 };
+
+const AppSidebar = styled(Sidebar)`
+  background: #FFFFFF;
+`;
 
 const AppSideMenu = styled(SideMenu)`
   background: #F2F2F3;
@@ -58,4 +62,6 @@ const SideMenuContainer = styled.div`
 
   width: 25%;
   height: 100%;
+
+  background: #FFFFFF;
 `;

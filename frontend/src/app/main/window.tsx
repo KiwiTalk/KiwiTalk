@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 import styled from 'styled-components';
+import { KiwiContainer } from '../../components/kiwi-container';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { ReactComponent as LogoTextSvg } from './images/logo_text_small.svg';
@@ -22,6 +23,8 @@ const TitleBar = styled(WindowTitleBar)`
   position: relative;
   display: flex;
   width: 100%;
+
+  background: #FFFFFF;
 `;
 
 const Control = styled(AppWindowControl)`
@@ -39,8 +42,10 @@ const ContentContainer = styled.div`
   flex-direction: row;
 `;
 
-const WindowContainer = styled.div`
+const WindowContainer = styled(KiwiContainer)`
   display: flex;
+
+  background: #DFDEE0;
 
   flex-direction: column;
 
