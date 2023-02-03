@@ -17,6 +17,9 @@ const TextLogo = styled(TextLogoSvg)`
 const Background = styled(LoginBackground)`
   position: absolute;
   z-index: -999999;
+
+  width: 100%;
+  height: 100%;
 `;
 
 const FormContainer = styled.div`
