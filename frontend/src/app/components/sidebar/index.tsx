@@ -28,7 +28,7 @@ export type SidebarMenuItem = 'friend' | 'chat';
 type MenuListProp = {
   defaultMenu: SidebarMenuItem,
   className?: string,
-  onMenuSelect?: (item?: SidebarMenuItem) => void,
+  onMenuSelect?: (item: SidebarMenuItem) => void,
 };
 
 const MenuList = ({
