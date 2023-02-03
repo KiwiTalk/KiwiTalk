@@ -16,18 +16,19 @@ const TextLogo = styled(TextLogoSvg)`
   color: black;
 `;
 
-const Container = styled(LoginContainer)`
-  width: 100%;
-  height: 100%;
-`;
+export type LoginScreenProp = {
+  className?: string,
+};
 
 export const LoginScreen = ({
+  className,
+
   children,
-}: React.PropsWithChildren) => {
-  return <Container>
+}: React.PropsWithChildren<LoginScreenProp>) => {
+  return <LoginContainer className={className}>
     <ContentContainer>
       <TextLogo />
       {children}
     </ContentContainer>
-  </Container>;
+  </LoginContainer>;
 };
