@@ -28,9 +28,9 @@ const Window = ({
 }: PropsWithChildren) => {
   return <WindowContainer>
     <WindowTitle />
-    <LoginScreen>
+    <Screen>
       {children}
-    </LoginScreen>
+    </Screen>
   </WindowContainer>;
 };
 
@@ -54,6 +54,11 @@ const Control = styled(AppWindowControl)`
   color: white;
   
   border-bottom-left-radius: 3px;
+`;
+
+const Screen = styled(LoginScreen)`
+  width: 100%;
+  height: 100%;
 `;
 
 const WindowTitle = () => {
