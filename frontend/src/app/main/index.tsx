@@ -1,65 +1,61 @@
-import { PropsWithChildren } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
+import { SideMenu } from '../../components/side-menu';
 import { TodoPlaceholder } from '../../components/todo-placeholder';
-import { WindowTitleBar } from '../../components/window/title-bar';
-import { Sidebar } from '../components/sidebar';
-import { AppWindowControl } from '../window/control';
-import { ReactComponent as LogoTextSvg } from './images/logo_text_small.svg';
+import { Profile, ProfileProp } from '../components/profile';
+import { Sidebar, SidebarMenuItem } from '../components/sidebar';
+import { AppWindow } from './window';
 
 export type AppMainProp = {
+  defaultMenu?: SidebarMenuItem,
+  profile: ProfileProp,
 };
 
-export const AppMain = ({ }: AppMainProp) => {
-  return <Window>
-    <Sidebar defaultMenu='friend' />
-    <TodoPlaceholder part="MainWindow" />
-  </Window>;
+export const AppMain = ({
+  defaultMenu,
+  profile,
+}: AppMainProp) => {
+  return <AppWindow>
+    <AppMenu defaultMenu={defaultMenu} profile={profile} />
+    <TodoPlaceholder part="ChatWindow" />
+  </AppWindow>;
 };
 
-const TitleBar = styled(WindowTitleBar)`
-  position: relative;
-  display: flex;
-  width: 100%;
-`;
+type AppMenuProp = {
+  defaultMenu?: SidebarMenuItem,
+  profile: ProfileProp,
+}
 
-const Control = styled(AppWindowControl)`
-  margin-left: auto;
+const AppMenu = ({
+  defaultMenu,
+  profile,
+}: AppMenuProp) => {
+  const [menu, setMenu] = useState<SidebarMenuItem>(defaultMenu ?? 'friend');
 
-  color: rgba(0, 0, 0, .5);
-`;
+  return <>
+    <Sidebar defaultMenu={menu} onMenuSelect={setMenu} />
+    <SideMenuContainer>
+      <AppSideMenu name='Test'></AppSideMenu>
+      <Profile {...profile} />
+    </SideMenuContainer>
+  </>;
+};
 
-const ContentContainer = styled.div`
-  width: 100%;
+const AppSideMenu = styled(SideMenu)`
+  background: #F2F2F3;
+
+  border-radius: 0.5rem 0px 0px 0px;
+
   height: 100%;
-
-  display: flex;
-
-  flex-direction: row;
 `;
 
-const WindowContainer = styled.div`
+const SideMenuContainer = styled.div`
   display: flex;
 
   flex-direction: column;
 
-  width: 100%;
+  min-width: 160px;
+
+  width: 25%;
   height: 100%;
 `;
-
-const LogoText = styled(LogoTextSvg)`
-  margin: auto 4px;
-`;
-
-const Window = ({
-  children,
-}: PropsWithChildren) => {
-  return <WindowContainer>
-    <TitleBar>
-      <LogoText />
-      <Control />
-    </TitleBar>
-    <ContentContainer>
-      {children}
-    </ContentContainer>
-  </WindowContainer>;
-};
