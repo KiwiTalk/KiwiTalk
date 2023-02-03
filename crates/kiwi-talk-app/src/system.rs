@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use base64::{engine::general_purpose::STANDARD, Engine};
-use platform_dirs::AppDirs;
 use rand::Rng;
 use tauri::{
     generate_handler,
