@@ -2,19 +2,19 @@ import { PropsWithChildren } from 'react';
 import styled from 'styled-components';
 import { ReactComponent as KiwiSvg } from './icons/kiwi.svg';
 
-export type KiwiBackgroundProp = {
+export type KiwiContainerProp = {
   className?: string,
 };
 
-export const KiwiBackground = ({
+export const KiwiContainer = ({
   className,
 
   children,
-}: PropsWithChildren<KiwiBackgroundProp>) => {
+}: PropsWithChildren<KiwiContainerProp>) => {
   return <div className={className}>
     <Inner>
-      {children}
       <KiwiIcon />
+      {children}
     </Inner>
   </div>;
 };

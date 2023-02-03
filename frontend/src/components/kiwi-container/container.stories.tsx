@@ -1,10 +1,10 @@
 import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
-import { KiwiBackground } from '.';
+import { KiwiContainer } from '.';
 
 export default {
-  title: 'KiwiTalk/KiwiBackground',
-  component: KiwiBackground,
+  title: 'KiwiTalk/KiwiContainer',
+  component: KiwiContainer,
 };
 
 type StoryProp = {
@@ -14,7 +14,7 @@ type StoryProp = {
 };
 
 const Template: StoryFn<StoryProp> = (args) => {
-  const Background = styled(KiwiBackground)`
+  const Container = styled(KiwiContainer)`
     width: ${args.width}px;
     height: ${args.height}px;
     background-color: ${args.backgroundColor};
@@ -22,7 +22,7 @@ const Template: StoryFn<StoryProp> = (args) => {
     border: 1px solid #000000;
   `;
 
-  return <Background />;
+  return <Container />;
 };
 
 export const Default = Template.bind({});
