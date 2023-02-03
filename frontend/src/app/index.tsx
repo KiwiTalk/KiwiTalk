@@ -51,7 +51,7 @@ export const App = () => {
   }
 
   if (logon) {
-    return <AppMain profile={{ name: 'Example', contact: 'example@example.com' }} />;
+    return <AppMain profile={{ name: 'TODO', contact: 'example@example.com' }} />;
   } else {
     return <AppLogin onLogin={onLogin} />;
   }
