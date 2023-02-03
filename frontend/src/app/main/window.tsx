@@ -19,35 +19,35 @@ export const AppWindow = ({
 };
 
 const TitleBar = styled(WindowTitleBar)`
-    position: relative;
-    display: flex;
-    width: 100%;
-  `;
+  position: relative;
+  display: flex;
+  width: 100%;
+`;
 
 const Control = styled(AppWindowControl)`
-    margin-left: auto;
+  margin-left: auto;
   
-    color: rgba(0, 0, 0, .5);
-  `;
+  color: rgba(0, 0, 0, .5);
+`;
 
 const ContentContainer = styled.div`
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
   
-    display: flex;
+  display: flex;
   
-    flex-direction: row;
-  `;
+  flex-direction: row;
+`;
 
 const WindowContainer = styled.div`
-    display: flex;
-  
-    flex-direction: column;
-  
-    width: 100%;
-    height: 100%;
-  `;
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+  height: 100%;
+`;
 
 const LogoText = styled(LogoTextSvg)`
-    margin: auto 4px;
-  `;
+  margin: auto 4px;
+`;
