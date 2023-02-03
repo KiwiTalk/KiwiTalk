@@ -72,6 +72,6 @@ async fn load_normal_channel(
     }
 
     ClientNormalChannel::new(ClientChannel::new(list_data.id, connection))
-            .initialize()
-            .await
+        .initialize()
+        .await
 }
