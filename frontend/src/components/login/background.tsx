@@ -1,36 +1,10 @@
 import styled from 'styled-components';
-import { ReactComponent as KiwiSvg } from './icons/kiwi.svg';
 import { ReactComponent as BackgroundSvg } from './images/background.svg';
 import { ReactComponent as BackgroundPatternSvg } from './images/background-pattern.svg';
+import { KiwiBackground } from '../kiwi-background';
 
-const BackgroundContainer = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-
-const BackgroundInner = styled.div`
-  position: relative;
-
-  width: 100%;
-  height: 100%;
+const BackgroundContainer = styled(KiwiBackground)`
   background: linear-gradient(107.56deg, #FFFFFF 0%, #FFFAE0 100%);
-  overflow: hidden;
-`;
-
-const KiwiIcon = styled(KiwiSvg)`
-  color: rgba(0, 0, 0, 0.5);
-  mix-blend-mode: overlay;
-
-  min-width: 72%;
-  min-height: 72%;
-
-  max-width: 120%;
-  max-height: 120%;
-
-  position: absolute;
-
-  right: -30%;
-  bottom: -40%;
 `;
 
 const Background = styled(BackgroundSvg)`
@@ -61,10 +35,7 @@ export const LoginBackground = ({
   className,
 }: LoginBackgroundProp) => {
   return <BackgroundContainer className={className}>
-    <BackgroundInner>
-      <BackgroundPattern />
-      <Background />
-      <KiwiIcon />
-    </BackgroundInner>
+    <BackgroundPattern />
+    <Background />
   </BackgroundContainer>;
 };
