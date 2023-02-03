@@ -11,18 +11,13 @@ export const KiwiContainer = ({
 
   children,
 }: PropsWithChildren<KiwiContainerProp>) => {
-  return <div className={className}>
-    <Inner>
-      <KiwiIcon />
-      {children}
-    </Inner>
-  </div>;
+  return <Container className={className}>
+    <KiwiIcon />
+    {children}
+  </Container>;
 };
 
-const Inner = styled.div`
-  width: 100%;
-  height: 100%;
-
+const Container = styled.div`
   position: relative;
 
   overflow: hidden;
