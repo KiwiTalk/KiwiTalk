@@ -98,8 +98,6 @@ const BottomButtonList = styled(ButtonList)`
 const ListItem = styled.li`
   margin: 0px;
 
-  cursor: pointer;
-
   color: #BFBDC1;
 
   &:hover, &[data-activated=true] {
@@ -109,8 +107,10 @@ const ListItem = styled.li`
   transition color 0.25s;
 `;
 
-const IconContainer = styled.div`
-  text-align: center;
+const IconButton = styled.button`
+  all: unset;
+
+  cursor: pointer;
 
   line-height: 0px;
 
@@ -142,8 +142,8 @@ const SidebarItem = ({
   onClick,
 }: SidebarItemProp) => {
   return <ListItem data-activated={activated} onClick={onClick}>
-    <IconContainer>
+    <IconButton type='button'>
       {icon}
-    </IconContainer>
+    </IconButton>
   </ListItem>;
 };
