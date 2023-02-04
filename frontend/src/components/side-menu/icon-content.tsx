@@ -18,12 +18,13 @@ export const SideMenuIconContent = ({
 
 const Container = styled.div`
   display: flex;
+  align-items: center;
 `;
 
 const IconBox = styled.div`
   width: 1.5rem;
   height: 1.5rem;
-  
+
   box-sizing: border-box;
 
   color: #1E2019;
@@ -32,6 +33,7 @@ const IconBox = styled.div`
   border-radius: 50%;
 
   text-align: center;
+  line-height: 0px;
 
   margin-right: 0.5rem;
 `;
