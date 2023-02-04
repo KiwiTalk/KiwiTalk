@@ -12,7 +12,7 @@ import { AppMain } from './main';
 
 export const App = () => {
   // TODO:: replace to proper implementation
-  const [logon, setLogon] = useState(true);
+  const [logon, setLogon] = useState(false);
 
   const data = useAsync(async () => {
     const configuration = await getGlobalConfiguration();
