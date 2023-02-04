@@ -22,9 +22,11 @@ const Container = styled.div`
 `;
 
 const IconBox = styled.div`
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
 
+  padding: 0.25rem;
+  
   box-sizing: border-box;
 
   color: #1E2019;
