@@ -58,7 +58,7 @@ const HeadContainer = styled.div`
 `;
 
 const ContentList = styled.ul`
-  margin: 0px;
+  margin: 1rem 0px 0px 0px;
   padding: 0px;
 
   list-style-type: none;
