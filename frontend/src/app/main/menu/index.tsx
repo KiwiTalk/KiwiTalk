@@ -12,6 +12,7 @@ export const AppSideMenu = styled(SideMenu)`
 export const SideButton = styled.button`
   all: unset;
 
+  margin: 0px 0.125rem;
   padding: 0.25rem;
 
   width: 2rem;
