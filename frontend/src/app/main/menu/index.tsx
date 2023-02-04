@@ -8,3 +8,24 @@ export const AppSideMenu = styled(SideMenu)`
 
   height: 100%;
 `;
+
+export const SideButton = styled.button`
+  all: unset;
+
+  padding: 0.25rem;
+
+  width: 2rem;
+  height: 2rem;
+
+  box-sizing: border-box;
+
+  border-radius: 50%;
+
+  color: #1E2019;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.09);
+  }
+
+  transition: background 0.25s;
+`;
