@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { SideMenu } from '../../components/side-menu';
-import { TodoPlaceholder } from '../../components/todo-placeholder';
 import { Profile, ProfileProp } from '../components/profile';
 import { Sidebar, SidebarMenuItem } from '../components/sidebar';
+import { ChatMenu } from './menu/chat';
+import { FriendMenu } from './menu/friend';
 import { AppWindow } from './window';
 
 export type AppMainProp = {
@@ -15,42 +16,23 @@ export const AppMain = ({
   defaultMenu,
   profile,
 }: AppMainProp) => {
-  return <AppWindow>
-    <AppMenu defaultMenu={defaultMenu} profile={profile} />
-    <TodoPlaceholder part='ChatWindow' />
-  </AppWindow>;
-};
-
-type AppMenuProp = {
-  defaultMenu?: SidebarMenuItem,
-  profile: ProfileProp,
-}
-
-const AppMenu = ({
-  defaultMenu,
-  profile,
-}: AppMenuProp) => {
   const [menu, setMenu] = useState<SidebarMenuItem>(defaultMenu ?? 'friend');
+  const { t } = useTranslation();
 
-  return <>
+  const currentMenu = menu == 'friend' ? <FriendMenu /> : <ChatMenu />;
+
+  return <AppWindow>
     <AppSidebar defaultMenu={menu} onMenuSelect={setMenu} />
     <SideMenuContainer>
-      <AppSideMenu name='TODO'></AppSideMenu>
+      {currentMenu}
       <Profile {...profile} />
     </SideMenuContainer>
-  </>;
+    <ChatWindowPlaceholder>{t(`main.chat.empty.${menu}`)}</ChatWindowPlaceholder>
+  </AppWindow>;
 };
 
 const AppSidebar = styled(Sidebar)`
   background: #FFFFFF;
-`;
-
-const AppSideMenu = styled(SideMenu)`
-  background: #F2F2F3;
-
-  border-radius: 0.5rem 0px 0px 0px;
-
-  height: 100%;
 `;
 
 const SideMenuContainer = styled.div`
@@ -64,4 +46,14 @@ const SideMenuContainer = styled.div`
   height: 100%;
 
   background: #FFFFFF;
+`;
+
+const ChatWindowPlaceholder = styled.p`
+  margin: auto auto;
+
+  color: #4D5061;
+  font-size: 0.875rem;
+  text-align: center;
+
+  user-select: none;
 `;
