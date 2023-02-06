@@ -4,6 +4,7 @@ import { SideMenuGroupList } from '../../../components/side-menu/group-list';
 import { ReactComponent as ChatOutlineSvg } from './icons/chat_outline.svg';
 import { ReactComponent as ForumOutlineSvg } from './icons/forum_outline.svg';
 import { ReactComponent as SearchSvg } from './icons/search.svg';
+import { ReactComponent as NewChatSvg } from './icons/new_chat.svg';
 
 export const ChatMenu = () => {
   const { t } = useTranslation();
@@ -18,6 +19,9 @@ export const ChatMenu = () => {
       <>
         <SideButton type='button'>
           <SearchSvg />
+        </SideButton>
+        <SideButton type='button'>
+          <NewChatSvg />
         </SideButton>
       </>
     }>
