@@ -74,7 +74,7 @@ macro_rules! async_client_method {
             .await.await?;
 
             if res.status == 0 {
-                Ok(res.get()?)
+                Ok(res.try_deserialize()?)
             } else {
                 Err(crate::client::ClientRequestError::Request(res.status))
             }

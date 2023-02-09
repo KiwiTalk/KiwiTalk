@@ -22,7 +22,7 @@ impl ResponseData {
     }
 
     #[inline(always)]
-    pub fn get<T: DeserializeOwned>(self) -> Result<T, bson::de::Error> {
+    pub fn try_deserialize<T: DeserializeOwned>(self) -> Result<T, bson::de::Error> {
         bson::from_document(self.data)
     }
 
