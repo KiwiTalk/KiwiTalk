@@ -32,7 +32,8 @@ use tokio::{
 pub struct LocoRequestSession {
     sender: mpsc::Sender<RequestCommand>,
 
-    tasks: (JoinHandle<()>, JoinHandle<()>),
+    read_task: JoinHandle<()>,
+    write_task: JoinHandle<()>,
 }
 
 impl LocoRequestSession {
@@ -53,7 +54,8 @@ impl LocoRequestSession {
         (
             Self {
                 sender,
-                tasks: (read_task, write_task),
+                read_task,
+                write_task,
             },
             LocoBroadcastStream(read_recv),
         )
@@ -73,10 +75,8 @@ impl LocoRequestSession {
 
 impl Drop for LocoRequestSession {
     fn drop(&mut self) {
-        let (ref read_task, ref write_task) = self.tasks;
-
-        read_task.abort();
-        write_task.abort();
+        self.read_task.abort();
+        self.write_task.abort();
     }
 }
 
