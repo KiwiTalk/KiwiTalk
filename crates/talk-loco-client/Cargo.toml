@@ -19,6 +19,6 @@ loco-protocol = "5.4.0"
 thiserror = "1.0"
 
 [dev-dependencies]
-tokio-native-tls = "0.3.0"
+tokio-native-tls = "0.3.1"
 tokio-util = { version = "0.7.4", features = ["compat"] }
 tokio = { version = "1", features = ["full"] }
