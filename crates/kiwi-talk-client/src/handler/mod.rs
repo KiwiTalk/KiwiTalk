@@ -9,7 +9,7 @@ use talk_loco_command::{command::BsonCommand, response::chat};
 use crate::{
     chat::Chatlog,
     event::{
-        channel::{ChannelEvent, ChatRead, ReceivedChat},
+        channel::{ChannelEvent, ChatRead, ChatReceived},
         KiwiTalkClientEvent,
     },
 };
@@ -79,7 +79,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
 
         self.emitter
             .emit(
-                ChannelEvent::Chat(ReceivedChat {
+                ChannelEvent::Chat(ChatReceived {
                     channel_id: data.chat_id,
                     link_id: data.link_id,
                     log_id: data.log_id,

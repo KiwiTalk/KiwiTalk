@@ -8,12 +8,12 @@ use crate::{
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", content = "data")]
 pub enum ChannelEvent {
-    Chat(ReceivedChat),
+    Chat(ChatReceived),
     ChatRead(ChatRead),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ReceivedChat {
+pub struct ChatReceived {
     pub channel_id: ChannelId,
     pub link_id: Option<i64>,
 
