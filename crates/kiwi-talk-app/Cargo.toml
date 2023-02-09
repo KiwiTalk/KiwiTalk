@@ -30,6 +30,7 @@ log = "0.4.17"
 env_logger = "0.10.0"
 parking_lot = "0.12.1"
 futures = "0.3.26"
+window-shadows = "0.2.1"
 
 kiwi-talk-client = { path = "../kiwi-talk-client" }
 talk-api-client = { path = "../talk-api-client" }

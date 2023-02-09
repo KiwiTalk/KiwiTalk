@@ -15,6 +15,7 @@ use tauri::{
     api::dialog, AppHandle, CustomMenuItem, Manager, Runtime, SystemTray, SystemTrayEvent,
     SystemTrayMenu,
 };
+use window_shadows::set_shadow;
 
 fn init_logger() {
     let mut builder = env_logger::Builder::from_default_env();
@@ -68,6 +69,8 @@ async fn main() -> Result<(), Box<dyn Error + 'static>> {
         .on_system_tray_event(on_tray_event)
         .build(tauri::generate_context!())?;
     let main_window = app.get_window("main").unwrap();
+
+    set_shadow(&main_window, true).ok();
 
     if let Err(err) = init_app(&app.handle()).await {
         dialog::message(
