@@ -4,7 +4,7 @@ pub mod open;
 pub mod user;
 
 use crate::{
-    chat::{Chat, LogId, LoggedChat},
+    chat::{Chat, Chatlog, LogId},
     database::{
         channel::{ChannelDatabaseExt, ChannelModel, ChannelTrackingData},
         chat::{ChatDatabaseExt, ChatModel},
@@ -35,7 +35,7 @@ pub struct ChannelSettings {
 pub struct ChannelData {
     pub channel_type: String,
 
-    pub last_chat: Option<LoggedChat>,
+    pub last_chat: Option<Chatlog>,
     pub last_seen_log_id: LogId,
 
     pub metas: IntMap<i32, ChannelMeta>,
@@ -68,7 +68,7 @@ impl From<ChannelInfo> for ChannelData {
         Self {
             channel_type: info.channel_type,
 
-            last_chat: info.last_chat_log.map(LoggedChat::from),
+            last_chat: info.last_chat_log.map(Chatlog::from),
             last_seen_log_id: info.last_seen_log_id,
 
             metas,
@@ -140,7 +140,7 @@ impl<'a> ClientChannel<'a> {
 }
 
 impl ClientChannel<'_> {
-    pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<LoggedChat> {
+    pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
         let res = TalkClient(&self.connection.session)
             .write(&WriteReq {
                 chat_id: self.id,
@@ -153,23 +153,20 @@ impl ClientChannel<'_> {
             })
             .await?;
 
-        let logged = res
-            .chatlog
-            .map(LoggedChat::from)
-            .unwrap_or_else(|| LoggedChat {
-                channel_id: self.id,
+        let logged = res.chatlog.map(Chatlog::from).unwrap_or_else(|| Chatlog {
+            channel_id: self.id,
 
-                log_id: res.log_id,
-                prev_log_id: Some(res.prev_id),
+            log_id: res.log_id,
+            prev_log_id: Some(res.prev_id),
 
-                sender_id: self.connection.user_id,
+            sender_id: self.connection.user_id,
 
-                send_at: res.send_at,
+            send_at: res.send_at,
 
-                chat,
+            chat,
 
-                referer: None,
-            });
+            referer: None,
+        });
 
         {
             let logged = logged.clone();
@@ -220,7 +217,7 @@ impl ClientChannel<'_> {
 
                 for chatlog in list {
                     transaction.chat().insert(&ChatModel {
-                        logged: LoggedChat::from(chatlog),
+                        logged: Chatlog::from(chatlog),
                         deleted_time: None,
                     })?;
                 }

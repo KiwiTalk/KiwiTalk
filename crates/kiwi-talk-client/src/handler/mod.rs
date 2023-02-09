@@ -7,7 +7,7 @@ use talk_loco_client::LocoBroadcastStream;
 use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
-    chat::LoggedChat,
+    chat::Chatlog,
     event::{
         channel::{ChannelEvent, ChatRead, ReceivedChat},
         KiwiTalkClientEvent,
@@ -75,7 +75,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
     }
 
     async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
-        let chat = LoggedChat::from(data.chatlog);
+        let chat = Chatlog::from(data.chatlog);
 
         self.emitter
             .emit(

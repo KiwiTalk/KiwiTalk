@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     channel::{user::UserId, ChannelId},
-    chat::{LogId, LoggedChat},
+    chat::{Chatlog, LogId},
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +19,7 @@ pub struct ReceivedChat {
 
     pub log_id: LogId,
     pub user_nickname: Option<String>,
-    pub chat: LoggedChat,
+    pub chat: Chatlog,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

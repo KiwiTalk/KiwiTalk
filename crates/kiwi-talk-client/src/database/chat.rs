@@ -3,12 +3,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     channel::ChannelId,
-    chat::{Chat, ChatContent, LogId, LoggedChat},
+    chat::{Chat, ChatContent, Chatlog, LogId},
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ChatModel {
-    pub logged: LoggedChat,
+    pub logged: Chatlog,
 
     pub deleted_time: Option<i64>,
 }
@@ -16,7 +16,7 @@ pub struct ChatModel {
 impl ChatModel {
     pub fn map_row(row: &Row) -> Result<Self, rusqlite::Error> {
         Ok(Self {
-            logged: LoggedChat {
+            logged: Chatlog {
                 log_id: row.get(0)?,
                 prev_log_id: row.get(2)?,
 
@@ -177,7 +177,7 @@ pub(crate) mod tests {
 
     use crate::{
         channel::ChannelId,
-        chat::{Chat, LogId, LoggedChat},
+        chat::{Chat, Chatlog, LogId},
         database::tests::prepare_test_database,
     };
 
@@ -189,7 +189,7 @@ pub(crate) mod tests {
         channel_id: ChannelId,
     ) -> Result<ChatModel, rusqlite::Error> {
         let model = ChatModel {
-            logged: LoggedChat {
+            logged: Chatlog {
                 log_id,
                 prev_log_id: None,
                 channel_id,

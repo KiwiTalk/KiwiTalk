@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use talk_loco_command::structs::chat::Chatlog;
+use talk_loco_command::structs::chat::Chatlog as LocoChatlog;
 
 use crate::channel::{user::UserId, ChannelId};
 
@@ -8,7 +8,7 @@ pub mod builder;
 pub type LogId = i64;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct LoggedChat {
+pub struct Chatlog {
     pub log_id: LogId,
     pub prev_log_id: Option<i64>,
 
@@ -23,9 +23,9 @@ pub struct LoggedChat {
     pub referer: Option<i32>,
 }
 
-impl From<Chatlog> for LoggedChat {
-    fn from(chatlog: Chatlog) -> Self {
-        LoggedChat {
+impl From<LocoChatlog> for Chatlog {
+    fn from(chatlog: LocoChatlog) -> Self {
+        Chatlog {
             log_id: chatlog.log_id,
             prev_log_id: chatlog.prev_log_id,
 
