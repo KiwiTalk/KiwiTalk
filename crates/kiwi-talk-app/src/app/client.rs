@@ -63,13 +63,13 @@ pub async fn create_client<C: Default + Extend<(ChannelId, ChannelDataVariant)>>
 
 #[derive(Debug, Error)]
 pub enum CreateClientError {
-    #[error("Checkin failed")]
+    #[error("checkin failed")]
     Checkin,
 
-    #[error("Loco stream handshake failed")]
+    #[error("loco stream handshake failed")]
     LocoHandshake,
 
-    #[error("Database initialization failed. {0}")]
+    #[error("database initialization failed. {0}")]
     Database(#[from] PoolTaskError),
 
     #[error(transparent)]

@@ -14,13 +14,13 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ClientRequestError {
-    #[error("Request returned status {0}")]
+    #[error("request returned status {0}")]
     Request(i32),
 
-    #[error("Session closed before response")]
+    #[error("session closed before response")]
     Session,
 
-    #[error("Could not deserialize BSON data. {0}")]
+    #[error("could not deserialize BSON data. {0}")]
     Deserialize(#[from] bson::de::Error),
 }
 

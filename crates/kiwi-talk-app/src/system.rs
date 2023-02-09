@@ -154,7 +154,7 @@ pub async fn init_system_info(path_resolver: PathResolver) -> Result<SystemInfo,
 
 #[derive(Debug, Error)]
 pub enum SystemInitError {
-    #[error("Device local data directory is not found")]
+    #[error("device local data directory is not found")]
     DeviceDataDirectoryNotFound,
 
     #[error(transparent)]

@@ -30,10 +30,10 @@ pub enum ReadError {
     Stream(#[from] StreamError),
 
     /// Response command's status is not 0, means the request is corrupted
-    #[error("Command corrupted. Command: {:?}", .0.header)]
+    #[error("command corrupted. Command: {:?}", .0.header)]
     Corrupted(Command),
 
-    #[error("Invalid header method. {0}")]
+    #[error("invalid header method. {0}")]
     InvalidMethod(#[from] FromUtf8Error),
 
     #[error(transparent)]

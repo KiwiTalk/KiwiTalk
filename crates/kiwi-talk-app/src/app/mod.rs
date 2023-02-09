@@ -114,7 +114,7 @@ async fn initialize_client(
 
 #[derive(Debug, Error)]
 pub enum ClientInitializeError {
-    #[error("Credential is not set")]
+    #[error("credential is not set")]
     CredentialNotSet,
 
     #[error(transparent)]

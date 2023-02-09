@@ -5,12 +5,12 @@ use crate::database::pool::PoolTaskError;
 
 #[derive(Debug, Error)]
 pub enum ClientHandlerError {
-    #[error("Could not decode command {0}. {1}")]
+    #[error("could not decode command {0}. {1}")]
     CommandDecode(String, bson::de::Error),
 
-    #[error("Network failure while reading. {0}")]
+    #[error("network failure while reading. {0}")]
     NetworkRead(#[from] ReadError),
 
-    #[error("Database operation failed. {0}")]
+    #[error("database operation failed. {0}")]
     Database(#[from] PoolTaskError),
 }

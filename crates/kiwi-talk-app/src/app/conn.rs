@@ -69,13 +69,13 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
 
 #[derive(Debug, Error)]
 pub enum ConnError {
-    #[error("Cannot connect to server")]
+    #[error("cannot connect to server")]
     Connection,
 
-    #[error("Stream error")]
+    #[error("stream error")]
     Stream,
 
-    #[error("Request failed. status: {0}")]
+    #[error("request failed. status: {0}")]
     Request(i16),
 }
 
