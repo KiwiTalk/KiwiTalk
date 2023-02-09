@@ -42,7 +42,11 @@ impl LocoRequestSession {
     ) -> (Self, LocoBroadcastStream) {
         let (sender, receiver) = mpsc::channel(32);
         let (read_stream, write_stream) = stream.split();
-        let (read_task, write_task) = session_task();
+        let (read_task, write_task) = {
+            let map = Arc::new(Mutex::new(HashMap::default()));
+
+            (ReadTask::new(map.clone()), WriteTask::new(map))
+        };
 
         let (mut read_sender, read_recv) = ring_channel(NonZeroUsize::new(128).unwrap());
 
@@ -188,12 +192,6 @@ impl WriteTask {
             self.next_request_id += 1;
         }
     }
-}
-
-fn session_task() -> (ReadTask, WriteTask) {
-    let map = Arc::new(Mutex::new(HashMap::default()));
-
-    (ReadTask::new(map.clone()), WriteTask::new(map))
 }
 
 #[derive(Debug)]
