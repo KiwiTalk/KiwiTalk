@@ -3802,7 +3802,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:18.0.27, @types/react@npm:>=16":
+"@types/react@npm:18.0.28":
+  version: 18.0.28
+  resolution: "@types/react@npm:18.0.28"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: e752df961105e5127652460504785897ca6e77259e0da8f233f694f9e8f451cde7fa0709d4456ade0ff600c8ce909cfe29f9b08b9c247fa9b734e126ec53edd7
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:>=16":
   version: 18.0.27
   resolution: "@types/react@npm:18.0.27"
   dependencies:
@@ -7413,7 +7424,7 @@ __metadata:
     "@tauri-apps/api": 1.2.0
     "@tauri-apps/cli": 1.2.3
     "@types/node": 18.13.0
-    "@types/react": 18.0.27
+    "@types/react": 18.0.28
     "@types/react-dom": 18.0.10
     "@types/styled-components": 5.1.26
     "@typescript-eslint/eslint-plugin": 5.51.0
