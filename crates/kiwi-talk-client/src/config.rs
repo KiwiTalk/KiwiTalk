@@ -11,7 +11,7 @@ pub struct KiwiTalkClientInfo<'a> {
 }
 
 impl KiwiTalkClientInfo<'_> {
-    pub fn create_client_info(&self) -> ClientInfo {
+    pub fn create_loco_client_info(&self) -> ClientInfo {
         ClientInfo {
             os: self.os.to_string(),
             net_type: self.net_type,

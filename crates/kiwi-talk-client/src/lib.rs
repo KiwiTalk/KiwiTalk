@@ -129,7 +129,7 @@ where
 
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
-                client: info.create_client_info(),
+                client: info.create_loco_client_info(),
                 protocol_version: "1.0".into(),
                 device_uuid: credential.device_uuid.into(),
                 oauth_token: credential.access_token.into(),
