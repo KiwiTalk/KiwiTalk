@@ -25,7 +25,7 @@ pub struct Chatlog {
 
 impl From<LocoChatlog> for Chatlog {
     fn from(chatlog: LocoChatlog) -> Self {
-        Chatlog {
+        Self {
             log_id: chatlog.log_id,
             prev_log_id: chatlog.prev_log_id,
 
@@ -35,17 +35,9 @@ impl From<LocoChatlog> for Chatlog {
 
             send_at: chatlog.send_at,
 
-            chat: Chat {
-                chat_type: ChatType(chatlog.chat_type),
-                content: ChatContent {
-                    message: chatlog.message,
-                    attachment: chatlog.attachment,
-                    supplement: chatlog.supplement,
-                },
-                message_id: chatlog.msg_id,
-            },
-
             referer: chatlog.referer,
+
+            chat: Chat::from(chatlog),
         }
     }
 }
@@ -59,11 +51,33 @@ pub struct Chat {
     pub message_id: i64,
 }
 
+impl From<LocoChatlog> for Chat {
+    fn from(chatlog: LocoChatlog) -> Self {
+        Self {
+            chat_type: ChatType(chatlog.chat_type),
+
+            message_id: chatlog.msg_id,
+
+            content: ChatContent::from(chatlog),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct ChatContent {
     pub message: Option<String>,
     pub attachment: Option<String>,
     pub supplement: Option<String>,
+}
+
+impl From<LocoChatlog> for ChatContent {
+    fn from(chatlog: LocoChatlog) -> Self {
+        Self {
+            message: chatlog.message,
+            attachment: chatlog.attachment,
+            supplement: chatlog.supplement,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
