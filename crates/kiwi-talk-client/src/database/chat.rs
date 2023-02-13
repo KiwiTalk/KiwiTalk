@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     channel::ChannelId,
-    chat::{Chat, ChatContent, Chatlog, LogId},
+    chat::{Chat, ChatContent, ChatType, Chatlog, LogId},
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -27,7 +27,7 @@ impl ChatModel {
                 send_at: row.get(5)?,
 
                 chat: Chat {
-                    chat_type: row.get(3)?,
+                    chat_type: ChatType(row.get(3)?),
                     content: ChatContent {
                         message: row.get(7)?,
                         attachment: row.get(8)?,
@@ -61,7 +61,7 @@ impl ChatEntry<'_> {
                 model.logged.log_id,
                 model.logged.channel_id,
                 model.logged.prev_log_id,
-                model.logged.chat.chat_type,
+                model.logged.chat.chat_type.0,
                 model.logged.chat.message_id,
                 model.logged.send_at,
                 model.logged.sender_id,
@@ -177,7 +177,7 @@ pub(crate) mod tests {
 
     use crate::{
         channel::ChannelId,
-        chat::{Chat, Chatlog, LogId},
+        chat::{Chat, ChatType, Chatlog, LogId},
         database::tests::prepare_test_database,
     };
 
@@ -196,7 +196,7 @@ pub(crate) mod tests {
                 sender_id: 0,
                 send_at: 0,
                 chat: Chat {
-                    chat_type: 1,
+                    chat_type: ChatType::TEXT,
                     content: Default::default(),
                     message_id: 0,
                 },

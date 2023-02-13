@@ -144,7 +144,7 @@ impl ClientChannel<'_> {
         let res = TalkClient(&self.connection.session)
             .write(&WriteReq {
                 chat_id: self.id,
-                chat_type: chat.chat_type,
+                chat_type: chat.chat_type.0,
                 msg_id: chat.message_id,
                 message: chat.content.message.clone(),
                 no_seen,

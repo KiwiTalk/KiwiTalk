@@ -36,7 +36,7 @@ impl From<LocoChatlog> for Chatlog {
             send_at: chatlog.send_at,
 
             chat: Chat {
-                chat_type: chatlog.chat_type,
+                chat_type: ChatType(chatlog.chat_type),
                 content: ChatContent {
                     message: chatlog.message,
                     attachment: chatlog.attachment,
@@ -52,7 +52,7 @@ impl From<LocoChatlog> for Chatlog {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Chat {
-    pub chat_type: i32,
+    pub chat_type: ChatType,
 
     pub content: ChatContent,
 
