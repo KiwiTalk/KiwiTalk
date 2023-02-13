@@ -66,44 +66,78 @@ pub struct ChatContent {
     pub supplement: Option<String>,
 }
 
-#[non_exhaustive]
-pub struct ChatType;
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
+#[serde(transparent)]
+pub struct ChatType(pub i32);
+
+macro_rules! define_chat_type {
+    ($name: ident, $num: literal) => {
+        pub const $name: ChatType = ChatType($num);
+    };
+}
 
 impl ChatType {
-    pub const FEED: i32 = 0;
-    pub const TEXT: i32 = 1;
-    pub const PHOTO: i32 = 2;
-    pub const VIDEO: i32 = 3;
-    pub const CONTACT: i32 = 4;
-    pub const AUDIO: i32 = 5;
-    pub const DITEMEMOTICON: i32 = 6;
-    pub const DITEMGIFT: i32 = 7;
-    pub const DITEMIMG: i32 = 8;
-    pub const KAKAOLINKV1: i32 = 9;
-    pub const AVATAR: i32 = 11;
-    pub const STICKER: i32 = 12;
-    pub const SCHEDULE: i32 = 13;
-    pub const VOTE: i32 = 14;
-    pub const LOTTERY: i32 = 15;
-    pub const MAP: i32 = 16;
-    pub const PROFILE: i32 = 17;
-    pub const FILE: i32 = 18;
-    pub const STICKERANI: i32 = 20;
-    pub const NUDGE: i32 = 21;
-    pub const ACTIONCON: i32 = 22;
-    pub const SEARCH: i32 = 23;
-    pub const POST: i32 = 24;
-    pub const STICKERGIF: i32 = 25;
-    pub const REPLY: i32 = 26;
-    pub const MULTIPHOTO: i32 = 27;
-    pub const VOIP: i32 = 51;
-    pub const LIVETALK: i32 = 52;
-    pub const CUSTOM: i32 = 71;
-    pub const ALIM: i32 = 72;
-    pub const PLUSFRIEND: i32 = 81;
-    pub const PLUSEVENT: i32 = 82;
-    pub const PLUSFRIENDVIRAL: i32 = 83;
-    pub const OPEN_SCHEDULE: i32 = 96;
-    pub const OPEN_VOTE: i32 = 97;
-    pub const OPEN_POST: i32 = 98;
+    define_chat_type!(FEED, 0);
+    define_chat_type!(TEXT, 1);
+    define_chat_type!(PHOTO, 2);
+    define_chat_type!(VIDEO, 3);
+    define_chat_type!(CONTACT, 4);
+    define_chat_type!(AUDIO, 5);
+    define_chat_type!(DITEMEMOTICON, 6);
+    define_chat_type!(DITEMGIFT, 7);
+    define_chat_type!(DITEMIMG, 8);
+    define_chat_type!(KAKAOLINKV1, 9);
+    define_chat_type!(AVATAR, 11);
+    define_chat_type!(STICKER, 12);
+    define_chat_type!(SCHEDULE, 13);
+    define_chat_type!(VOTE, 14);
+    define_chat_type!(LOTTERY, 15);
+    define_chat_type!(MAP, 16);
+    define_chat_type!(PROFILE, 17);
+    define_chat_type!(FILE, 18);
+    define_chat_type!(STICKERANI, 20);
+    define_chat_type!(NUDGE, 21);
+    define_chat_type!(ACTIONCON, 22);
+    define_chat_type!(SEARCH, 23);
+    define_chat_type!(POST, 24);
+    define_chat_type!(STICKERGIF, 25);
+    define_chat_type!(REPLY, 26);
+    define_chat_type!(MULTIPHOTO, 27);
+    define_chat_type!(VOIP, 51);
+    define_chat_type!(LIVETALK, 52);
+    define_chat_type!(CUSTOM, 71);
+    define_chat_type!(ALIM, 72);
+    define_chat_type!(PLUSFRIEND, 81);
+    define_chat_type!(PLUSEVENT, 82);
+    define_chat_type!(PLUSFRIENDVIRAL, 83);
+    define_chat_type!(OPEN_SCHEDULE, 96);
+    define_chat_type!(OPEN_VOTE, 97);
+    define_chat_type!(OPEN_POST, 98);
+
+    pub const DELETED_BIT: i32 = 14;
+    pub const DELETED_MASK: i32 = 1 << Self::DELETED_BIT;
+
+    pub fn into_original(self) -> Self {
+        Self(self.0 & !Self::DELETED_MASK)
+    }
+
+    pub fn into_deleted(self) -> Self {
+        Self(self.0 | Self::DELETED_MASK)
+    }
+
+    pub fn deleted(self) -> bool {
+        (self.0 & Self::DELETED_MASK) != 0
+    }
+}
+
+impl From<i32> for ChatType {
+    fn from(ty: i32) -> Self {
+        Self(ty)
+    }
+}
+
+impl Into<i32> for ChatType {
+    fn into(self) -> i32 {
+        self.0
+    }
 }
