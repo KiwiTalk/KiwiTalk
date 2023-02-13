@@ -143,15 +143,3 @@ impl ChatType {
         (self.0 & Self::DELETED_MASK) != 0
     }
 }
-
-impl From<i32> for ChatType {
-    fn from(ty: i32) -> Self {
-        Self(ty)
-    }
-}
-
-impl Into<i32> for ChatType {
-    fn into(self) -> i32 {
-        self.0
-    }
-}
