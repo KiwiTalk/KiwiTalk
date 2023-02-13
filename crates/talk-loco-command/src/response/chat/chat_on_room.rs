@@ -53,10 +53,10 @@ pub struct ChatOnRoomRes {
     pub open_link_user: Option<OpenLinkUser>,
 
     #[serde(rename = "o")]
-    pub unknown_o: i64,
+    pub last_update: i64,
 
     #[serde(rename = "jsi")]
-    pub unknown_jsi: i64,
+    pub unknown_jsi: Option<i64>,
 
     /// Unknown (openchat)
     #[serde(rename = "notiRead")]

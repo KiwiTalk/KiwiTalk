@@ -15,11 +15,11 @@ pub struct Msg {
     pub log_id: i64,
 
     #[serde(rename = "chatLog")]
-    pub chatlog: Option<Chatlog>,
+    pub chatlog: Chatlog,
 
     /// Sender nickname
     #[serde(rename = "authorNickname")]
-    pub author_nick: Option<String>,
+    pub author_nickname: Option<String>,
 
     /// false If sender sent message without reading.
     ///

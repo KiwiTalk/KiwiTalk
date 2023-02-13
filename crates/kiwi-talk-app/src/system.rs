@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use base64::{engine::general_purpose::STANDARD, Engine};
 use rand::Rng;
 use tauri::{
     generate_handler,
@@ -67,7 +68,7 @@ pub struct DeviceUuid(String);
 
 impl DeviceUuid {
     pub fn new(data: &[u8; 64]) -> Self {
-        DeviceUuid(base64::encode(&data))
+        DeviceUuid(STANDARD.encode(data))
     }
 
     #[inline]
@@ -76,7 +77,7 @@ impl DeviceUuid {
     }
 
     pub fn decode(&self) -> Vec<u8> {
-        base64::decode(&self.0).unwrap()
+        STANDARD.decode(&self.0).unwrap()
     }
 }
 
@@ -153,7 +154,7 @@ pub async fn init_system_info(path_resolver: PathResolver) -> Result<SystemInfo,
 
 #[derive(Debug, Error)]
 pub enum SystemInitError {
-    #[error("Device local data directory is not found")]
+    #[error("device local data directory is not found")]
     DeviceDataDirectoryNotFound,
 
     #[error(transparent)]

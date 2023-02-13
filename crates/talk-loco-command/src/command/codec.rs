@@ -4,13 +4,13 @@ use std::{
     string::FromUtf8Error,
 };
 
-use bson::Document;
 use futures::{io::Flush, AsyncRead, AsyncWrite, AsyncWriteExt};
 use loco_protocol::command::{
     builder::CommandBuilder,
     codec::{CommandCodec, StreamError},
     Command,
 };
+use serde::{de::DeserializeOwned, Serialize};
 use thiserror::Error;
 
 use super::{BsonCommand, ReadBsonCommand};
@@ -30,10 +30,10 @@ pub enum ReadError {
     Stream(#[from] StreamError),
 
     /// Response command's status is not 0, means the request is corrupted
-    #[error("Command corrupted. Command: {:?}", .0.header)]
+    #[error("command corrupted. Command: {:?}", .0.header)]
     Corrupted(Command),
 
-    #[error("Invalid header method. {0}")]
+    #[error("invalid header method. {0}")]
     InvalidMethod(#[from] FromUtf8Error),
 
     #[error(transparent)]
@@ -46,10 +46,10 @@ pub struct BsonCommandCodec<S>(pub CommandCodec<S>);
 
 impl<S: Write> BsonCommandCodec<S> {
     /// Write [BsonCommand] with given unique request_id
-    pub fn write(
+    pub fn write<T: Serialize>(
         &mut self,
         request_id: i32,
-        command: &BsonCommand<Document>,
+        command: &BsonCommand<T>,
     ) -> Result<(), WriteError> {
         let command = encode_bson_command(request_id, command)?;
         self.0.write(&command)?;
@@ -65,14 +65,14 @@ impl<S: Write> BsonCommandCodec<S> {
 
 impl<S: Read> BsonCommandCodec<S> {
     /// Read incoming [BsonCommand]
-    pub fn read(&mut self) -> Result<ReadBsonCommand<Document>, ReadError> {
+    pub fn read<D: DeserializeOwned>(&mut self) -> Result<ReadBsonCommand<D>, ReadError> {
         let (_, command) = self.0.read()?;
 
         if command.header.status == 0 {
             let id = command.header.id;
             let method = command.header.method()?;
 
-            let data = bson::Document::from_reader(&mut Cursor::new(command.data))?;
+            let data = bson::de::from_reader(&mut Cursor::new(command.data))?;
 
             Ok(ReadBsonCommand {
                 id,
@@ -86,10 +86,10 @@ impl<S: Read> BsonCommandCodec<S> {
 
 impl<S: AsyncWrite + Unpin> BsonCommandCodec<S> {
     /// Write [BsonCommand] with given unique request_id
-    pub async fn write_async(
+    pub async fn write_async<T: Serialize>(
         &mut self,
         request_id: i32,
-        command: &BsonCommand<Document>,
+        command: &BsonCommand<T>,
     ) -> Result<(), WriteError> {
         let command = encode_bson_command(request_id, command)?;
         self.0.write_async(&command).await?;
@@ -105,14 +105,16 @@ impl<S: AsyncWrite + Unpin> BsonCommandCodec<S> {
 
 impl<S: AsyncRead + Unpin> BsonCommandCodec<S> {
     /// Read incoming [BsonCommand]
-    pub async fn read_async(&mut self) -> Result<ReadBsonCommand<Document>, ReadError> {
+    pub async fn read_async<D: DeserializeOwned>(
+        &mut self,
+    ) -> Result<ReadBsonCommand<D>, ReadError> {
         let (_, command) = self.0.read_async().await?;
 
         if command.header.status == 0 {
             let id = command.header.id;
             let method = command.header.method()?;
 
-            let data = bson::Document::from_reader(&mut Cursor::new(command.data))?;
+            let data = bson::de::from_reader(&mut Cursor::new(command.data))?;
 
             Ok(ReadBsonCommand {
                 id,
@@ -124,9 +126,9 @@ impl<S: AsyncRead + Unpin> BsonCommandCodec<S> {
     }
 }
 
-fn encode_bson_command(
+fn encode_bson_command<T: Serialize>(
     request_id: i32,
-    command: &BsonCommand<Document>,
+    command: &BsonCommand<T>,
 ) -> Result<Command, bson::ser::Error> {
     let builder = CommandBuilder::new(request_id, &command.method);
 

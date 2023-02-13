@@ -1,6 +1,6 @@
 use talk_loco_client::{
     client::{booking::BookingClient, checkin::CheckinClient},
-    LocoCommandSession,
+    LocoRequestSession,
 };
 use talk_loco_command::{
     request::{booking::GetConfReq, checkin::CheckinReq},
@@ -29,23 +29,17 @@ pub async fn get_conf() -> Result<GetConfRes, ConnError> {
         .await
         .or(Err(ConnError::Connection))?;
 
-    let (session, _) = LocoCommandSession::new(stream);
+    let (session, _) = LocoRequestSession::new(stream);
     let client = BookingClient(&session);
 
-    let get_conf = client
+    client
         .get_conf(&GetConfReq {
             os: TALK_OS.into(),
             mccmnc: TALK_MCCMNC.into(),
             model: TALK_MODEL.into(),
         })
         .await
-        .await
-        .or(Err(ConnError::Stream))?;
-
-    match get_conf.data {
-        Some(data) => Ok(data),
-        None => Err(ConnError::Request(get_conf.status)),
-    }
+        .or(Err(ConnError::Stream))
 }
 
 pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
@@ -53,10 +47,10 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
         .await
         .or(Err(ConnError::Connection))?;
 
-    let (session, _) = LocoCommandSession::new(stream);
+    let (session, _) = LocoRequestSession::new(stream);
     let client = CheckinClient(&session);
 
-    let checkin = client
+    client
         .checkin(&CheckinReq {
             user_id,
             client: ClientInfo {
@@ -70,24 +64,18 @@ pub async fn checkin(user_id: i64) -> Result<CheckinRes, ConnError> {
             use_sub: TALK_USE_SUB,
         })
         .await
-        .await
-        .or(Err(ConnError::Stream))?;
-
-    match checkin.data {
-        Some(data) => Ok(data),
-        None => Err(ConnError::Request(checkin.status)),
-    }
+        .or(Err(ConnError::Stream))
 }
 
 #[derive(Debug, Error)]
 pub enum ConnError {
-    #[error("Cannot connect to server")]
+    #[error("cannot connect to server")]
     Connection,
 
-    #[error("Stream error")]
+    #[error("stream error")]
     Stream,
 
-    #[error("Request failed. status: {0}")]
+    #[error("request failed. status: {0}")]
     Request(i16),
 }
 

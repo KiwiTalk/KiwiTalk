@@ -17,13 +17,13 @@ pub struct WriteReq {
     ///
     /// Client send count??
     #[serde(rename = "msgId")]
-    pub msg_id: i32,
+    pub msg_id: i64,
 
     /// Message content
     ///
     /// Usually String, but can be json String according to chat type.
     #[serde(rename = "msg")]
-    pub message: String,
+    pub message: Option<String>,
 
     /// If true, server will assume the client read last message.
     #[serde(rename = "noSeen")]

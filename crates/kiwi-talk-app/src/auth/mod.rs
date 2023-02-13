@@ -26,7 +26,7 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
 }
 
 #[derive(Debug, Error)]
-#[error("Auth API Request failed. {0}")]
+#[error("auth API Request failed. {0}")]
 struct AuthApiError(#[from] ApiRequestError);
 impl_tauri_error!(AuthApiError);
 

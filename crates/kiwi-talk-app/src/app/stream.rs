@@ -87,7 +87,7 @@ pub async fn create_secure_stream<A: ToSocketAddrs>(
 pub enum ConnectError<H> {
     #[error(transparent)]
     Stream(#[from] io::Error),
-    #[error("Handshaking failed")]
+    #[error("handshaking failed")]
     Handshake(H),
 }
 

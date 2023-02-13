@@ -6,16 +6,16 @@ use serde::{Deserialize, Serialize};
 pub struct SyncMsgRes {
     /// true if no more chat left below.
     #[serde(rename = "isOK")]
-    is_ok: bool,
+    pub is_ok: bool,
 
     /// Chatlog list
     #[serde(rename = "chatLogs")]
-    chat_logs: Vec<Chatlog>,
+    pub chatlogs: Option<Vec<Chatlog>>,
 
     /// Unknown
     #[serde(rename = "jsi")]
-    jsi: i64,
+    pub jsi: Option<i64>,
 
     #[serde(rename = "lastTokenId")]
-    last_token_id: i64,
+    pub last_token_id: i64,
 }

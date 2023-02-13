@@ -27,17 +27,24 @@ pub struct ChannelListData {
     #[serde(rename = "ll")]
     pub last_log_id: i64,
 
+    /// Last seen chat log id
+    #[serde(rename = "s")]
+    pub last_seen_log_id: i64,
+
     /// Last Chatlog
     #[serde(rename = "l")]
     pub chatlog: Option<Chatlog>,
 
-    /// Member count
+    /// Active member count
     #[serde(rename = "a")]
-    pub member_count: i32,
+    pub active_member_count: i32,
 
     /// Unread message count
     #[serde(rename = "n")]
     pub unread_count: i32,
+
+    #[serde(rename = "o")]
+    pub last_update: i64,
 
     // /// Chatroom metadata(?)
     // #[serde(rename = "m")]
@@ -60,13 +67,6 @@ pub struct ChannelListData {
 
     /// Unknown. Always 0 on openchat rooms.
     pub mmr: i64,
-
-    /// Unknown
-    pub s: i64,
-
-    /// Openlink token.
-    #[serde(rename = "o")]
-    pub open_token: Option<i32>,
 
     /// Unknown. Only appears on non openchat rooms.
     pub jn: Option<i32>,
@@ -103,6 +103,9 @@ pub struct ChannelInfo {
     /// true if new_message_count is invalid(?). Does not present on openchat.
     #[serde(rename = "invalidNewMessageCount")]
     pub new_chat_count_invalid: Option<bool>,
+
+    #[serde(rename = "inviterId")]
+    pub inviter_id: Option<i64>,
 
     // /// Chatroom metadata(?)
     // #[serde(rename = "m")]
@@ -141,7 +144,7 @@ pub struct ChannelInfo {
 
     /// Unknown. Client user join time. (?) Does not present on openchat room.
     #[serde(rename = "joinedAtForNewMem")]
-    pub joined_at: Option<i32>,
+    pub joined_at_for_new_mem: Option<i64>,
 
     /// true if room is invalid(Only client user left, etc.). (?) Does not present on openchat room.
     pub left: Option<bool>,
@@ -155,7 +158,7 @@ pub struct ChannelInfo {
 pub struct ChannelMeta {
     /// Meta type. See [ChannelMetaType] for predefined types.
     #[serde(rename = "type")]
-    pub meta_type: i8,
+    pub meta_type: i32,
 
     pub revision: i64,
 
@@ -165,13 +168,13 @@ pub struct ChannelMeta {
 
     /// Updated time in Unix time.
     #[serde(rename = "updatedAt")]
-    pub updated_at: i32,
+    pub updated_at: i64,
 
     /// Json or String content depending on type.
     pub content: String,
 }
 
-#[repr(i8)]
+#[repr(i32)]
 pub enum ChannelMetaType {
     Notice = 1,
     Group = 2,

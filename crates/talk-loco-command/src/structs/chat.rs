@@ -43,7 +43,7 @@ pub struct Chatlog {
     ///
     /// * KakaoI = 1
     /// * Bot = 2
-    pub referer: Option<i8>,
+    pub referer: Option<i32>,
 
     /// Used on pluschat.
     ///
@@ -52,5 +52,5 @@ pub struct Chatlog {
 
     /// Unknown id (Client send count??). Don't confuse with log_id.
     #[serde(rename = "msgId")]
-    pub msg_id: i32,
+    pub msg_id: i64,
 }

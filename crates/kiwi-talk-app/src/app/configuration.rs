@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GlobalConfiguration {
-    locale: Locale,
+    pub locale: Locale,
 }
 
 impl Default for GlobalConfiguration {
