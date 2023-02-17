@@ -1,4 +1,4 @@
-on: 
+on:
   push:
     paths: 'crates/**'
   pull_request:
