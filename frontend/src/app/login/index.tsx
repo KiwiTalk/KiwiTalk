@@ -5,6 +5,7 @@ import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
 import { LoginAccessData } from '../../backend/auth';
+import { PropsWithChildren } from 'react';
 
 export type AppLoginProp = {
   defaultInput?: LoginFormInput,
@@ -17,31 +18,51 @@ export const AppLogin = ({
 
   onLogin,
 }: AppLoginProp) => {
-  return <>
-    <AppLoginWindowTitleBar />
-    <LoginScreen>
-      <AppLoginContent defaultInput={defaultInput} onLogin={onLogin}/>
-    </LoginScreen>
-  </>;
+  return <Window>
+    <AppLoginContent defaultInput={defaultInput} onLogin={onLogin} />
+  </Window>;
 };
 
-const LoginTitleBar = styled(WindowTitleBar)`
-  display: flex;
-  position: fixed;
+const Window = ({
+  children,
+}: PropsWithChildren) => {
+  return <WindowContainer>
+    <WindowTitle />
+    <Screen>
+      {children}
+    </Screen>
+  </WindowContainer>;
+};
+
+const WindowContainer = styled.div`
   width: 100%;
-  left: 0px;
+  height: 100%;
+`;
+
+const TitleBar = styled(WindowTitleBar)`
+  display: flex;
+  position: absolute;
+  width: 100%;
   top: 0px;
+
   z-index: 999999;
 `;
 
-const LoginWindowControl = styled(AppWindowControl)`
+const Control = styled(AppWindowControl)`
   margin-left: auto;
   background-color: rgba(0, 0, 0, .25);
   color: white;
+  
+  border-bottom-left-radius: 3px;
 `;
 
-const AppLoginWindowTitleBar = () => {
-  return <LoginTitleBar>
-    <LoginWindowControl />
-  </LoginTitleBar>;
+const Screen = styled(LoginScreen)`
+  width: 100%;
+  height: 100%;
+`;
+
+const WindowTitle = () => {
+  return <TitleBar>
+    <Control />
+  </TitleBar>;
 };

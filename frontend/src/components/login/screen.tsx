@@ -1,12 +1,13 @@
 import styled from 'styled-components';
-import { LoginBackground } from './background';
+import { LoginContainer } from './container';
 import { ReactComponent as TextLogoSvg } from './icons/text_logo.svg';
 
 const ContentContainer = styled.div`
-  position: relative;
   left: 0px;
   top: 0px;
   padding: 3rem 3rem;
+
+  width: 281px;
 `;
 
 const TextLogo = styled(TextLogoSvg)`
@@ -14,31 +15,19 @@ const TextLogo = styled(TextLogoSvg)`
   color: black;
 `;
 
-const Background = styled(LoginBackground)`
-  position: absolute;
-  z-index: -999999;
-`;
-
-const FormContainer = styled.div`
-  width: 281px;
-`;
-
-const Container = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-`;
+export type LoginScreenProp = {
+  className?: string,
+};
 
 export const LoginScreen = ({
+  className,
+
   children,
-}: React.PropsWithChildren) => {
-  return <Container>
-    <Background />
+}: React.PropsWithChildren<LoginScreenProp>) => {
+  return <LoginContainer className={className}>
     <ContentContainer>
       <TextLogo />
-      <FormContainer>
-        {children}
-      </FormContainer>
+      {children}
     </ContentContainer>
-  </Container>;
+  </LoginContainer>;
 };

@@ -1,11 +1,11 @@
 import { StoryFn } from '@storybook/react';
 import styled from 'styled-components';
 
-import { LoginBackground } from './background';
+import { LoginContainer } from './container';
 
 export default {
-  title: 'KiwiTalk/login/LoginBackground',
-  component: LoginBackground,
+  title: 'KiwiTalk/login/LoginContainer',
+  component: LoginContainer,
 };
 
 type BackgroundProp = {
@@ -14,15 +14,13 @@ type BackgroundProp = {
 };
 
 const Template: StoryFn<BackgroundProp> = (args) => {
-  const Container = styled.div`
+  const Container = styled(LoginContainer)`
     width: ${args.width}px;
     height: ${args.height}px;
     border: 1px solid #000000;
   `;
 
-  return <Container>
-    <LoginBackground />
-  </Container>;
+  return <Container />;
 };
 
 export const PcW16H9 = Template.bind({});

@@ -2,14 +2,13 @@ import styled from 'styled-components';
 import { ReactComponent as InfoIconSvg } from './icons/info_black_24dp.svg';
 
 const Container = styled.div`
-  padding: 1rem;
-`;
-
-const Inner = styled.div`
+  margin: auto;
   padding: 1rem;
 
   border: 1px solid #DFDEE0;
   border-radius: 8px;
+
+  width: max-content;
 
   color: gray;
   
@@ -21,6 +20,12 @@ const Inner = styled.div`
 const InfoIcon = styled(InfoIconSvg)`
   width: 4rem;
   height: 4rem;
+
+  padding-bottom: 1rem;
+`;
+
+const Text = styled.p`
+  margin-bottom: 0px;
 `;
 
 export type TodoPlaceholderProp = {
@@ -31,11 +36,7 @@ export const TodoPlaceholder = ({
   part,
 }: TodoPlaceholderProp) => {
   return <Container>
-    <Inner>
       <InfoIcon />
-      <p>
-        {part} is not implemented yet...
-      </p>
-    </Inner>
+      <Text>{part} is not implemented yet...</Text>
   </Container>;
 };

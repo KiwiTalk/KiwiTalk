@@ -8,7 +8,7 @@ export default {
   component: LoginScreen,
 };
 
-const Container = styled.div`
+const Screen = styled(LoginScreen)`
   border: 1px solid #000000;
   width: 1280px;
   height: 720px;
@@ -21,11 +21,9 @@ const InnerForm = styled.div`
 `;
 
 const Template: StoryFn<React.PropsWithChildren> = () => {
-  return <Container>
-    <LoginScreen>
-      <InnerForm />
-    </LoginScreen>
-  </Container>;
+  return <Screen>
+    <InnerForm />
+  </Screen>;
 };
 
 export const Default = Template.bind({});
