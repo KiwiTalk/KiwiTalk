@@ -18,7 +18,7 @@ export const Profile = ({
 }: ProfileProp) => {
   return <Container>
     <ImageContainer>
-      {profileImageURL ? <Image src={profileImageURL}></Image> : null}
+      {profileImageURL ? <Image src={profileImageURL} /> : null}
     </ImageContainer>
     <Info>
       <Name>{name}</Name>
