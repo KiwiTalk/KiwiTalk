@@ -4,7 +4,7 @@ import { LoginScreen } from '../../components/login/screen';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
-import { LoginAccessData } from '../../backend/auth';
+import { LoginAccessData } from '../../ipc/auth';
 import { PropsWithChildren } from 'react';
 
 export type AppLoginProp = {

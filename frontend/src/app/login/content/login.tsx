@@ -1,6 +1,6 @@
 import { useAsyncLock } from '../../../hooks/async';
 import { LoginForm, LoginFormInput } from '../../components/login/form/login';
-import { login, LoginAccessData, TalkResponseStatus } from '../../../backend/auth';
+import { login, LoginAccessData, TalkResponseStatus } from '../../../ipc/auth';
 
 export type LoginContentProp = {
   defaultInput?: Partial<LoginFormInput>,

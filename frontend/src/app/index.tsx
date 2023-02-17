@@ -4,10 +4,10 @@ import { useAsync } from '../hooks/async';
 
 import { AppLogin } from './login';
 import i18next from 'i18next';
-import { getGlobalConfiguration, setCredential, initializeClient } from '../backend/app';
-import { getDeviceLocale } from '../backend/system';
+import { getGlobalConfiguration, setCredential, initializeClient } from '../ipc/app';
+import { getDeviceLocale } from '../ipc/system';
 import { useEffect, useState } from 'react';
-import { LoginAccessData } from '../backend/auth';
+import { LoginAccessData } from '../ipc/auth';
 import { AppMain } from './main';
 
 export const App = () => {

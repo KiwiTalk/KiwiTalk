@@ -4,7 +4,7 @@ import {
   DeviceRegisterType,
 } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
-import { requestPasscode } from '../../../backend/auth';
+import { requestPasscode } from '../../../ipc/auth';
 
 export type DeviceRegisterContentProp = {
   input: LoginFormInput,

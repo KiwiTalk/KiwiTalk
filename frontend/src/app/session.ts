@@ -1,4 +1,4 @@
-import { KiwiTalkClientEvent, nextClientEvent } from '../backend/app';
+import { KiwiTalkClientEvent, nextClientEvent } from '../ipc/app';
 
 export async function* createClientSession(): AsyncGenerator<KiwiTalkClientEvent> {
   let nextEvent;

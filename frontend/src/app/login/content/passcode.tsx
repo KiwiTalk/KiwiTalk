@@ -2,7 +2,7 @@ import { useAsyncLock } from '../../../hooks/async';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
 import { PasscodeForm } from '../../components/login/form/passcode';
-import { registerDevice } from '../../../backend/auth';
+import { registerDevice } from '../../../ipc/auth';
 
 export type PasscodeContentProp = {
   registerType: DeviceRegisterType,
