@@ -1,4 +1,8 @@
-on: [push, pull_request]
+on: 
+  push:
+    paths: 'crates/**'
+  pull_request:
+    paths: 'crates/**'
 name: Clippy check
 jobs:
   clippy_check:
