@@ -1,5 +1,5 @@
 name: Bug report
-description: If you find unexpected behavior, or crashes, please report it to here. 
+description: If you find unexpected behavior, or crashes, please report it to here.
 labels: ["Type: Bug"]
 assignees: []
 body:
