@@ -17,7 +17,7 @@ export const SideMenu = ({
   return <Container className={className}>
     <Head>
       <Name>{name}</Name>
-      {headContents ? <HeadContainer>{headContents}</HeadContainer> : null}
+      {headContents && <HeadContainer>{headContents}</HeadContainer>}
     </Head>
     {
       Children.count(children) > 0 ?

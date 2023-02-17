@@ -11,7 +11,7 @@ export const SideMenuIconContent = ({
   children,
 }: PropsWithChildren<SideMenuIconContentProp>) => {
   return <Container>
-    {icon ? <IconBox>{icon}</IconBox> : null}
+    {icon && <IconBox>{icon}</IconBox>}
     {children}
   </Container>;
 };
