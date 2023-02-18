@@ -17,7 +17,7 @@ nohash-hasher = "0.2.0"
 talk-loco-command = { path = "../talk-loco-command" }
 loco-protocol = "5.4.0"
 thiserror = "1.0"
-async-stream = "0.3.3"
+async-stream = "0.3.4"
 parking_lot = "0.12.1"
 ring-channel = "0.11.0"
 
