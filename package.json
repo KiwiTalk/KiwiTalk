@@ -50,7 +50,7 @@
     "babel-loader": "9.1.2",
     "eslint": "8.34.0",
     "eslint-config-google": "0.14.0",
-    "eslint-plugin-storybook": "0.6.10",
+    "eslint-plugin-storybook": "0.6.11",
     "storybook": "7.0.0-beta.53",
     "typescript": "4.9.5",
     "vite": "4.1.4",
