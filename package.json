@@ -31,7 +31,7 @@
     "@storybook/addon-essentials": "7.0.0-beta.60",
     "@storybook/addon-interactions": "7.0.0-beta.60",
     "@storybook/addon-links": "7.0.0-beta.60",
-    "@storybook/builder-vite": "7.0.0-beta.60",
+    "@storybook/builder-vite": "7.0.0-beta.61",
     "@storybook/channel-postmessage": "7.0.0-beta.60",
     "@storybook/channel-websocket": "7.0.0-beta.60",
     "@storybook/preview-api": "7.0.0-beta.60",
