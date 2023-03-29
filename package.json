@@ -31,7 +31,7 @@
     "@storybook/addon-essentials": "7.0.0-rc.8",
     "@storybook/addon-interactions": "7.0.0-rc.8",
     "@storybook/addon-links": "7.0.0-rc.8",
-    "@storybook/builder-vite": "7.0.0-rc.8",
+    "@storybook/builder-vite": "7.0.0-rc.9",
     "@storybook/channel-postmessage": "7.0.0-rc.8",
     "@storybook/channel-websocket": "7.0.0-rc.8",
     "@storybook/preview-api": "7.0.0-rc.8",
