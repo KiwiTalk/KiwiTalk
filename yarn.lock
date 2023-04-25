@@ -7936,7 +7936,7 @@ __metadata:
     storybook: 7.0.7
     styled-components: 5.3.10
     typescript: 5.0.4
-    vite: 4.3.1
+    vite: 4.3.2
     vite-plugin-svgr: 2.4.0
   languageName: unknown
   linkType: soft
@@ -9679,9 +9679,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^3.20.2":
-  version: 3.20.6
-  resolution: "rollup@npm:3.20.6"
+"rollup@npm:^3.21.0":
+  version: 3.21.0
+  resolution: "rollup@npm:3.21.0"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -9689,7 +9689,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: fa30f1e1d214b8c62e631d3c181a75d61bc9c20fca38220d6f938bb3bf734a874e407cd641c90f550dc2b127df5029dfb3108be08934a654f1f40b50f368b0c2
+  checksum: f3294d712147c0975c59ff81b3010dc08d07743cdad72fbe12879044b3e467139b3c2aeec85768656c4f7ec6a7b3d19354a78fc2050044bf8e90a499e145e31e
   languageName: node
   linkType: hard
 
@@ -10727,14 +10727,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:4.3.1":
-  version: 4.3.1
-  resolution: "vite@npm:4.3.1"
+"vite@npm:4.3.2":
+  version: 4.3.2
+  resolution: "vite@npm:4.3.2"
   dependencies:
     esbuild: ^0.17.5
     fsevents: ~2.3.2
     postcss: ^8.4.21
-    rollup: ^3.20.2
+    rollup: ^3.21.0
   peerDependencies:
     "@types/node": ">= 14"
     less: "*"
@@ -10760,7 +10760,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: e58ba33ec10af6167686c1c43c61f31fcbc6b3b6a1f16ed03fb6cc8278700c6edaf4ff394ef454291ee35924054c7772feac159f1acf3af1a33d289fe8494d9c
+  checksum: 0194c06c44efa6fc2f81389d16d90cc3da8e7a58d071fe80e787053d604e0ea653e367fc6eb0528058d255c1ae72625396128561301add48b8e480c45343d11c
   languageName: node
   linkType: hard
 
