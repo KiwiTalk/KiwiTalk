@@ -65,5 +65,5 @@
     "react-is": "^18.2.0",
     "styled-components": "5.3.10"
   },
-  "packageManager": "yarn@3.5.0"
+  "packageManager": "yarn@3.5.1"
 }
