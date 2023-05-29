@@ -19,7 +19,7 @@ rusqlite = { version = "0.28.0", features = ["bundled"] }
 rusqlite_migration = "1.0.2"
 r2d2 = "0.8.10"
 r2d2_sqlite = "0.21.0"
-once_cell = "1.17.1"
+once_cell = "1.17.2"
 extend = "1.2.0"
 
 talk-loco-client = { path = "../talk-loco-client" }
