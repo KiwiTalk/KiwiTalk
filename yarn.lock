@@ -9238,7 +9238,7 @@ __metadata:
     storybook: 7.0.26
     styled-components: 5.3.11
     typescript: 5.1.6
-    vite: 4.4.0
+    vite: 4.4.1
     vite-plugin-svgr: 3.2.0
   languageName: unknown
   linkType: soft
@@ -12125,9 +12125,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:4.4.0":
-  version: 4.4.0
-  resolution: "vite@npm:4.4.0"
+"vite@npm:4.4.1":
+  version: 4.4.1
+  resolution: "vite@npm:4.4.1"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -12161,7 +12161,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: a0565345836d2bd5471aa784a3769c19c2c7b5f1df05f3b30948ccba691c0a37300ff40bcbb288a7a189aba13063b04b91abbb49dffe9ec45472e95bf4a9ab17
+  checksum: c91d5228cd0b2410e95ea4b17279640a414f1a2d5290a01baec77351af2dda7d5901c240ed6a62de2b465567e328168d386da2aaa262d3a138fde827b289592d
   languageName: node
   linkType: hard
 
