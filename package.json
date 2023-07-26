@@ -41,7 +41,7 @@
     "@storybook/types": "7.1.1",
     "@tauri-apps/cli": "1.4.0",
     "@types/node": "18.17.1",
-    "@types/react": "18.2.16",
+    "@types/react": "18.2.17",
     "@types/react-dom": "18.2.7",
     "@types/styled-components": "5.1.26",
     "@typescript-eslint/eslint-plugin": "5.62.0",
