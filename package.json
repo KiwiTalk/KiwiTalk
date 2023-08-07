@@ -53,7 +53,7 @@
     "eslint-plugin-storybook": "0.6.13",
     "storybook": "7.2.1",
     "typescript": "5.1.6",
-    "vite": "4.4.8",
+    "vite": "4.4.9",
     "vite-plugin-svgr": "3.2.0"
   },
   "dependencies": {
