@@ -15,4 +15,4 @@ serde_with = "3.2.0"
 thiserror = "1.0"
 
 [dev-dependencies]
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.30.0", features = ["full"] }
