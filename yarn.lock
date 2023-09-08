@@ -8513,12 +8513,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:23.5.0":
-  version: 23.5.0
-  resolution: "i18next@npm:23.5.0"
+"i18next@npm:23.5.1":
+  version: 23.5.1
+  resolution: "i18next@npm:23.5.1"
   dependencies:
     "@babel/runtime": ^7.22.5
-  checksum: 026ff157d551e9adda132f2dfeb7da16b0f1f53af424e3374536a118ea5445aca4a6b5e86fd8fe483054e4cf55043b8ecc524806d816f1a8cc7ab201693378e1
+  checksum: 4be043bd72287bfae9777a3252b9458d2e3f5e9a97ea62cf434e6e3767b45df4365d8780d0dd14efd4e9da5eb0f90534510b138f1372d1cb9012000a69bbedaf
   languageName: node
   linkType: hard
 
@@ -9283,7 +9283,7 @@ __metadata:
     eslint: 8.48.0
     eslint-config-google: 0.14.0
     eslint-plugin-storybook: 0.6.13
-    i18next: 23.5.0
+    i18next: 23.5.1
     react: 18.2.0
     react-dom: 18.2.0
     react-i18next: 13.2.2
