@@ -5451,14 +5451,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/styled-components@npm:5.1.26":
-  version: 5.1.26
-  resolution: "@types/styled-components@npm:5.1.26"
+"@types/styled-components@npm:5.1.27":
+  version: 5.1.27
+  resolution: "@types/styled-components@npm:5.1.27"
   dependencies:
     "@types/hoist-non-react-statics": "*"
     "@types/react": "*"
     csstype: ^3.0.2
-  checksum: 84f53b3101739b20d1731554fb7735bc2f3f5d050a8b392e9845403c8c8bbd729737d033978649f9195a97b557875b010d46e35a4538564a2d0dbcce661dbf76
+  checksum: 6f8d99642f09f28a233a5bf93d3139389c3bf5e4c643620881cb286f581d6844f3c1c43be5bd9405d3b199b6a858bd8b0ec6ccbb17b2304a88d70e2a6f91a996
   languageName: node
   linkType: hard
 
@@ -9328,7 +9328,7 @@ __metadata:
     "@types/node": 18.17.15
     "@types/react": 18.2.21
     "@types/react-dom": 18.2.7
-    "@types/styled-components": 5.1.26
+    "@types/styled-components": 5.1.27
     "@typescript-eslint/eslint-plugin": 6.6.0
     "@typescript-eslint/parser": 6.6.0
     "@vitejs/plugin-react": 4.0.4
