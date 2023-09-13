@@ -157,7 +157,7 @@ macro_rules! impl_client {
             $(
                 $status:pat => { $variant_prefix:ident $variant_name:ident $($variant_tt:tt)* } $(,)?
             )*
-        };
+        }
 
         $($tt:tt)*
     ) => {
