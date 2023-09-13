@@ -1,7 +1,7 @@
 pub mod client;
 pub mod command;
-pub mod secure;
 pub mod macros;
+pub mod secure;
 
 use std::{
     collections::HashMap,
