@@ -2,58 +2,30 @@ pub mod booking;
 pub mod checkin;
 pub mod talk;
 
-use crate::{CommandRequest, LocoRequestSession};
-use futures::{ready, Future, FutureExt};
-use serde::Serialize;
-use std::{
-    pin::Pin,
-    task::{Context, Poll},
-};
-use talk_loco_command::{command::BsonCommand, response::ResponseData};
+use crate::{ResponseError, SendError};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum ClientRequestError {
+pub enum RequestError {
     #[error("request returned status {0}")]
-    Request(i32),
+    Status(i32),
 
-    #[error("session closed before response")]
-    Session,
+    #[error(transparent)]
+    Send(#[from] SendError),
+
+    #[error(transparent)]
+    Response(#[from] ResponseError),
 
     #[error("could not deserialize BSON data. {0}")]
     Deserialize(#[from] bson::de::Error),
 }
 
-pub type ClientRequestResult<T> = Result<T, ClientRequestError>;
+pub type RequestResult<T> = Result<T, RequestError>;
 
-#[derive(Debug)]
-pub struct ClientCommandRequest(CommandRequest);
-
-impl Future for ClientCommandRequest {
-    type Output = ClientRequestResult<ResponseData>;
-
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Poll::Ready(match ready!(self.0.poll_unpin(cx)) {
-            Some(res) => Ok(res),
-            None => Err(ClientRequestError::Session),
-        })
-    }
-}
-
-/// Convenience method for requesting command asynchronously
-pub async fn request_response_async(
-    session: &LocoRequestSession,
-    command: &BsonCommand<impl Serialize>,
-) -> ClientCommandRequest {
-    let req = session
-        .request(BsonCommand {
-            method: command.method.clone(),
-            data_type: command.data_type,
-            data: bson::ser::to_document(&command.data).unwrap(),
-        })
-        .await;
-
-    ClientCommandRequest(req)
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BsonCommandStatus {
+    pub status: i32,
 }
 
 // TODO:: customizable status check
@@ -66,17 +38,18 @@ macro_rules! async_client_method {
         pub async fn $name(
             &self,
             command: &$request,
-        ) -> crate::client::ClientRequestResult<$response> {
-            let res = crate::client::request_response_async(
-                self.0,
-                &talk_loco_command::command::BsonCommand::new(std::borrow::Cow::Borrowed($method), 0, command),
-            )
-            .await.await?;
+        ) -> $crate::client::RequestResult<$response> {
+            let data = self.0.request(
+                ::loco_protocol::command::Method::new($method).unwrap(),
+                command
+            ).await?.await?.data;
 
-            if res.status == 0 {
-                Ok(res.try_deserialize()?)
-            } else {
-                Err(crate::client::ClientRequestError::Request(res.status))
+            let status = bson::from_slice::<$crate::client::BsonCommandStatus>(&data)?.status;
+
+            match status {
+                0 => Ok(::bson::from_slice(&data)?),
+
+                _ => Err($crate::client::RequestError::Status(status)),
             }
         }
     };

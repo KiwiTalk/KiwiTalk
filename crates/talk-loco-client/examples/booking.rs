@@ -1,8 +1,9 @@
-use std::error::Error;
+use std::{error::Error, pin::pin};
 
+use futures_lite::StreamExt;
 use talk_loco_client::{client::booking::BookingClient, LocoRequestSession};
 use talk_loco_command::request;
-use tokio::{io::BufStream, net::TcpStream};
+use tokio::{io::BufStream, net::TcpStream, spawn};
 use tokio_native_tls::native_tls;
 use tokio_util::compat::TokioAsyncReadCompatExt;
 
@@ -23,7 +24,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap()
         .compat();
 
-    let (booking_conn, _) = LocoRequestSession::new(stream);
+    let (booking_conn, stream) = LocoRequestSession::new(stream);
+
+    spawn(async move {
+        let mut stream = pin!(stream);
+
+        while let Some(Ok(res)) = stream.next().await {
+            dbg!(res);
+        }
+    });
+
     let booking_client = BookingClient(&booking_conn);
     let booking_res = booking_client
         .get_conf(&request::booking::GetConfReq {
