@@ -9332,7 +9332,7 @@ __metadata:
     react-i18next: 13.2.2
     react-is: ^18.2.0
     storybook: 7.4.1
-    styled-components: 6.0.7
+    styled-components: 6.0.8
     typescript: 5.2.2
     vite: 4.4.9
     vite-plugin-svgr: 3.2.0
@@ -11700,9 +11700,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-components@npm:6.0.7":
-  version: 6.0.7
-  resolution: "styled-components@npm:6.0.7"
+"styled-components@npm:6.0.8":
+  version: 6.0.8
+  resolution: "styled-components@npm:6.0.8"
   dependencies:
     "@babel/cli": ^7.21.0
     "@babel/core": ^7.21.0
@@ -11730,7 +11730,7 @@ __metadata:
   peerDependenciesMeta:
     babel-plugin-styled-components:
       optional: true
-  checksum: 38645f38f145225e456f8f9303f5be1d988180e0e3d84d1f3e1d14fb006c7deb69704745e266d61016616a154938697d011a0bff6eaeb7dd25dbba659e2411f7
+  checksum: 758f19ada2a14e3fc12a0e1094d55b065a3d0afc57e33dbb3c57b8322d4e72ecc3091c9c87e083cec733fc19c6fdd0bc5de9456f299f86ce1c3ffaae21ac6377
   languageName: node
   linkType: hard
 

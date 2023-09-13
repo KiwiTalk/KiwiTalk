@@ -63,7 +63,7 @@
     "react-dom": "18.2.0",
     "react-i18next": "13.2.2",
     "react-is": "^18.2.0",
-    "styled-components": "6.0.7"
+    "styled-components": "6.0.8"
   },
   "packageManager": "yarn@3.6.3"
 }
