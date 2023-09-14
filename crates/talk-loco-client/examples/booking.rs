@@ -1,9 +1,8 @@
-use std::{error::Error, pin::pin};
+use std::error::Error;
 
-use futures_lite::StreamExt;
-use talk_loco_client::{client::booking::BookingClient, session::LocoSession};
+use talk_loco_client::{client::booking::BookingClient, request_only_session};
 use talk_loco_command::request;
-use tokio::{io::BufStream, net::TcpStream, spawn};
+use tokio::{io::BufStream, net::TcpStream};
 use tokio_native_tls::native_tls;
 use tokio_util::compat::TokioAsyncReadCompatExt;
 
@@ -24,26 +23,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap()
         .compat();
 
-    let (booking_conn, stream) = LocoSession::new(stream);
+    request_only_session(stream, |session| async move {
+        let booking_client = BookingClient(&session);
 
-    spawn(async move {
-        let mut stream = pin!(stream);
+        let booking_res = booking_client
+            .get_conf(&request::booking::GetConfReq {
+                os: "win32".into(),
+                mccmnc: "999".into(),
+                model: "".into(),
+            })
+            .await;
 
-        while let Some(Ok(res)) = stream.next().await {
-            dbg!(res);
-        }
-    });
-
-    let booking_client = BookingClient(&booking_conn);
-    let booking_res = booking_client
-        .get_conf(&request::booking::GetConfReq {
-            os: "win32".into(),
-            mccmnc: "999".into(),
-            model: "".into(),
-        })
-        .await;
-
-    println!("GETCONF response: {:?}\n", booking_res);
+        println!("GETCONF response: {:?}\n", booking_res);
+    })
+    .await?;
 
     Ok(())
 }
