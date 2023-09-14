@@ -45,7 +45,7 @@ macro_rules! impl_client {
     ) => {
         $(#[$meta])*
         #[derive(Clone, Copy)]
-        $vis struct $name<'a>(pub &'a $crate::LocoRequestSession);
+        $vis struct $name<'a>(pub &'a $crate::session::LocoSession);
 
         impl_client!(@methods $name $($tt)*);
     };
@@ -169,15 +169,18 @@ macro_rules! impl_client {
 
             #[derive(Debug, $crate::macros::__private::serde::Deserialize)]
             pub enum $res {
-                $($variant_name($variant_name)),+
+                $($variant_name(response::$variant_name)),+
             }
 
-            $(
-                $crate::macros::__private::structstruck::strike!(
-                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
-                    pub $variant_prefix $variant_name $($variant_tt)*
-                );
-            )*
+            pub mod response {
+                $(
+                    $crate::macros::__private::structstruck::strike!(
+                        #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
+                        pub $variant_prefix $variant_name $($variant_tt)*
+                    );
+                )*
+            }
+            
         }
 
         $vis use $name::{$req, $res};
@@ -238,7 +241,7 @@ macro_rules! impl_client {
             $vis async fn $name(
                 self,
                 command: &$req,
-            ) -> $crate::client::RequestResult<$res> {
+            ) -> $crate::RequestResult<$res> {
                 use $crate::macros::__private::{
                     loco_protocol::command::Method,
                     bson,
@@ -252,7 +255,7 @@ macro_rules! impl_client {
                 match bson::from_slice::<$crate::client::BsonCommandStatus>(&$data)?.status {
                     $($status => $expr,)*
 
-                    status => Err($crate::client::RequestError::Status(status)),
+                    status => Err($crate::RequestError::Status(status)),
                 }
             }
         }

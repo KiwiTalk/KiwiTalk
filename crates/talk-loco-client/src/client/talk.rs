@@ -2,12 +2,12 @@ use async_stream::try_stream;
 use futures_lite::Stream;
 use talk_loco_command::{request, response};
 
-use crate::LocoRequestSession;
+use crate::session::LocoSession;
 
-use super::{async_client_method, RequestResult};
+use super::{async_client_method, super::RequestResult};
 
 #[derive(Debug)]
-pub struct TalkClient<'a>(pub &'a LocoRequestSession);
+pub struct TalkClient<'a>(pub &'a LocoSession);
 
 impl TalkClient<'_> {
     async_client_method!(login, "LOGINLIST", request::chat::LoginListReq => response::chat::LoginListRes);
