@@ -10,14 +10,14 @@ pub struct LocoSink<T> {
 }
 
 impl<T> LocoSink<T> {
-    pub fn new(inner: T) -> Self {
+    pub const fn new(inner: T) -> Self {
         Self {
             sink: Sink::new(),
             inner,
         }
     }
 
-    pub fn inner(&self) -> &T {
+    pub const fn inner(&self) -> &T {
         &self.inner
     }
 
@@ -51,14 +51,14 @@ pub struct LocoStream<T> {
 }
 
 impl<T> LocoStream<T> {
-    pub fn new(inner: T) -> Self {
+    pub const fn new(inner: T) -> Self {
         Self {
             stream: Stream::new(),
             inner,
         }
     }
 
-    pub fn inner(&self) -> &T {
+    pub const fn inner(&self) -> &T {
         &self.inner
     }
 
