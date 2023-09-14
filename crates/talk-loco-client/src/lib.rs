@@ -14,7 +14,7 @@ use session::LocoSession;
 use thiserror::Error;
 use tokio::select;
 
-pub async fn request_only_session<Fut: Future>(
+pub async fn create_session_task<Fut: Future>(
     inner: impl AsyncRead + AsyncWrite,
     task_fn: impl FnOnce(LocoSession) -> Fut,
 ) -> Result<Fut::Output, io::Error> {
