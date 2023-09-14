@@ -7,6 +7,7 @@ pub mod session;
 use std::{io, pin::pin};
 
 use futures_lite::{
+    future::yield_now,
     io::{AsyncRead, AsyncWrite},
     Future, StreamExt,
 };
@@ -28,20 +29,26 @@ pub async fn create_session_task<Fut: Future>(
         let mut stream = pin!(stream);
 
         while let Some(res) = stream.next().await {
-            res?;
+            if let Err(err) = res {
+                yield_now().await;
+
+                return Err(err);
+            }
         }
 
         Ok::<_, io::Error>(())
     };
 
     select! {
-        output = task => Ok(output),
+        biased;
 
         res = stream_task => {
             res?;
 
             Err(io::ErrorKind::UnexpectedEof.into())
-        }
+        },
+
+        output = task => Ok(output),
     }
 }
 

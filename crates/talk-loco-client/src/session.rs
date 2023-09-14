@@ -51,13 +51,14 @@ impl LocoSession {
             loop {
                 select! {
                     _ = write_task.as_mut() => {},
+
                     Some(next) = read_stream.next() => {
                         yield next;
-                    }
+                    },
 
                     else => {
                         break;
-                    }
+                    },
                 }
             }
         });
