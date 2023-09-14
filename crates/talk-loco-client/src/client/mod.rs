@@ -2,13 +2,6 @@ pub mod booking;
 pub mod checkin;
 pub mod talk;
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BsonCommandStatus {
-    pub status: i32,
-}
-
 // TODO:: customizable status check
 macro_rules! async_client_method {
     (
@@ -22,10 +15,10 @@ macro_rules! async_client_method {
         ) -> $crate::RequestResult<$response> {
             let data = self.0.request(
                 ::loco_protocol::command::Method::new($method).unwrap(),
-                command
+                bson::to_vec(command)?.into_boxed_slice(),
             ).await?.await?.data;
 
-            let status = bson::from_slice::<$crate::client::BsonCommandStatus>(&data)?.status;
+            let status = bson::from_slice::<$crate::BsonCommandStatus>(&data)?.status;
 
             match status {
                 0 => Ok(::bson::from_slice(&data)?),

@@ -12,13 +12,12 @@ use futures_util::AsyncReadExt;
 use loco_protocol::command::{Command, Header, Method};
 use nohash_hasher::IntMap;
 use parking_lot::Mutex;
-use serde::Serialize;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
 };
 
-use crate::{command::LocoStream, ResponseError, SendError};
+use crate::command::LocoStream;
 
 pub type ReadResult = Result<Command<Box<[u8]>>, io::Error>;
 
@@ -69,21 +68,18 @@ impl LocoSession {
     pub async fn request(
         &self,
         method: Method,
-        data: &impl Serialize,
-    ) -> Result<CommandRequest, SendError> {
-        let data = bson::to_vec(data)?.into_boxed_slice();
-
+        data: Box<[u8]>,
+    ) -> Result<CommandRequest, Error> {
         let (sender, receiver) = oneshot::channel();
 
         self.sender
             .send(Request {
                 method,
-                data_type: 0,
                 data,
                 response_sender: sender,
             })
             .await
-            .map_err(|_| SendError::SessionClosed)?;
+            .map_err(|_| Error::SessionClosed)?;
 
         Ok(CommandRequest { inner: receiver })
     }
@@ -137,7 +133,7 @@ async fn write_task(
                 id,
                 status: 0,
                 method: req.method,
-                data_type: req.data_type,
+                data_type: 0,
             },
             data: req.data,
         })
@@ -152,7 +148,6 @@ async fn write_task(
 #[derive(Debug)]
 struct Request {
     method: Method,
-    data_type: u8,
     data: Box<[u8]>,
     response_sender: oneshot::Sender<Command<Box<[u8]>>>,
 }
@@ -166,15 +161,21 @@ pin_project_lite::pin_project! {
 }
 
 impl Future for CommandRequest {
-    type Output = Result<Command<Box<[u8]>>, ResponseError>;
+    type Output = Result<Command<Box<[u8]>>, Error>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let command = ready!(self
             .project()
             .inner
             .poll(cx)
-            .map_err(|_| ResponseError::SessionClosed))?;
+            .map_err(|_| Error::SessionClosed))?;
 
         Poll::Ready(Ok(command))
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("session closed")]
+    SessionClosed,
 }

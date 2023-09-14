@@ -2,10 +2,10 @@
 pub mod __private;
 
 #[macro_export]
-macro_rules! impl_client {
+macro_rules! impl_session {
     () => {
-        compile_error!("Example usage: impl_client!(
-            pub struct TestClient {
+        compile_error!("Example usage: impl_session!(
+            pub struct TestSession {
                 // variant 1 (empty response)
                 fn test_method1("TEST", struct TestReq;);
 
@@ -47,7 +47,7 @@ macro_rules! impl_client {
         #[derive(Clone, Copy)]
         $vis struct $name<'a>(pub &'a $crate::session::LocoSession);
 
-        impl_client!(@methods $name $($tt)*);
+        impl_session!(@methods $name $($tt)*);
     };
 
     (@methods $struct_name:ident) => {};
@@ -64,15 +64,17 @@ macro_rules! impl_client {
         $($tt:tt)*
     ) => {
         $vis mod $name {
-            $crate::macros::__private::structstruck::strike!(
-                #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-                pub $req_prefix $req $($req_tt)*
-            );
+            pub mod request {
+                $crate::macros::__private::structstruck::strike!(
+                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+                    pub $req_prefix $req $($req_tt)*
+                );
+            }
         }
 
-        $vis use $name::$req;
+        $vis use $name::request::$req;
 
-        impl_client(
+        impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
             $vis async fn $name($method, data, &$req) -> () {
@@ -95,15 +97,17 @@ macro_rules! impl_client {
         $($tt:tt)*
     ) => {
         $vis mod $name {
-            $crate::macros::__private::structstruck::strike!(
-                #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-                pub $req_prefix $req $($req_tt)*
-            );
+            pub mod request {
+                $crate::macros::__private::structstruck::strike!(
+                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+                    pub $req_prefix $req $($req_tt)*
+                );
+            }
         }
 
-        $vis use $name::$req;
+        $vis use $name::request::$req;
 
-        impl_client(
+        impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
             $vis async fn $name($method, &$req) -> $res;
@@ -124,20 +128,24 @@ macro_rules! impl_client {
         $($tt:tt)*
     ) => {
         $vis mod $name {
-            $crate::macros::__private::structstruck::strike!(
-                #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-                pub $req_prefix $req $($req_tt)*
-            );
+            pub mod request {
+                $crate::macros::__private::structstruck::strike!(
+                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+                    pub $req_prefix $req $($req_tt)*
+                );
+            }
 
-            $crate::macros::__private::structstruck::strike!(
-                #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
-                pub $res_prefix $res $($res_tt)*
-            );
+            pub mod response {
+                $crate::macros::__private::structstruck::strike!(
+                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
+                    pub $res_prefix $res $($res_tt)*
+                );
+            }
         }
 
-        $vis use $name::{$req, $res};
+        $vis use $name::{request::$req, response::$res};
 
-        impl_client(
+        impl_session!(
             @methods $struct_name
             $(#[$meta])*
             $vis async fn $name($method, &$req) -> $res;
@@ -162,17 +170,19 @@ macro_rules! impl_client {
         $($tt:tt)*
     ) => {
         $vis mod $name {
-            $crate::macros::__private::structstruck::strike!(
-                #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-                pub $req_prefix $req $($req_tt)*
-            );
-
-            #[derive(Debug, $crate::macros::__private::serde::Deserialize)]
-            pub enum $res {
-                $($variant_name(response::$variant_name)),+
+            pub mod request {
+                $crate::macros::__private::structstruck::strike!(
+                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+                    pub $req_prefix $req $($req_tt)*
+                );
             }
 
             pub mod response {
+                #[derive(Debug, $crate::macros::__private::serde::Deserialize)]
+                pub enum $res {
+                    $($variant_name($variant_name)),+
+                }
+
                 $(
                     $crate::macros::__private::structstruck::strike!(
                         #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
@@ -183,9 +193,9 @@ macro_rules! impl_client {
 
         }
 
-        $vis use $name::{$req, $res};
+        $vis use $name::{request::$req, response::$res};
 
-        impl_client!(
+        impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
             $vis async fn $name($method, data, &$req) -> $res {
@@ -213,7 +223,7 @@ macro_rules! impl_client {
 
         $($tt:tt)*
     ) => {
-        impl_client(
+        impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
             $vis async fn $name($method, data, &$req) -> $res {
@@ -249,10 +259,13 @@ macro_rules! impl_client {
 
                 let $data = self.0.request(
                     Method::new($method).unwrap(),
-                    command
-                ).await?.await?.data;
+                    bson::to_vec(command)?.into_boxed_slice(),
+                ).await
+                .map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
+                .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
+                .data;
 
-                match bson::from_slice::<$crate::client::BsonCommandStatus>(&$data)?.status {
+                match bson::from_slice::<$crate::BsonCommandStatus>(&$data)?.status {
                     $($status => $expr,)*
 
                     status => Err($crate::RequestError::Status(status)),

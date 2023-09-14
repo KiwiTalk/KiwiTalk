@@ -1,4 +1,4 @@
-use talk_loco_client::client::RequestError;
+use talk_loco_client::RequestError;
 use thiserror::Error;
 
 use crate::database::pool::PoolTaskError;

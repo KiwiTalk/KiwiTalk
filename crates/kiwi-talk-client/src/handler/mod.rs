@@ -1,9 +1,9 @@
 pub mod error;
 
 use bson::Document;
-use futures::{pin_mut, Sink, SinkExt, StreamExt};
+use futures::{pin_mut, Sink, SinkExt, StreamExt, Stream};
 use serde::de::DeserializeOwned;
-use talk_loco_client::LocoStream;
+use talk_loco_client::session::ReadResult;
 use talk_loco_command::{command::BsonCommand, response::chat};
 
 use crate::{
@@ -28,7 +28,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
         }
     }
 
-    pub async fn run(mut self, stream: LocoStream) {
+    pub async fn run(mut self, stream: impl Stream<Item = ReadResult>) {
         pin_mut!(stream);
         while let Some(read) = stream.next().await {
             match read {
