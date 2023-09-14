@@ -4,7 +4,7 @@ pub mod macros;
 pub mod secure;
 pub mod session;
 
-use std::{pin::pin, io};
+use std::{io, pin::pin};
 
 use futures_lite::{
     io::{AsyncRead, AsyncWrite},
@@ -35,9 +35,7 @@ pub async fn request_only_session<Fut: Future>(
     };
 
     select! {
-        output = task => {
-            Ok(output)
-        },
+        output = task => Ok(output),
 
         res = stream_task => {
             res?;

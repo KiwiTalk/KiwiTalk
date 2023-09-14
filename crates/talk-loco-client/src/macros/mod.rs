@@ -180,7 +180,7 @@ macro_rules! impl_client {
                     );
                 )*
             }
-            
+
         }
 
         $vis use $name::{$req, $res};

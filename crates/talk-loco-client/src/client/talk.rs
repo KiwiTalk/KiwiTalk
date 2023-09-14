@@ -4,7 +4,7 @@ use talk_loco_command::{request, response};
 
 use crate::session::LocoSession;
 
-use super::{async_client_method, super::RequestResult};
+use super::{super::RequestResult, async_client_method};
 
 #[derive(Debug)]
 pub struct TalkClient<'a>(pub &'a LocoSession);
