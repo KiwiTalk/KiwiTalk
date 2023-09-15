@@ -2,6 +2,7 @@ pub mod client;
 pub mod macros;
 pub mod secure;
 pub mod session;
+pub mod command;
 
 use std::{
     io::{self, ErrorKind},
@@ -70,10 +71,7 @@ impl<T: AsyncRead> LocoClient<T> {
         poll_fn(|cx| this.as_mut().poll_read(cx)).await
     }
 
-    pub fn poll_read(
-        self: Pin<&mut Self>,
-        cx: &mut Context,
-    ) -> Poll<io::Result<BoxedCommand>> {
+    pub fn poll_read(self: Pin<&mut Self>, cx: &mut Context) -> Poll<io::Result<BoxedCommand>> {
         let mut this = self.project();
 
         let mut buffer = [0_u8; 1024];
