@@ -98,10 +98,11 @@ impl<T: AsyncRead + AsyncWrite> Stream for LocoSessionStream<T> {
                 }
 
                 SessionState::Write => {
-                    *this.state = if this.client.as_mut().poll_flush(cx)?.is_ready() {
-                        SessionState::Pending
+                    if this.client.as_mut().poll_flush(cx)?.is_ready() {
+                        *this.state = SessionState::Pending;
                     } else {
-                        SessionState::Write
+                        *this.state = SessionState::Write;
+                        break Poll::Pending;
                     };
                 }
 

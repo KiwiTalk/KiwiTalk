@@ -143,7 +143,7 @@ impl<T: AsyncWrite> LocoClient<T> {
                 }
             }))?;
 
-            this.sink.write_buffer.drain(written..);
+            this.sink.write_buffer.drain(..written);
         }
 
         ready!(this.inner.poll_flush(cx))?;
