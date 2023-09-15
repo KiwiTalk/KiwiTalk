@@ -4739,14 +4739,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/testing-library@npm:0.2.0":
-  version: 0.2.0
-  resolution: "@storybook/testing-library@npm:0.2.0"
+"@storybook/testing-library@npm:0.2.1":
+  version: 0.2.1
+  resolution: "@storybook/testing-library@npm:0.2.1"
   dependencies:
     "@testing-library/dom": ^9.0.0
-    "@testing-library/user-event": ^14.0.0
+    "@testing-library/user-event": ~14.4.0
     ts-dedent: ^2.2.0
-  checksum: 1c1c16aea6f961de344f5d43bdfd2847bc5f44df1037c2e1383312bb6b842e2c17a805670fc9cfe1a8425f9e48e240fe5d025ab3d4802a198cfe9eb6ed8e7636
+  checksum: 2688361b634921219e4dc8e4acbc6622cfba6c224bd9bf17bf9bfb3655c906129cc82edd69354b9b1889b6f43c9c5e74bd51adb4407b68033d78279b93aee457
   languageName: node
   linkType: hard
 
@@ -5035,7 +5035,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.0.0":
+"@testing-library/user-event@npm:~14.4.0":
   version: 14.4.3
   resolution: "@testing-library/user-event@npm:14.4.3"
   peerDependencies:
@@ -9318,7 +9318,7 @@ __metadata:
     "@storybook/preview-api": 7.4.2
     "@storybook/react": ^7.0.0-beta.31
     "@storybook/react-vite": 7.4.2
-    "@storybook/testing-library": 0.2.0
+    "@storybook/testing-library": 0.2.1
     "@storybook/types": 7.4.2
     "@tauri-apps/api": 1.4.0
     "@tauri-apps/cli": 1.4.0
