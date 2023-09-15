@@ -67,11 +67,14 @@ macro_rules! impl_session {
             pub mod request {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+
+                    #[doc = ::std::concat!("Request data for `", $name, "` method")]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
         }
 
+        #[doc(inline)]
         $vis use $name::request::$req;
 
         impl_session!(
@@ -100,11 +103,14 @@ macro_rules! impl_session {
             pub mod request {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+
+                    #[doc = ::std::concat!("Request data for `", $name, "` method")]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
         }
 
+        #[doc(inline)]
         $vis use $name::request::$req;
 
         impl_session!(
@@ -131,6 +137,13 @@ macro_rules! impl_session {
             pub mod request {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+
+                    
+                    #[doc = ::std::concat!(
+                        "Request data for `",
+                        ::std::stringify!($name),
+                        "` method"
+                    )]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
@@ -138,11 +151,18 @@ macro_rules! impl_session {
             pub mod response {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
+                    
+                    #[doc = ::std::concat!(
+                        "Response data for `",
+                        ::std::stringify!($name),
+                        "` method"
+                    )]
                     pub $res_prefix $res $($res_tt)*
                 );
             }
         }
 
+        #[doc(inline)]
         $vis use $name::{request::$req, response::$res};
 
         impl_session!(
@@ -163,6 +183,7 @@ macro_rules! impl_session {
             $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
         ) -> $res:ident {
             $(
+                $(#[$status_meta:meta])*
                 $status:pat => { $variant_prefix:ident $variant_name:ident $($variant_tt:tt)* } $(,)?
             )*
         }
@@ -173,19 +194,36 @@ macro_rules! impl_session {
             pub mod request {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
+                    
+                #[doc = ::std::concat!(
+                    "Request data for `",
+                    ::std::stringify!($name),
+                    "` method"
+                )]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
 
             pub mod response {
                 #[derive(Debug, $crate::macros::__private::serde::Deserialize)]
+
+                #[doc = ::std::concat!(
+                    "Response variants for `",
+                    ::std::stringify!($name),
+                    "` method"
+                )]
                 pub enum $res {
-                    $($variant_name($variant_name)),+
+                    $(
+                        $(#[$status_meta])*
+                        $variant_name($variant_name)
+                    ),+
                 }
 
                 $(
                     $crate::macros::__private::structstruck::strike!(
                         #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
+
+                        $(#[$status_meta])*
                         pub $variant_prefix $variant_name $($variant_tt)*
                     );
                 )*
@@ -193,6 +231,7 @@ macro_rules! impl_session {
 
         }
 
+        #[doc(inline)]
         $vis use $name::{request::$req, response::$res};
 
         impl_session!(
