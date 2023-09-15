@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use talk_loco_client::{client::booking::BookingClient, create_session_task};
+use talk_loco_client::{client::booking::BookingClient, session::LocoSession, LocoClient};
 use talk_loco_command::request;
 use tokio::{io::BufStream, net::TcpStream};
 use tokio_native_tls::native_tls;
@@ -23,20 +23,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap()
         .compat();
 
-    create_session_task(stream, |session| async move {
-        let booking_client = BookingClient(&session);
+    let (session, _) = LocoSession::new(LocoClient::new(stream));
 
-        let booking_res = booking_client
-            .get_conf(&request::booking::GetConfReq {
-                os: "win32".into(),
-                mccmnc: "999".into(),
-                model: "".into(),
-            })
-            .await;
+    let booking_client = BookingClient(&session);
 
-        println!("GETCONF response: {:?}\n", booking_res);
-    })
-    .await?;
+    let booking_res = booking_client
+        .get_conf(&request::booking::GetConfReq {
+            os: "win32".into(),
+            mccmnc: "999".into(),
+            model: "".into(),
+        })
+        .await;
+
+    println!("GETCONF response: {:?}\n", booking_res);
 
     Ok(())
 }

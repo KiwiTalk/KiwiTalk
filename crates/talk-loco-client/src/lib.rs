@@ -1,96 +1,172 @@
 pub mod client;
-pub mod command;
 pub mod macros;
 pub mod secure;
 pub mod session;
 
-use std::io;
-
-use command::{LocoSink, LocoStream};
-use futures_lite::io::{AsyncRead, AsyncWrite};
-use futures_util::{
-    io::{ReadHalf, WriteHalf},
-    AsyncReadExt,
+use std::{
+    io::{self, ErrorKind},
+    pin::Pin,
+    task::{Context, Poll},
 };
-use loco_protocol::command::{Command, Header, Method};
-use serde::{Serialize, Deserialize};
+
+use futures_lite::{
+    future::poll_fn,
+    io::{AsyncRead, AsyncWrite},
+    ready,
+};
+use loco_protocol::command::{
+    client::{LocoSink, LocoStream},
+    Command, Header, Method,
+};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Debug)]
-pub struct LocoClient<T> {
-    current_id: u32,
-    stream: LocoStream<ReadHalf<T>>,
-    sink: LocoSink<WriteHalf<T>>,
-}
+pin_project_lite::pin_project!(
+    #[derive(Debug)]
+    pub struct LocoClient<T> {
+        current_id: u32,
 
-impl<T: AsyncRead + AsyncWrite + Unpin> LocoClient<T> {
-    pub fn new(inner: T) -> Self {
-        let (read, write) = inner.split();
+        sink: LocoSink,
+        stream: LocoStream,
 
+        #[pin]
+        inner: T,
+    }
+);
+
+impl<T> LocoClient<T> {
+    pub const fn new(inner: T) -> Self {
         Self {
             current_id: 0,
-            stream: LocoStream::new(read),
-            sink: LocoSink::new(write),
+
+            sink: LocoSink::new(),
+            stream: LocoStream::new(),
+            inner,
         }
     }
 
-    pub async fn send(&mut self, method: Method, data: Box<[u8]>) -> io::Result<u32> {
-        let id = {
-            self.current_id += 1;
+    pub const fn inner(&self) -> &T {
+        &self.inner
+    }
 
-            self.current_id
-        };
+    pub fn inner_mut(&mut self) -> &mut T {
+        &mut self.inner
+    }
 
-        self.sink
-            .send(Command {
-                header: Header {
-                    id,
-                    status: 0,
-                    method,
-                    data_type: 0,
-                },
-                data,
-            })
-            .await?;
+    pub fn into_inner(self) -> T {
+        self.inner
+    }
+}
+
+impl<T: AsyncRead> LocoClient<T> {
+    pub async fn read(&mut self) -> io::Result<Command<Box<[u8]>>>
+    where
+        T: Unpin,
+    {
+        let mut this = Pin::new(self);
+
+        poll_fn(|cx| this.as_mut().poll_read(cx)).await
+    }
+
+    pub fn poll_read(
+        self: Pin<&mut Self>,
+        cx: &mut Context,
+    ) -> Poll<io::Result<Command<Box<[u8]>>>> {
+        let mut this = self.project();
+
+        let mut buffer = [0_u8; 1024];
+
+        Poll::Ready(loop {
+            match this.stream.read() {
+                Some(command) => break Ok(command),
+
+                None => {
+                    let read = ready!(this.inner.as_mut().poll_read(cx, &mut buffer))?;
+                    if read == 0 {
+                        break Err(ErrorKind::UnexpectedEof.into());
+                    }
+
+                    this.stream.read_buffer.extend(&buffer[..read]);
+                }
+            }
+        })
+    }
+}
+
+impl<T: AsyncWrite> LocoClient<T> {
+    pub async fn send(&mut self, method: Method, data: &[u8]) -> io::Result<u32>
+    where
+        T: Unpin,
+    {
+        let mut this = Pin::new(self);
+
+        let id = this.as_mut().write(method, data);
+
+        poll_fn(|cx| this.as_mut().poll_flush(cx)).await?;
 
         Ok(id)
     }
 
-    pub async fn read(&mut self) -> io::Result<Command<Box<[u8]>>> {
-        Ok(self.stream.read().await?)
+    pub fn write(self: Pin<&mut Self>, method: Method, data: &[u8]) -> u32 {
+        let this = self.project();
+
+        let id = {
+            *this.current_id += 1;
+
+            *this.current_id
+        };
+
+        this.sink.send(Command {
+            header: Header {
+                id,
+                status: 0,
+                method,
+                data_type: 0,
+            },
+            data,
+        });
+
+        id
     }
 
-    pub async fn read_id(&mut self, id: u32) -> io::Result<Command<Box<[u8]>>> {
-        Ok(loop {
-            let command = self.read().await?;
+    pub fn poll_flush(self: Pin<&mut Self>, cx: &mut Context) -> Poll<io::Result<()>> {
+        let mut this = self.project();
 
-            if command.header.id == id {
-                break command;
+        while !this.sink.write_buffer.is_empty() {
+            let written = ready!(this.inner.as_mut().poll_write(cx, {
+                let slices = this.sink.write_buffer.as_slices();
+
+                if !slices.0.is_empty() {
+                    slices.0
+                } else {
+                    slices.1
+                }
+            }))?;
+
+            this.sink.write_buffer.drain(written..);
+        }
+
+        ready!(this.inner.poll_flush(cx))?;
+
+        Poll::Ready(Ok(()))
+    }
+}
+
+impl<T: AsyncRead + AsyncWrite + Unpin> LocoClient<T> {
+    pub async fn request(&mut self, method: Method, data: &[u8]) -> io::Result<Command<Box<[u8]>>> {
+        let mut this = Pin::new(self);
+
+        let id = this.as_mut().write(method, data);
+
+        poll_fn(|cx| this.as_mut().poll_flush(cx)).await?;
+
+        Ok(loop {
+            let read = poll_fn(|cx| this.as_mut().poll_read(cx)).await?;
+
+            if read.header.id == id {
+                break read;
             }
         })
-    }
-
-    pub const fn reader(&self) -> &ReadHalf<T> {
-        self.stream.inner()
-    }
-
-    pub fn read_mut(&mut self) -> &mut ReadHalf<T> {
-        self.stream.inner_mut()
-    }
-
-    pub const fn writer(&self) -> &WriteHalf<T> {
-        self.sink.inner()
-    }
-
-    pub fn writer_mut(&mut self) -> &mut WriteHalf<T> {
-        self.sink.inner_mut()
-    }
-
-    pub fn into_inner(self) -> T {
-        self.sink
-            .into_inner()
-            .reunite(self.stream.into_inner())
-            .unwrap()
     }
 }
 

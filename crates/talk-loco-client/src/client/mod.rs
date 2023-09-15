@@ -16,7 +16,15 @@ macro_rules! async_client_method {
             let data = self.0.request(
                 ::loco_protocol::command::Method::new($method).unwrap(),
                 bson::to_vec(command)?.into_boxed_slice(),
-            ).await?.await?.data;
+            ).await.map_err(
+                |_| $crate::RequestError::Write(
+                    ::std::io::ErrorKind::UnexpectedEof.into()
+                )
+            )?.await.map_err(
+                |_| $crate::RequestError::Write(
+                    ::std::io::ErrorKind::UnexpectedEof.into()
+                )
+            )?.data;
 
             let status = bson::from_slice::<$crate::BsonCommandStatus>(&data)?.status;
 

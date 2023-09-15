@@ -85,11 +85,11 @@ impl<T: AsyncRead> AsyncRead for LocoSecureLayer<T> {
                         ReadState::Reading(cursor)
                     };
 
-                    return Poll::Ready(Ok(read));
+                    break Poll::Ready(Ok(read));
                 }
 
                 ReadState::Corrupted => {
-                    return Poll::Ready(Err(io::Error::new(
+                    break Poll::Ready(Err(io::Error::new(
                         ErrorKind::InvalidData,
                         "Read state corrupted",
                     )));

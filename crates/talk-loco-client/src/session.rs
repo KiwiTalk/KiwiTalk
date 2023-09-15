@@ -1,25 +1,15 @@
 use std::{
-    collections::HashMap,
-    io,
-    pin::{pin, Pin},
-    sync::Arc,
+    io, mem,
+    pin::Pin,
     task::{Context, Poll},
 };
 
-use super::command::LocoSink;
-use futures_lite::{ready, AsyncRead, AsyncWrite, Future, Stream, StreamExt};
-use futures_util::AsyncReadExt;
-use loco_protocol::command::{Command, Header, Method};
+use futures_lite::{ready, AsyncRead, AsyncWrite, Future, Stream};
+use loco_protocol::command::{Command, Method};
 use nohash_hasher::IntMap;
-use parking_lot::Mutex;
-use tokio::{
-    select,
-    sync::{mpsc, oneshot},
-};
+use tokio::sync::{mpsc, oneshot};
 
-use crate::command::LocoStream;
-
-pub type ReadResult = Result<Command<Box<[u8]>>, io::Error>;
+use crate::LocoClient;
 
 #[derive(Debug, Clone)]
 pub struct LocoSession {
@@ -27,49 +17,13 @@ pub struct LocoSession {
 }
 
 impl LocoSession {
-    pub fn new(
-        stream: impl AsyncRead + AsyncWrite + Unpin,
-    ) -> (Self, impl Stream<Item = ReadResult>) {
-        let (read, write) = stream.split();
-
+    pub fn new<T: AsyncRead + AsyncWrite>(client: LocoClient<T>) -> (Self, LocoSessionStream<T>) {
         let (sender, receiver) = mpsc::channel(128);
 
-        let (read_stream, write_task) = {
-            let map = Arc::new(Mutex::new(HashMap::default()));
-
-            (
-                read_stream(read, map.clone()),
-                write_task(write, map, receiver),
-            )
-        };
-
-        let stream = async_stream::stream!({
-            let mut read_stream = pin!(read_stream);
-            let mut write_task = pin!(write_task);
-
-            loop {
-                select! {
-                    _ = write_task.as_mut() => {},
-
-                    Some(next) = read_stream.next() => {
-                        yield next;
-                    },
-
-                    else => {
-                        break;
-                    },
-                }
-            }
-        });
-
-        (Self { sender }, stream)
+        (Self { sender }, LocoSessionStream::new(receiver, client))
     }
 
-    pub async fn request(
-        &self,
-        method: Method,
-        data: Box<[u8]>,
-    ) -> Result<CommandRequest, Error> {
+    pub async fn request(&self, method: Method, data: Box<[u8]>) -> Result<CommandRequest, Error> {
         let (sender, receiver) = oneshot::channel();
 
         self.sender
@@ -85,64 +39,83 @@ impl LocoSession {
     }
 }
 
-type ResponseMap = IntMap<u32, oneshot::Sender<Command<Box<[u8]>>>>;
+pin_project_lite::pin_project!(
+    #[derive(Debug)]
+    pub struct LocoSessionStream<T> {
+        request_receiver: mpsc::Receiver<Request>,
+        response_map: IntMap<u32, oneshot::Sender<Command<Box<[u8]>>>>,
 
-fn read_stream(
-    read: impl AsyncRead + Unpin,
-    response_map: Arc<Mutex<ResponseMap>>,
-) -> impl Stream<Item = ReadResult> {
-    async_stream::stream!({
-        let mut stream = LocoStream::new(read);
+        state: SessionState,
+
+        #[pin]
+        client: LocoClient<T>,
+    }
+);
+
+impl<T> LocoSessionStream<T> {
+    fn new(request_receiver: mpsc::Receiver<Request>, client: LocoClient<T>) -> Self {
+        Self {
+            request_receiver,
+            response_map: IntMap::default(),
+
+            state: SessionState::Pending,
+
+            client,
+        }
+    }
+}
+
+impl<T: AsyncRead + AsyncWrite> Stream for LocoSessionStream<T> {
+    type Item = io::Result<Command<Box<[u8]>>>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let mut this = self.project();
 
         loop {
-            match stream.read().await {
-                Ok(read) => {
-                    let sender = response_map.lock().remove(&read.header.id);
+            match mem::replace(this.state, SessionState::Done) {
+                SessionState::Pending => {
+                    if let Poll::Ready(read) = this.client.as_mut().poll_read(cx) {
+                        let read = read?;
 
-                    if let Some(sender) = sender {
-                        let _ = sender.send(read);
+                        if let Some(sender) = this.response_map.remove(&read.header.id) {
+                            let _ = sender.send(read);
+                        } else {
+                            *this.state = SessionState::Pending;
+                            break Poll::Ready(Some(Ok(read)));
+                        }
+                    }
+
+                    if let Poll::Ready(Some(request)) = this.request_receiver.poll_recv(cx) {
+                        let id = this.client.as_mut().write(request.method, &request.data);
+                        this.response_map.insert(id, request.response_sender);
+
+                        *this.state = SessionState::Write;
                     } else {
-                        yield Ok(read);
+                        *this.state = SessionState::Pending;
+
+                        break Poll::Pending;
                     }
                 }
 
-                Err(err) => {
-                    yield Err(err);
+                SessionState::Write => {
+                    *this.state = if this.client.as_mut().poll_flush(cx)?.is_ready() {
+                        SessionState::Pending
+                    } else {
+                        SessionState::Write
+                    };
                 }
+
+                SessionState::Done => break Poll::Ready(None),
             }
         }
-    })
+    }
 }
 
-async fn write_task(
-    write: impl AsyncWrite + Unpin,
-    response_map: Arc<Mutex<ResponseMap>>,
-    mut recv: mpsc::Receiver<Request>,
-) -> Result<(), io::Error> {
-    let mut sink = LocoSink::new(write);
-    let mut current_id = 0;
-
-    while let Some(req) = recv.recv().await {
-        let id = {
-            current_id += 1;
-            current_id
-        };
-
-        sink.send(Command {
-            header: Header {
-                id,
-                status: 0,
-                method: req.method,
-                data_type: 0,
-            },
-            data: req.data,
-        })
-        .await?;
-
-        response_map.lock().insert(id, req.response_sender);
-    }
-
-    Ok(())
+#[derive(Debug, Clone, Copy)]
+enum SessionState {
+    Pending,
+    Write,
+    Done,
 }
 
 #[derive(Debug)]
