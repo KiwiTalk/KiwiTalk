@@ -5,11 +5,11 @@ use std::{
 };
 
 use futures_lite::{ready, AsyncRead, AsyncWrite, Future, Stream};
-use loco_protocol::command::{Command, Method};
+use loco_protocol::command::Method;
 use nohash_hasher::IntMap;
 use tokio::sync::{mpsc, oneshot};
 
-use crate::LocoClient;
+use crate::{BoxedCommand, LocoClient};
 
 #[derive(Debug, Clone)]
 pub struct LocoSession {
@@ -23,7 +23,7 @@ impl LocoSession {
         (Self { sender }, LocoSessionStream::new(receiver, client))
     }
 
-    pub async fn request(&self, method: Method, data: Box<[u8]>) -> Result<CommandRequest, Error> {
+    pub async fn request(&self, method: Method, data: Vec<u8>) -> Result<CommandRequest, Error> {
         let (sender, receiver) = oneshot::channel();
 
         self.sender
@@ -43,7 +43,7 @@ pin_project_lite::pin_project!(
     #[derive(Debug)]
     pub struct LocoSessionStream<T> {
         request_receiver: mpsc::Receiver<Request>,
-        response_map: IntMap<u32, oneshot::Sender<Command<Box<[u8]>>>>,
+        response_map: IntMap<u32, oneshot::Sender<BoxedCommand>>,
 
         state: SessionState,
 
@@ -66,7 +66,7 @@ impl<T> LocoSessionStream<T> {
 }
 
 impl<T: AsyncRead + AsyncWrite> Stream for LocoSessionStream<T> {
-    type Item = io::Result<Command<Box<[u8]>>>;
+    type Item = io::Result<BoxedCommand>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let mut this = self.project();
@@ -128,20 +128,20 @@ enum SessionState {
 #[derive(Debug)]
 struct Request {
     method: Method,
-    data: Box<[u8]>,
-    response_sender: oneshot::Sender<Command<Box<[u8]>>>,
+    data: Vec<u8>,
+    response_sender: oneshot::Sender<BoxedCommand>,
 }
 
 pin_project_lite::pin_project! {
     #[derive(Debug)]
     pub struct CommandRequest {
         #[pin]
-        inner: oneshot::Receiver<Command<Box<[u8]>>>,
+        inner: oneshot::Receiver<BoxedCommand>,
     }
 }
 
 impl Future for CommandRequest {
-    type Output = Result<Command<Box<[u8]>>, Error>;
+    type Output = Result<BoxedCommand, Error>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let command = ready!(self

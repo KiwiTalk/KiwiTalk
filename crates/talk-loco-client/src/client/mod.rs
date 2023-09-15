@@ -15,7 +15,7 @@ macro_rules! async_client_method {
         ) -> $crate::RequestResult<$response> {
             let data = self.0.request(
                 ::loco_protocol::command::Method::new($method).unwrap(),
-                bson::to_vec(command)?.into_boxed_slice(),
+                bson::to_vec(command)?,
             ).await.map_err(
                 |_| $crate::RequestError::Write(
                     ::std::io::ErrorKind::UnexpectedEof.into()

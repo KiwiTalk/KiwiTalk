@@ -12,7 +12,7 @@ use std::{
 use futures_lite::{
     future::poll_fn,
     io::{AsyncRead, AsyncWrite},
-    ready,
+    ready, Future,
 };
 use loco_protocol::command::{
     client::{LocoSink, LocoStream},
@@ -20,6 +20,8 @@ use loco_protocol::command::{
 };
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+pub type BoxedCommand = Command<Box<[u8]>>;
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]
@@ -59,7 +61,7 @@ impl<T> LocoClient<T> {
 }
 
 impl<T: AsyncRead> LocoClient<T> {
-    pub async fn read(&mut self) -> io::Result<Command<Box<[u8]>>>
+    pub async fn read(&mut self) -> io::Result<BoxedCommand>
     where
         T: Unpin,
     {
@@ -71,7 +73,7 @@ impl<T: AsyncRead> LocoClient<T> {
     pub fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context,
-    ) -> Poll<io::Result<Command<Box<[u8]>>>> {
+    ) -> Poll<io::Result<BoxedCommand>> {
         let mut this = self.project();
 
         let mut buffer = [0_u8; 1024];
@@ -153,20 +155,28 @@ impl<T: AsyncWrite> LocoClient<T> {
 }
 
 impl<T: AsyncRead + AsyncWrite + Unpin> LocoClient<T> {
-    pub async fn request(&mut self, method: Method, data: &[u8]) -> io::Result<Command<Box<[u8]>>> {
+    pub async fn request(
+        &mut self,
+        method: Method,
+        data: &[u8],
+    ) -> io::Result<impl Future<Output = io::Result<BoxedCommand>> + '_> {
         let mut this = Pin::new(self);
 
         let id = this.as_mut().write(method, data);
 
         poll_fn(|cx| this.as_mut().poll_flush(cx)).await?;
 
-        Ok(loop {
-            let read = poll_fn(|cx| this.as_mut().poll_read(cx)).await?;
+        let read_task = async move {
+            Ok(loop {
+                let read = poll_fn(|cx| this.as_mut().poll_read(cx)).await?;
 
-            if read.header.id == id {
-                break read;
-            }
-        })
+                if read.header.id == id {
+                    break read;
+                }
+            })
+        };
+
+        Ok(read_task)
     }
 }
 

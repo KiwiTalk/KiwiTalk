@@ -259,9 +259,9 @@ macro_rules! impl_session {
 
                 let $data = self.0.request(
                     Method::new($method).unwrap(),
-                    bson::to_vec(command)?.into_boxed_slice(),
-                ).await
-                .map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
+                    bson::to_vec(command)?,
+                )
+                .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
                 .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
                 .data;
 
