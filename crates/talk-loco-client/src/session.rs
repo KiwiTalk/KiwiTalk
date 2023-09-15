@@ -17,8 +17,8 @@ pub struct LocoSession {
 }
 
 impl LocoSession {
-    pub fn new<T: AsyncRead + AsyncWrite>(client: LocoClient<T>) -> (Self, LocoSessionStream<T>) {
-        let (sender, receiver) = mpsc::channel(128);
+    pub fn new<T>(client: LocoClient<T>) -> (Self, LocoSessionStream<T>) {
+        let (sender, receiver) = mpsc::channel(64);
 
         (Self { sender }, LocoSessionStream::new(receiver, client))
     }
@@ -74,26 +74,32 @@ impl<T: AsyncRead + AsyncWrite> Stream for LocoSessionStream<T> {
         loop {
             match mem::replace(this.state, SessionState::Done) {
                 SessionState::Pending => {
-                    if let Poll::Ready(read) = this.client.as_mut().poll_read(cx) {
+                    while let Poll::Ready(read) = this.client.as_mut().poll_read(cx) {
                         let read = read?;
 
                         if let Some(sender) = this.response_map.remove(&read.header.id) {
                             let _ = sender.send(read);
                         } else {
                             *this.state = SessionState::Pending;
-                            break Poll::Ready(Some(Ok(read)));
+                            return Poll::Ready(Some(Ok(read)));
                         }
                     }
 
-                    if let Poll::Ready(Some(request)) = this.request_receiver.poll_recv(cx) {
+                    let mut receiver_read = false;
+                    while let Poll::Ready(Some(request)) = this.request_receiver.poll_recv(cx) {
                         let id = this.client.as_mut().write(request.method, &request.data);
                         this.response_map.insert(id, request.response_sender);
 
+                        if !receiver_read {
+                            receiver_read = true;
+                        }
+                    }
+
+                    if receiver_read {
                         *this.state = SessionState::Write;
                     } else {
                         *this.state = SessionState::Pending;
-
-                        break Poll::Pending;
+                        return Poll::Pending;
                     }
                 }
 
@@ -102,11 +108,11 @@ impl<T: AsyncRead + AsyncWrite> Stream for LocoSessionStream<T> {
                         *this.state = SessionState::Pending;
                     } else {
                         *this.state = SessionState::Write;
-                        break Poll::Pending;
+                        return Poll::Pending;
                     };
                 }
 
-                SessionState::Done => break Poll::Ready(None),
+                SessionState::Done => return Poll::Ready(None),
             }
         }
     }
