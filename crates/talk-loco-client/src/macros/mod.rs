@@ -56,9 +56,9 @@ macro_rules! impl_session {
     (
         @methods $struct_name:ident
         $(#[$meta:meta])*
-        $vis:vis async fn $name:ident(
+        $vis:vis fn $name:ident(
             $method:literal,
-            &$req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
+            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
         );
 
         $($tt:tt)*
@@ -77,7 +77,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis async fn $name($method, data, &$req) -> () {
+            $vis fn $name($method, data, &$req) -> () {
                 0 => Ok(())
             }
 
@@ -89,9 +89,9 @@ macro_rules! impl_session {
     (
         @methods $struct_name:ident
         $(#[$meta:meta])*
-        $vis:vis async fn $name:ident(
+        $vis:vis fn $name:ident(
             $method:literal,
-            &$req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
+            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
         ) -> $res:ty;
 
         $($tt:tt)*
@@ -110,7 +110,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis async fn $name($method, &$req) -> $res;
+            $vis fn $name($method, &$req) -> $res;
 
             $($tt)*
         );
@@ -120,9 +120,9 @@ macro_rules! impl_session {
     (
         @methods $struct_name:ident
         $(#[$meta:meta])*
-        $vis:vis async fn $name:ident(
+        $vis:vis fn $name:ident(
             $method:literal,
-            &$req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
+            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
         ) -> $res_prefix:ident $res:ident $($res_tt:tt)*;
 
         $($tt:tt)*
@@ -148,7 +148,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods $struct_name
             $(#[$meta])*
-            $vis async fn $name($method, &$req) -> $res;
+            $vis fn $name($method, $req) -> $res;
 
             $($tt)*
         );
@@ -158,9 +158,9 @@ macro_rules! impl_session {
     (
         @methods $struct_name:ident
         $(#[$meta:meta])*
-        $vis:vis async fn $name:ident (
+        $vis:vis fn $name:ident (
             $method:literal,
-            &$req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
+            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
         ) -> $res:ident {
             $(
                 $status:pat => { $variant_prefix:ident $variant_name:ident $($variant_tt:tt)* } $(,)?
@@ -198,7 +198,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis async fn $name($method, data, &$req) -> $res {
+            $vis fn $name($method, data, $req) -> $res {
                 $(
                     $status => Ok(
                         $res::$variant_name(
@@ -216,9 +216,9 @@ macro_rules! impl_session {
     (
         @methods @internal $struct_name:ident
         $(#[$meta:meta])*
-        $vis:vis async fn $name:ident(
+        $vis:vis fn $name:ident(
             $method:literal,
-            &$req:ty $(,)?
+            $req:ty $(,)?
         ) -> $res:ty;
 
         $($tt:tt)*
@@ -226,7 +226,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis async fn $name($method, data, &$req) -> $res {
+            $vis fn $name($method, data, &$req) -> $res {
                 0 => Ok(
                     $crate::macros::__private::bson::from_slice(&data)?
                 )
@@ -240,7 +240,7 @@ macro_rules! impl_session {
     (
         @methods @internal $struct_name:ident
         $(#[$meta:meta])*
-        $vis:vis async fn $name:ident($method:literal, $data:ident, &$req:ty) -> $res:ty {
+        $vis:vis fn $name:ident($method:literal, $data:ident, $req:ty) -> $res:ty {
             $($status:pat => $expr:expr),* $(,)?
         }
 
