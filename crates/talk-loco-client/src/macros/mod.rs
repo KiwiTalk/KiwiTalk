@@ -205,7 +205,7 @@ macro_rules! impl_session {
             }
 
             pub mod response {
-                #[derive(Debug, $crate::macros::__private::serde::Deserialize)]
+                #[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]
 
                 #[doc = ::std::concat!(
                     "Response variants for `",
