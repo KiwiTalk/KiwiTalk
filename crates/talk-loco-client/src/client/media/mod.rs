@@ -24,12 +24,26 @@ impl<T> MediaClient<T> {
 }
 
 impl<T: AsyncRead + AsyncWrite + Unpin> MediaClient<T> {
-    pub async fn post(self) -> RequestResult<MediaSink<T>> {
-        todo!()
+    pub async fn post(mut self, req: &PostReq<'_>) -> RequestResult<MediaSink<T>> {
+        let PostRes { offset } =
+            request_simple::<PostRes>(&mut self.0, Method::new("POST").unwrap(), req).await?;
+
+        Ok(MediaSink {
+            offset,
+            remaining: req.size - offset,
+            inner: self.0,
+        })
     }
 
-    pub async fn post_multi(self) -> RequestResult<MediaSink<T>> {
-        todo!()
+    pub async fn post_multi(mut self, req: &MPostReq<'_>) -> RequestResult<MediaSink<T>> {
+        let PostRes { offset } =
+            request_simple::<PostRes>(&mut self.0, Method::new("MPOST").unwrap(), req).await?;
+
+        Ok(MediaSink {
+            offset,
+            remaining: req.size - offset,
+            inner: self.0,
+        })
     }
 
     pub async fn download(mut self, req: &DownReq<'_>) -> RequestResult<MediaStream<T>> {
@@ -51,6 +65,59 @@ impl<T: AsyncRead + AsyncWrite + Unpin> MediaClient<T> {
             inner: self.0.into_inner(),
         })
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PostReq<'a> {
+    #[serde(rename = "k")]
+    pub key: &'a str,
+
+    #[serde(rename = "s")]
+    pub size: i64,
+
+    #[serde(rename = "f")]
+    pub name: &'a str,
+
+    #[serde(rename = "t")]
+    pub ty: &'a str,
+
+    #[serde(rename = "w")]
+    pub width: Option<i32>,
+
+    #[serde(rename = "h")]
+    pub height: Option<i32>,
+
+    #[serde(rename = "c")]
+    pub channel_id: i64,
+
+    pub mid: i64,
+
+    pub ns: bool,
+
+    pub rt: bool,
+
+    #[serde(flatten)]
+    pub client: MediaClientInfo<'a>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MPostReq<'a> {
+    #[serde(rename = "k")]
+    pub key: &'a str,
+
+    #[serde(rename = "s")]
+    pub size: i64,
+
+    #[serde(rename = "t")]
+    pub ty: &'a str,
+
+    #[serde(flatten)]
+    pub client: MediaClientInfo<'a>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PostRes {
+    pub offset: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

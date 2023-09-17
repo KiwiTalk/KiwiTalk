@@ -5,9 +5,10 @@ use std::{
 };
 
 use futures_lite::{future::poll_fn, ready, AsyncRead, AsyncWrite};
+use serde::{Serialize, Deserialize};
 use thiserror::Error;
 
-use crate::{BsonCommandStatus, LocoClient};
+use crate::{BsonCommandStatus, LocoClient, structs::chat::Chatlog};
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]
@@ -57,6 +58,7 @@ impl<T: AsyncRead> AsyncRead for MediaStream<T> {
 pin_project_lite::pin_project!(
     #[derive(Debug)]
     pub struct MediaSink<T> {
+        pub(super) offset: i64,
         pub(super) remaining: i64,
 
         #[pin]
@@ -65,6 +67,10 @@ pin_project_lite::pin_project!(
 );
 
 impl<T> MediaSink<T> {
+    pub const fn offset(&self) -> i64 {
+        self.offset
+    }
+
     pub const fn remaining(&self) -> i64 {
         self.remaining
     }
@@ -75,7 +81,7 @@ impl<T> MediaSink<T> {
 }
 
 impl<T: AsyncRead> MediaSink<T> {
-    pub async fn complete(&mut self) -> Result<(), CompleteError>
+    pub async fn complete(&mut self) -> Result<CompleteRes, CompleteError>
     where
         T: Unpin,
     {
@@ -87,7 +93,7 @@ impl<T: AsyncRead> MediaSink<T> {
     pub fn poll_complete(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-    ) -> Poll<Result<(), CompleteError>> {
+    ) -> Poll<Result<CompleteRes, CompleteError>> {
         let mut this = self.project();
 
         let res = loop {
@@ -100,7 +106,7 @@ impl<T: AsyncRead> MediaSink<T> {
 
         Poll::Ready(
             match bson::from_slice::<BsonCommandStatus>(&res.data)?.status {
-                0 => Ok(()),
+                0 => Ok(bson::from_slice(&res.data)?),
 
                 status => Err(CompleteError::Status(status)),
             },
@@ -139,6 +145,12 @@ impl<T: AsyncWrite> AsyncWrite for MediaSink<T> {
     fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         self.project().inner.inner_pin_mut().poll_close(cx)
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompleteRes {
+    #[serde(rename = "chatLog")]
+    chat_log: Option<Chatlog>,
 }
 
 #[derive(Debug, Error)]

@@ -3,6 +3,7 @@ pub mod command;
 pub mod macros;
 pub mod secure;
 pub mod session;
+pub mod structs;
 
 use std::{
     io::{self, ErrorKind},
