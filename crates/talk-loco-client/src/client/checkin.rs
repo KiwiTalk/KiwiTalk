@@ -23,7 +23,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin> CheckinClient<T> {
     pub async fn checkin(&mut self, req: &CheckinReq<'_>) -> RequestResult<CheckinRes> {
         request_simple(&mut self.0, Method::new("CHECKIN").unwrap(), req).await
     }
-    
+
     pub async fn buy_cs(&mut self, req: &BuyCSReq<'_>) -> RequestResult<BuyCSRes> {
         request_simple(&mut self.0, Method::new("BUYCS").unwrap(), req).await
     }
@@ -125,7 +125,6 @@ pub struct BuyCSReq<'a> {
     #[serde(rename = "countryISO")]
     pub country_iso: &'a str,
 }
-
 
 /// Call server information
 #[derive(Debug, Clone, Serialize, Deserialize)]
