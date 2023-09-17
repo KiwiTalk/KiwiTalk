@@ -68,7 +68,11 @@ macro_rules! impl_session {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
-                    #[doc = ::std::concat!("Request data for `", $name, "` method")]
+                    #[doc = ::std::concat!(
+                        "Request data for `",
+                        ::std::stringify!($name),
+                        "` method"
+                    )]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
@@ -104,7 +108,11 @@ macro_rules! impl_session {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
-                    #[doc = ::std::concat!("Request data for `", $name, "` method")]
+                    #[doc = ::std::concat!(
+                        "Request data for `",
+                        ::std::stringify!($name),
+                        "` method"
+                    )]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
