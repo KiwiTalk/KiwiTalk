@@ -25,7 +25,6 @@ parking_lot = "0.12.1"
 pin-project-lite = "0.2.13"
 rand = "0.8.5"
 futures-lite = "1.13.0"
-futures-util = "0.3.28"
 structstruck = "0.4.1"
 
 [dev-dependencies]
