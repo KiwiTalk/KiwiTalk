@@ -6,11 +6,10 @@ use std::{
 };
 
 use futures_lite::{ready, AsyncRead, AsyncWrite};
-use loco_protocol::secure::{
-    client::{LocoClientSecureLayer, RsaPublicKey},
-    SecurePacket,
-};
+use loco_protocol::secure::{client::LocoClientSecureLayer, SecurePacket};
 use rand::RngCore;
+
+pub use loco_protocol::secure::client::RsaPublicKey;
 
 pin_project_lite::pin_project! {
     #[derive(Debug)]
