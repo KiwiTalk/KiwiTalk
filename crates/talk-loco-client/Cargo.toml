@@ -8,6 +8,9 @@ description = "Loco client"
 authors = ["KiwiTalk contributors"]
 edition = "2021"
 
+[features]
+wasm = ["loco-protocol/wasm"]
+
 [dependencies]
 serde = { version = "1.0" }
 tokio = { version = "1", features = ["sync"] }
