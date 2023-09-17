@@ -80,7 +80,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis fn $name($method, data, &$req) -> () {
+            $vis fn $name($method, data, $req) -> () {
                 0 => Ok(())
             }
 
@@ -116,7 +116,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis fn $name($method, &$req) -> $res;
+            $vis fn $name($method, $req) -> $res;
 
             $($tt)*
         );
