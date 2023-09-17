@@ -1,10 +1,10 @@
 pub mod error;
 
-use bson::Document;
-use futures::{pin_mut, Sink, SinkExt, StreamExt, Stream};
-use serde::de::DeserializeOwned;
-use talk_loco_client::session::ReadResult;
-use talk_loco_command::{command::BsonCommand, response::chat};
+use std::io;
+
+use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
+use talk_loco_client::command::Command;
+use talk_loco_command::response::chat;
 
 use crate::{
     chat::Chatlog,
@@ -28,12 +28,12 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
         }
     }
 
-    pub async fn run(mut self, stream: impl Stream<Item = ReadResult>) {
+    pub async fn run(mut self, stream: impl Stream<Item = io::Result<Command<Box<[u8]>>>>) {
         pin_mut!(stream);
         while let Some(read) = stream.next().await {
             match read {
                 Ok(read) => {
-                    if let Err(err) = self.handle_inner(read.command).await {
+                    if let Err(err) = self.handle_inner(read).await {
                         self.emitter.emit(KiwiTalkClientEvent::Error(err)).await;
                     }
                 }
@@ -48,11 +48,11 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
     }
 
     // TODO:: Use macro
-    async fn handle_inner(&mut self, command: BsonCommand<Document>) -> HandlerResult<()> {
-        match command.method.as_ref() {
-            "MSG" => Ok(self.on_chat(map_data("MSG", command.data)?).await?),
+    async fn handle_inner(&mut self, command: Command<Box<[u8]>>) -> HandlerResult<()> {
+        match &*command.header.method {
+            "MSG" => Ok(self.on_chat(bson::de::from_slice(&command.data)?).await?),
             "DECUNREAD" => Ok(self
-                .on_chat_read(map_data("DECUNREAD", command.data)?)
+                .on_chat_read(bson::de::from_slice(&command.data)?)
                 .await?),
 
             "CHANGESVR" => {
@@ -61,7 +61,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
             }
 
             "KICKOUT" => {
-                self.on_kickout(map_data("KICKOUT", command.data)?).await;
+                self.on_kickout(bson::de::from_slice(&command.data)?).await;
                 Ok(())
             }
 
@@ -129,8 +129,3 @@ impl<S: Sink<KiwiTalkClientEvent> + Unpin> HandlerEmitter<S> {
 }
 
 pub type HandlerResult<T> = Result<T, ClientHandlerError>;
-
-fn map_data<T: DeserializeOwned>(method: &str, doc: Document) -> Result<T, ClientHandlerError> {
-    bson::de::from_document(doc)
-        .map_err(|err| ClientHandlerError::CommandDecode(method.to_string(), err))
-}

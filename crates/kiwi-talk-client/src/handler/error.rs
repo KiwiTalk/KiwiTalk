@@ -1,15 +1,16 @@
-use talk_loco_command::command::codec::ReadError;
+use std::io;
+
 use thiserror::Error;
 
 use crate::database::pool::PoolTaskError;
 
 #[derive(Debug, Error)]
 pub enum ClientHandlerError {
-    #[error("could not decode command {0}. {1}")]
-    CommandDecode(String, bson::de::Error),
+    #[error(transparent)]
+    CommandDecode(#[from] bson::de::Error),
 
     #[error("network failure while reading. {0}")]
-    NetworkRead(#[from] ReadError),
+    Read(#[from] io::Error),
 
     #[error("database operation failed. {0}")]
     Database(#[from] PoolTaskError),
