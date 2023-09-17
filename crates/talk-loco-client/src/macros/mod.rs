@@ -7,19 +7,19 @@ macro_rules! impl_session {
         compile_error!("Example usage: impl_session!(
             pub struct TestSession {
                 // variant 1 (empty response)
-                fn test_method1("TEST", struct TestReq;);
+                fn test_method1(\"TEST\", struct TestReq;);
 
                 // variant 2
-                fn test_method2("TEST", struct TestReq;) -> TestRes;
+                fn test_method2(\"TEST\", struct TestReq;) -> TestRes;
 
                 // variant 3
-                fn test_method2("TEST", struct TestReq;) -> struct TestRes {
+                fn test_method2(\"TEST\", struct TestReq;) -> struct TestRes {
                     pub a: i32,
                     pub b: i32,
                 };
 
                 // variant 4 (response variants)
-                fn test_method2("TEST", struct TestReq;) -> TestRes {
+                fn test_method2(\"TEST\", struct TestReq;) -> TestRes {
                     0 => {
                         struct Done {
                             pub a: i32,
