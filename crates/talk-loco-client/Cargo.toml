@@ -28,6 +28,7 @@ rand = "0.8.5"
 futures-lite = "1.13.0"
 structstruck = "0.4.1"
 num-bigint-dig = "0.8.2"
+bitflags = { version = "2.4.0", features = ["serde"] }
 
 [dev-dependencies]
 tokio-native-tls = "0.3.1"

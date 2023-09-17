@@ -4,6 +4,7 @@ pub mod macros;
 pub mod secure;
 pub mod session;
 pub mod structs;
+pub mod talk;
 
 use std::{
     io::{self, ErrorKind},
