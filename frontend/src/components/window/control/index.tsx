@@ -11,15 +11,15 @@ const ControlContainer = styled.div`
 `;
 
 const ControlButton = styled.button`
+  all: unset;
+
   width: 1.5rem;
   height: 1.25rem;
 
-  user-select: none;
-  border: none;
-  outline: none;
+  text-align: center;
+  vertical-align: middle;
+
   background: none;
-  font-size: 0px;
-  color: inherit;
   
   :hover {
     background: rgba(0, 0, 0, 0.1);
@@ -32,18 +32,6 @@ const CloseButton = styled(ControlButton)`
   :hover {
     background: rgba(255, 0, 0, 0.8);
   }
-`;
-
-const IconMinimize = styled(IconMinimizeSvg)`
-  vertical-align: middle;
-`;
-
-const IconMaximize = styled(IconMaximizeSvg)`
-  vertical-align: middle;
-`;
-
-const IconClose = styled(IconCloseSvg)`
-  vertical-align: middle;
 `;
 
 export type ControlType = 'minimize' | 'maximize' | 'close';
@@ -77,19 +65,19 @@ export const WindowControl = ({
       onClick={() => {
         onControlClick?.('minimize');
       }}>
-      <IconMinimize />
+      <IconMinimizeSvg />
     </ControlButton> : null }
     { buttons.maximize ? <ControlButton
       onClick={() => {
         onControlClick?.('maximize');
       }}>
-      <IconMaximize />
+      <IconMaximizeSvg />
     </ControlButton> : null }
     { buttons.close ? <CloseButton
       onClick={() => {
         onControlClick?.('close');
       }}>
-      <IconClose />
+      <IconCloseSvg />
     </CloseButton> : null }
   </ControlContainer>;
 };
