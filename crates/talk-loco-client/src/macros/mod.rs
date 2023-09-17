@@ -138,7 +138,7 @@ macro_rules! impl_session {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
-                    
+
                     #[doc = ::std::concat!(
                         "Request data for `",
                         ::std::stringify!($name),
@@ -151,7 +151,7 @@ macro_rules! impl_session {
             pub mod response {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
-                    
+
                     #[doc = ::std::concat!(
                         "Response data for `",
                         ::std::stringify!($name),
@@ -194,7 +194,7 @@ macro_rules! impl_session {
             pub mod request {
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-                    
+
                 #[doc = ::std::concat!(
                     "Request data for `",
                     ::std::stringify!($name),

@@ -1,8 +1,8 @@
 pub mod client;
+pub mod command;
 pub mod macros;
 pub mod secure;
 pub mod session;
-pub mod command;
 
 use std::{
     io::{self, ErrorKind},
