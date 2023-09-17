@@ -81,7 +81,7 @@ impl TalkClient<'_> {
                     max,
                 }).await?;
 
-                match res.chatlogs.as_ref().map(|chatlogs| chatlogs.last()).flatten() {
+                match res.chatlogs.as_ref().and_then(|chatlogs| chatlogs.last()) {
                     Some(last) => {
                         current = last.log_id;
                         is_ok = res.is_ok;

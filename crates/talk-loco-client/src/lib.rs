@@ -3,6 +3,7 @@ pub mod command;
 pub mod macros;
 pub mod secure;
 pub mod session;
+pub mod structs;
 
 use std::{
     io::{self, ErrorKind},
@@ -54,6 +55,10 @@ impl<T> LocoClient<T> {
 
     pub fn inner_mut(&mut self) -> &mut T {
         &mut self.inner
+    }
+
+    pub fn inner_pin_mut(self: Pin<&mut Self>) -> Pin<&mut T> {
+        self.project().inner
     }
 
     pub fn into_inner(self) -> T {

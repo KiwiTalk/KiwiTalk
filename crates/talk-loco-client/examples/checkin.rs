@@ -1,19 +1,18 @@
+use std::error::Error;
+
+use loco_protocol::secure::client::RsaPublicKey;
 use num_bigint_dig::BigUint;
-use once_cell::sync::Lazy;
-use talk_loco_client::secure::{LocoSecureLayer, RsaPublicKey};
-use thiserror::Error;
-use tokio::{
-    io,
-    io::BufStream,
-    net::{TcpStream, ToSocketAddrs},
+use talk_loco_client::{
+    client::checkin::{CheckinClient, CheckinReq},
+    secure::LocoSecureLayer,
+    LocoClient,
 };
-use tokio_native_tls::{native_tls, TlsConnector, TlsStream};
-use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
+use tokio::{io::BufStream, net::TcpStream};
+use tokio_util::compat::TokioAsyncReadCompatExt;
 
-use crate::error::impl_tauri_error;
-
-pub static LOCO_SECURE_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
-    RsaPublicKey::new(
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let rsa_key = RsaPublicKey::new(
         BigUint::from_bytes_be(&[
             0xAC, 0x58, 0x68, 0x8D, 0x45, 0x97, 0xAA, 0xEE, 0xC6, 0x46, 0x3F, 0x06, 0x58, 0xD2,
             0x20, 0x5F, 0x92, 0x7A, 0xC3, 0x6D, 0xE3, 0x6D, 0x6D, 0xEC, 0xA5, 0x8C, 0xCB, 0xBD,
@@ -37,37 +36,34 @@ pub static LOCO_SECURE_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
         ]),
         BigUint::from(3_u8),
     )
-    .unwrap()
-});
+    .unwrap();
 
-pub type TlsTcpStream = Compat<TlsStream<BufStream<TcpStream>>>;
-pub type SecureTcpStream = LocoSecureLayer<Compat<BufStream<TcpStream>>>;
+    let stream = LocoSecureLayer::new(
+        rsa_key,
+        BufStream::new(
+            TcpStream::connect("ticket-loco.kakao.com:443")
+                .await
+                .unwrap(),
+        )
+        .compat(),
+    );
 
-pub async fn create_tls_stream<A: ToSocketAddrs>(
-    connector: &mut TlsConnector,
-    domain: &str,
-    addr: A,
-) -> Result<TlsTcpStream, TlsIoError> {
-    Ok(connector
-        .connect(domain, BufStream::new(TcpStream::connect(addr).await?))
-        .await?
-        .compat())
+    let mut client = CheckinClient::new(LocoClient::new(stream));
+
+    let res = client
+        .checkin(&CheckinReq {
+            user_id: 1,
+            os: "win32",
+            net_type: 0,
+            app_version: "4.2.0",
+            mccmnc: "999",
+            language: "ko",
+            country_iso: "ko",
+            use_sub: true,
+        })
+        .await;
+
+    println!("CHECKIN response: {:?}\n", res);
+
+    Ok(())
 }
-
-pub async fn create_secure_stream<A: ToSocketAddrs>(addr: A) -> io::Result<SecureTcpStream> {
-    Ok(LocoSecureLayer::new(
-        LOCO_SECURE_KEY.to_owned(),
-        BufStream::new(TcpStream::connect(addr).await?).compat(),
-    ))
-}
-
-#[derive(Debug, Error)]
-pub enum TlsIoError {
-    #[error(transparent)]
-    Io(#[from] io::Error),
-
-    #[error(transparent)]
-    Tls(#[from] native_tls::Error),
-}
-
-impl_tauri_error!(TlsIoError);

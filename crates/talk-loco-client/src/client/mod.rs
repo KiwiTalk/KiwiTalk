@@ -1,6 +1,11 @@
 pub mod booking;
 pub mod checkin;
+pub mod media;
 pub mod talk;
+
+use futures_lite::{AsyncRead, AsyncWrite};
+use loco_protocol::command::Method;
+use serde::{de::DeserializeOwned, Serialize};
 
 // TODO:: customizable status check
 macro_rules! async_client_method {
@@ -42,3 +47,24 @@ macro_rules! async_client_method {
 }
 
 use async_client_method;
+
+use crate::{BsonCommandStatus, LocoClient, RequestError, RequestResult};
+
+pub(super) async fn request_simple<Res: DeserializeOwned>(
+    client: &mut LocoClient<impl AsyncRead + AsyncWrite + Unpin>,
+    method: Method,
+    req: &impl Serialize,
+) -> RequestResult<Res> {
+    let response = client
+        .request(method, &bson::to_vec(req)?)
+        .await
+        .map_err(RequestError::Write)?
+        .await
+        .map_err(RequestError::Read)?;
+
+    match bson::from_slice::<BsonCommandStatus>(&response.data)?.status {
+        0 => Ok(bson::from_slice(&response.data)?),
+
+        status => Err(RequestError::Status(status)),
+    }
+}

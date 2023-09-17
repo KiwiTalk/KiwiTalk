@@ -16,7 +16,7 @@ use crate::{error::impl_tauri_error, system::SystemInfo};
 use super::{
     conn::checkin,
     constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION},
-    stream::{create_secure_stream, LOCO_CLIENT_SECURE_SESSION},
+    stream::create_secure_stream,
     AppCredential,
 };
 
@@ -30,12 +30,9 @@ pub async fn create_client<C: Default + Extend<(ChannelId, ChannelDataVariant)>>
         .await
         .map_err(|_| CreateClientError::Checkin)?;
 
-    let loco_session = create_secure_stream(
-        &LOCO_CLIENT_SECURE_SESSION,
-        (checkin_res.host.as_str(), checkin_res.port as u16),
-    )
-    .await
-    .map_err(|_| CreateClientError::LocoHandshake)?;
+    let loco_session = create_secure_stream((checkin_res.host.as_str(), checkin_res.port as u16))
+        .await
+        .map_err(|_| CreateClientError::LocoHandshake)?;
 
     let pool = DatabasePool::file("file:memdb?mode=memory&cache=shared")
         .map_err(|err| CreateClientError::Database(err.into()))?;
