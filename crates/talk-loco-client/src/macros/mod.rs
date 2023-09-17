@@ -65,6 +65,9 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
@@ -105,6 +108,9 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
@@ -143,6 +149,9 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
@@ -157,6 +166,9 @@ macro_rules! impl_session {
             }
 
             pub mod response {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
 
@@ -200,6 +212,9 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
@@ -213,6 +228,9 @@ macro_rules! impl_session {
             }
 
             pub mod response {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 #[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]
 
                 #[doc = ::std::concat!(
@@ -293,31 +311,35 @@ macro_rules! impl_session {
 
         $($tt:tt)*
     ) => {
-        impl $struct_name<'_> {
+        impl<'a> $struct_name<'a> {
             $(#[$meta])*
-            $vis async fn $name(
+            $vis fn $name(
                 self,
-                command: &$req,
-            ) -> $crate::RequestResult<$res> {
+                command: &'a $req,
+            ) -> impl ::std::future::Future<Output = $crate::RequestResult<$res>> + 'a {
                 use $crate::macros::__private::{
                     loco_protocol::command::Method,
                     bson,
                 };
 
-                let $data = self.0.request(
-                    Method::new($method).unwrap(),
-                    bson::to_vec(command)?,
-                )
-                .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
-                .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
-                .data;
+                async move {
+                    let $data = self.0.request(
+                        Method::new($method).unwrap(),
+                        bson::to_vec(command)?,
+                    )
+                    .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
+                    .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
+                    .data;
 
-                match bson::from_slice::<$crate::BsonCommandStatus>(&$data)?.status {
-                    $($status => $expr,)*
+                    match bson::from_slice::<$crate::BsonCommandStatus>(&$data)?.status {
+                        $($status => $expr,)*
 
-                    status => Err($crate::RequestError::Status(status)),
+                        status => Err($crate::RequestError::Status(status)),
+                    }
                 }
             }
         }
+
+        impl_session!(@methods $struct_name $($tt)*);
     };
 }
