@@ -21,7 +21,7 @@ const ControlButton = styled.button`
 
   background: none;
   
-  :hover {
+  &:hover {
     background: rgba(0, 0, 0, 0.1);
   }
 
@@ -29,7 +29,7 @@ const ControlButton = styled.button`
 `;
 
 const CloseButton = styled(ControlButton)`
-  :hover {
+  &:hover {
     background: rgba(255, 0, 0, 0.8);
   }
 `;
