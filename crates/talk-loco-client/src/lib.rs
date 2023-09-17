@@ -1,213 +1,204 @@
 pub mod client;
+pub mod command;
+pub mod macros;
+pub mod secure;
+pub mod session;
 
 use std::{
-    collections::HashMap,
-    num::NonZeroUsize,
+    io::{self, ErrorKind},
     pin::Pin,
-    sync::Arc,
     task::{Context, Poll},
 };
 
-use bson::Document;
-use futures::{
-    pin_mut, ready, AsyncRead, AsyncReadExt, AsyncWrite, Future, FutureExt, Stream, StreamExt,
+use futures_lite::{
+    future::poll_fn,
+    io::{AsyncRead, AsyncWrite},
+    ready, Future,
 };
-use loco_protocol::command::codec::CommandCodec;
-use nohash_hasher::IntMap;
-use parking_lot::Mutex;
-use ring_channel::{ring_channel, RingReceiver};
-use talk_loco_command::{
-    command::{
-        codec::{BsonCommandCodec, ReadError},
-        BsonCommand, ReadBsonCommand,
-    },
-    response::ResponseData,
+use loco_protocol::command::{
+    client::{LocoSink, LocoStream},
+    Command, Header, Method,
 };
-use tokio::{
-    sync::{mpsc, oneshot},
-    task::JoinHandle,
-};
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
-#[derive(Debug)]
-pub struct LocoRequestSession {
-    sender: mpsc::Sender<RequestCommand>,
+pub type BoxedCommand = Command<Box<[u8]>>;
 
-    read_task: JoinHandle<()>,
-    write_task: JoinHandle<()>,
-}
+pin_project_lite::pin_project!(
+    #[derive(Debug)]
+    pub struct LocoClient<T> {
+        current_id: u32,
 
-impl LocoRequestSession {
-    pub fn new(
-        stream: impl AsyncRead + AsyncWrite + Send + 'static,
-    ) -> (Self, LocoBroadcastStream) {
-        let (sender, receiver) = mpsc::channel(32);
-        let (read_stream, write_stream) = stream.split();
-        let (read_task, write_task) = {
-            let map = Arc::new(Mutex::new(HashMap::default()));
+        sink: LocoSink,
+        stream: LocoStream,
 
-            (ReadTask::new(map.clone()), WriteTask::new(map))
-        };
+        #[pin]
+        inner: T,
+    }
+);
 
-        let (mut read_sender, read_recv) = ring_channel(NonZeroUsize::new(128).unwrap());
+impl<T> LocoClient<T> {
+    pub const fn new(inner: T) -> Self {
+        Self {
+            current_id: 0,
 
-        let read_task = tokio::spawn(read_task.run(read_stream, move |read| {
-            read_sender.send(read).ok();
-        }));
-        let write_task = tokio::spawn(write_task.run(write_stream, receiver));
-
-        (
-            Self {
-                sender,
-                read_task,
-                write_task,
-            },
-            LocoBroadcastStream(read_recv),
-        )
+            sink: LocoSink::new(),
+            stream: LocoStream::new(),
+            inner,
+        }
     }
 
-    pub async fn request(&self, command: BsonCommand<Document>) -> CommandRequest {
-        let (sender, receiver) = oneshot::channel();
+    pub const fn inner(&self) -> &T {
+        &self.inner
+    }
 
-        self.sender
-            .send(RequestCommand::new(command, sender))
-            .await
-            .ok();
+    pub fn inner_mut(&mut self) -> &mut T {
+        &mut self.inner
+    }
 
-        CommandRequest(receiver)
+    pub fn into_inner(self) -> T {
+        self.inner
     }
 }
 
-impl Drop for LocoRequestSession {
-    fn drop(&mut self) {
-        self.read_task.abort();
-        self.write_task.abort();
-    }
-}
+impl<T: AsyncRead> LocoClient<T> {
+    pub async fn read(&mut self) -> io::Result<BoxedCommand>
+    where
+        T: Unpin,
+    {
+        let mut this = Pin::new(self);
 
-#[derive(Debug)]
-pub struct LocoBroadcastStream(RingReceiver<ReadResult>);
-
-impl Stream for LocoBroadcastStream {
-    type Item = ReadResult;
-
-    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        self.0.poll_next_unpin(cx)
-    }
-}
-
-#[derive(Debug)]
-pub struct CommandRequest(oneshot::Receiver<ResponseData>);
-
-impl Future for CommandRequest {
-    type Output = Option<ResponseData>;
-
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Poll::Ready(ready!(self.0.poll_unpin(cx)).ok())
-    }
-}
-
-pub type ReadResult = Result<ReadBsonCommand<Document>, ReadError>;
-
-type ResponseMap = IntMap<i32, oneshot::Sender<ResponseData>>;
-
-struct ReadTask {
-    response_map: Arc<Mutex<ResponseMap>>,
-}
-
-impl ReadTask {
-    #[inline(always)]
-    const fn new(response_map: Arc<Mutex<ResponseMap>>) -> Self {
-        ReadTask { response_map }
+        poll_fn(|cx| this.as_mut().poll_read(cx)).await
     }
 
-    pub async fn run(self, read_stream: impl AsyncRead, mut handler: impl FnMut(ReadResult)) {
-        pin_mut!(read_stream);
+    pub fn poll_read(self: Pin<&mut Self>, cx: &mut Context) -> Poll<io::Result<BoxedCommand>> {
+        let mut this = self.project();
 
-        let mut read_codec = BsonCommandCodec(CommandCodec::new(read_stream));
+        let mut buffer = [0_u8; 1024];
 
-        loop {
-            let read = read_codec.read_async().await;
+        Poll::Ready(loop {
+            match this.stream.read() {
+                Some(command) => break Ok(command),
 
-            match read {
-                Ok(read) => {
-                    if let Some(sender) = self.response_map.lock().remove(&read.id) {
-                        sender
-                            .send(ResponseData::from_document(read.command.data).unwrap())
-                            .ok();
-                        continue;
+                None => {
+                    let read = ready!(this.inner.as_mut().poll_read(cx, &mut buffer))?;
+                    if read == 0 {
+                        break Err(ErrorKind::UnexpectedEof.into());
                     }
 
-                    handler(Ok(read));
-                }
-
-                Err(_) => {
-                    handler(read);
-                    break;
+                    this.stream.read_buffer.extend(&buffer[..read]);
                 }
             }
-        }
+        })
     }
 }
 
-#[derive(Debug)]
-struct WriteTask {
-    response_map: Arc<Mutex<ResponseMap>>,
-    next_request_id: i32,
-}
+impl<T: AsyncWrite> LocoClient<T> {
+    pub async fn send(&mut self, method: Method, data: &[u8]) -> io::Result<u32>
+    where
+        T: Unpin,
+    {
+        let mut this = Pin::new(self);
 
-impl WriteTask {
-    #[inline(always)]
-    const fn new(response_map: Arc<Mutex<ResponseMap>>) -> Self {
-        WriteTask {
-            response_map,
-            next_request_id: 0,
-        }
+        let id = this.as_mut().write(method, data);
+
+        poll_fn(|cx| this.as_mut().poll_flush(cx)).await?;
+
+        Ok(id)
     }
 
-    pub async fn run(
-        mut self,
-        write_stream: impl AsyncWrite,
-        mut request_recv: mpsc::Receiver<RequestCommand>,
-    ) {
-        pin_mut!(write_stream);
+    pub fn write(self: Pin<&mut Self>, method: Method, data: &[u8]) -> u32 {
+        let this = self.project();
 
-        let mut write_codec = BsonCommandCodec(CommandCodec::new(write_stream));
-        while let Some(request) = request_recv.recv().await {
-            let request_id = self.next_request_id;
+        let id = {
+            *this.current_id += 1;
 
-            self.response_map
-                .lock()
-                .insert(request_id, request.response_sender);
+            *this.current_id
+        };
 
-            if write_codec
-                .write_async(request_id, &request.command)
-                .await
-                .is_err()
-                || write_codec.flush_async().await.is_err()
-            {
-                self.response_map.lock().remove(&request_id);
-                break;
-            }
+        this.sink.send(Command {
+            header: Header {
+                id,
+                status: 0,
+                method,
+                data_type: 0,
+            },
+            data,
+        });
 
-            self.next_request_id += 1;
+        id
+    }
+
+    pub fn poll_flush(self: Pin<&mut Self>, cx: &mut Context) -> Poll<io::Result<()>> {
+        let mut this = self.project();
+
+        while !this.sink.write_buffer.is_empty() {
+            let written = ready!(this.inner.as_mut().poll_write(cx, {
+                let slices = this.sink.write_buffer.as_slices();
+
+                if !slices.0.is_empty() {
+                    slices.0
+                } else {
+                    slices.1
+                }
+            }))?;
+
+            this.sink.write_buffer.drain(..written);
         }
+
+        ready!(this.inner.poll_flush(cx))?;
+
+        Poll::Ready(Ok(()))
     }
 }
 
-#[derive(Debug)]
-struct RequestCommand {
-    pub command: BsonCommand<Document>,
-    pub response_sender: oneshot::Sender<ResponseData>,
+impl<T: AsyncRead + AsyncWrite + Unpin> LocoClient<T> {
+    pub async fn request(
+        &mut self,
+        method: Method,
+        data: &[u8],
+    ) -> io::Result<impl Future<Output = io::Result<BoxedCommand>> + '_> {
+        let mut this = Pin::new(self);
+
+        let id = this.as_mut().write(method, data);
+
+        poll_fn(|cx| this.as_mut().poll_flush(cx)).await?;
+
+        let read_task = async move {
+            Ok(loop {
+                let read = poll_fn(|cx| this.as_mut().poll_read(cx)).await?;
+
+                if read.header.id == id {
+                    break read;
+                }
+            })
+        };
+
+        Ok(read_task)
+    }
 }
 
-impl RequestCommand {
-    pub const fn new(
-        command: BsonCommand<Document>,
-        response_sender: oneshot::Sender<ResponseData>,
-    ) -> Self {
-        Self {
-            command,
-            response_sender,
-        }
-    }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BsonCommandStatus {
+    pub status: i32,
+}
+
+pub type RequestResult<T> = Result<T, RequestError>;
+
+#[derive(Debug, Error)]
+pub enum RequestError {
+    #[error("request returned status {0}")]
+    Status(i32),
+
+    #[error(transparent)]
+    Serialize(#[from] bson::ser::Error),
+
+    #[error(transparent)]
+    Read(io::Error),
+
+    #[error(transparent)]
+    Write(io::Error),
+
+    #[error(transparent)]
+    Deserialize(#[from] bson::de::Error),
 }

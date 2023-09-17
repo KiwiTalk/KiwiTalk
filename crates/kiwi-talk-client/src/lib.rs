@@ -18,7 +18,7 @@ use event::KiwiTalkClientEvent;
 use futures::{pin_mut, AsyncRead, AsyncWrite, Sink, TryStreamExt};
 use handler::HandlerTask;
 use status::ClientStatus;
-use talk_loco_client::{client::talk::TalkClient, LocoRequestSession};
+use talk_loco_client::{client::talk::TalkClient, session::LocoSession, LocoClient};
 use talk_loco_command::request::chat::{LChatListReq, LoginListReq, SetStReq};
 use tokio::task::JoinHandle;
 
@@ -84,7 +84,7 @@ impl Drop for KiwiTalkClient {
 #[non_exhaustive]
 pub struct ClientConnection {
     pub user_id: UserId,
-    pub session: LocoRequestSession,
+    pub session: LocoSession,
     pub pool: DatabasePool,
 }
 
@@ -100,7 +100,7 @@ pub struct KiwiTalkClientBuilder<Stream, Listener> {
 
 impl<Stream, Listener> KiwiTalkClientBuilder<Stream, Listener>
 where
-    Stream: AsyncRead + AsyncWrite + Send + 'static,
+    Stream: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     Listener: Sink<KiwiTalkClientEvent> + Send + Unpin + 'static,
 {
     pub fn new(stream: Stream, pool: DatabasePool, listener: Listener) -> Self {
@@ -125,7 +125,7 @@ where
         info: KiwiTalkClientInfo<'_>,
         credential: ClientCredential<'_>,
     ) -> ClientResult<(KiwiTalkClient, C)> {
-        let (session, broadcast_stream) = LocoRequestSession::new(self.stream);
+        let (session, stream) = LocoSession::new(LocoClient::new(self.stream));
 
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
@@ -172,7 +172,7 @@ where
 
         let channel_data = load_channel_data(&connection, channel_list_data).await?;
 
-        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(broadcast_stream));
+        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(stream));
 
         let client = KiwiTalkClient {
             connection,

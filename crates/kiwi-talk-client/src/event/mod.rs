@@ -3,7 +3,7 @@ pub mod channel;
 use std::error::Error;
 
 use serde::{Deserialize, Serialize, Serializer};
-use talk_loco_command::command::BsonCommand;
+use talk_loco_client::command::Command;
 
 use crate::handler::error::ClientHandlerError;
 
@@ -49,14 +49,14 @@ where
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EventCommand {
     pub method: String,
-    pub data_type: i8,
+    pub data_type: u8,
 }
 
-impl<T> From<BsonCommand<T>> for EventCommand {
-    fn from(command: BsonCommand<T>) -> Self {
+impl<T> From<Command<T>> for EventCommand {
+    fn from(command: Command<T>) -> Self {
         Self {
-            method: command.method.to_string(),
-            data_type: command.data_type,
+            method: command.header.method.to_string(),
+            data_type: command.header.data_type,
         }
     }
 }

@@ -19,7 +19,7 @@ pub struct LoginData {
 
     // #[serde(rename = "resetUserData")]
     // pub reset_user_data: bool,
-    pub story_url: String,
+    pub story_url: Option<String>,
 
     #[serde(flatten)]
     pub credential: TalkAuthCredential,

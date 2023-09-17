@@ -1,13 +1,13 @@
 use async_stream::try_stream;
-use futures::Stream;
+use futures_lite::Stream;
 use talk_loco_command::{request, response};
 
-use crate::LocoRequestSession;
+use crate::session::LocoSession;
 
-use super::{async_client_method, ClientRequestResult};
+use super::{super::RequestResult, async_client_method};
 
 #[derive(Debug)]
-pub struct TalkClient<'a>(pub &'a LocoRequestSession);
+pub struct TalkClient<'a>(pub &'a LocoSession);
 
 impl TalkClient<'_> {
     async_client_method!(login, "LOGINLIST", request::chat::LoginListReq => response::chat::LoginListRes);
@@ -17,7 +17,7 @@ impl TalkClient<'_> {
         &self,
         mut last_token_id: i64,
         mut last_chat_id: Option<i64>,
-    ) -> impl Stream<Item = ClientRequestResult<response::chat::LChatListRes>> + '_ {
+    ) -> impl Stream<Item = RequestResult<response::chat::LChatListRes>> + '_ {
         try_stream! {
             let mut eof = false;
 
@@ -63,7 +63,7 @@ impl TalkClient<'_> {
     pub fn sync_chat_stream(
         &self,
         req: &request::chat::SyncMsgReq,
-    ) -> impl Stream<Item = ClientRequestResult<response::chat::SyncMsgRes>> + '_ {
+    ) -> impl Stream<Item = RequestResult<response::chat::SyncMsgRes>> + '_ {
         let request::chat::SyncMsgReq {
             chat_id,
             mut current,
