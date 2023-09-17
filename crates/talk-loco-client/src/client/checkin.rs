@@ -19,11 +19,8 @@ impl<T> CheckinClient<T> {
     }
 }
 
-impl<T: AsyncRead + AsyncWrite> CheckinClient<T> {
-    pub async fn checkin(&mut self, req: &CheckinReq<'_>) -> RequestResult<CheckinRes>
-    where
-        T: Unpin,
-    {
+impl<T: AsyncRead + AsyncWrite + Unpin> CheckinClient<T> {
+    pub async fn checkin(&mut self, req: &CheckinReq<'_>) -> RequestResult<CheckinRes> {
         request_simple(&mut self.0, Method::new("CHECKIN").unwrap(), req).await
     }
 }

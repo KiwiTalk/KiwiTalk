@@ -56,6 +56,10 @@ impl<T> LocoClient<T> {
         &mut self.inner
     }
 
+    pub fn inner_pin_mut(self: Pin<&mut Self>) -> Pin<&mut T> {
+        self.project().inner
+    }
+
     pub fn into_inner(self) -> T {
         self.inner
     }

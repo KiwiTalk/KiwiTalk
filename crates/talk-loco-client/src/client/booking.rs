@@ -19,17 +19,14 @@ impl<T> BookingClient<T> {
     }
 }
 
-impl<T: AsyncRead + AsyncWrite> BookingClient<T> {
-    pub async fn get_conf(&mut self, req: &GetConfReq<'_>) -> RequestResult<GetConfRes>
-    where
-        T: Unpin,
-    {
+impl<T: AsyncRead + AsyncWrite + Unpin> BookingClient<T> {
+    pub async fn get_conf(&mut self, req: &GetConfReq<'_>) -> RequestResult<GetConfRes> {
         request_simple(&mut self.0, Method::new("GETCONF").unwrap(), req).await
     }
 }
 
 /// Request checkin server information
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetConfReq<'a> {
     /// Network MCCMNC
     #[serde(rename = "MCCMNC")]
