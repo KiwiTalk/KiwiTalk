@@ -27,6 +27,7 @@ pin-project-lite = "0.2.13"
 rand = "0.8.5"
 futures-lite = "1.13.0"
 structstruck = "0.4.1"
+bitflags = { version = "2.4.0", features = ["serde"] }
 num-bigint-dig = "0.8.4"
 
 [dev-dependencies]

@@ -7,19 +7,19 @@ macro_rules! impl_session {
         compile_error!("Example usage: impl_session!(
             pub struct TestSession {
                 // variant 1 (empty response)
-                fn test_method1("TEST", struct TestReq;);
+                fn test_method1(\"TEST\", struct TestReq;);
 
                 // variant 2
-                fn test_method2("TEST", struct TestReq;) -> TestRes;
+                fn test_method2(\"TEST\", struct TestReq;) -> TestRes;
 
                 // variant 3
-                fn test_method2("TEST", struct TestReq;) -> struct TestRes {
+                fn test_method2(\"TEST\", struct TestReq;) -> struct TestRes {
                     pub a: i32,
                     pub b: i32,
                 };
 
                 // variant 4 (response variants)
-                fn test_method2("TEST", struct TestReq;) -> TestRes {
+                fn test_method2(\"TEST\", struct TestReq;) -> TestRes {
                     0 => {
                         struct Done {
                             pub a: i32,
@@ -65,10 +65,17 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
-                    #[doc = ::std::concat!("Request data for `", $name, "` method")]
+                    #[doc = ::std::concat!(
+                        "Request data for `",
+                        ::std::stringify!($name),
+                        "` method"
+                    )]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
@@ -80,7 +87,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis fn $name($method, data, &$req) -> () {
+            $vis fn $name($method, data, $req) -> () {
                 0 => Ok(())
             }
 
@@ -101,10 +108,17 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
-                    #[doc = ::std::concat!("Request data for `", $name, "` method")]
+                    #[doc = ::std::concat!(
+                        "Request data for `",
+                        ::std::stringify!($name),
+                        "` method"
+                    )]
                     pub $req_prefix $req $($req_tt)*
                 );
             }
@@ -116,7 +130,7 @@ macro_rules! impl_session {
         impl_session!(
             @methods @internal $struct_name
             $(#[$meta])*
-            $vis fn $name($method, &$req) -> $res;
+            $vis fn $name($method, $req) -> $res;
 
             $($tt)*
         );
@@ -135,6 +149,9 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
@@ -149,6 +166,9 @@ macro_rules! impl_session {
             }
 
             pub mod response {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
 
@@ -192,6 +212,9 @@ macro_rules! impl_session {
     ) => {
         $vis mod $name {
             pub mod request {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 $crate::macros::__private::structstruck::strike!(
                     #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
 
@@ -205,6 +228,9 @@ macro_rules! impl_session {
             }
 
             pub mod response {
+                #[allow(unused_imports)]
+                use super::super::*;
+
                 #[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]
 
                 #[doc = ::std::concat!(
@@ -285,31 +311,35 @@ macro_rules! impl_session {
 
         $($tt:tt)*
     ) => {
-        impl $struct_name<'_> {
+        impl<'a> $struct_name<'a> {
             $(#[$meta])*
-            $vis async fn $name(
+            $vis fn $name(
                 self,
-                command: &$req,
-            ) -> $crate::RequestResult<$res> {
+                command: &'a $req,
+            ) -> impl ::std::future::Future<Output = $crate::RequestResult<$res>> + 'a {
                 use $crate::macros::__private::{
                     loco_protocol::command::Method,
                     bson,
                 };
 
-                let $data = self.0.request(
-                    Method::new($method).unwrap(),
-                    bson::to_vec(command)?,
-                )
-                .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
-                .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
-                .data;
+                async move {
+                    let $data = self.0.request(
+                        Method::new($method).unwrap(),
+                        bson::to_vec(command)?,
+                    )
+                    .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
+                    .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
+                    .data;
 
-                match bson::from_slice::<$crate::BsonCommandStatus>(&$data)?.status {
-                    $($status => $expr,)*
+                    match bson::from_slice::<$crate::BsonCommandStatus>(&$data)?.status {
+                        $($status => $expr,)*
 
-                    status => Err($crate::RequestError::Status(status)),
+                        status => Err($crate::RequestError::Status(status)),
+                    }
                 }
             }
         }
+
+        impl_session!(@methods $struct_name $($tt)*);
     };
 }
