@@ -7,10 +7,10 @@ export const loginInput = style({
 
 export const loginButton = style({
   display: 'block',
-  marginLeft: 12,
-  marginTop: 0,
-  marginRight: 7,
-  marginBottom: 0,
+  marginTop: 12,
+  marginLeft: 0,
+  marginBottom: 7,
+  marginRight: 0,
   width: '100%',
 });
 
