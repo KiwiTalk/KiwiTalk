@@ -22,7 +22,7 @@ export const controlButton = style({
   transition: 'all 0.25s',
 
   selectors: {
-    ':hover': {
+    '&:hover': {
       background: 'rgba(0, 0, 0, 0.1)',
     },
   },

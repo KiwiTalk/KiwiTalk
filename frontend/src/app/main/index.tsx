@@ -6,6 +6,7 @@ import { FriendMenu } from './menu/friend';
 import { AppWindow } from './window';
 import { styled } from '../../utils';
 import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.css';
+import { useTransContext } from '@jellybrick/solid-i18next';
 
 const AppSidebar = styled(Sidebar, appSideBar);
 const SideMenuContainer = styled('div', sideMenuContainer);
@@ -21,7 +22,7 @@ export const AppMain = ({
   profile,
 }: AppMainProp) => {
   const [menu, setMenu] = createSignal<SidebarMenuItem>(defaultMenu ?? 'friend');
-  const { t } = useTranslation();
+  const [t] = useTransContext();
 
   return <AppWindow>
     <AppSidebar defaultMenu={menu()} onMenuSelect={setMenu} />

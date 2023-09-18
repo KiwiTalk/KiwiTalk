@@ -26,7 +26,7 @@ export const sideButton = style({
   transition: 'background 0.25s',
 
   selectors: {
-    ':hover': {
+    '&:hover': {
       background: 'rgba(0, 0, 0, 0.09)',
     },
   },

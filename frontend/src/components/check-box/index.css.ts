@@ -19,7 +19,7 @@ export const checkBoxContainer = style({
   color: '#1E2019',
 
   selectors: {
-    '[data-disabled=true]': {
+    '&[data-disabled=true]': {
       color: '#BFBDC1',
     },
   },

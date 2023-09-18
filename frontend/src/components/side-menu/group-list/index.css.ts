@@ -40,7 +40,7 @@ export const expandMoreIcon = style({
   transition: 'transform 0.25s',
 
   selectors: {
-    '[data-expanded=true]': {
+    '&[data-expanded=true]': {
       transform: 'rotate(0.5turn)',
     },
   },

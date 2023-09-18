@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import solid from 'vite-plugin-solid';
 import svg from 'vite-plugin-solid-svg';
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,6 +18,7 @@ export default defineConfig({
   },
 
   plugins: [
+    vanillaExtractPlugin(),
     svg({
       svgo: {
         enabled: false,

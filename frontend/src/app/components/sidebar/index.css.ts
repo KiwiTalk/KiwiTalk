@@ -19,10 +19,10 @@ export const listItem = style({
   transition: 'color 0.25s',
 
   selectors: {
-    ':hover': {
+    '&:hover': {
       color: '#1E2019',
     },
-    '[data-activated=true]': {
+    '&[data-activated=true]': {
       color: '#1E2019',
     },
   },

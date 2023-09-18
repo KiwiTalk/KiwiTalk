@@ -16,16 +16,16 @@ export const button = style({
   transition: 'all 0.25s',
 
   selectors: {
-    ':hover:enabled': {
+    '&:hover:enabled': {
       background: '#30323D',
     },
-    ':focus': {
+    '&:focus': {
       outline: 'none',
     },
-    ':active:enabled': {
+    '&:active:enabled': {
       background: '#4D5061',
     },
-    ':disabled': {
+    '&:disabled': {
       background: '#F2F2F3',
       color: '#BFBDC1',
       outline: '1px solid #BFBDC1',
