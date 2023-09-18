@@ -1,12 +1,16 @@
-import { useRef, useState } from 'react';
 import { LoginFormInput } from '../../components/login/form/login';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import type { LoginAccessData, TalkResponseStatus } from '../../../ipc/auth';
 import { PasscodeContent } from './passcode';
 import { DeviceRegisterContent } from './device-register';
 import { LoginContent } from './login';
-import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
+import { useTransContext } from '@jellybrick/solid-i18next';
+import { errorMessage, resetText } from './index.css';
+import { styled } from '../../../utils';
+import { Match, Show, Switch, createSignal } from 'solid-js';
+
+const ErrorMessage = styled('p', errorMessage);
+const ResetText = styled('p', resetText);
 
 export type LoginContentProp = {
   defaultInput?: LoginFormInput,
@@ -33,36 +37,23 @@ type LoginState = LoginStateDefault | LoginStateDeviceRegister | LoginStatePassc
 
 const DEFAULT_STATE: LoginState = { type: 'login', forced: false };
 
-const ErrorMessage = styled.p`
-  color: red;
-`;
+export const AppLoginContent = (props: LoginContentProp) => {
+  const [t] = useTransContext();
 
-const ResetText = styled.p`
-  color: #4D5061;
-  text-align: center;
-  user-select: none;
-`;
-
-export const AppLoginContent = ({
-  defaultInput,
-  onLogin,
-}: LoginContentProp) => {
-  const { t } = useTranslation();
-
-  const inputRef = useRef(defaultInput ?? {
+  let inputRef = props.defaultInput ?? {
     email: '',
     password: '',
     saveId: true,
     autoLogin: true,
-  });
+  };
 
-  const [state, setState] = useState<LoginState>(DEFAULT_STATE);
+  const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
 
   function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
-    inputRef.current = input;
+    inputRef = input;
 
     if (res.status === 0) {
-      onLogin?.(res as LoginAccessData);
+      props.onLogin?.(res as LoginAccessData);
       return;
     }
 
@@ -78,9 +69,7 @@ export const AppLoginContent = ({
       }
     }
 
-    setState((state) => {
-      return { ...state, errorMessage: `login.status.login.${res.status}` };
-    });
+    setState({ ...state(), errorMessage: `login.status.login.${res.status}` });
   }
 
   function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
@@ -89,7 +78,7 @@ export const AppLoginContent = ({
       return;
     }
 
-    setState({ ...state, errorMessage: `login.status.device_register.${status}` });
+    setState({ ...state(), errorMessage: `login.status.device_register.${status}` });
   }
 
   function onPasscodeSubmit(status: number) {
@@ -98,59 +87,50 @@ export const AppLoginContent = ({
       return;
     }
 
-    setState({ ...state, errorMessage: `login.status.passcode.${status}` });
+    setState({ ...state(), errorMessage: `login.status.passcode.${status}` });
   }
 
   function onError() {
-    setState({ ...state, errorMessage: `login.network_error` });
+    setState({ ...state(), errorMessage: `login.network_error` });
   }
 
   function onResetClick() {
     setState(DEFAULT_STATE);
   }
 
-  let content: JSX.Element;
-  switch (state.type) {
-    case 'login': {
-      content = <LoginContent
-        defaultInput={inputRef.current}
-        forced={state.forced}
-        onSubmit={onLoginSubmit}
-        onError={onError}
-      />;
-      break;
-    }
-
-    case 'device_register': {
-      content = <DeviceRegisterContent
-        input={inputRef.current}
-        onSubmit={onRegisterTypeSelected}
-        onError={onError}
-      />;
-      break;
-    }
-
-    case 'passcode': {
-      content = <PasscodeContent
-        registerType={state.registerType}
-        input={inputRef.current}
-        onSubmit={onPasscodeSubmit}
-        onError={onError}
-      />;
-      break;
-    }
-  }
-
   return <>
-    {content}
-    {state.errorMessage ?
-      <ErrorMessage>{t(state.errorMessage)}</ErrorMessage> :
-      null
-    }
-    {
-      state.type !== DEFAULT_STATE.type ?
-      <ResetText onClick={onResetClick}>{t('login.back_to_login')}</ResetText> :
-      null
-    }
+    <Switch>
+      <Match when={state().type === 'login'}>
+        <LoginContent
+          defaultInput={inputRef}
+          forced={(state() as LoginStateDefault).forced}
+          onSubmit={onLoginSubmit}
+          onError={onError}
+        />
+      </Match>
+      <Match when={state().type === 'device_register'}>
+        <DeviceRegisterContent
+          input={inputRef}
+          onSubmit={onRegisterTypeSelected}
+          onError={onError}
+        />
+      </Match>
+      <Match when={state().type === 'passcode'}>
+        <PasscodeContent
+          registerType={(state() as LoginStatePasscode).registerType}
+          input={inputRef}
+          onSubmit={onPasscodeSubmit}
+          onError={onError}
+        />
+      </Match>
+    </Switch>
+    <Show when={state().errorMessage}>
+      <ErrorMessage>
+        {t(state().errorMessage!)}
+      </ErrorMessage>
+    </Show>
+    <Show when={state().type !== DEFAULT_STATE.type}>
+      <ResetText onClick={onResetClick}>{t('login.back_to_login')}</ResetText>
+    </Show>
   </>;
 };

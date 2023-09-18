@@ -1,8 +1,8 @@
-import { useAsyncLock } from '../../../hooks/async';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
 import { PasscodeForm } from '../../components/login/form/passcode';
 import { registerDevice } from '../../../ipc/auth';
+import { createResource, createSignal } from 'solid-js';
 
 export type PasscodeContentProp = {
   registerType: DeviceRegisterType,
@@ -12,31 +12,25 @@ export type PasscodeContentProp = {
   onError?: (e: unknown) => void
 }
 
-export const PasscodeContent = ({
-  registerType,
-  input,
+export const PasscodeContent = (props: PasscodeContentProp) => {
+  const [passcode, setPasscode] = createSignal<string | null>(null);
 
-  onSubmit,
-  onError,
-}: PasscodeContentProp) => {
-  const lock = useAsyncLock();
+  const [data] = createResource(passcode, async (passcode) => {
+    if (data.loading) return;
 
-  function onPasscodeSubmit(passcode: string) {
-    lock.tryLock(async () => {
-      try {
-        const res = await registerDevice(
+    try {
+      const res = await registerDevice(
           passcode,
-          input.email,
-          input.password,
-          registerType === 'permanent',
-        );
+          props.input.email,
+          props.input.password,
+          props.registerType === 'permanent',
+      );
 
-        onSubmit?.(res.status);
-      } catch (e) {
-        onError?.(e);
-      }
-    });
-  }
+      props.onSubmit?.(res.status);
+    } catch (e) {
+      props.onError?.(e);
+    }
+  });
 
-  return <PasscodeForm onSubmit={onPasscodeSubmit} />;
+  return <PasscodeForm onSubmit={setPasscode} />;
 };

@@ -1,70 +1,43 @@
-import { Children, PropsWithChildren, ReactNode } from 'react';
-import styled from 'styled-components';
+import { For, JSX, ParentProps, Show, children } from 'solid-js';
+import { styled } from '../../utils';
+import { container, contentList, head, headContainer, name } from './index.css';
 
-export type SideMenuProp = {
+const Container = styled('div', container);
+const Head = styled('div', head);
+const Name = styled('span', name);
+const HeadContainer = styled('div', headContainer);
+const ContentList = styled('ul', contentList);
+const ContentItem = styled('li', contentList);
+
+export type SideMenuProp = ParentProps<{
   name: string,
-  headContents?: ReactNode,
-  className?: string,
-};
+  headContents?: JSX.Element,
+  class?: string,
+}>;
 
-export const SideMenu = ({
-  name,
-  headContents,
-  className,
+export const SideMenu = (props: SideMenuProp) => {
+  const resolved = children(() => props.children);
+  const childList = () => {
+    const result = resolved();
 
-  children,
-}: PropsWithChildren<SideMenuProp>) => {
-  return <Container className={className}>
+    return Array.isArray(result) ? result : [result];
+  };
+
+  return <Container class={props.class}>
     <Head>
       <Name>{name}</Name>
-      {headContents && <HeadContainer>{headContents}</HeadContainer>}
+      <Show when={props.headContents}>
+        <HeadContainer>
+          {props.headContents}
+        </HeadContainer>
+      </Show>
     </Head>
-    {
-      Children.count(children) > 0 ?
-        <ContentList>
-          {Children.map(children, (value, idx) => {
-            return <ContentItem key={idx}>{value}</ContentItem>;
-          })}
-        </ContentList> : null
-    }
+    <Show when={childList().length > 0}>
+      <ContentList>
+        <For each={childList()}>
+          {(child) => <ContentItem>{child}</ContentItem>}
+        </For>
+      </ContentList>
+    </Show>
   </Container>;
 };
-
-const Container = styled.div`
-  padding: 1rem 1rem 0px 1rem;
-  
-  box-sizing: border-box;
-`;
-
-const Head = styled.div`
-  display: flex;
-
-  align-items: center;
-`;
-
-const Name = styled.span`
-  font-size: 1.5rem;
-
-  font-weight: bold;
-
-  user-select: None;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const HeadContainer = styled.div`
-  margin-left: auto;
-`;
-
-const ContentList = styled.ul`
-  margin: 1rem 0px 0px 0px;
-  padding: 0px;
-
-  list-style-type: none;
-`;
-
-const ContentItem = styled.li`
-  margin-top: 0.5rem;
-  padding 0px;
-`;

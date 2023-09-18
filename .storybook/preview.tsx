@@ -1,7 +1,11 @@
-import '../frontend/src/app/env';
-
 import i18next from 'i18next';
-import { Decorator } from '@storybook/react';
+import { Decorator } from 'storybook-solidjs';
+
+import type { JSX } from 'solid-js/jsx-runtime';
+import Provider from '../frontend/src/app/provider';
+import { useTransContext } from '@jellybrick/solid-i18next';
+import { Globals } from '@storybook/types';
+import { ParentProps } from 'solid-js';
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
@@ -28,12 +32,23 @@ export const globalTypes = {
   },
 };
 
-export const decorators: Decorator[] = [
-  (Story: () => JSX.Element, { globals }) => {
-    if (globals.locale !== i18next.language) {
-      i18next.changeLanguage(globals.locale);
-    }
+type StoryProviderProps = ParentProps<{
+  globals: Globals;
+}>;
 
-    return <Story />;
-  },
+const StoryProvider = (props: StoryProviderProps) => {
+  const [, { changeLanguage }] = useTransContext();
+  if (props.globals.locale !== i18next.language) changeLanguage(props.globals.locale);
+
+  return props.children;
+};
+
+export const decorators: Decorator[] = [
+  (Story: () => JSX.Element, { globals }) => (
+    <Provider>
+      <StoryProvider globals={globals}>
+        <Story />
+      </StoryProvider>
+    </Provider>
+  ),
 ];

@@ -1,7 +1,9 @@
-import { StoryFn } from '@storybook/react';
-import styled from 'styled-components';
+import { StoryFn } from 'storybook-solidjs';
 
 import { WindowControl, ControlType, ControlButtons } from '.';
+import { styled } from '../../../utils';
+import { background, color, control } from './control.stories.css';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 
 export default {
   title: 'KiwiTalk/window/WindowControl',
@@ -27,12 +29,14 @@ const Template: StoryFn<StoryProp> = (args) => {
     close: args.showCloseButton,
   };
 
-  const Control = styled(WindowControl)`
-    background: ${args.background};
-    color: ${args.color};
-  `;
+  const Control = styled(WindowControl, control);
 
-  return <Control buttons={buttons} onControlClick={args.onControlClick} />;
+  return <div style={assignInlineVars({
+    [background]: args.background,
+    [color]: args.color,
+  })}>
+    <Control buttons={buttons} onControlClick={args.onControlClick} />
+  </div>;
 };
 
 export const Default = Template.bind({});

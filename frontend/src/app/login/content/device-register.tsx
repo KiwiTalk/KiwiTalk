@@ -1,10 +1,10 @@
-import { useAsyncLock } from '../../../hooks/async';
 import {
   DeviceRegisterForm,
   DeviceRegisterType,
 } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
 import { requestPasscode } from '../../../ipc/auth';
+import { createResource, createSignal } from 'solid-js';
 
 export type DeviceRegisterContentProp = {
   input: LoginFormInput,
@@ -13,25 +13,20 @@ export type DeviceRegisterContentProp = {
   onError?: (e: unknown) => void
 }
 
-export const DeviceRegisterContent = ({
-  input,
+export const DeviceRegisterContent = (props: DeviceRegisterContentProp) => {
+  const [type, setType] = createSignal<DeviceRegisterType | null>(null);
 
-  onSubmit,
-  onError,
-}: DeviceRegisterContentProp) => {
-  const lock = useAsyncLock();
+  const [data] = createResource(type, async (type) => {
+    if (data.loading) return;
 
-  function onRegisterTypeSelected(type: DeviceRegisterType) {
-    lock.tryLock(async () => {
-      try {
-        const res = await requestPasscode(input.email, input.password);
+    try {
+      const res = await requestPasscode(props.input.email, props.input.password);
 
-        onSubmit?.(res.status, type);
-      } catch (e) {
-        onError?.(e);
-      }
-    });
-  }
+      props.onSubmit?.(res.status, type);
+    } catch (e) {
+      props.onError?.(e);
+    }
+  });
 
-  return <DeviceRegisterForm onSubmit={onRegisterTypeSelected} />;
+  return <DeviceRegisterForm onSubmit={setType} />;
 };

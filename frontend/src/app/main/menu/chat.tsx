@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
+import { useTransContext } from '@jellybrick/solid-i18next';
 import { AppSideMenu, SideButton } from '.';
 import { SideMenuGroupList } from '../../../components/side-menu/group-list';
-import { ReactComponent as ChatOutlineSvg } from './icons/chat_outline.svg';
-import { ReactComponent as ForumOutlineSvg } from './icons/forum_outline.svg';
-import { ReactComponent as SearchSvg } from './icons/search.svg';
-import { ReactComponent as NewChatSvg } from './icons/new_chat.svg';
+import ChatOutlineSvg from './icons/chat_outline.svg';
+import ForumOutlineSvg from './icons/forum_outline.svg';
+import SearchSvg from './icons/search.svg';
+import NewChatSvg from './icons/new_chat.svg';
 
 export const ChatMenu = () => {
-  const { t } = useTranslation();
+  const [t] = useTransContext();
 
   // See https://github.com/i18next/react-i18next/issues/1571
   const normalChat: string = t('main.menu.chat.normal_chat');

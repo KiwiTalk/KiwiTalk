@@ -1,4 +1,4 @@
-import { StoryFn } from '@storybook/react';
+import { StoryFn } from 'storybook-solidjs';
 import { ComponentProps } from 'react';
 
 import { CheckBox } from '.';

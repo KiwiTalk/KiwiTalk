@@ -1,6 +1,6 @@
-import { useAsyncLock } from '../../../hooks/async';
 import { LoginForm, LoginFormInput } from '../../components/login/form/login';
 import { login, LoginAccessData, TalkResponseStatus } from '../../../ipc/auth';
+import { createResource, createSignal } from 'solid-js';
 
 export type LoginContentProp = {
   defaultInput?: Partial<LoginFormInput>,
@@ -10,26 +10,20 @@ export type LoginContentProp = {
   onError?: (e: unknown) => void
 }
 
-export const LoginContent = ({
-  defaultInput,
-  forced,
+export const LoginContent = (props: LoginContentProp) => {
+  const [formInput, setFormInput] = createSignal<LoginFormInput | null>(null);
 
-  onSubmit,
-  onError,
-}: LoginContentProp) => {
-  const lock = useAsyncLock();
+  const [data] = createResource(formInput, async (input) => {
+    if (data.loading) return;
 
-  function onLogin(input: LoginFormInput) {
-    lock.tryLock(async () => {
-      try {
-        const res = await login(input.email, input.password, forced ?? false);
+    try {
+      const res = await login(input.email, input.password, props.forced ?? false);
 
-        onSubmit?.(input, res);
-      } catch (e) {
-        onError?.(e);
-      }
-    });
-  }
+      props.onSubmit?.(input, res);
+    } catch (e) {
+      props.onError?.(e);
+    }
+  });
 
-  return <LoginForm defaultInput={defaultInput} onSubmit={onLogin} />;
+  return <LoginForm defaultInput={props.defaultInput} onSubmit={setFormInput} />;
 };

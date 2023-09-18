@@ -1,20 +1,18 @@
-import './env';
-
-import { useAsync } from '../hooks/async';
-
 import { AppLogin } from './login';
-import i18next from 'i18next';
 import { getGlobalConfiguration, setCredential, initializeClient } from '../ipc/app';
 import { getDeviceLocale } from '../ipc/system';
-import { useEffect, useState } from 'react';
 import { LoginAccessData } from '../ipc/auth';
 import { AppMain } from './main';
+import { Show, createEffect, createResource, createSignal } from 'solid-js';
+import { useTransContext } from '@jellybrick/solid-i18next';
 
 export const App = () => {
-  // TODO:: replace to proper implementation
-  const [logon, setLogon] = useState(false);
+  const [, { changeLanguage }] = useTransContext();
 
-  const data = useAsync(async () => {
+  // TODO:: replace to proper implementation
+  const [logon, setLogon] = createSignal(false);
+
+  const [data] = createResource(async () => {
     const configuration = await getGlobalConfiguration();
     const deviceLocale = await getDeviceLocale();
 
@@ -24,35 +22,37 @@ export const App = () => {
     };
   });
 
-  useEffect(() => {
-    if (data.status === 'pending' || data.status == 'error') {
-      return;
-    }
+  createEffect(() => {
+    const target = data();
 
-    if (data.value.configuration.locale.type == 'Auto') {
-      i18next.changeLanguage(data.value.deviceLocale);
+    if (data.loading || data.error) return;
+    if (!target) return;
+
+    if (target.configuration.locale.type === 'Auto') {
+      changeLanguage(target.deviceLocale);
     } else {
-      i18next.changeLanguage(data.value.configuration.locale.value);
+      changeLanguage(target.configuration.locale.value);
     }
-  }, [data.status]);
+  });
 
-  function onLogin(data: LoginAccessData) {
-    (async () => {
-      await setCredential({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-        userId: data.userId,
-      });
+  const onLogin = async (data: LoginAccessData) => {
+    await setCredential({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      userId: data.userId,
+    });
 
-      await initializeClient({ status: 'Unlocked' });
+    await initializeClient({ status: 'Unlocked' });
 
-      setLogon(true);
-    })().then();
-  }
+    setLogon(true);
+  };
 
-  if (logon) {
-    return <AppMain profile={{ name: 'TODO', contact: 'example@example.com' }} />;
-  } else {
-    return <AppLogin onLogin={onLogin} />;
-  }
+  return (
+    <Show
+      when={logon()}
+      fallback={<AppLogin onLogin={onLogin} />}
+    >
+      <AppMain profile={{ name: 'TODO', contact: 'example@example.com' }} />
+    </Show>
+  );
 };

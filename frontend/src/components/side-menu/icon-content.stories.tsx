@@ -1,4 +1,4 @@
-import { StoryFn } from '@storybook/react';
+import { StoryFn } from 'storybook-solidjs';
 import { SideMenuIconContent } from './icon-content';
 
 export default {

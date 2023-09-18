@@ -1,33 +1,21 @@
-import styled from 'styled-components';
 import { LoginContainer } from './container';
-import { ReactComponent as TextLogoSvg } from './icons/text_logo.svg';
+import TextLogoSvg from './icons/text_logo.svg';
+import { ParentProps } from 'solid-js';
+import { contentContainer, textLogo } from './screen.css';
+import { styled } from '../../utils';
 
-const ContentContainer = styled.div`
-  left: 0px;
-  top: 0px;
-  padding: 3rem 3rem;
-
-  width: 281px;
-`;
-
-const TextLogo = styled(TextLogoSvg)`
-  margin-bottom: 54px;
-  color: black;
-`;
+const ContentContainer = styled('div', contentContainer);
+const TextLogo = styled(TextLogoSvg, textLogo);
 
 export type LoginScreenProp = {
-  className?: string,
+  class?: string,
 };
 
-export const LoginScreen = ({
-  className,
-
-  children,
-}: React.PropsWithChildren<LoginScreenProp>) => {
-  return <LoginContainer className={className}>
+export const LoginScreen = (props: ParentProps<LoginScreenProp>) => {
+  return <LoginContainer class={props.class}>
     <ContentContainer>
       <TextLogo />
-      {children}
+      {props.children}
     </ContentContainer>
   </LoginContainer>;
 };

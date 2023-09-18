@@ -1,7 +1,7 @@
-import { StoryFn } from '@storybook/react';
+import { StoryFn } from 'storybook-solidjs';
 import { SideMenuGroupList } from '.';
 
-import { ReactComponent as IconSvg } from './icons/expand_more.svg';
+import IconSvg from './icons/expand_more.svg';
 
 export default {
   title: 'KiwiTalk/SideMenu/GroupList',

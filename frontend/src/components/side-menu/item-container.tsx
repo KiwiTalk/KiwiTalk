@@ -1,8 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '../../utils';
+import { sideMenuItemContainer } from './item-container.css';
 
-export const SideMenuItemContainer = styled.div`
-  background-color: rgba(255, 255, 255, 0.5);
-
-  border: 1px solid #DFDEE0;
-  border-radius: 0.5rem;
-`;
+export const SideMenuItemContainer = styled('div', sideMenuItemContainer);

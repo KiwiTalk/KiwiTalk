@@ -1,7 +1,10 @@
-import { StoryFn } from '@storybook/react';
-import styled from 'styled-components';
+import { StoryFn } from 'storybook-solidjs';
+
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 
 import { LoginContainer } from './container';
+import { styled } from '../../utils';
+import { storyContainer, width, height } from '../../utils/story.css';
 
 export default {
   title: 'KiwiTalk/login/LoginContainer',
@@ -14,13 +17,16 @@ type BackgroundProp = {
 };
 
 const Template: StoryFn<BackgroundProp> = (args) => {
-  const Container = styled(LoginContainer)`
-    width: ${args.width}px;
-    height: ${args.height}px;
-    border: 1px solid #000000;
-  `;
+  const Container = styled(LoginContainer, storyContainer);
 
-  return <Container />;
+  return <div
+    style={assignInlineVars({
+      [width]: `${args.width}px`,
+      [height]: `${args.height}px`,
+    })}
+  >
+    <Container />
+  </div>;
 };
 
 export const PcW16H9 = Template.bind({});

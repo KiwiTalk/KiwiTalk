@@ -1,79 +1,46 @@
-import { Children, PropsWithChildren, ReactNode, useState } from 'react';
-import styled from 'styled-components';
+import { JSX } from 'solid-js/jsx-runtime';
+import { styled } from '../../../utils';
 import { SideMenuIconContent } from '../icon-content';
 import { SideMenuItemContainer } from '../item-container';
-import { ReactComponent as ExpandMoreSvg } from './icons/expand_more.svg';
+import ExpandMoreSvg from './icons/expand_more.svg';
+import { countText, expandMoreIcon, header, itemList, name } from './index.css';
+import { ParentProps, Show, children, createSignal } from 'solid-js';
 
-export type SideMenuGroupListProp = {
-  icon: ReactNode,
-  name?: string,
+const Header = styled('div', header);
+const Name = styled('span', name);
+const CountText = styled('span', countText);
+const ItemList = styled('ul', itemList);
+const ExpandMoreIcon = styled(ExpandMoreSvg, expandMoreIcon);
 
-  defaultExpanded?: boolean,
-}
+export type SideMenuGroupListProp = ParentProps<{
+  icon: JSX.Element;
+  name?: string;
 
-export const SideMenuGroupList = ({
-  icon,
-  name,
-  defaultExpanded,
+  defaultExpanded?: boolean;
+}>;
 
-  children,
-}: PropsWithChildren<SideMenuGroupListProp>) => {
-  const [expanded, setExpanded] = useState(!!defaultExpanded);
+export const SideMenuGroupList = (props: SideMenuGroupListProp) => {
+  const [expanded, setExpanded] = createSignal(!!props.defaultExpanded);
 
-  const childrenCount = Children.count(children);
+  const childList = children(() => props.children);
+  const childrenCount = () => {
+    const target = childList();
+
+    return Array.isArray(target) ? target.length : Number(!!childList());
+  };
 
   return <SideMenuItemContainer>
-    <Header onClick={setExpanded.bind(null, !expanded)}>
-      <SideMenuIconContent icon={icon}>
-        {name ? <Name>{name}</Name> : null}
-        <CountText>{childrenCount}</CountText>
-        <ExpandMoreIcon data-expanded={expanded} />
+    <Header onClick={() => setExpanded(!expanded())}>
+      <SideMenuIconContent icon={props.icon}>
+        <Show when={props.name}>
+          <Name>{props.name}</Name>
+        </Show>
+        <CountText>{childrenCount()}</CountText>
+        <ExpandMoreIcon data-expanded={expanded()} />
       </SideMenuIconContent>
     </Header>
-    {expanded && childrenCount > 0 ? <ItemList>{children}</ItemList> : null}
+    <Show when={expanded() && childrenCount() > 0}>
+      <ItemList>{childList()}</ItemList>
+    </Show>
   </SideMenuItemContainer>;
 };
-
-const Header = styled.div`
-  padding: 0.5rem;
-`;
-
-const Name = styled.span`
-  user-select: none;
-  margin-right: 0.5rem;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const CountText = styled.span`
-  user-select: none;
-
-  color: #BFBDC1;
-`;
-
-const ItemList = styled.ul`
-  border-top: 1px solid #DFDEE0;
-
-  margin: 0px;
-
-  padding: 0px;
-  list-style-type: none;
-`;
-
-const ExpandMoreIcon = styled(ExpandMoreSvg)`
-  width: 1.5rem;
-  height: 1.5rem;
-
-  align-self: center;
-
-  margin-left: auto;
-
-  color: #BFBDC1;
-
-  &[data-expanded=true] {
-    transform: rotate(0.5turn);
-  }
-
-  transition: transform 0.25s;
-`;

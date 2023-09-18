@@ -1,6 +1,7 @@
-import { StoryFn } from '@storybook/react';
-import styled from 'styled-components';
+import { StoryFn } from 'storybook-solidjs';
 import { Sidebar } from '.';
+import { styled } from '../../../utils';
+import { sidebar } from './sidebar.stories.css';
 
 export default {
   title: 'KiwiTalk/app/Sidebar',
@@ -11,11 +12,7 @@ export default {
   },
 };
 
-const PreviewSidebar = styled(Sidebar)`
-  border: solid black 1px;
-
-  height: 720px;
-`;
+const PreviewSidebar = styled(Sidebar, sidebar);
 
 const Template: StoryFn<typeof Sidebar> = (args) =>
   <PreviewSidebar {...args} />;

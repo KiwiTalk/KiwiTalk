@@ -1,41 +1,21 @@
-import { PropsWithChildren, ReactNode } from 'react';
-import styled from 'styled-components';
+import { JSX, ParentProps, Show } from 'solid-js';
+import { styled } from '../../utils';
+import { container, iconBox } from './icon-content.css';
 
-export type SideMenuIconContentProp = {
-  icon?: ReactNode,
-}
+const Container = styled('div', container);
+const IconBox = styled('div', iconBox);
 
-export const SideMenuIconContent = ({
-  icon,
+export type SideMenuIconContentProp = ParentProps<{
+  icon?: JSX.Element;
+}>;
 
-  children,
-}: PropsWithChildren<SideMenuIconContentProp>) => {
+export const SideMenuIconContent = (props: SideMenuIconContentProp) => {
   return <Container>
-    {icon && <IconBox>{icon}</IconBox>}
-    {children}
+    <Show when={props.icon}>
+      <IconBox>
+        {props.icon}
+      </IconBox>
+    </Show>
+    {props.children}
   </Container>;
 };
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const IconBox = styled.div`
-  width: 1.75rem;
-  height: 1.75rem;
-
-  padding: 0.25rem;
-  
-  box-sizing: border-box;
-
-  color: #1E2019;
-
-  border: 1px solid #1E2019;
-  border-radius: 50%;
-
-  text-align: center;
-  line-height: 0px;
-
-  margin-right: 0.5rem;
-`;

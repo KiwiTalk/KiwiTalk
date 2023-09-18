@@ -1,5 +1,19 @@
-import styled from 'styled-components';
-import { ReactComponent as EditIconSvg } from './icons/edit.svg';
+import { Show } from 'solid-js';
+import { button } from '../../../components/button/index.css';
+import { styled } from '../../../utils';
+import EditIconSvg from './icons/edit.svg';
+import {
+  contact, container, editButton, editIcon, image, imageContainer, info, name,
+} from './index.css';
+
+const Container = styled('div', container);
+const ImageContainer = styled('div', imageContainer);
+const Image = styled('img', image);
+const Info = styled('address', info);
+const Name = styled('p', name);
+const Contact = styled('p', contact);
+const EditButton = styled(button, editButton);
+const EditIcon = styled(EditIconSvg, editIcon);
 
 export type ProfileProp = {
   profileImageURL?: string,
@@ -9,96 +23,19 @@ export type ProfileProp = {
   onEditClick?: () => void,
 };
 
-
-export const Profile = ({
-  profileImageURL,
-  name,
-  contact,
-  onEditClick,
-}: ProfileProp) => {
+export const Profile = (props: ProfileProp) => {
   return <Container>
     <ImageContainer>
-      {profileImageURL && <Image src={profileImageURL} />}
+      <Show when={props.profileImageURL}>
+        <Image src={props.profileImageURL} />
+      </Show>
     </ImageContainer>
     <Info>
-      <Name>{name}</Name>
-      <Contact>{contact}</Contact>
+      <Name>{props.name}</Name>
+      <Contact>{props.contact}</Contact>
     </Info>
-    <EditButton onClick={onEditClick} type='button'>
+    <EditButton onClick={props.onEditClick} type='button'>
       <EditIcon />
     </EditButton>
   </Container>;
 };
-
-const Container = styled.div`
-  background: #FFFFFF;
-
-  display: flex;
-
-  padding: 0.75rem;
-
-  align-items: center;
-`;
-
-const ImageContainer = styled.div`
-  border: 1px solid #DFDEE0;
-  border-radius: 50%;
-
-  box-sizing: border-box;
-
-  overflow: hidden;
-
-  width: 2.25rem;
-  height: 2.25rem;
-`;
-
-const Image = styled.img`
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-`;
-
-const Info = styled.address`
-  all: unset;
-
-  margin-left: 0.75rem;
-  margin-right: auto;
-`;
-
-const Name = styled.p`
-  color: #1E2019;
-
-  margin: 0px;
-
-  font-weight: bold;
-  font-size: 1rem;
-`;
-
-const Contact = styled.p`
-  color: #4D5061;
-
-  margin: 0px;
-
-  font-size: 0.75rem;
-`;
-
-const EditButton = styled.button`
-  all: unset;
-
-  cursor: pointer;
-
-  width: 2.25rem;
-  height: 2.25rem;
-
-  text-align: center;
-  line-height: 0px;
-
-  color: #BFBDC1;
-`;
-
-const EditIcon = styled(EditIconSvg)`
-  width: 1.25rem;
-  height: 1.25rem;
-`;
-

@@ -1,6 +1,8 @@
-import { StoryFn } from '@storybook/react';
-import styled from 'styled-components';
+import { StoryFn } from 'storybook-solidjs';
 import { KiwiContainer } from '.';
+import { styled } from '../../utils';
+import { backgroundColor, height, width, storyContainer } from '../../utils/story.css';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 
 export default {
   title: 'KiwiTalk/KiwiContainer',
@@ -14,15 +16,17 @@ type StoryProp = {
 };
 
 const Template: StoryFn<StoryProp> = (args) => {
-  const Container = styled(KiwiContainer)`
-    width: ${args.width}px;
-    height: ${args.height}px;
-    background-color: ${args.backgroundColor};
+  const Container = styled(KiwiContainer, storyContainer);
 
-    border: 1px solid #000000;
-  `;
-
-  return <Container />;
+  return <div
+    style={assignInlineVars({
+      [width]: `${args.width}px`,
+      [height]: `${args.height}px`,
+      [backgroundColor]: args.backgroundColor,
+    })}
+  >
+    <Container />
+  </div>;
 };
 
 export const Default = Template.bind({});

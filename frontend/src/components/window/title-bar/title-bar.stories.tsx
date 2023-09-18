@@ -1,7 +1,8 @@
-import { StoryFn } from '@storybook/react';
-import styled from 'styled-components';
+import { StoryFn } from 'storybook-solidjs';
 import { WindowTitleBar } from '.';
 import { WindowControl } from '../control';
+import { styled } from '../../../utils';
+import { titleBar, titleBarControl, titleBarTitle } from './title-bar.stories.css';
 
 export default {
   title: 'KiwiTalk/window/WindowTitleBar',
@@ -9,22 +10,9 @@ export default {
   argTypes: {},
 };
 
-const TitleBar = styled(WindowTitleBar)`
-  display: flex;
-  outline: 1px solid black;
-  font-size: 0.8em;
-  height: 20px;
-`;
-
-const TitleBarControl = styled(WindowControl)`
-  color: rgba(0, 0, 0, 0.5);
-  margin-left: auto;
-`;
-
-const TitleBarTitle = styled.span`
-  padding: 0px 0.5rem;
-  user-select: none;
-`;
+const TitleBar = styled(WindowTitleBar, titleBar);
+const TitleBarControl = styled(WindowControl, titleBarControl);
+const TitleBarTitle = styled('span', titleBarTitle);
 
 const Template: StoryFn<typeof WindowTitleBar> = () => {
   return <TitleBar>

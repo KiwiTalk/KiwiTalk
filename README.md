@@ -5,7 +5,7 @@
 
 ![banner](./img/banner.gif)
 
-**카카오톡 재구현 프로젝트 (React & Tauri & Rust)**
+**카카오톡 재구현 프로젝트 (SolidJS & Tauri & Rust)**
 
 ## 프론트엔드
 
@@ -27,15 +27,15 @@ KiwiTalk은 카카오톡이 제공되지 않는 기기 및 OS (예: Ubuntu, Arch
 
 - 본 프로젝트가 Tauri를 사용하기 때문에 [Tauri 개발을 위한 사전 요구 사항](https://tauri.app/ko/v1/guides/getting-started/prerequisites/)을 충족시켜야 합니다.
   해당 글에서 지시하는 대로, Tauri 개발 환경을 구축시켜주시기 바랍니다.
-- 이 프로젝트는 프론트엔드 패키지 관리에 yarn을 사용하고 있습니다.
-  [설치 안내서](https://yarnpkg.com/getting-started/install)를 따라, yarn 설치를 완료시켜주시기 바랍니다.
+- 이 프로젝트는 프론트엔드 패키지 관리에 pnpm을 사용하고 있습니다.
+  [설치 안내서](https://pnpm.io/installation)를 따라, pnpm 설치를 완료시켜주시기 바랍니다.
 
 ### 의존성 설치
 
 아래 명령어를 실행해 npm 의존성을 설치합니다.
 
 ```sh
-yarn
+pnpm install
 ```
 
 ### KiwiTalk 실행
@@ -44,7 +44,7 @@ yarn
 예를 들어, Linux용 Windows 하위시스템(WSL)을 사용하시는 경우, [Microsoft 공식 문서](https://learn.microsoft.com/ko-kr/windows/wsl/tutorials/gui-apps)를 참조해 설정하시기 바랍니다.
 
 ```sh
-yarn dev
+pnpm run dev
 ```
 
 ### Storybook 실행
@@ -53,5 +53,5 @@ yarn dev
 Storybook을 실행하려면 아래 명령어를 실행하시기 바랍니다.
 
 ```sh
-yarn storybook
+pnpm run storybook
 ```

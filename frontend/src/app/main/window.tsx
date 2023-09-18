@@ -1,58 +1,25 @@
-import { PropsWithChildren } from 'react';
-import styled from 'styled-components';
+import { ParentProps } from 'solid-js';
 import { KiwiContainer } from '../../components/kiwi-container';
 import { WindowTitleBar } from '../../components/window/title-bar';
+import { styled } from '../../utils';
 import { AppWindowControl } from '../window/control';
-import { ReactComponent as LogoTextSvg } from './images/logo_text_small.svg';
+import LogoTextSvg from './images/logo_text_small.svg';
+import { contentContainer, control, logoText, titleBar, windowContainer } from './window.css';
 
-export const AppWindow = ({
-  children,
-}: PropsWithChildren) => {
+const TitleBar = styled(WindowTitleBar, titleBar);
+const Control = styled(AppWindowControl, control);
+const ContentContainer = styled('div', contentContainer);
+const WindowContainer = styled(KiwiContainer, windowContainer);
+const LogoText = styled(LogoTextSvg, logoText);
+
+export const AppWindow = (props: ParentProps) => {
   return <WindowContainer>
     <TitleBar>
       <LogoText />
       <Control />
     </TitleBar>
     <ContentContainer>
-      {children}
+      {props.children}
     </ContentContainer>
   </WindowContainer>;
 };
-
-const TitleBar = styled(WindowTitleBar)`
-  position: relative;
-  display: flex;
-  width: 100%;
-
-  background: #FFFFFF;
-`;
-
-const Control = styled(AppWindowControl)`
-  margin-left: auto;
-  
-  color: rgba(0, 0, 0, .5);
-`;
-
-const ContentContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  
-  display: flex;
-  
-  flex-direction: row;
-`;
-
-const WindowContainer = styled(KiwiContainer)`
-  display: flex;
-
-  background: #DFDEE0;
-
-  flex-direction: column;
-
-  width: 100%;
-  height: 100%;
-`;
-
-const LogoText = styled(LogoTextSvg)`
-  margin: auto 4px;
-`;
