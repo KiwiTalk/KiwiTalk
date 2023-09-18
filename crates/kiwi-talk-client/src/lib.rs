@@ -126,6 +126,7 @@ where
         credential: ClientCredential<'_>,
     ) -> ClientResult<(KiwiTalkClient, C)> {
         let (session, stream) = LocoSession::new(LocoClient::new(self.stream));
+        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(stream));
 
         let login_res = TalkClient(&session)
             .login(&LoginListReq {
@@ -171,8 +172,6 @@ where
         };
 
         let channel_data = load_channel_data(&connection, channel_list_data).await?;
-
-        let handler_task = tokio::spawn(HandlerTask::new(self.listener).run(stream));
 
         let client = KiwiTalkClient {
             connection,
