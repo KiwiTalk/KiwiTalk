@@ -16,7 +16,9 @@ export type DeviceRegisterContentProp = {
 export const DeviceRegisterContent = (props: DeviceRegisterContentProp) => {
   const [type, setType] = createSignal<DeviceRegisterType | null>(null);
 
-  createResource(type, async (type) => {
+  const [data] = createResource(type, async (type) => {
+    if (data.loading) return;
+
     try {
       const res = await requestPasscode(props.input.email, props.input.password);
 

@@ -15,7 +15,9 @@ export type PasscodeContentProp = {
 export const PasscodeContent = (props: PasscodeContentProp) => {
   const [passcode, setPasscode] = createSignal<string | null>(null);
 
-  createResource(passcode, async (passcode) => {
+  const [data] = createResource(passcode, async (passcode) => {
+    if (data.loading) return;
+
     try {
       const res = await registerDevice(
           passcode,

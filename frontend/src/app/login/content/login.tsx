@@ -13,7 +13,9 @@ export type LoginContentProp = {
 export const LoginContent = (props: LoginContentProp) => {
   const [formInput, setFormInput] = createSignal<LoginFormInput | null>(null);
 
-  createResource(formInput, async (input) => {
+  const [data] = createResource(formInput, async (input) => {
+    if (data.loading) return;
+
     try {
       const res = await login(input.email, input.password, props.forced ?? false);
 
