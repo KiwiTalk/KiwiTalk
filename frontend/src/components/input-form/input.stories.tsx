@@ -1,6 +1,6 @@
-import { StoryFn } from '@storybook/react';
+import { StoryFn } from 'storybook-solidjs';
 
-import { ReactComponent as IconAccountCircle } from './account_circle.svg';
+import IconAccountCircle from './account_circle.svg';
 
 import { InputForm } from '.';
 

@@ -31,5 +31,5 @@ export const checkBoxLabel = style({
   transition: 'all 0.25s',
 
   lineHeight: 1,
-  padding: '3px 3px',
+  padding: '3px 0',
 });

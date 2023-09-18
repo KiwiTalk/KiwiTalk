@@ -1,6 +1,7 @@
-import { StoryFn } from '@storybook/react';
-import styled from 'styled-components';
+import { StoryFn } from 'storybook-solidjs';
 import { Profile } from '.';
+import { styled } from '../../../utils';
+import { container } from './profile.stories.css';
 
 export default {
   title: 'KiwiTalk/app/Profile',
@@ -10,11 +11,7 @@ export default {
   },
 };
 
-const Container = styled.div`
-  border: solid black 1px;
-
-  width: 300px;
-`;
+const Container = styled('div', container);
 
 const Template: StoryFn<typeof Profile> = (args) =>
   <Container>
