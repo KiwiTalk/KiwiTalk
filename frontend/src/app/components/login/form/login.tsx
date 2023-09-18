@@ -22,7 +22,7 @@ export type LoginFormInput = {
 }
 
 export type LoginFormProp = {
-  defaultInput?: Partial<LoginFormInput>,
+  input?: Partial<LoginFormInput>,
   onSubmit?: (input: LoginFormInput) => void,
 
   class?: string
@@ -52,23 +52,23 @@ export const LoginForm = (props: LoginFormProp) => {
       name='email'
       icon={<AccountCircleSvg />}
       placeholder={t('login.id_placeholder')}
-      defaultValue={props.defaultInput?.email}
+      value={props.input?.email}
     />
     <LoginInput
       name='password'
       icon={<VpnKeySvg />}
       type='password'
       placeholder={t('login.password_placeholder')}
-      defaultValue={props.defaultInput?.password}
+      value={props.input?.password}
     />
     <LoginButton>{t('login.login')}</LoginButton>
     <LoginCheckbox
       name='save_id'
-      status={{ checked: props.defaultInput?.saveId }}
+      status={{ checked: props.input?.saveId }}
     >{t('login.save_id')}</LoginCheckbox>
     <LoginCheckbox
       name='auto_login'
-      status={{ checked: props.defaultInput?.autoLogin }}
+      status={{ checked: props.input?.autoLogin }}
     >{t('login.auto_login_on_launch')}</LoginCheckbox>
   </form>;
 };

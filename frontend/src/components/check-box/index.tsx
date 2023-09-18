@@ -1,4 +1,4 @@
-import { Match, ParentProps, Switch, createSignal } from 'solid-js';
+import { Match, ParentProps, Switch, createEffect, createSignal } from 'solid-js';
 import { styled } from '../../utils';
 import CheckBoxIconSvg from './icons/check_box.svg';
 import CheckBoxOutlineBlankSvg from './icons/check_box_outline_blank.svg';
@@ -40,6 +40,13 @@ export const CheckBox = (props: CheckBoxProp) => {
     props.onInput?.(nextStatus);
     setCurrentStatus(nextStatus);
   }
+
+  createEffect(() => {
+    setCurrentStatus({
+      checked: props.status?.checked ?? false,
+      indeterminate: props.status?.indeterminate ?? false,
+    });
+  });
 
   return <CheckBoxContainer data-disabled={props.disabled} class={props.class}>
     <CheckBoxLabel>

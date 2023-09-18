@@ -12,7 +12,7 @@ type InputProp = {
 
   name?: string,
   type?: JSX.InputHTMLAttributes<HTMLInputElement>['type'],
-  defaultValue?: string,
+  value?: string,
   placeholder?: string,
   maxLength?: number,
   disabled?: boolean,
@@ -23,7 +23,7 @@ type InputProp = {
 }
 
 export const InputForm = (props: InputProp) => {
-  const [activated, setActivated] = createSignal(!!props.defaultValue);
+  const [activated, setActivated] = createSignal(!!props.value);
 
   function onInputHandler(element: HTMLInputElement) {
     if (props.maxLength && element.value.length > props.maxLength) {
@@ -51,7 +51,7 @@ export const InputForm = (props: InputProp) => {
       <Input
         name={props.name}
         type={props.type}
-        value={props.defaultValue}
+        value={props.value}
         placeholder={props.placeholder}
         disabled={props.disabled}
         maxLength={props.maxLength}
