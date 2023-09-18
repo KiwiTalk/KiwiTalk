@@ -78,7 +78,7 @@ impl<T: AsyncRead> AsyncRead for LocoSecureLayer<T> {
                 ReadState::Reading(mut cursor) => {
                     let read = cursor.read(buf)?;
 
-                    *this.read_state = if !buf.is_empty() && read == 0 {
+                    *this.read_state = if cursor.position() as usize == cursor.get_ref().len() {
                         ReadState::Pending
                     } else {
                         ReadState::Reading(cursor)
