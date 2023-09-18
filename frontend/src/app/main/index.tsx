@@ -1,11 +1,15 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
+import { Match, Switch, createSignal } from 'solid-js';
 import { Profile, ProfileProp } from '../components/profile';
 import { Sidebar, SidebarMenuItem } from '../components/sidebar';
 import { ChatMenu } from './menu/chat';
 import { FriendMenu } from './menu/friend';
 import { AppWindow } from './window';
+import { styled } from '../../utils';
+import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.css';
+
+const AppSidebar = styled(Sidebar, appSideBar);
+const SideMenuContainer = styled('div', sideMenuContainer);
+const ChatWindowPlaceholder = styled('p', chatWindowPlaceholder);
 
 export type AppMainProp = {
   defaultMenu?: SidebarMenuItem,
@@ -16,44 +20,22 @@ export const AppMain = ({
   defaultMenu,
   profile,
 }: AppMainProp) => {
-  const [menu, setMenu] = useState<SidebarMenuItem>(defaultMenu ?? 'friend');
+  const [menu, setMenu] = createSignal<SidebarMenuItem>(defaultMenu ?? 'friend');
   const { t } = useTranslation();
 
-  const currentMenu = menu == 'friend' ? <FriendMenu /> : <ChatMenu />;
-
   return <AppWindow>
-    <AppSidebar defaultMenu={menu} onMenuSelect={setMenu} />
+    <AppSidebar defaultMenu={menu()} onMenuSelect={setMenu} />
     <SideMenuContainer>
-      {currentMenu}
+      <Switch>
+        <Match when={menu() == 'friend'}>
+          <FriendMenu />
+        </Match>
+        <Match when={menu() == 'chat'}>
+          <ChatMenu />
+        </Match>
+      </Switch>
       <Profile {...profile} />
     </SideMenuContainer>
     <ChatWindowPlaceholder>{t(`main.chat.empty.${menu}`)}</ChatWindowPlaceholder>
   </AppWindow>;
 };
-
-const AppSidebar = styled(Sidebar)`
-  background: #FFFFFF;
-`;
-
-const SideMenuContainer = styled.div`
-  display: flex;
-
-  flex-direction: column;
-
-  min-width: 160px;
-
-  width: 25%;
-  height: 100%;
-
-  background: #FFFFFF;
-`;
-
-const ChatWindowPlaceholder = styled.p`
-  margin: auto auto;
-
-  color: #4D5061;
-  font-size: 0.875rem;
-  text-align: center;
-
-  user-select: none;
-`;

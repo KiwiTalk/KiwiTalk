@@ -1,11 +1,12 @@
-import styled from 'styled-components';
 import { LoginFormInput } from '../components/login/form/login';
 import { LoginScreen } from '../../components/login/screen';
 import { WindowTitleBar } from '../../components/window/title-bar';
 import { AppWindowControl } from '../window/control';
 import { AppLoginContent } from './content';
 import { LoginAccessData } from '../../ipc/auth';
-import { PropsWithChildren } from 'react';
+import { control, screen, titleBar, windowContainer } from './index.css';
+import { styled } from '../../utils';
+import { ParentProps } from 'solid-js';
 
 export type AppLoginProp = {
   defaultInput?: LoginFormInput,
@@ -13,53 +14,25 @@ export type AppLoginProp = {
   onLogin?: (data: LoginAccessData) => void
 }
 
-export const AppLogin = ({
-  defaultInput,
-
-  onLogin,
-}: AppLoginProp) => {
+export const AppLogin = (props: AppLoginProp) => {
   return <Window>
-    <AppLoginContent defaultInput={defaultInput} onLogin={onLogin} />
+    <AppLoginContent defaultInput={props.defaultInput} onLogin={props.onLogin} />
   </Window>;
 };
 
-const Window = ({
-  children,
-}: PropsWithChildren) => {
+const Window = (props: ParentProps) => {
   return <WindowContainer>
     <WindowTitle />
     <Screen>
-      {children}
+      {props.children}
     </Screen>
   </WindowContainer>;
 };
 
-const WindowContainer = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-
-const TitleBar = styled(WindowTitleBar)`
-  display: flex;
-  position: absolute;
-  width: 100%;
-  top: 0px;
-
-  z-index: 999999;
-`;
-
-const Control = styled(AppWindowControl)`
-  margin-left: auto;
-  background-color: rgba(0, 0, 0, .25);
-  color: white;
-  
-  border-bottom-left-radius: 3px;
-`;
-
-const Screen = styled(LoginScreen)`
-  width: 100%;
-  height: 100%;
-`;
+const WindowContainer = styled('div', windowContainer);
+const TitleBar = styled(WindowTitleBar, titleBar);
+const Control = styled(AppWindowControl, control);
+const Screen = styled(LoginScreen, screen);
 
 const WindowTitle = () => {
   return <TitleBar>

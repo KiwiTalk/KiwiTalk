@@ -1,40 +1,18 @@
-import { PropsWithChildren } from 'react';
-import styled from 'styled-components';
-import { ReactComponent as KiwiSvg } from './icons/kiwi.svg';
+import { ParentProps } from 'solid-js';
+import { styled } from '../../utils';
+import KiwiSvg from './icons/kiwi.svg';
+import { container, kiwiIcon } from './index.css';
 
-export type KiwiContainerProp = {
-  className?: string,
-};
+const Container = styled('div', container);
+const KiwiIcon = styled(KiwiSvg, kiwiIcon);
 
-export const KiwiContainer = ({
-  className,
+export type KiwiContainerProp = ParentProps<{
+  class?: string,
+}>;
 
-  children,
-}: PropsWithChildren<KiwiContainerProp>) => {
-  return <Container className={className}>
+export const KiwiContainer = (props: KiwiContainerProp) => {
+  return <Container class={props.class}>
     <KiwiIcon />
-    {children}
+    {props.children}
   </Container>;
 };
-
-const Container = styled.div`
-  position: relative;
-
-  overflow: hidden;
-`;
-
-const KiwiIcon = styled(KiwiSvg)`
-  color: rgba(0, 0, 0, 0.5);
-  mix-blend-mode: overlay;
-
-  min-width: 70%;
-  min-height: 70%;
-
-  max-width: 120%;
-  max-height: 120%;
-
-  position: absolute;
-
-  right: -30%;
-  bottom: -40%;
-`;

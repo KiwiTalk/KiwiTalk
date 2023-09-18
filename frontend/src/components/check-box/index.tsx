@@ -1,76 +1,35 @@
-import { useState } from 'react';
-import styled from 'styled-components';
-import { ReactComponent as CheckBoxIconSvg } from './icons/check_box.svg';
-import { ReactComponent as CheckBoxOutlineBlankSvg } from './icons/check_box_outline_blank.svg';
-import { ReactComponent as CheckBoxIndeterminateSvg } from './icons/indeterminate_check_box.svg';
+import { Match, ParentProps, Switch, createSignal } from 'solid-js';
+import { styled } from '../../utils';
+import CheckBoxIconSvg from './icons/check_box.svg';
+import CheckBoxOutlineBlankSvg from './icons/check_box_outline_blank.svg';
+import CheckBoxIndeterminateSvg from './icons/indeterminate_check_box.svg';
+import { checkBoxContainer, checkBoxInput, checkBoxLabel, iconContainer } from './index.css';
 
-const CheckBoxInput = styled.input`
-  display: none;
-`;
-
-const IconContainer = styled.div`
-  display: inline-block;
-  width: 1.125rem;
-  height: 1.125rem;
-
-  margin: auto 6px auto 0px;
-  line-height: 0;
-`;
-
-const CheckBoxContainer = styled.div`
-  display: inline-block;
-
-  color: #1E2019;
-
-  &[data-disabled=true] {
-    color: #BFBDC1;
-  }
-`;
-
-const CheckBoxLabel = styled.label`
-  display: flex;
-
-  transition: all 0.25s;
-
-  line-height: 1;
-  padding: 3px 3px;
-`;
+const CheckBoxInput = styled('input', checkBoxInput);
+const IconContainer = styled('div', iconContainer);
+const CheckBoxContainer = styled('div', checkBoxContainer);
+const CheckBoxLabel = styled('label', checkBoxLabel);
 
 export type CheckBoxStatus = {
   checked: boolean,
   indeterminate: boolean
 };
 
-export type CheckBoxProp = React.PropsWithChildren<{
+export type CheckBoxProp = ParentProps<{
   name?: string,
   status?: Partial<CheckBoxStatus>,
   disabled?: boolean,
 
   onInput?: (status: CheckBoxStatus) => void,
 
-  className?: string
+  class?: string
 }>;
 
-export const CheckBox = ({
-  name,
-  status,
-  disabled,
-  onInput,
-
-  className,
-  children,
-}: CheckBoxProp) => {
-  const [currentStatus, setCurrentStatus] = useState<CheckBoxStatus>({
-    checked: status?.checked ?? false,
-    indeterminate: status?.indeterminate ?? false,
+export const CheckBox = (props: CheckBoxProp) => {
+  const [currentStatus, setCurrentStatus] = createSignal<CheckBoxStatus>({
+    checked: props.status?.checked ?? false,
+    indeterminate: props.status?.indeterminate ?? false,
   });
-
-  let currentIcon = <CheckBoxOutlineBlankSvg />;
-  if (currentStatus.indeterminate) {
-    currentIcon = <CheckBoxIndeterminateSvg />;
-  } else if (currentStatus.checked) {
-    currentIcon = <CheckBoxIconSvg />;
-  }
 
   function onInputChanged(input: HTMLInputElement) {
     const nextStatus = {
@@ -78,25 +37,34 @@ export const CheckBox = ({
       indeterminate: input.indeterminate,
     };
 
-    onInput?.(nextStatus);
+    props.onInput?.(nextStatus);
     setCurrentStatus(nextStatus);
   }
 
-  return <CheckBoxContainer data-disabled={disabled} className={className}>
+  return <CheckBoxContainer data-disabled={props.disabled} class={props.class}>
     <CheckBoxLabel>
       <CheckBoxInput
-        name={name}
-        defaultChecked={currentStatus.checked}
-        disabled={disabled}
+        name={props.name}
+        checked={currentStatus().checked}
+        disabled={props.disabled}
         type="checkbox"
         ref={(ref) => {
           if (!ref) return;
-          ref.indeterminate = currentStatus.indeterminate || false;
+          ref.indeterminate = currentStatus().indeterminate || false;
         }}
         onInput={(e) => onInputChanged(e.currentTarget)}
       />
-      <IconContainer>{currentIcon}</IconContainer>
-      {children}
+      <IconContainer>
+        <Switch fallback={<CheckBoxOutlineBlankSvg />}>
+          <Match when={currentStatus().indeterminate}>
+            <CheckBoxIndeterminateSvg />
+          </Match>
+          <Match when={currentStatus().checked}>
+            <CheckBoxIconSvg />
+          </Match>
+        </Switch>
+      </IconContainer>
+      {props.children}
     </CheckBoxLabel>
   </CheckBoxContainer>;
 };

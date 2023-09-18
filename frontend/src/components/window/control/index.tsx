@@ -1,38 +1,13 @@
-import styled from 'styled-components';
-import { ReactComponent as IconMinimizeSvg } from './icons/icon_minimize.svg';
-import { ReactComponent as IconMaximizeSvg } from './icons/icon_maximize.svg';
-import { ReactComponent as IconCloseSvg } from './icons/icon_close.svg';
+import IconMinimizeSvg from './icons/icon_minimize.svg';
+import IconMaximizeSvg from './icons/icon_maximize.svg';
+import IconCloseSvg from './icons/icon_close.svg';
+import { styled } from '../../../utils';
+import { closeButton, controlButton, controlContainer } from './index.css';
+import { Show, mergeProps } from 'solid-js';
 
-const ControlContainer = styled.div`
-  font-size: 0px;
-  display: inline-block;
-  vertical-align: top;
-  overflow: hidden;
-`;
-
-const ControlButton = styled.button`
-  all: unset;
-
-  width: 1.5rem;
-  height: 1.25rem;
-
-  text-align: center;
-  vertical-align: middle;
-
-  background: none;
-  
-  &:hover {
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  transition: all 0.25s;
-`;
-
-const CloseButton = styled(ControlButton)`
-  &:hover {
-    background: rgba(255, 0, 0, 0.8);
-  }
-`;
+const ControlContainer = styled('div', controlContainer);
+const ControlButton = styled('button', controlButton);
+const CloseButton = styled(ControlButton, closeButton);
 
 export type ControlType = 'minimize' | 'maximize' | 'close';
 
@@ -47,37 +22,44 @@ export type ControlProp = {
 
   onControlClick?: (type: ControlType) => void,
 
-  className?: string
+  class?: string
 };
 
-export const WindowControl = ({
-  buttons = {
-    minimize: true,
-    maximize: true,
-    close: true,
-  },
-  onControlClick,
+export const WindowControl = (props: ControlProp) => {
+  const local = mergeProps({
+    buttons: {
+      minimize: true,
+      maximize: true,
+      close: true,
+    },
+  }, props);
 
-  className,
-}: ControlProp) => {
-  return <ControlContainer className={className}>
-    { buttons.minimize ? <ControlButton
-      onClick={() => {
-        onControlClick?.('minimize');
-      }}>
-      <IconMinimizeSvg />
-    </ControlButton> : null }
-    { buttons.maximize ? <ControlButton
-      onClick={() => {
-        onControlClick?.('maximize');
-      }}>
-      <IconMaximizeSvg />
-    </ControlButton> : null }
-    { buttons.close ? <CloseButton
-      onClick={() => {
-        onControlClick?.('close');
-      }}>
-      <IconCloseSvg />
-    </CloseButton> : null }
+  return <ControlContainer class={local.class}>
+    <Show when={local.buttons.minimize}>
+      <ControlButton
+        onClick={() => {
+          local.onControlClick?.('minimize');
+        }}
+      >
+        <IconMinimizeSvg />
+      </ControlButton>
+    </Show>
+    <Show when={local.buttons.maximize}>
+      <ControlButton
+        onClick={() => {
+          local.onControlClick?.('maximize');
+        }}
+      >
+        <IconMaximizeSvg />
+      </ControlButton>
+    </Show>
+    <Show when={local.buttons.close}>
+      <CloseButton
+        onClick={() => {
+          local.onControlClick?.('close');
+        }}>
+        <IconCloseSvg />
+      </CloseButton>
+    </Show>
   </ControlContainer>;
 };

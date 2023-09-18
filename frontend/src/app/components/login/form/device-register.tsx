@@ -1,38 +1,29 @@
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
+import { useTransContext } from '@jellybrick/solid-i18next';
 import { Button } from '../../../../components/button';
+import { styled } from '../../../../utils';
+import { buttonDivider, registerButton } from './device-register.css';
 
-const RegisterButton = styled(Button)`
-  display: block;
-  width: 100%;
-`;
-
-const ButtonDivider = styled.div`
-  height: 12px;
-`;
+const RegisterButton = styled(Button, registerButton);
+const ButtonDivider = styled('div', buttonDivider);
 
 export type DeviceRegisterType = 'permanent' | 'temporary';
 
 export type DeviceRegisterFormProp = {
   onSubmit?: (type: DeviceRegisterType) => void,
 
-  className?: string
+  class?: string
 }
 
-export const DeviceRegisterForm = ({
-  onSubmit,
-
-  className,
-}: DeviceRegisterFormProp) => {
-  const { t } = useTranslation();
+export const DeviceRegisterForm = (props: DeviceRegisterFormProp) => {
+  const [t] = useTransContext();
 
   function createOnClickHandler(type: DeviceRegisterType) {
     return () => {
-      onSubmit?.(type);
+      props.onSubmit?.(type);
     };
   }
 
-  return <div className={className}>
+  return <div class={props.class}>
     <RegisterButton onClick={createOnClickHandler('permanent')}>
       {t('login.register_type.permanent')}
     </RegisterButton>

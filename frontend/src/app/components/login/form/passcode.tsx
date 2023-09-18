@@ -1,49 +1,42 @@
-import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import styled from 'styled-components';
+import { useTransContext } from '@jellybrick/solid-i18next';
 import { InputForm } from '../../../../components/input-form';
 
-import { ReactComponent as DialpadSvg } from './icons/dialpad.svg';
+import DialpadSvg from './icons/dialpad.svg';
+import { styled } from '../../../../utils';
+import { passcodeInput } from './passcode.css';
+import { onMount } from 'solid-js';
 
-const PasscodeInput = styled(InputForm)`
-  display: block;
-  margin-bottom: 12px;
-`;
+const PasscodeInput = styled(InputForm, passcodeInput);
 
 export type PasscodeFormProp = {
   passcode?: string,
   onSubmit?: (passcode: string) => void,
 
-  className?: string
+  class?: string
 }
 
-export const PasscodeForm = ({
-  passcode,
-  onSubmit,
-
-  className,
-}: PasscodeFormProp) => {
-  const { t } = useTranslation();
+export const PasscodeForm = (props: PasscodeFormProp) => {
+  const [t] = useTransContext();
 
   function onInputHandler(text: string) {
     if (text.length === 4) {
-      onSubmit?.(text);
+      props.onSubmit?.(text);
     }
   }
 
-  useEffect(() => {
-    if (passcode) {
-      onInputHandler(passcode);
+  onMount(() => {
+    if (props.passcode) {
+      onInputHandler(props.passcode);
     }
-  }, []);
+  });
 
-  return <div className={className}>
+  return <div class={props.class}>
     <PasscodeInput
       icon={<DialpadSvg />}
       type='number'
       maxLength={4}
       placeholder={t('login.passcode_placeholder')}
-      defaultValue={passcode}
+      defaultValue={props.passcode}
       onInput={onInputHandler}
     />
   </div>;

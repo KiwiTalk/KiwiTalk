@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import svgr from 'vite-plugin-svgr';
+import solid from 'vite-plugin-solid';
+import svg from 'vite-plugin-solid-svg';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,17 +11,17 @@ export default defineConfig({
   envPrefix: ['VITE_', 'TAURI_'],
   root: 'frontend',
   build: {
-    target: ['es2021', 'chrome100', 'safari13'],
+    target: ['es2021', 'chrome86', 'safari13'],
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_DEBUG,
   },
 
   plugins: [
-    svgr({
-      svgrOptions: {
-        svgo: false,
+    svg({
+      svgo: {
+        enabled: false,
       },
     }),
-    react(),
+    solid(),
   ],
 });

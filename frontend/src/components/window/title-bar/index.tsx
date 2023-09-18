@@ -1,10 +1,12 @@
-export type WindowTitleBarProp = React.PropsWithChildren<{
-  className?: string
+import { ParentProps } from 'solid-js';
+
+export type WindowTitleBarProp = ParentProps<{
+  class?: string;
 }>;
 
 export const WindowTitleBar = (prop: WindowTitleBarProp) => {
   return <div
-    className={prop.className}
+    class={prop.class}
     data-tauri-drag-region
   >
     {prop.children}

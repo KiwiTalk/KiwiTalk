@@ -1,28 +1,18 @@
-import { FormEvent } from 'react';
-import styled from 'styled-components';
 import { Button } from '../../../../components/button';
 import { CheckBox } from '../../../../components/check-box';
 import { InputForm } from '../../../../components/input-form';
-import { useTranslation } from 'react-i18next';
+import { useTransContext } from '@jellybrick/solid-i18next';
 
-import { ReactComponent as AccountCircleSvg } from './icons/account_circle.svg';
-import { ReactComponent as VpnKeySvg } from './icons/vpn_key.svg';
+import AccountCircleSvg from './icons/account_circle.svg';
+import VpnKeySvg from './icons/vpn_key.svg';
+import { styled } from '../../../../utils';
+import { loginButton, loginCheckbox, loginInput } from './login.css';
+import { JSX } from 'solid-js/jsx-runtime';
 
-const LoginInput = styled(InputForm)`
-  display: block;
-  margin-bottom: 12px;
-`;
 
-const LoginButton = styled(Button)`
-  display: block;
-  margin: 12px 0px 7px 0px;
-  width: 100%;
-`;
-
-const LoginCheckbox = styled(CheckBox)`
-  display: block;
-  margin-top: 3px;
-`;
+const LoginInput = styled(InputForm, loginInput);
+const LoginButton = styled(Button, loginButton);
+const LoginCheckbox = styled(CheckBox, loginCheckbox);
 
 export type LoginFormInput = {
   email: string,
@@ -35,21 +25,16 @@ export type LoginFormProp = {
   defaultInput?: Partial<LoginFormInput>,
   onSubmit?: (input: LoginFormInput) => void,
 
-  className?: string
+  class?: string
 }
 
-export const LoginForm = ({
-  defaultInput,
-  onSubmit,
+export const LoginForm = (props: LoginFormProp) => {
+  const [t] = useTransContext();
 
-  className,
-}: LoginFormProp) => {
-  const { t } = useTranslation();
+  const submitHandler: JSX.EventHandlerUnion<HTMLFormElement, Event> = (event) => {
+    event.preventDefault();
 
-  function submitHandler(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(event.currentTarget);
     const input: LoginFormInput = {
       email: formData.get('email')?.valueOf() as string ?? '',
       password: formData.get('password')?.valueOf() as string ?? '',
@@ -59,31 +44,31 @@ export const LoginForm = ({
 
     if (input.email === '' || input.password === '') return;
 
-    onSubmit?.(input);
-  }
+    props.onSubmit?.(input);
+  };
 
-  return <form className={className} onSubmit={submitHandler}>
+  return <form class={props.class} onSubmit={submitHandler}>
     <LoginInput
       name='email'
       icon={<AccountCircleSvg />}
       placeholder={t('login.id_placeholder')}
-      defaultValue={defaultInput?.email}
+      defaultValue={props.defaultInput?.email}
     />
     <LoginInput
       name='password'
       icon={<VpnKeySvg />}
       type='password'
       placeholder={t('login.password_placeholder')}
-      defaultValue={defaultInput?.password}
+      defaultValue={props.defaultInput?.password}
     />
     <LoginButton>{t('login.login')}</LoginButton>
     <LoginCheckbox
       name='save_id'
-      status={{ checked: defaultInput?.saveId }}
+      status={{ checked: props.defaultInput?.saveId }}
     >{t('login.save_id')}</LoginCheckbox>
     <LoginCheckbox
       name='auto_login'
-      status={{ checked: defaultInput?.autoLogin }}
+      status={{ checked: props.defaultInput?.autoLogin }}
     >{t('login.auto_login_on_launch')}</LoginCheckbox>
   </form>;
 };

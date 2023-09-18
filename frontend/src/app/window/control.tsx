@@ -2,16 +2,11 @@ import { appWindow } from '@tauri-apps/api/window';
 import { ControlButtons, ControlType, WindowControl } from '../../components/window/control';
 
 export type AppWindowControlProp = {
-  buttons?: ControlButtons,
-
-  className?: string
+  buttons?: ControlButtons;
+  class?: string;
 }
 
-export const AppWindowControl = ({
-  buttons,
-
-  className,
-}: AppWindowControlProp) => {
+export const AppWindowControl = (props: AppWindowControlProp) => {
   function onControlClick(type: ControlType) {
     switch (type) {
       case 'close': {
@@ -32,8 +27,8 @@ export const AppWindowControl = ({
   }
 
   return <WindowControl
-    className={className}
-    buttons={buttons}
+    class={props.class}
+    buttons={props.buttons}
     onControlClick={onControlClick}
   />;
 };
