@@ -6,7 +6,10 @@ use std::{
 };
 
 use futures_lite::{ready, AsyncRead, AsyncWrite};
-use loco_protocol::secure::{client::LocoClientSecureLayer, SecurePacket};
+use loco_protocol::secure::{
+    client::{LocoClientSecureLayer, ReadState as LayerReadState},
+    SecurePacket,
+};
 use rand::RngCore;
 
 pub use loco_protocol::secure::client::RsaPublicKey;
@@ -25,6 +28,8 @@ pin_project_lite::pin_project! {
 }
 
 impl<T> LocoSecureLayer<T> {
+    pub const MAX_IO_SIZE: u64 = 16 * 1024 * 1024;
+
     pub fn new(rsa_key: RsaPublicKey, inner: T) -> Self {
         let mut key = [0_u8; 16];
         rand::thread_rng().fill_bytes(&mut key);
@@ -66,6 +71,13 @@ impl<T: AsyncRead> AsyncRead for LocoSecureLayer<T> {
                     if let Some(packet) = this.layer.read() {
                         *this.read_state = ReadState::Reading(Cursor::new(packet.data));
                     } else {
+                        if let LayerReadState::Header(header) = this.layer.read_state() {
+                            if header.size as u64 - 16 > Self::MAX_IO_SIZE {
+                                *this.read_state = ReadState::PacketTooLarge;
+                                continue;
+                            }
+                        }
+
                         let mut read_buf = [0_u8; 1024];
 
                         *this.read_state = ReadState::Pending;
@@ -87,12 +99,14 @@ impl<T: AsyncRead> AsyncRead for LocoSecureLayer<T> {
                     break Poll::Ready(Ok(read));
                 }
 
-                ReadState::Corrupted => {
+                ReadState::PacketTooLarge => {
                     break Poll::Ready(Err(io::Error::new(
                         ErrorKind::InvalidData,
-                        "Read state corrupted",
+                        "packet is too large",
                     )));
                 }
+
+                ReadState::Corrupted => unreachable!(),
             }
         }
     }
@@ -115,22 +129,25 @@ impl<T: AsyncWrite> AsyncWrite for LocoSecureLayer<T> {
                 }
 
                 WriteState::Established => {
-                    let data = buf.to_vec();
+                    let write_buf = if buf.len() as u64 > Self::MAX_IO_SIZE {
+                        &buf[..Self::MAX_IO_SIZE as usize]
+                    } else {
+                        buf
+                    };
+
                     let mut iv = [0_u8; 16];
                     rand::thread_rng().fill_bytes(&mut iv);
 
-                    this.layer.send(SecurePacket { iv, data });
+                    this.layer.send(SecurePacket {
+                        iv,
+                        data: write_buf.to_vec(),
+                    });
 
                     *this.write_state = WriteState::Established;
-                    return Poll::Ready(Ok(buf.len()));
+                    return Poll::Ready(Ok(write_buf.len()));
                 }
 
-                WriteState::Corrupted => {
-                    return Poll::Ready(Err(io::Error::new(
-                        ErrorKind::InvalidData,
-                        "Write state corrupted",
-                    )));
-                }
+                WriteState::Corrupted => unreachable!(),
             }
         }
     }
@@ -173,6 +190,7 @@ impl<T: AsyncWrite> AsyncWrite for LocoSecureLayer<T> {
 enum ReadState {
     Pending,
     Reading(Cursor<Box<[u8]>>),
+    PacketTooLarge,
     Corrupted,
 }
 
