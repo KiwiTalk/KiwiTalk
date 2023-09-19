@@ -27,6 +27,7 @@ impl DatabasePool {
         F: Send + 'static,
     {
         let this = self.clone();
+
         tokio::task::spawn_blocking(move || {
             let connection = this.get()?;
 

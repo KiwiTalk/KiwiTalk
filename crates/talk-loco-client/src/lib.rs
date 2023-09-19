@@ -24,7 +24,7 @@ use loco_protocol::command::{
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-pub type BoxedCommand = Command<Box<[u8]>>;
+pub type BoxedCommand = loco_protocol::command::BoxedCommand;
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]

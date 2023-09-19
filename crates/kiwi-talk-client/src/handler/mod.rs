@@ -3,7 +3,7 @@ pub mod error;
 use std::io;
 
 use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
-use talk_loco_client::command::Command;
+use talk_loco_client::BoxedCommand;
 use talk_loco_command::response::chat;
 
 use crate::{
@@ -28,7 +28,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
         }
     }
 
-    pub async fn run(mut self, stream: impl Stream<Item = io::Result<Command<Box<[u8]>>>>) {
+    pub async fn run(mut self, stream: impl Stream<Item = io::Result<BoxedCommand>>) {
         pin_mut!(stream);
         while let Some(read) = stream.next().await {
             match read {
@@ -48,7 +48,7 @@ impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener
     }
 
     // TODO:: Use macro
-    async fn handle_inner(&mut self, command: Command<Box<[u8]>>) -> HandlerResult<()> {
+    async fn handle_inner(&mut self, command: BoxedCommand) -> HandlerResult<()> {
         match &*command.header.method {
             "MSG" => Ok(self.on_chat(bson::de::from_slice(&command.data)?).await?),
             "DECUNREAD" => Ok(self
