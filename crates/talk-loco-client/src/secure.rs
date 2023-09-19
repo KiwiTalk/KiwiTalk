@@ -100,6 +100,8 @@ impl<T: AsyncRead> AsyncRead for LocoSecureLayer<T> {
                 }
 
                 ReadState::PacketTooLarge => {
+                    *this.read_state = ReadState::PacketTooLarge;
+
                     break Poll::Ready(Err(io::Error::new(
                         ErrorKind::InvalidData,
                         "packet is too large",
