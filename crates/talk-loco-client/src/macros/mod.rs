@@ -10,27 +10,23 @@ macro_rules! impl_session {
                 fn test_method1(\"TEST\", struct TestReq;);
 
                 // variant 2
-                fn test_method2(\"TEST\", struct TestReq;) -> TestRes;
+                fn test_method2(\"TEST\", struct TestReq {}) -> TestRes;
 
                 // variant 3
-                fn test_method2(\"TEST\", struct TestReq;) -> struct TestRes {
+                fn test_method2(\"TEST\", struct TestReq {}) -> struct TestRes {
                     pub a: i32,
                     pub b: i32,
                 };
 
                 // variant 4 (response variants)
                 fn test_method2(\"TEST\", struct TestReq;) -> TestRes {
-                    0 => {
-                        struct Done {
-                            pub a: i32,
-                            pub b: i32,
-                        }
+                    0 => struct Done {
+                        pub a: i32,
+                        pub b: i32,
                     }
 
-                    1 | 2 => {
-                        struct PartialDone {
-                            pub a: i32,
-                        }
+                    1 | 2 => struct PartialDone {
+                        pub a: i32,
                     }
                 };
             }
@@ -47,47 +43,50 @@ macro_rules! impl_session {
         #[derive(Clone, Copy)]
         $vis struct $name<'a>(pub &'a $crate::session::LocoSession);
 
-        impl_session!(@methods $name $($tt)*);
+        impl_session!(
+            @internal {
+                [mode = start_method]
+                [struct_name = $name]
+            }
+
+            $($tt)*
+        );
     };
 
-    (@methods $struct_name:ident) => {};
+    (
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+    ) => {};
 
     // declared request type, empty response type
     (
-        @methods $struct_name:ident
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
+            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
         );
 
         $($tt:tt)*
     ) => {
-        $vis mod $name {
-            pub mod request {
-                #[allow(unused_imports)]
-                use super::super::*;
-
-                $crate::macros::__private::structstruck::strike!(
-                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-
-                    #[doc = ::std::concat!(
-                        "Request data for `",
-                        ::std::stringify!($name),
-                        "` method"
-                    )]
-                    pub $req_prefix $req $($req_tt)*
-                );
-            }
-        }
-
-        #[doc(inline)]
-        $vis use $name::request::$req;
-
         impl_session!(
-            @methods @internal $struct_name
-            $(#[$meta])*
-            $vis fn $name($method, data, $req) -> () {
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [res = ()]
+                [decl = [req = $req_prefix $req_name { $($req_tt)* }]]
+            }
+
+            |data| {
                 0 => Ok(())
             }
 
@@ -97,40 +96,33 @@ macro_rules! impl_session {
 
     // declared request type, fixed response type
     (
-        @methods $struct_name:ident
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
+            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
         ) -> $res:ty;
 
         $($tt:tt)*
     ) => {
-        $vis mod $name {
-            pub mod request {
-                #[allow(unused_imports)]
-                use super::super::*;
-
-                $crate::macros::__private::structstruck::strike!(
-                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-
-                    #[doc = ::std::concat!(
-                        "Request data for `",
-                        ::std::stringify!($name),
-                        "` method"
-                    )]
-                    pub $req_prefix $req $($req_tt)*
-                );
-            }
-        }
-
-        #[doc(inline)]
-        $vis use $name::request::$req;
-
         impl_session!(
-            @methods @internal $struct_name
-            $(#[$meta])*
-            $vis fn $name($method, $req) -> $res;
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [res = $res]
+                [decl = [req = $req_prefix $req_name { $($req_tt)* }]]
+            }
+
+            |data| {
+                0 => Ok($crate::macros::__private::bson::from_slice(&data)?)
+            }
 
             $($tt)*
         );
@@ -138,138 +130,80 @@ macro_rules! impl_session {
 
     // declared request type, declared response type
     (
-        @methods $struct_name:ident
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
-        ) -> $res_prefix:ident $res:ident $($res_tt:tt)*;
+            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
+        ) -> $res_prefix:ident $res_name:ident { $($res_tt:tt)* };
 
         $($tt:tt)*
     ) => {
-        $vis mod $name {
-            pub mod request {
-                #[allow(unused_imports)]
-                use super::super::*;
-
-                $crate::macros::__private::structstruck::strike!(
-                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-
-
-                    #[doc = ::std::concat!(
-                        "Request data for `",
-                        ::std::stringify!($name),
-                        "` method"
-                    )]
-                    pub $req_prefix $req $($req_tt)*
-                );
-            }
-
-            pub mod response {
-                #[allow(unused_imports)]
-                use super::super::*;
-
-                $crate::macros::__private::structstruck::strike!(
-                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
-
-                    #[doc = ::std::concat!(
-                        "Response data for `",
-                        ::std::stringify!($name),
-                        "` method"
-                    )]
-                    pub $res_prefix $res $($res_tt)*
-                );
-            }
-        }
-
-        #[doc(inline)]
-        $vis use $name::{request::$req, response::$res};
-
         impl_session!(
-            @methods $struct_name
-            $(#[$meta])*
-            $vis fn $name($method, $req) -> $res;
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [decl =
+                    [req = $req_prefix $req_name { $($req_tt)* }]
+                    [res = $res_prefix $res_name { $($res_tt)* }]
+                ]
+            }
+
+            |data| {
+                0 => Ok($crate::macros::__private::bson::from_slice(&data)?)
+            }
 
             $($tt)*
         );
     };
 
-    // declared request type, declared response type variants
+    // declared request type, declared response variants
     (
-        @methods $struct_name:ident
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
         $(#[$meta:meta])*
-        $vis:vis fn $name:ident (
+        $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req:ident $($req_tt:tt)* $(,)?
-        ) -> $res:ident {
+            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
+        ) -> $res_name:ident {
             $(
                 $(#[$status_meta:meta])*
-                $status:pat => { $variant_prefix:ident $variant_name:ident $($variant_tt:tt)* } $(,)?
-            )*
-        }
+                $pat:pat => $variant_prefix:ident $variant_name:ident {
+                    $($variant_tt:tt)*
+                }
+            ),* $(,)?
+        };
 
         $($tt:tt)*
     ) => {
-        $vis mod $name {
-            pub mod request {
-                #[allow(unused_imports)]
-                use super::super::*;
-
-                $crate::macros::__private::structstruck::strike!(
-                    #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize)]]
-
-                #[doc = ::std::concat!(
-                    "Request data for `",
-                    ::std::stringify!($name),
-                    "` method"
-                )]
-                    pub $req_prefix $req $($req_tt)*
-                );
-            }
-
-            pub mod response {
-                #[allow(unused_imports)]
-                use super::super::*;
-
-                #[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]
-
-                #[doc = ::std::concat!(
-                    "Response variants for `",
-                    ::std::stringify!($name),
-                    "` method"
-                )]
-                pub enum $res {
-                    $(
-                        $(#[$status_meta])*
-                        $variant_name($variant_name)
-                    ),+
-                }
-
-                $(
-                    $crate::macros::__private::structstruck::strike!(
-                        #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize)]]
-
-                        $(#[$status_meta])*
-                        pub $variant_prefix $variant_name $($variant_tt)*
-                    );
-                )*
-            }
-
-        }
-
-        #[doc(inline)]
-        $vis use $name::{request::$req, response::$res};
-
         impl_session!(
-            @methods @internal $struct_name
-            $(#[$meta])*
-            $vis fn $name($method, data, $req) -> $res {
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [decl =
+                    [req = $req_prefix $req_name { $($req_tt)* }]
+                    [res = enum $res_name {
+                        $($variant_name($variant_prefix { $($variant_tt)* })),*
+                    }]
+                ]
+            }
+
+            |data| {
                 $(
-                    $status => Ok(
-                        $res::$variant_name(
-                            $crate::macros::__private::bson::from_slice(&data)?
-                        )
-                    )
+                    $pat => Ok($res_name::$variant_name($crate::macros::__private::bson::from_slice(&data)?))
                 ),*
             }
 
@@ -277,45 +211,106 @@ macro_rules! impl_session {
         );
     };
 
-    // [internal] fixed request, response type
     (
-        @methods @internal $struct_name:ident
-        $(#[$meta:meta])*
-        $vis:vis fn $name:ident(
-            $method:literal,
-            $req:ty $(,)?
-        ) -> $res:ty;
+        @internal {
+            [mode = expand_decl]
+            [struct_name = $struct_name:ident]
+            [vis = $vis:vis]
+            [method_name = $method_name:ident]
+            [method = $method:literal]
+            $([req = $req:ty])?
+            $([res = $res:ty])?
+            $([decl =
+                $([req = $req_prefix:ident $req_name:ident $($req_tt:tt)*])?
+                $([res = $res_prefix:ident $res_name:ident $($res_tt:tt)*])?
+            ])?
+        }
 
         $($tt:tt)*
     ) => {
+        $(
+            $vis mod $method_name {
+                $(
+                    pub mod request {
+                        #[allow(unused_imports)]
+                        use super::super::*;
+
+                        $crate::macros::__private::structstruck::strike!(
+                            #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize, PartialEq)]]
+
+                            #[doc = ::std::concat!(
+                                "Request data for `",
+                                ::std::stringify!($name),
+                                "` method"
+                            )]
+                            pub $req_prefix $req_name $($req_tt)*
+                        );
+                    }
+                )?
+
+                $(
+                    pub mod response {
+                        #[allow(unused_imports)]
+                        use super::super::*;
+
+                        $crate::macros::__private::structstruck::strike!(
+                            #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Deserialize, PartialEq)]]
+
+                            #[doc = ::std::concat!(
+                                "Response data for `",
+                                ::std::stringify!($name),
+                                "` method"
+                            )]
+                            pub $res_prefix $res_name $($res_tt)*
+                        );
+                    }
+                )?
+            }
+        )?
+
+        $(
+            $($vis use $method_name::request::$req_name;)?
+            $($vis use $method_name::response::$res_name;)?
+        )?
+
         impl_session!(
-            @methods @internal $struct_name
-            $(#[$meta])*
-            $vis fn $name($method, data, &$req) -> $res {
-                0 => Ok(
-                    $crate::macros::__private::bson::from_slice(&data)?
-                )
+            @internal {
+                [mode = decl_method]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $method_name]
+                [method = $method]
+                $([req = $req])?
+                $($([req = $req_name])?)?
+                $([res = $res])?
+                $($([res = $res_name])?)?
             }
 
             $($tt)*
         );
     };
 
-    // [internal] final
     (
-        @methods @internal $struct_name:ident
-        $(#[$meta:meta])*
-        $vis:vis fn $name:ident($method:literal, $data:ident, $req:ty) -> $res:ty {
+        @internal {
+            [mode = decl_method]
+            [struct_name = $struct_name:ident]
+            [vis = $vis:vis]
+            [method_name = $method_name:ident]
+            [method = $method:literal]
+            [req = $req:ty]
+            [res = $res:ty]
+        }
+
+        |$data:ident| {
             $($status:pat => $expr:expr),* $(,)?
         }
 
         $($tt:tt)*
     ) => {
         impl<'a> $struct_name<'a> {
-            $(#[$meta])*
-            $vis fn $name(
+            $vis fn $method_name(
                 self,
-                command: &'a $req,
+                req: &'a $req
             ) -> impl ::std::future::Future<Output = $crate::RequestResult<$res>> + 'a {
                 use $crate::macros::__private::{
                     loco_protocol::command::Method,
@@ -325,7 +320,7 @@ macro_rules! impl_session {
                 async move {
                     let $data = self.0.request(
                         Method::new($method).unwrap(),
-                        bson::to_vec(command)?,
+                        bson::to_vec(req)?,
                     )
                     .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
                     .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
@@ -340,6 +335,13 @@ macro_rules! impl_session {
             }
         }
 
-        impl_session!(@methods $struct_name $($tt)*);
+        impl_session!(
+            @internal {
+                [mode = start_method]
+                [struct_name = $struct_name]
+            }
+
+            $($tt)*
+        );
     };
 }
