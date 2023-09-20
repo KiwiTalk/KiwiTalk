@@ -8,6 +8,7 @@ pub mod talk;
 
 use std::{
     io::{self, ErrorKind},
+    mem,
     pin::Pin,
     task::{Context, Poll},
 };
@@ -18,7 +19,7 @@ use futures_lite::{
     ready, Future,
 };
 use loco_protocol::command::{
-    client::{LocoSink, LocoStream},
+    client::{LocoSink, LocoStream, StreamState},
     Command, Header, Method,
 };
 use serde::{Deserialize, Serialize};
@@ -34,18 +35,25 @@ pin_project_lite::pin_project!(
         sink: LocoSink,
         stream: LocoStream,
 
+        read_state: ReadState,
+
         #[pin]
         inner: T,
     }
 );
 
 impl<T> LocoClient<T> {
+    pub const MAX_READ_SIZE: u64 = 16 * 1024 * 1024;
+
     pub const fn new(inner: T) -> Self {
         Self {
             current_id: 0,
 
             sink: LocoSink::new(),
             stream: LocoStream::new(),
+
+            read_state: ReadState::Pending,
+
             inner,
         }
     }
@@ -81,21 +89,45 @@ impl<T: AsyncRead> LocoClient<T> {
         let mut this = self.project();
 
         let mut buffer = [0_u8; 1024];
-
-        Poll::Ready(loop {
-            match this.stream.read() {
-                Some(command) => break Ok(command),
-
-                None => {
-                    let read = ready!(this.inner.as_mut().poll_read(cx, &mut buffer))?;
-                    if read == 0 {
-                        break Err(ErrorKind::UnexpectedEof.into());
+        loop {
+            match mem::replace(this.read_state, ReadState::Corrupted) {
+                ReadState::Pending => match this.stream.read() {
+                    Some(command) => {
+                        *this.read_state = ReadState::Pending;
+                        break Poll::Ready(Ok(command));
                     }
 
-                    this.stream.read_buffer.extend(&buffer[..read]);
+                    None => {
+                        if let StreamState::Header(header) = this.stream.state() {
+                            if header.data_size as u64 > Self::MAX_READ_SIZE {
+                                *this.read_state = ReadState::PacketTooLarge;
+                                continue;
+                            }
+                        }
+
+                        *this.read_state = ReadState::Pending;
+
+                        let read = ready!(this.inner.as_mut().poll_read(cx, &mut buffer))?;
+                        if read == 0 {
+                            break Poll::Ready(Err(ErrorKind::UnexpectedEof.into()));
+                        }
+
+                        this.stream.read_buffer.extend(&buffer[..read]);
+                    }
+                },
+
+                ReadState::PacketTooLarge => {
+                    *this.read_state = ReadState::PacketTooLarge;
+
+                    break Poll::Ready(Err(io::Error::new(
+                        ErrorKind::InvalidData,
+                        "packet is too large",
+                    )));
                 }
+
+                ReadState::Corrupted => unreachable!(),
             }
-        })
+        }
     }
 }
 
@@ -182,6 +214,13 @@ impl<T: AsyncRead + AsyncWrite + Unpin> LocoClient<T> {
 
         Ok(read_task)
     }
+}
+
+#[derive(Debug)]
+enum ReadState {
+    Pending,
+    PacketTooLarge,
+    Corrupted,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
