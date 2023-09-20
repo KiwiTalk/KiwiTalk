@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use super::locale::Locale;
 use super::auth::AuthConfiguration;
+use super::locale::Locale;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GlobalConfiguration {
