@@ -1,7 +1,6 @@
 import { StoryFn } from 'storybook-solidjs';
-import { ComponentProps } from 'react';
 
-import { CheckBox } from '.';
+import { CheckBox, CheckBoxStatus } from '.';
 
 export default {
   title: 'KiwiTalk/CheckBox',
@@ -11,15 +10,17 @@ export default {
   },
 };
 
-type AdditionalProp = {
+type Prop = {
   label: string,
+  disabled: boolean,
   checked?: boolean,
   indeterminate?: boolean,
+
+  onInput?: (status: CheckBoxStatus) => void,
 }
 
-const Template: StoryFn<ComponentProps<typeof CheckBox> & AdditionalProp> = (args) =>
+const Template: StoryFn<Prop> = (args) =>
   <CheckBox
-    id="example"
     disabled={args.disabled}
     status={{ checked: args.checked, indeterminate: args.indeterminate }}
     onInput={args.onInput}
