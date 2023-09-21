@@ -1,9 +1,8 @@
 import { TransProvider } from '@jellybrick/solid-i18next';
-
 import { ParentProps } from 'solid-js';
-import { LangResource } from './intl';
+import { LangResource } from '../intl';
 
-const Provider = (props: ParentProps) => {
+const I18nProvider = (props: ParentProps) => {
   return (
     <TransProvider
       options={{
@@ -20,4 +19,4 @@ const Provider = (props: ParentProps) => {
   );
 };
 
-export default Provider;
+export default I18nProvider;

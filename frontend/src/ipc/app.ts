@@ -1,4 +1,5 @@
 import { tauri } from '@tauri-apps/api';
+import { GlobalConfiguration } from '../store/global';
 
 export type AppCredential = {
   access_token: string,
@@ -22,10 +23,6 @@ export type KiwiTalkClientEvent = {
 
 export function nextClientEvent(): Promise<KiwiTalkClientEvent | void> {
   return tauri.invoke<KiwiTalkClientEvent | void>('plugin:app|next_client_event');
-}
-
-export type GlobalConfiguration = {
-  locale: { type: 'Auto' } | { type: 'Fixed', value: string }
 }
 
 export function getGlobalConfiguration(): Promise<GlobalConfiguration> {

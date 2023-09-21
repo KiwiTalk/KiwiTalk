@@ -29,10 +29,8 @@ use thiserror::Error;
 
 use crate::{error::impl_tauri_error, system::SystemInfo};
 
-use self::{
-    client::{create_client, CreateClientError},
-    configuration::GlobalConfiguration,
-};
+use self::client::{create_client, CreateClientError};
+use self::configuration::global::GlobalConfiguration;
 
 type Credential = RwLock<Option<AppCredential>>;
 type Configuration = RwLock<GlobalConfiguration>;

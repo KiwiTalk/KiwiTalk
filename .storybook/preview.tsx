@@ -2,7 +2,7 @@ import i18next from 'i18next';
 import { Decorator } from 'storybook-solidjs';
 
 import type { JSX } from 'solid-js/jsx-runtime';
-import Provider from '../frontend/src/app/provider';
+import Provider from '../frontend/src/app/providers';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { Globals } from '@storybook/types';
 import { ParentProps } from 'solid-js';

@@ -8,12 +8,13 @@ import { useTransContext } from '@jellybrick/solid-i18next';
 import { errorMessage, resetText } from './index.css';
 import { styled } from '../../../utils';
 import { Match, Show, Switch, createSignal } from 'solid-js';
+import { AuthConfiguration, useConfiguration } from '../../../store/global';
 
 const ErrorMessage = styled('p', errorMessage);
 const ResetText = styled('p', resetText);
 
 export type LoginContentProp = {
-  defaultInput?: LoginFormInput,
+  input?: LoginFormInput,
   onLogin?: (data: LoginAccessData) => void
 };
 
@@ -39,18 +40,39 @@ const DEFAULT_STATE: LoginState = { type: 'login', forced: false };
 
 export const AppLoginContent = (props: LoginContentProp) => {
   const [t] = useTransContext();
+  const [config, setConfig] = useConfiguration();
 
-  let inputRef = props.defaultInput ?? {
-    email: '',
-    password: '',
-    saveId: true,
-    autoLogin: true,
+
+  const input = () => {
+    const auth = config().configuration.auth;
+
+    return props.input ?? {
+      email: auth.type !== 'None' ? (auth.email ?? '') : '',
+      password: '',
+      saveId: auth.type === 'SaveAccount',
+      autoLogin: auth.type === 'AutoLogin',
+    };
   };
 
   const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
 
   function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
-    inputRef = input;
+    let auth: AuthConfiguration = { type: 'None' };
+    if (input.saveId) {
+      auth = {
+        type: 'SaveAccount',
+        email: input.email,
+      };
+    }
+    if (input.autoLogin && res.status === 0) {
+      auth = {
+        type: 'AutoLogin',
+        email: input.email,
+        token: (res as LoginAccessData).access_token,
+      };
+    }
+
+    setConfig({ auth });
 
     if (res.status === 0) {
       props.onLogin?.(res as LoginAccessData);
@@ -102,7 +124,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
     <Switch>
       <Match when={state().type === 'login'}>
         <LoginContent
-          defaultInput={inputRef}
+          input={input()}
           forced={(state() as LoginStateDefault).forced}
           onSubmit={onLoginSubmit}
           onError={onError}
@@ -110,7 +132,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
       </Match>
       <Match when={state().type === 'device_register'}>
         <DeviceRegisterContent
-          input={inputRef}
+          input={input()}
           onSubmit={onRegisterTypeSelected}
           onError={onError}
         />
@@ -118,7 +140,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
       <Match when={state().type === 'passcode'}>
         <PasscodeContent
           registerType={(state() as LoginStatePasscode).registerType}
-          input={inputRef}
+          input={input()}
           onSubmit={onPasscodeSubmit}
           onError={onError}
         />
