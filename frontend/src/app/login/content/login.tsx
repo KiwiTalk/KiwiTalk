@@ -3,7 +3,7 @@ import { login, LoginAccessData, TalkResponseStatus } from '../../../ipc/auth';
 import { createResource, createSignal } from 'solid-js';
 
 export type LoginContentProp = {
-  defaultInput?: Partial<LoginFormInput>,
+  input?: Partial<LoginFormInput>,
   forced?: boolean,
 
   onSubmit?: (input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) => void,
@@ -25,5 +25,5 @@ export const LoginContent = (props: LoginContentProp) => {
     }
   });
 
-  return <LoginForm defaultInput={props.defaultInput} onSubmit={setFormInput} />;
+  return <LoginForm input={props.input} onSubmit={setFormInput} />;
 };

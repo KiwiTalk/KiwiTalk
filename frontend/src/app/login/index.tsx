@@ -9,14 +9,14 @@ import { styled } from '../../utils';
 import { ParentProps } from 'solid-js';
 
 export type AppLoginProp = {
-  defaultInput?: LoginFormInput,
+  input?: LoginFormInput,
 
   onLogin?: (data: LoginAccessData) => void
 }
 
 export const AppLogin = (props: AppLoginProp) => {
   return <Window>
-    <AppLoginContent defaultInput={props.defaultInput} onLogin={props.onLogin} />
+    <AppLoginContent input={props.input} onLogin={props.onLogin} />
   </Window>;
 };
 

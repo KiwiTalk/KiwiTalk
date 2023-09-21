@@ -60,6 +60,7 @@
     "@tauri-apps/api": "1.4.0",
     "@vanilla-extract/css": "^1.13.0",
     "@vanilla-extract/dynamic": "^2.0.3",
+    "deepmerge-ts": "^5.1.0",
     "html-parse-string": "^0.0.9",
     "i18next": "23.5.1",
     "solid-js": "^1.7.11"
