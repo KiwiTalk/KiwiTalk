@@ -1,6 +1,7 @@
 import { StoryFn } from 'storybook-solidjs';
 
 import { Button } from '.';
+import { ComponentProps } from 'solid-js';
 
 export default {
   title: 'KiwiTalk/Button',
@@ -10,7 +11,7 @@ export default {
   },
 };
 
-const Template: StoryFn<typeof Button> = (args) =>
+const Template: StoryFn<ComponentProps<typeof Button> & { text: string }> = (args) =>
   <Button disabled={args.disabled} onClick={args.onClick}>
     {args.text}
   </Button>;
