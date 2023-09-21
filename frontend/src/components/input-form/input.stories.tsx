@@ -16,7 +16,7 @@ const Template: StoryFn<typeof InputForm> = (args) =>
   <InputForm
     icon={args.icon}
     disabled={args.disabled}
-    defaultValue={args.defaultValue}
+    value={args.value}
     placeholder={args.placeholder}
     onInput={args.onInput}
   />;
@@ -25,14 +25,14 @@ export const Default = Template.bind({});
 Default.args = {
   icon: <IconAccountCircle />,
   disabled: false,
-  defaultValue: 'Sample input',
+  value: 'Sample input',
   placeholder: 'Placeholder',
 };
 
 export const WithoutIcon = Template.bind({});
 WithoutIcon.args = {
   disabled: false,
-  defaultValue: 'Sample input',
+  value: 'Sample input',
   placeholder: 'Placeholder',
 };
 
@@ -47,6 +47,6 @@ export const Disabled = Template.bind({});
 Disabled.args = {
   icon: <IconAccountCircle />,
   disabled: true,
-  defaultValue: 'Disabled input',
+  value: 'Disabled input',
   placeholder: 'Placeholder',
 };

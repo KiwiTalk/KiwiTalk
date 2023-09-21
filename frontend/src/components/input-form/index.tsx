@@ -1,4 +1,4 @@
-import { JSX, Show, createSignal } from 'solid-js';
+import { JSX, Show, createEffect, createSignal } from 'solid-js';
 import { styled } from '../../utils';
 import { iconContainer, innerWrapper, input, inputBox } from './index.css';
 
@@ -23,7 +23,10 @@ type InputProp = {
 }
 
 export const InputForm = (props: InputProp) => {
-  const [activated, setActivated] = createSignal(!!props.value);
+  const [activated, setActivated] = createSignal(false);
+  createEffect(() => {
+    setActivated(!!props.value);
+  });
 
   function onInputHandler(element: HTMLInputElement) {
     if (props.maxLength && element.value.length > props.maxLength) {
@@ -35,8 +38,7 @@ export const InputForm = (props: InputProp) => {
   }
 
   function activateHandler(input: HTMLInputElement, shouldActivate: boolean) {
-    const nextState = !!input.value || shouldActivate;
-    if (activated() !== nextState) setActivated(nextState);
+    setActivated(shouldActivate || !!input.value);
   }
 
   return <InputBox
