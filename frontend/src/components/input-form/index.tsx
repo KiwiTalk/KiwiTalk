@@ -1,4 +1,4 @@
-import { JSX, Show, createSignal } from 'solid-js';
+import { JSX, Show, createEffect, createSignal } from 'solid-js';
 import { styled } from '../../utils';
 import { iconContainer, innerWrapper, input, inputBox } from './index.css';
 
@@ -23,25 +23,31 @@ type InputProp = {
 }
 
 export const InputForm = (props: InputProp) => {
-  const [activated, setActivated] = createSignal(!!props.value);
+  const [focused, setFocused] = createSignal(false);
+  const [value, setValue] = createSignal('');
+
+  createEffect(() => {
+    if (props.value != null) {
+      setValue(props.value);
+    }
+  });
 
   function onInputHandler(element: HTMLInputElement) {
-    if (props.maxLength && element.value.length > props.maxLength) {
-      element.value = element.value.slice(0, props.maxLength);
-      return;
+    try {
+      if (props.maxLength && element.value.length > props.maxLength) {
+        element.value = element.value.slice(0, props.maxLength);
+        return;
+      }
+    } finally {
+      setValue(element.value);
     }
 
     props.onInput?.(element.value);
   }
 
-  function activateHandler(input: HTMLInputElement, shouldActivate: boolean) {
-    const nextState = !!input.value || shouldActivate;
-    if (activated() !== nextState) setActivated(nextState);
-  }
-
   return <InputBox
     data-disabled={props.disabled}
-    data-activated={activated()}
+    data-activated={!!value() || focused()}
     class={props.class}
   >
     <InnerWrapper>
@@ -51,12 +57,12 @@ export const InputForm = (props: InputProp) => {
       <Input
         name={props.name}
         type={props.type}
-        value={props.value}
+        value={value()}
         placeholder={props.placeholder}
         disabled={props.disabled}
         maxLength={props.maxLength}
-        onFocus={(e) => activateHandler(e.currentTarget, true)}
-        onBlur={(e) => activateHandler(e.currentTarget, false)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         onInput={(e) => onInputHandler(e.currentTarget)}
       />
     </InnerWrapper>
