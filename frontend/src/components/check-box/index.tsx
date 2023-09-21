@@ -25,48 +25,59 @@ export type CheckBoxProp = ParentProps<{
   class?: string
 }>;
 
+type CheckBoxState = 'none' | 'checked' | 'indeterminate';
+
 export const CheckBox = (props: CheckBoxProp) => {
-  const [currentStatus, setCurrentStatus] = createSignal<CheckBoxStatus>({
-    checked: props.status?.checked ?? false,
-    indeterminate: props.status?.indeterminate ?? false,
-  });
+  const [state, setState] = createSignal<CheckBoxState>('none');
 
   function onInputChanged(input: HTMLInputElement) {
-    const nextStatus = {
+    props.onInput?.({
       checked: input.checked,
       indeterminate: input.indeterminate,
-    };
+    });
 
-    props.onInput?.(nextStatus);
-    setCurrentStatus(nextStatus);
+    if (input.indeterminate) {
+      setState('indeterminate');
+    } else if (input.checked) {
+      setState('checked');
+    } else {
+      setState('none');
+    }
   }
 
   createEffect(() => {
-    setCurrentStatus({
-      checked: props.status?.checked ?? false,
-      indeterminate: props.status?.indeterminate ?? false,
-    });
+    if (props.status) {
+      if (props.status.indeterminate) {
+        setState('indeterminate');
+      } else if (props.status.checked) {
+        setState('checked');
+      } else {
+        setState('none');
+      }
+    }
   });
 
   return <CheckBoxContainer data-disabled={props.disabled} class={props.class}>
     <CheckBoxLabel>
       <CheckBoxInput
         name={props.name}
-        checked={currentStatus().checked}
+        checked={state() === 'checked'}
         disabled={props.disabled}
         type="checkbox"
         ref={(ref) => {
-          if (!ref) return;
-          ref.indeterminate = currentStatus().indeterminate || false;
+          ref.indeterminate = state() === 'indeterminate';
         }}
         onInput={(e) => onInputChanged(e.currentTarget)}
       />
       <IconContainer>
-        <Switch fallback={<CheckBoxOutlineBlankSvg />}>
-          <Match when={currentStatus().indeterminate}>
+        <Switch>
+          <Match when={state() === 'none'}>
+            <CheckBoxOutlineBlankSvg />
+          </Match>
+          <Match when={state() === 'indeterminate'}>
             <CheckBoxIndeterminateSvg />
           </Match>
-          <Match when={currentStatus().checked}>
+          <Match when={state() === 'checked'}>
             <CheckBoxIconSvg />
           </Match>
         </Switch>
@@ -75,4 +86,3 @@ export const CheckBox = (props: CheckBoxProp) => {
     </CheckBoxLabel>
   </CheckBoxContainer>;
 };
-
