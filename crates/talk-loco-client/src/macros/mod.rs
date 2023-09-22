@@ -271,6 +271,7 @@ macro_rules! impl_session {
 
                         $crate::macros::__private::structstruck::strike!(
                             #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize, PartialEq)]]
+                            #[strikethrough[$crate::macros::__private::serde_with::skip_serializing_none]]
 
                             #[doc = ::std::concat!(
                                 "Request data for `",
