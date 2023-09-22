@@ -3,7 +3,7 @@ use serde_with::skip_serializing_none;
 
 /// Chat
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Chatlog {
     /// Chatlog id
     #[serde(rename = "logId")]
