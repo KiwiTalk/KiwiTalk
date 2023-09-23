@@ -12,7 +12,7 @@ use std::{io, pin::pin};
 use channel::{normal::ClientNormalChannel, user::UserId, ChannelId, ClientChannel};
 use config::ClientConfig;
 use database::pool::DatabasePool;
-use error::KiwiTalkClientError;
+use error::ClientError;
 use futures::{AsyncRead, AsyncWrite, StreamExt, TryStreamExt};
 use status::ClientStatus;
 use talk_loco_client::{
@@ -158,4 +158,4 @@ pub struct ClientCredential<'a> {
     pub user_id: Option<i64>,
 }
 
-pub type ClientResult<T> = Result<T, KiwiTalkClientError>;
+pub type ClientResult<T> = Result<T, ClientError>;
