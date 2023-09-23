@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use talk_loco_command::structs::user::User;
+use talk_loco_client::structs::user::User;
 
 use crate::channel::user::{UserData, UserProfile};
 

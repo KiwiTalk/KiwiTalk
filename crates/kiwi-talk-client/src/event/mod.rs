@@ -5,13 +5,13 @@ use std::error::Error;
 use serde::{Deserialize, Serialize, Serializer};
 use talk_loco_client::command::Command;
 
-use crate::handler::error::ClientHandlerError;
+use crate::handler::error::HandlerError;
 
 use self::channel::ChannelEvent;
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "data")]
-pub enum KiwiTalkClientEvent {
+pub enum ClientEvent {
     /// Channel event
     Channel(ChannelEvent),
 
@@ -24,16 +24,16 @@ pub enum KiwiTalkClientEvent {
     Unhandled(EventCommand),
 
     #[serde(serialize_with = "serialize_error_to_string")]
-    Error(ClientHandlerError),
+    Error(HandlerError),
 }
 
-impl From<ClientHandlerError> for KiwiTalkClientEvent {
-    fn from(err: ClientHandlerError) -> Self {
+impl From<HandlerError> for ClientEvent {
+    fn from(err: HandlerError) -> Self {
         Self::Error(err)
     }
 }
 
-impl From<ChannelEvent> for KiwiTalkClientEvent {
+impl From<ChannelEvent> for ClientEvent {
     fn from(channel_event: ChannelEvent) -> Self {
         Self::Channel(channel_event)
     }

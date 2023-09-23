@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use talk_loco_command::structs::chat::Chatlog as LocoChatlog;
+use talk_loco_client::structs::chat::Chatlog as LocoChatlog;
 
 use crate::channel::{user::UserId, ChannelId};
 

@@ -1,5 +1,5 @@
+use arrayvec::ArrayVec;
 use rusqlite::{Connection, OptionalExtension, Row};
-use smallvec::SmallVec;
 
 use crate::channel::{
     normal::user::NormalUserInfo,
@@ -95,7 +95,7 @@ impl NormalUserEntry<'_> {
     pub fn get_display_users_in(
         &self,
         id: ChannelId,
-    ) -> Result<SmallVec<[DisplayUser; 4]>, rusqlite::Error> {
+    ) -> Result<ArrayVec<DisplayUser, 4>, rusqlite::Error> {
         let mut statement = self
             .0
             .prepare(
