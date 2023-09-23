@@ -17,7 +17,6 @@ serde_with = "3.3.0"
 tokio = { version = "1", features = ["sync"] }
 bson = "2.7.0"
 nohash-hasher = "0.2.0"
-talk-loco-command = { path = "../talk-loco-command" }
 loco-protocol = "6.3.1"
 
 thiserror = "1.0"

@@ -4,7 +4,7 @@ pub mod request {
 
     #[skip_serializing_none]
     #[derive(Debug, Clone, Serialize, PartialEq)]
-    pub struct WriteReq<'a> {
+    pub struct WriteChatReq<'a> {
         /// Chatroom id
         #[serde(rename = "chatId")]
         pub chat_id: i64,
@@ -51,7 +51,7 @@ pub mod response {
 
     #[skip_serializing_none]
     #[derive(Debug, Clone, Deserialize, PartialEq)]
-    pub struct WriteRes {
+    pub struct WriteChatRes {
         /// Chatroom id
         #[serde(rename = "chatId")]
         pub chat_id: i64,

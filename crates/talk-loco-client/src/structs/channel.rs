@@ -4,7 +4,7 @@ use serde_with::skip_serializing_none;
 use super::{chat::Chatlog, openlink::OpenLinkId, user::DisplayUserInfo};
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChannelInfo {
     /// Chatroom id
     #[serde(rename = "chatId")]
@@ -85,7 +85,7 @@ pub struct ChannelInfo {
 ///
 /// serde does not support integer tag yet. We will switch to enum as fast as the support added.
 /// Check serde#745
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ChannelMeta {
     /// Meta type. See [ChannelMetaType] for predefined types.
     #[serde(rename = "type")]

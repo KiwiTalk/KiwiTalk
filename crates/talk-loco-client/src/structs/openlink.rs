@@ -77,7 +77,7 @@ pub struct OpenKickedUserInfo {
 
 /// Openchat user
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OpenUser {
     #[serde(rename = "userId")]
     pub user_id: i64,
@@ -112,7 +112,7 @@ pub struct OpenUser {
 
 /// Openlink user. Dont confuse with OpenUser.
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct OpenLinkUser {
     #[serde(rename = "userId")]
     pub user_id: i64,
