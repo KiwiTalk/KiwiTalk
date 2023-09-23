@@ -128,6 +128,40 @@ macro_rules! impl_session {
         );
     };
 
+    // fixed request type, declared response type
+    (
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
+        $(#[$meta:meta])*
+        $vis:vis fn $name:ident(
+            $method:literal,
+            $req:ty $(,)?
+        ) -> $res_prefix:ident $res_name:ident $(<$($res_generics:tt),*>)? $(where $($res_where:tt),*)? { $($res_tt:tt)* };
+
+        $($tt:tt)*
+    ) => {
+        impl_session!(
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [req = $req]
+                [decl = [res = $res_prefix $res_name $(<$($res_generics),*>)? $(where $($res_where),*)? { $($res_tt)* }]]
+            }
+
+            |data| {
+                0 => Ok($crate::macros::__private::bson::from_slice(&data)?)
+            }
+
+            $($tt)*
+        );
+    };
+
     // declared request type, fixed response type
     (
         @internal {
