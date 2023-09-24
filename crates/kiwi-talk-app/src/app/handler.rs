@@ -53,7 +53,7 @@ async fn handle_read(
             .await
             .context("error while handling event")?;
 
-        let _ = tx.send(Ok(event));
+        let _ = tx.send(Ok(event)).await;
     }
 
     Ok(())
