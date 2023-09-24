@@ -37,6 +37,6 @@ export const AppMain = ({
       </Switch>
       <Profile {...profile} />
     </SideMenuContainer>
-    <ChatWindowPlaceholder>{t(`main.chat.empty.${menu}`)}</ChatWindowPlaceholder>
+    <ChatWindowPlaceholder>{t(`main.chat.empty.${menu()}`)}</ChatWindowPlaceholder>
   </AppWindow>;
 };
