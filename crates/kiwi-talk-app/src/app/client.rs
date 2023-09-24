@@ -1,21 +1,19 @@
-use std::{pin::Pin, task::Poll};
+use std::task::Poll;
 
 use anyhow::{anyhow, Context};
-use futures::{future::poll_fn, AsyncRead, AsyncWrite, StreamExt};
+use futures::{future::poll_fn, StreamExt};
 use kiwi_talk_client::{
-    config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
-    handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
+    config::ClientConfig, database::pool::DatabasePool, event::ClientEvent, ClientCredential,
+    ClientStatus, KiwiTalkSession,
 };
 use parking_lot::RwLock;
-use talk_loco_client::{
-    session::{LocoSession, LocoSessionStream},
-    LocoClient,
-};
+use talk_loco_client::{session::LocoSession, LocoClient};
 use tauri::{AppHandle, Manager, Runtime, State};
+use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{result::TauriResult, system::SystemInfo};
 
-use super::{conn::checkin, stream::create_secure_stream, Credential};
+use super::{conn::checkin, handler::run_handler, stream::create_secure_stream, Credential};
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 
 type Client = RwLock<Option<ClientApp>>;
@@ -24,14 +22,16 @@ pub(super) fn setup(handle: &AppHandle<impl Runtime>) {
     handle.manage(Client::new(None));
 }
 
-trait AsyncStream: AsyncRead + AsyncWrite {}
-impl<T: AsyncRead + AsyncWrite> AsyncStream for T {}
-
-type BoxedLocoSessionStream = LocoSessionStream<Pin<Box<dyn AsyncStream + Send + Sync>>>;
-
 pub struct ClientApp {
     session: KiwiTalkSession,
-    stream: BoxedLocoSessionStream,
+    event_rx: mpsc::Receiver<anyhow::Result<ClientEvent>>,
+    stream_task: JoinHandle<()>,
+}
+
+impl Drop for ClientApp {
+    fn drop(&mut self) {
+        self.stream_task.abort();
+    }
 }
 
 #[tauri::command(async)]
@@ -54,34 +54,71 @@ pub(super) async fn initialize_client(
 
     let checkin = checkin(credential.user_id.unwrap_or(1)).await?;
 
-    let (session, stream) = LocoSession::new(LocoClient::new(Box::pin(
+    let (session, mut stream) = LocoSession::new(LocoClient::new(
         create_secure_stream((checkin.host.as_str(), checkin.port as u16))
             .await
             .context("failed to create secure stream")?,
-    ) as _));
+    ));
 
-    let session = KiwiTalkSession::login(
+    let mut stream_buffer = Vec::new();
+
+    let session = {
+        let login_task = async {
+            KiwiTalkSession::login(
+                session,
+                pool,
+                ClientConfig {
+                    os: TALK_OS,
+                    net_type: TALK_NET_TYPE,
+                    app_version: TALK_VERSION,
+                    mccmnc: TALK_MCCMNC,
+                    language: info.device_info.language(),
+                    device_type: TALK_DEVICE_TYPE,
+                },
+                ClientCredential {
+                    access_token: &credential.access_token,
+                    device_uuid: info.device_info.device_uuid.as_str(),
+                    user_id: credential.user_id,
+                },
+                status,
+            )
+            .await
+            .context("failed to login")
+        };
+
+        let stream_task = async {
+            while let Some(read) = stream.next().await {
+                let read = read?;
+
+                stream_buffer.push(read);
+            }
+
+            Ok::<_, anyhow::Error>(())
+        };
+
+        tokio::select! {
+            session = login_task => session?,
+            res = stream_task => {
+                res?;
+                unreachable!();
+            }
+        }
+    };
+
+    let (event_tx, event_rx) = mpsc::channel(100);
+
+    let stream_task = tokio::spawn(run_handler(
+        session.clone(),
+        stream_buffer,
+        stream,
+        event_tx,
+    ));
+
+    *client.write() = Some(ClientApp {
         session,
-        pool,
-        ClientConfig {
-            os: TALK_OS,
-            net_type: TALK_NET_TYPE,
-            app_version: TALK_VERSION,
-            mccmnc: TALK_MCCMNC,
-            language: info.device_info.language(),
-            device_type: TALK_DEVICE_TYPE,
-        },
-        ClientCredential {
-            access_token: &credential.access_token,
-            device_uuid: info.device_info.device_uuid.as_str(),
-            user_id: credential.user_id,
-        },
-        status,
-    )
-    .await
-    .context("failed to login")?;
-
-    *client.write() = Some(ClientApp { session, stream });
+        event_rx,
+        stream_task,
+    });
 
     Ok(())
 }
@@ -90,42 +127,22 @@ pub(super) async fn initialize_client(
 pub(super) async fn next_client_event(
     client: State<'_, Client>,
 ) -> TauriResult<Option<ClientEvent>> {
-    loop {
-        let read = poll_fn(|cx| {
-            let mut client = client.write();
+    let event = poll_fn(|cx| {
+        let mut client = client.write();
 
-            let client = match &mut *client {
-                Some(client) => client,
-                None => return Poll::Ready(None),
-            };
-
-            client.stream.poll_next_unpin(cx)
-        })
-        .await;
-        let read = match read {
-            Some(read) => read.context("error while reading from stream")?,
-            None => return Ok(None),
+        let client = match &mut *client {
+            Some(client) => client,
+            None => return Poll::Ready(None),
         };
 
-        let handler = {
-            let client = client.read();
-            let client = match &*client {
-                Some(client) => client,
-                None => return Ok(None),
-            };
+        client.event_rx.poll_recv(cx)
+    })
+    .await;
 
-            SessionHandler::new(&client.session)
-        };
-
-        let event = handler
-            .handle(&read)
-            .await
-            .context("error while handling read command")?;
-
-        if let Some(event) = event {
-            return Ok(Some(event));
-        }
-    }
+    Ok(match event {
+        Some(res) => Some(res?),
+        None => None,
+    })
 }
 
 #[tauri::command(async)]
