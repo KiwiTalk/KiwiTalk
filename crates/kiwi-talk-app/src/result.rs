@@ -18,7 +18,7 @@ impl Serialize for TauriAnyhowError {
         S: serde::Serializer,
     {
         let mut error = String::new();
-        write!(error, "{:#}", self.0).unwrap();
+        write!(error, "{:?}", self.0).unwrap();
 
         serializer.serialize_str(&error)
     }
