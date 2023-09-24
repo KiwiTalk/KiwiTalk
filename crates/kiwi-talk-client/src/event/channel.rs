@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    channel::{user::UserId, ChannelId},
+    channel::user::UserId,
     chat::{Chatlog, LogId},
 };
 
@@ -14,7 +14,6 @@ pub enum ChannelEvent {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatReceived {
-    pub channel_id: ChannelId,
     pub link_id: Option<i64>,
 
     pub log_id: LogId,
@@ -24,9 +23,6 @@ pub struct ChatReceived {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatRead {
-    /// Channel id
-    pub channel_id: ChannelId,
-
     /// Read user id
     pub user_id: UserId,
 
