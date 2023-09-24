@@ -20,10 +20,6 @@ pub struct Msg {
     #[serde(rename = "chatId")]
     pub chat_id: i64,
 
-    /// Sent chat log id
-    #[serde(rename = "logId")]
-    pub log_id: i64,
-
     #[serde(rename = "chatLog")]
     pub chatlog: Chatlog,
 

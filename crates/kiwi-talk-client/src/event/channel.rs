@@ -11,7 +11,6 @@ pub enum ChannelEvent {
     Chat {
         link_id: Option<i64>,
 
-        log_id: LogId,
         user_nickname: Option<String>,
         chat: Chatlog,
     },
