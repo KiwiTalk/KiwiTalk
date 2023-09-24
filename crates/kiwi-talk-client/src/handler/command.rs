@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::chat::Chatlog;
+use talk_loco_client::structs::chat::Chatlog as LocoChatlog;
 
 /// Send before server disconnect connection
 #[derive(Debug, Clone, Deserialize)]
@@ -25,7 +25,7 @@ pub struct Msg {
     pub log_id: i64,
 
     #[serde(rename = "chatLog")]
-    pub chatlog: Chatlog,
+    pub chatlog: LocoChatlog,
 
     /// Sender nickname
     #[serde(rename = "authorNickname")]

@@ -11,7 +11,7 @@ use crate::{
         pool::DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
-    KiwiTalkSession,
+    KiwiTalkSession, chat::Chatlog,
 };
 
 use self::{
@@ -69,10 +69,12 @@ async fn on_switch_server(_: &SessionHandler, _: ()) -> HandlerResult {
 }
 
 async fn on_chat(handler: &SessionHandler, msg: Msg) -> HandlerResult {
+    let chat = Chatlog::from(msg.chatlog);
+
     handler
         .pool
         .spawn_task({
-            let chatlog = msg.chatlog.clone();
+            let chatlog = chat.clone();
 
             |connection| {
                 connection.chat().insert(&ChatModel {
@@ -93,7 +95,7 @@ async fn on_chat(handler: &SessionHandler, msg: Msg) -> HandlerResult {
 
             log_id: msg.log_id,
             user_nickname: msg.author_nickname,
-            chat: msg.chatlog,
+            chat,
         },
     }))
 }
