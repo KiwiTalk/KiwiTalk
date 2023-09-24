@@ -1,10 +1,10 @@
 use std::task::Poll;
 
 use anyhow::{anyhow, Context};
-use futures::{future::poll_fn, StreamExt};
+use futures::{future::poll_fn, stream, StreamExt};
 use kiwi_talk_client::{
-    config::ClientConfig, database::pool::DatabasePool, event::ClientEvent, ClientCredential,
-    ClientStatus, KiwiTalkSession,
+    config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
+    handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
 };
 use parking_lot::RwLock;
 use talk_loco_client::{session::LocoSession, LocoClient};
@@ -41,10 +41,10 @@ pub(super) async fn initialize_client(
     client: State<'_, Client>,
     info: State<'_, SystemInfo>,
 ) -> TauriResult<()> {
-    let credential = match credential.read().clone() {
-        Some(credential) => credential,
-        None => Err(anyhow!("credential is not set"))?,
-    };
+    let credential = credential
+        .read()
+        .clone()
+        .ok_or_else(|| anyhow!("credential is not set"))?;
 
     let pool = DatabasePool::file("file:memdb?mode=memory&cache=shared")
         .context("failed to open database")?;
@@ -107,12 +107,16 @@ pub(super) async fn initialize_client(
 
     let (event_tx, event_rx) = mpsc::channel(100);
 
-    let stream_task = tokio::spawn(run_handler(
-        session.clone(),
-        stream_buffer,
-        stream,
-        event_tx,
-    ));
+    let handler = SessionHandler::new(&session);
+
+    run_handler(
+        handler.clone(),
+        stream::iter(stream_buffer).map(|command| Ok(command)),
+        event_tx.clone(),
+    )
+    .await;
+
+    let stream_task = tokio::spawn(run_handler(handler, stream, event_tx));
 
     *client.write() = Some(ClientApp {
         session,
