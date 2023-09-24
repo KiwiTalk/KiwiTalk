@@ -1,6 +1,7 @@
 mod client;
 mod configuration;
 mod conn;
+mod handler;
 mod stream;
 
 use parking_lot::RwLock;
@@ -25,12 +26,10 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
         })
         .invoke_handler(generate_handler![
             set_credential,
-            
             client::initialize_client,
             client::next_client_event,
             client::client_user_id,
             client::destroy_client,
-
             configuration::get_global_configuration,
             configuration::set_global_configuration
         ])
