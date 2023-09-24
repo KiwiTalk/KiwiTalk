@@ -9,10 +9,6 @@ import PersonAddSvg from './icons/person_add.svg';
 export const FriendMenu = () => {
   const [t] = useTransContext();
 
-  // See https://github.com/i18next/react-i18next/issues/1571
-  const friend: string = t('main.menu.friend.name');
-  const channel: string = t('main.menu.friend.channel');
-
   return <AppSideMenu
     name={t('main.menu.friend.name')}
     headContents={
@@ -25,9 +21,16 @@ export const FriendMenu = () => {
         </SideButton>
       </>
     }>
-    <SideMenuGroupList icon={<ChatOutlineSvg />} name={channel}>
+    <SideMenuGroupList
+      icon={<ChatOutlineSvg />}
+      name={t('main.menu.friend.channel')}
+    >
     </SideMenuGroupList>
-    <SideMenuGroupList icon={<PeopleAltOutlineSvg />} name={friend} defaultExpanded={true}>
+    <SideMenuGroupList
+      icon={<PeopleAltOutlineSvg />}
+      name={t('main.menu.friend.name')}
+      defaultExpanded={true}
+    >
     </SideMenuGroupList>
   </AppSideMenu>;
 };

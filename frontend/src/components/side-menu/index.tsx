@@ -25,7 +25,7 @@ export const SideMenu = (props: SideMenuProp) => {
 
   return <Container class={props.class}>
     <Head>
-      <Name>{name}</Name>
+      <Name>{props.name}</Name>
       <Show when={props.headContents}>
         <HeadContainer>
           {props.headContents}
