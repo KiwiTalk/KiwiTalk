@@ -1,10 +1,10 @@
 use futures::{stream::FuturesUnordered, TryStreamExt};
-use talk_loco_command::structs::channel_info::ChannelListData;
+use talk_loco_client::talk::load_channel_list::response::ChannelListData;
 
 use crate::{
     database::channel::{normal::NormalChannelDatabaseExt, ChannelDatabaseExt},
     error::KiwiTalkClientError,
-    ClientConnection, ClientResult,
+    ClientResult,
 };
 
 use super::{

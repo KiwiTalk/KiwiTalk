@@ -5,7 +5,7 @@ use super::openlink::OpenUser;
 
 /// Minimal user info for chatroom display
 #[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DisplayUserInfo {
     /// User id
     #[serde(rename = "userId")]
@@ -25,7 +25,7 @@ pub struct DisplayUserInfo {
 }
 
 /// User
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct User {
     #[serde(rename = "userId")]
     pub user_id: i64,
@@ -61,7 +61,7 @@ pub struct User {
     pub suspended: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum UserVariant {
     Normal(User),

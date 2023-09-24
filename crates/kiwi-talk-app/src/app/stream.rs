@@ -10,8 +10,6 @@ use tokio::{
 use tokio_native_tls::{native_tls, TlsConnector, TlsStream};
 use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
 
-use crate::error::impl_tauri_error;
-
 pub static LOCO_SECURE_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
     RsaPublicKey::new(
         BigUint::from_bytes_be(&[
@@ -69,5 +67,3 @@ pub enum TlsIoError {
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
 }
-
-impl_tauri_error!(TlsIoError);

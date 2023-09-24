@@ -4,10 +4,10 @@ use thiserror::Error;
 use crate::database::pool::PoolTaskError;
 
 #[derive(Debug, Error)]
-pub enum KiwiTalkClientError {
-    #[error("request failed. {0}")]
+pub enum ClientError {
+    #[error(transparent)]
     Request(#[from] RequestError),
 
-    #[error("database operation failed. {0}")]
+    #[error(transparent)]
     Database(#[from] PoolTaskError),
 }

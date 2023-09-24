@@ -70,7 +70,7 @@ macro_rules! impl_session {
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
+            $req_prefix:ident $req_name:ident $(<$($req_generics:tt),*>)? $(where $($req_where:tt),*)? { $($req_tt:tt)* } $(,)?
         );
 
         $($tt:tt)*
@@ -83,11 +83,79 @@ macro_rules! impl_session {
                 [method_name = $name]
                 [method = $method]
                 [res = ()]
-                [decl = [req = $req_prefix $req_name { $($req_tt)* }]]
+                [decl = [req = $req_prefix $req_name $(<$($req_generics),*>)? $(where $($req_where),*)? { $($req_tt)* } ]]
             }
 
             |data| {
                 0 => Ok(())
+            }
+
+            $($tt)*
+        );
+    };
+
+    // fixed request type, fixed response type
+    (
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
+        $(#[$meta:meta])*
+        $vis:vis fn $name:ident(
+            $method:literal,
+            $req:ty $(,)?
+        ) -> $res:ty;
+
+        $($tt:tt)*
+    ) => {
+        impl_session!(
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [req = $req]
+                [res = $res]
+            }
+
+            |data| {
+                0 => Ok($crate::macros::__private::bson::from_slice(&data)?)
+            }
+
+            $($tt)*
+        );
+    };
+
+    // fixed request type, declared response type
+    (
+        @internal {
+            [mode = start_method]
+            [struct_name = $struct_name:ident]
+        }
+
+        $(#[$meta:meta])*
+        $vis:vis fn $name:ident(
+            $method:literal,
+            $req:ty $(,)?
+        ) -> $res_prefix:ident $res_name:ident $(<$($res_generics:tt),*>)? $(where $($res_where:tt),*)? { $($res_tt:tt)* };
+
+        $($tt:tt)*
+    ) => {
+        impl_session!(
+            @internal {
+                [mode = expand_decl]
+                [struct_name = $struct_name]
+                [vis = $vis]
+                [method_name = $name]
+                [method = $method]
+                [req = $req]
+                [decl = [res = $res_prefix $res_name $(<$($res_generics),*>)? $(where $($res_where),*)? { $($res_tt)* }]]
+            }
+
+            |data| {
+                0 => Ok($crate::macros::__private::bson::from_slice(&data)?)
             }
 
             $($tt)*
@@ -104,7 +172,7 @@ macro_rules! impl_session {
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
+            $req_prefix:ident $req_name:ident $(<$($req_generics:tt),*>)? $(where $($req_where:tt),*)? { $($req_tt:tt)* } $(,)?
         ) -> $res:ty;
 
         $($tt:tt)*
@@ -117,7 +185,7 @@ macro_rules! impl_session {
                 [method_name = $name]
                 [method = $method]
                 [res = $res]
-                [decl = [req = $req_prefix $req_name { $($req_tt)* }]]
+                [decl = [req = $req_prefix $req_name $(<$($req_generics),*>)? $(where $($req_where),*)? { $($req_tt)* }]]
             }
 
             |data| {
@@ -138,8 +206,8 @@ macro_rules! impl_session {
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
-        ) -> $res_prefix:ident $res_name:ident { $($res_tt:tt)* };
+            $req_prefix:ident $req_name:ident $(<$($req_generics:tt),*>)? $(where $($req_where:tt),*)? { $($req_tt:tt)* } $(,)?
+        ) -> $res_prefix:ident $res_name:ident $(<$($res_generics:tt),*>)? $(where $($res_where:tt),*)? { $($res_tt:tt)* };
 
         $($tt:tt)*
     ) => {
@@ -151,8 +219,8 @@ macro_rules! impl_session {
                 [method_name = $name]
                 [method = $method]
                 [decl =
-                    [req = $req_prefix $req_name { $($req_tt)* }]
-                    [res = $res_prefix $res_name { $($res_tt)* }]
+                    [req = $req_prefix $req_name $(<$($req_generics),*>)? $(where $($req_where),*)? { $($req_tt)* }]
+                    [res = $res_prefix $res_name $(<$($res_generics),*>)? $(where $($res_where),*)? { $($res_tt)* }]
                 ]
             }
 
@@ -174,7 +242,7 @@ macro_rules! impl_session {
         $(#[$meta:meta])*
         $vis:vis fn $name:ident(
             $method:literal,
-            $req_prefix:ident $req_name:ident { $($req_tt:tt)* } $(,)?
+            $req_prefix:ident $req_name:ident $(<$($req_generics:tt),*>)? $(where $($req_where:tt),*)? { $($req_tt:tt)* } $(,)?
         ) -> $res_name:ident {
             $(
                 $(#[$status_meta:meta])*
@@ -194,7 +262,7 @@ macro_rules! impl_session {
                 [method_name = $name]
                 [method = $method]
                 [decl =
-                    [req = $req_prefix $req_name { $($req_tt)* }]
+                    [req = $req_prefix $req_name $(<$($req_generics),*>)? $(where $($req_where),*)? { $($req_tt)* }]
                     [res = enum $res_name {
                         $($variant_name($variant_prefix { $($variant_tt)* })),*
                     }]
@@ -237,6 +305,7 @@ macro_rules! impl_session {
 
                         $crate::macros::__private::structstruck::strike!(
                             #[strikethrough[derive(Debug, Clone, $crate::macros::__private::serde::Serialize, PartialEq)]]
+                            #[strikethrough[$crate::macros::__private::serde_with::skip_serializing_none]]
 
                             #[doc = ::std::concat!(
                                 "Request data for `",

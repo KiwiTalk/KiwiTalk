@@ -1,131 +1,132 @@
+mod command;
 pub mod error;
 
-use std::io;
-
-use futures::{pin_mut, Sink, SinkExt, Stream, StreamExt};
-use talk_loco_client::{command::Command, BoxedCommand};
-use talk_loco_command::response::chat;
+use talk_loco_client::command::Command;
 
 use crate::{
+    channel::user::UserId,
     chat::Chatlog,
-    event::{
-        channel::{ChannelEvent, ChatRead, ChatReceived},
-        KiwiTalkClientEvent,
+    database::{
+        channel::user::UserDatabaseExt,
+        chat::{ChatDatabaseExt, ChatModel},
+        pool::DatabasePool,
     },
+    event::{channel::ChannelEvent, ClientEvent},
+    KiwiTalkSession,
 };
 
-use self::error::ClientHandlerError;
+use self::{
+    command::{DecunRead, Kickout, Msg},
+    error::HandlerError,
+};
 
-#[derive(Debug)]
-pub(crate) struct HandlerTask<Listener> {
-    emitter: HandlerEmitter<Listener>,
-}
-
-impl<Listener: Sink<KiwiTalkClientEvent> + Unpin + 'static> HandlerTask<Listener> {
-    pub const fn new(listener: Listener) -> Self {
-        Self {
-            emitter: HandlerEmitter(listener),
-        }
-    }
-
-    pub async fn run(mut self, stream: impl Stream<Item = io::Result<BoxedCommand>>) {
-        pin_mut!(stream);
-        while let Some(read) = stream.next().await {
-            match read {
-                Ok(read) => {
-                    if let Err(err) = self.handle_inner(read).await {
-                        self.emitter.emit(KiwiTalkClientEvent::Error(err)).await;
-                    }
-                }
-
-                Err(err) => {
-                    self.emitter
-                        .emit(KiwiTalkClientEvent::Error(err.into()))
-                        .await;
-                }
-            }
-        }
-    }
-
-    // TODO:: Use macro
-    async fn handle_inner(&mut self, command: Command<Box<[u8]>>) -> HandlerResult<()> {
-        match &*command.header.method {
-            "MSG" => Ok(self.on_chat(bson::de::from_slice(&command.data)?).await?),
-            "DECUNREAD" => Ok(self
-                .on_chat_read(bson::de::from_slice(&command.data)?)
-                .await?),
-
-            "CHANGESVR" => {
-                self.on_change_server().await;
-                Ok(())
-            }
-
-            "KICKOUT" => {
-                self.on_kickout(bson::de::from_slice(&command.data)?).await;
-                Ok(())
-            }
-
-            _ => {
-                self.emitter
-                    .emit(KiwiTalkClientEvent::Unhandled(command.into()))
-                    .await;
-                Ok(())
-            }
-        }
-    }
-
-    async fn on_chat(&mut self, data: chat::Msg) -> HandlerResult<()> {
-        let chat = Chatlog::from(data.chatlog);
-
-        self.emitter
-            .emit(
-                ChannelEvent::Chat(ChatReceived {
-                    channel_id: data.chat_id,
-                    link_id: data.link_id,
-                    log_id: data.log_id,
-                    user_nickname: data.author_nickname,
-                    chat,
-                })
-                .into(),
-            )
-            .await;
-
-        Ok(())
-    }
-
-    async fn on_chat_read(&mut self, data: chat::DecunRead) -> HandlerResult<()> {
-        self.emitter
-            .emit(
-                ChannelEvent::ChatRead(ChatRead {
-                    channel_id: data.chat_id,
-                    user_id: data.user_id,
-                    log_id: data.watermark,
-                })
-                .into(),
-            )
-            .await;
-
-        Ok(())
-    }
-
-    async fn on_kickout(&mut self, data: chat::Kickout) {
-        self.emitter
-            .emit(KiwiTalkClientEvent::Kickout(data.reason))
-            .await;
-    }
-
-    async fn on_change_server(&mut self) {
-        self.emitter.emit(KiwiTalkClientEvent::SwitchServer).await;
-    }
-}
+type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
 #[derive(Debug, Clone)]
-struct HandlerEmitter<S>(S);
+pub struct SessionHandler {
+    user_id: UserId,
+    pool: DatabasePool,
+}
 
-impl<S: Sink<KiwiTalkClientEvent> + Unpin> HandlerEmitter<S> {
-    pub async fn emit(&mut self, event: KiwiTalkClientEvent) {
-        self.0.send(event).await.ok();
+impl SessionHandler {
+    pub fn new(client: &KiwiTalkSession) -> Self {
+        Self {
+            user_id: client.user_id(),
+            pool: client.pool.clone(),
+        }
+    }
+
+    pub async fn handle(&self, command: &Command<impl AsRef<[u8]>>) -> HandlerResult {
+        macro_rules! create_handler {
+            (
+                $($method:literal => $handler:path),* $(,)?
+            ) => {
+                match &*command.header.method {
+                    $(
+                        $method => $handler(self, ::bson::from_slice(command.data.as_ref())?).await?,
+                    )*
+
+                    _ => None,
+                }
+            };
+        }
+
+        Ok(create_handler!(
+            "KICKOUT" => on_kickout,
+            "CHANGESVR" => on_switch_server,
+
+            "MSG" => on_chat,
+            "DECUNREAD" => on_chat_read,
+        ))
     }
 }
 
-pub type HandlerResult<T> = Result<T, ClientHandlerError>;
+async fn on_kickout(_: &SessionHandler, kickout: Kickout) -> HandlerResult {
+    Ok(Some(ClientEvent::Kickout(kickout.reason)))
+}
+
+async fn on_switch_server(_: &SessionHandler, _: ()) -> HandlerResult {
+    Ok(Some(ClientEvent::SwitchServer))
+}
+
+async fn on_chat(handler: &SessionHandler, msg: Msg) -> HandlerResult {
+    let chat = Chatlog::from(msg.chatlog);
+
+    handler
+        .pool
+        .spawn_task({
+            let chatlog = chat.clone();
+
+            |connection| {
+                connection.chat().insert(&ChatModel {
+                    logged: chatlog,
+                    deleted_time: None,
+                })?;
+
+                Ok(())
+            }
+        })
+        .await?;
+
+    Ok(Some(ClientEvent::Channel {
+        id: msg.chat_id,
+
+        event: ChannelEvent::Chat {
+            link_id: msg.link_id,
+
+            log_id: msg.log_id,
+            user_nickname: msg.author_nickname,
+            chat,
+        },
+    }))
+}
+
+async fn on_chat_read(handler: &SessionHandler, read: DecunRead) -> HandlerResult {
+    handler
+        .pool
+        .spawn_task({
+            let DecunRead {
+                chat_id,
+                user_id,
+                watermark,
+            } = read.clone();
+
+            move |connection| {
+                connection
+                    .user()
+                    .update_watermark(chat_id, user_id, watermark)?;
+
+                Ok(())
+            }
+        })
+        .await?;
+
+    Ok(Some(ClientEvent::Channel {
+        id: read.chat_id,
+
+        event: ChannelEvent::ChatRead {
+            user_id: read.user_id,
+            log_id: read.watermark,
+        },
+    }))
+}

@@ -1,23 +1,22 @@
-pub mod constants;
-
+use anyhow::Context;
 use talk_api_client::{
     auth::{
         resources::LoginData, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, LoginMethod,
         TalkAuthClient,
     },
     response::TalkStatusResponse,
-    ApiRequestError,
 };
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
     Runtime, State,
 };
-use thiserror::Error;
 
-use crate::{app::constants::TALK_VERSION, error::impl_tauri_error, system::SystemInfo};
-
-use self::constants::{TALK_AGENT, XVC_HASHER};
+use crate::{
+    constants::{TALK_AGENT, TALK_VERSION, XVC_HASHER},
+    result::TauriResult,
+    system::SystemInfo,
+};
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -25,20 +24,13 @@ pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
         .build()
 }
 
-#[derive(Debug, Error)]
-#[error("auth API Request failed. {0}")]
-struct AuthApiError(#[from] ApiRequestError);
-impl_tauri_error!(AuthApiError);
-
-type ApiResult<T> = Result<T, AuthApiError>;
-
 #[tauri::command(async)]
 async fn login(
     email: String,
     password: String,
     forced: bool,
     app_info: State<'_, SystemInfo>,
-) -> ApiResult<TalkStatusResponse<LoginData>> {
+) -> TauriResult<TalkStatusResponse<LoginData>> {
     let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
     let res = client
@@ -49,7 +41,8 @@ async fn login(
             }),
             forced,
         )
-        .await?;
+        .await
+        .context("login request failed")?;
 
     Ok(res)
 }
@@ -59,7 +52,7 @@ async fn request_passcode(
     email: String,
     password: String,
     app_info: State<'_, SystemInfo>,
-) -> ApiResult<TalkStatusResponse<()>> {
+) -> TauriResult<TalkStatusResponse<()>> {
     let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
     let res = client
@@ -67,7 +60,8 @@ async fn request_passcode(
             email: &email,
             password: &password,
         })
-        .await?;
+        .await
+        .context("request_passcode request failed")?;
 
     Ok(res)
 }
@@ -79,7 +73,7 @@ async fn register_device(
     password: String,
     permanent: bool,
     app_info: State<'_, SystemInfo>,
-) -> ApiResult<TalkStatusResponse<()>> {
+) -> TauriResult<TalkStatusResponse<()>> {
     let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
 
     let res = client
@@ -91,7 +85,8 @@ async fn register_device(
             },
             permanent,
         )
-        .await?;
+        .await
+        .context("register_device request failed")?;
 
     Ok(res)
 }

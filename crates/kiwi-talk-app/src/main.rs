@@ -3,11 +3,11 @@
     windows_subsystem = "windows"
 )]
 
-pub mod app;
-pub mod auth;
-pub mod constants;
-pub mod error;
-pub mod system;
+mod app;
+mod auth;
+mod constants;
+mod result;
+mod system;
 
 use std::error::Error;
 

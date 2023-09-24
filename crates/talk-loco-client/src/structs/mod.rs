@@ -1,4 +1,4 @@
-pub mod channel_info;
+pub mod channel;
 pub mod chat;
 pub mod openlink;
 pub mod user;

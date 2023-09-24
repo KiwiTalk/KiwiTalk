@@ -2,12 +2,11 @@ pub mod user;
 
 use std::{ops::Deref, time::SystemTime};
 
+use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
-use smallvec::SmallVec;
-use talk_loco_client::client::talk::TalkClient;
-use talk_loco_command::{
-    request::chat::{ChatInfoReq, ChatOnRoomReq, MemberReq, NotiReadReq},
-    structs::{channel_info::ChannelInfo, user::UserVariant},
+use talk_loco_client::{
+    structs::{channel::ChannelInfo, user::UserVariant},
+    talk::{ChannelInfoReq, ChatOnChannelReq, GetUsersReq, NotiReadReq, TalkSession},
 };
 
 use crate::{
@@ -32,7 +31,7 @@ use super::{
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NormalChannelData {
-    pub display_users: SmallVec<[DisplayUser; 4]>,
+    pub display_users: ArrayVec<DisplayUser, 4>,
 
     pub joined_at_for_new_mem: Option<i64>,
     pub inviter_id: Option<UserId>,
@@ -58,7 +57,7 @@ impl From<ChannelInfo> for NormalChannelData {
                 .iter()
                 .cloned()
                 .map(DisplayUser::from)
-                .collect::<SmallVec<[DisplayUser; 4]>>(),
+                .collect::<ArrayVec<DisplayUser, 4>>(),
 
             joined_at_for_new_mem: info.joined_at_for_new_mem,
             inviter_id: info.inviter_id,
@@ -78,16 +77,17 @@ impl<'a> ClientNormalChannel<'a> {
     }
 
     pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
-        TalkClient(&self.connection.session)
-            .read_chat_normal(&NotiReadReq {
+        TalkSession(&self.client.session)
+            .noti_read(&NotiReadReq {
                 chat_id: self.id,
                 watermark: log_id,
+                link_id: None,
             })
             .await?;
 
-        let client_user_id = self.connection.user_id;
+        let client_user_id = self.client.user_id();
         let channel_id = self.id;
-        self.connection
+        self.client
             .pool
             .spawn_task(move |connection| {
                 connection
@@ -105,10 +105,11 @@ impl<'a> ClientNormalChannel<'a> {
     }
 
     pub async fn chat_on(&self) -> ClientResult<Vec<NormalUserData>> {
-        let res = TalkClient(&self.connection.session)
-            .chat_on_normal_channel(&ChatOnRoomReq {
+        let res = TalkSession(&self.client.session)
+            .chat_on_channel(&ChatOnChannelReq {
                 chat_id: self.id,
                 token: 0,
+                open_token: None,
             })
             .await?;
 
@@ -123,13 +124,13 @@ impl<'a> ClientNormalChannel<'a> {
                     }
                 })
                 .collect()
-        } else if let Some(user_ids) = res.user_ids {
+        } else if let Some(ref user_ids) = res.user_ids {
             self.get_user_data_inner(user_ids).await?
         } else {
             Vec::new()
         };
 
-        self.connection
+        self.client
             .pool
             .spawn_task({
                 let users = users.clone();
@@ -171,16 +172,13 @@ impl<'a> ClientNormalChannel<'a> {
         Ok(users)
     }
 
-    async fn get_user_data_inner(
-        &self,
-        user_ids: Vec<UserId>,
-    ) -> ClientResult<Vec<NormalUserData>> {
+    async fn get_user_data_inner(&self, user_ids: &[UserId]) -> ClientResult<Vec<NormalUserData>> {
         if user_ids.is_empty() {
             return Ok(Vec::new());
         }
 
-        let res = TalkClient(&self.connection.session)
-            .user_info(&MemberReq {
+        let res = TalkSession(&self.client.session)
+            .get_users(&GetUsersReq {
                 chat_id: self.id,
                 user_ids,
             })
@@ -200,8 +198,8 @@ impl<'a> ClientNormalChannel<'a> {
     }
 
     pub async fn initialize(&self) -> ClientResult<NormalChannelData> {
-        let res = TalkClient(&self.connection.session)
-            .channel_info(&ChatInfoReq { chat_id: self.id })
+        let res = TalkSession(&self.client.session)
+            .channel_info(&ChannelInfoReq { chat_id: self.id })
             .await?;
 
         let now = SystemTime::now()
@@ -215,10 +213,15 @@ impl<'a> ClientNormalChannel<'a> {
             .iter()
             .cloned()
             .map(DisplayUser::from)
-            .collect::<SmallVec<[DisplayUser; 4]>>();
+            .collect::<ArrayVec<DisplayUser, 4>>();
 
         let users = self
-            .get_user_data_inner(display_users.iter().map(|user| user.id).collect())
+            .get_user_data_inner(
+                &display_users
+                    .iter()
+                    .map(|user| user.id)
+                    .collect::<ArrayVec<UserId, 4>>(),
+            )
             .await?;
 
         let last_log_id = res.chat_info.last_log_id;
@@ -230,7 +233,7 @@ impl<'a> ClientNormalChannel<'a> {
 
             let channel_id = self.id;
 
-            self.connection
+            self.client
                 .pool
                 .spawn_task(move |mut connection| {
                     let transaction = connection.transaction()?;
