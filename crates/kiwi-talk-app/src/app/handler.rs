@@ -23,7 +23,10 @@ pub(super) async fn run_handler(
         while let Some(read) = stream.next().await {
             let read = read?;
 
-            tokio::spawn(handle_read(handler.clone(), read, tx.clone()));
+            tokio::spawn(wrap_fut(
+                tx.clone(),
+                handle_read(handler.clone(), read, tx.clone()),
+            ));
         }
 
         Ok(())
@@ -44,19 +47,16 @@ async fn handle_read(
     handler: SessionHandler,
     command: BoxedCommand,
     tx: mpsc::Sender<anyhow::Result<ClientEvent>>,
-) {
-    wrap_fut(tx.clone(), async move {
-        if let Some(event) = handler.handle(&command).await? {
-            handle_event(&event)
-                .await
-                .context("error while handling event")?;
+) -> anyhow::Result<()> {
+    if let Some(event) = handler.handle(&command).await? {
+        handle_event(&event)
+            .await
+            .context("error while handling event")?;
 
-            let _ = tx.send(Ok(event));
-        }
+        let _ = tx.send(Ok(event));
+    }
 
-        Ok(())
-    })
-    .await;
+    Ok(())
 }
 
 async fn handle_event(event: &ClientEvent) -> anyhow::Result<()> {
