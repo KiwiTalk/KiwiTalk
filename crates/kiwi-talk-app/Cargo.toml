@@ -13,6 +13,11 @@ default-run = "kiwi-talk-app"
 tauri-build = { version = "1.4.0", features = [] }
 
 [dependencies]
+kiwi-talk-client = { path = "../kiwi-talk-client" }
+talk-api-client = { path = "../talk-api-client" }
+talk-loco-client = { path = "../talk-loco-client" }
+talk-loco-command = { path = "../talk-loco-command" }
+
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.4.1", features = ["api-all", "system-tray"] }
@@ -32,11 +37,7 @@ futures = "0.3.28"
 nohash-hasher = "0.2.0"
 window-shadows = "0.2.1"
 num-bigint-dig = "0.8.4"
-
-kiwi-talk-client = { path = "../kiwi-talk-client" }
-talk-api-client = { path = "../talk-api-client" }
-talk-loco-client = { path = "../talk-loco-client" }
-talk-loco-command = { path = "../talk-loco-command" }
+anyhow = "1.0.75"
 
 [features]
 default = []
