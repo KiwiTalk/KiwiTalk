@@ -31,7 +31,7 @@ pub async fn get_conf() -> anyhow::Result<GetConfRes> {
             mccmnc: TALK_MCCMNC,
             model: TALK_MODEL,
         })
-        .await.context("booking failed")?)
+        .await.context("getconf request failed")?)
 }
 
 pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
@@ -53,5 +53,5 @@ pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
             use_sub: TALK_USE_SUB,
         })
         .await
-        .context("checkin failed")?)
+        .context("checkin request failed")?)
 }
