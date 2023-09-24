@@ -21,7 +21,7 @@ pub mod request {
 pub mod response {
     use serde::Deserialize;
 
-    use crate::structs::{user::UserVariant, openlink::OpenLinkUser};
+    use crate::structs::{openlink::OpenLinkUser, user::UserVariant};
 
     /// Contains user info, watermark list.
     /// Client can update chatroom information before opening chatroom window.

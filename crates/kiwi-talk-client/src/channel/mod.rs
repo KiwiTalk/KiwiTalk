@@ -77,7 +77,7 @@ impl From<ChannelInfo> for ChannelData {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChannelMeta {
     pub author_id: i64,
 

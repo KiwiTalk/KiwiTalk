@@ -10,7 +10,7 @@ pub use load_channel_list::{request::LChatListReq, response::LChatListRes};
 pub use login::{request::LoginListReq, response::LoginListRes};
 pub use write_chat::{request::WriteChatReq, response::WriteChatRes};
 
-use super::structs::{chat::Chatlog, user::UserVariant, channel::ChannelMeta};
+use super::structs::{channel::ChannelMeta, chat::Chatlog, user::UserVariant};
 use crate::{impl_session, RequestResult};
 use async_stream::try_stream;
 use futures_lite::Stream;
@@ -43,7 +43,7 @@ impl_session!(
             /// Chatroom id
             #[serde(rename = "chatId")]
             pub chat_id: i64,
-        
+
             /// Chat log id
             #[serde(rename = "logId")]
             pub log_id: i64,
@@ -99,7 +99,7 @@ impl_session!(
             /// Chatroom id
             #[serde(rename = "chatId")]
             pub chat_id: i64,
-        
+
             /// Block chatroom. Cannot rejoin chatroom if true.
             pub block: bool,
         }) -> struct LeaveChannelRes {
@@ -121,18 +121,18 @@ impl_session!(
             /// Chatroom id
             #[serde(rename = "chatId")]
             pub chat_id: i64,
-        
+
             /// Meta type. See `structs/chatroom.rs` ChatroomMetaType for predefined types.
             #[serde(rename = "type")]
             pub meta_type: i8,
-        
+
             /// Json or String content. Different depending on type.
             pub content: &'a str,
         }) -> struct SetMetaRes {
             /// Chatroom id
             #[serde(rename = "chatId")]
             pub chat_id: i64,
-        
+
             /// Updated chatroom meta item.
             pub meta: ChannelMeta,
         };
@@ -154,7 +154,7 @@ impl_session!(
             /// Chatroom id
             #[serde(rename = "chatId")]
             pub chat_id: i64,
-        
+
             /// List of requesting user id list
             #[serde(rename = "memberIds")]
             pub user_ids: &'a [i64],
@@ -162,7 +162,7 @@ impl_session!(
             /// Chatroom id
             #[serde(rename = "chatId")]
             pub chat_id: i64,
-        
+
             /// List of requested user list
             #[serde(rename = "members")]
             pub members: Vec<UserVariant>,
@@ -172,7 +172,7 @@ impl_session!(
             /// Media key
             #[serde(rename = "k")]
             pub key: &'a str,
-        
+
             /// Chat type
             #[serde(rename = "t")]
             pub chat_type: i32,
@@ -180,15 +180,15 @@ impl_session!(
             /// Host (Unused(?))
             #[serde(rename = "h")]
             pub host: String,
-        
+
             /// Port
             #[serde(rename = "p")]
             pub port: i32,
-        
+
             /// VHost
             #[serde(rename = "vh")]
             pub vhost: String,
-        
+
             /// VHost (ipv6)
             #[serde(rename = "vh6")]
             pub vhost6: i32,
