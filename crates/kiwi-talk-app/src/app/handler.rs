@@ -1,65 +1,62 @@
 use std::{io, pin::pin};
 
 use anyhow::Context;
-use futures::{Stream, StreamExt};
+use futures::{Future, Stream, StreamExt};
 use kiwi_talk_client::{
     event::{channel::ChannelEvent, ClientEvent},
     handler::SessionHandler,
-    KiwiTalkSession,
 };
 use talk_loco_client::BoxedCommand;
 use tauri::api::notification::Notification;
 use tokio::sync::mpsc;
 
+type EventSender = mpsc::Sender<anyhow::Result<ClientEvent>>;
+
 pub(super) async fn run_handler(
-    session: KiwiTalkSession,
-    buffer: Vec<BoxedCommand>,
+    handler: SessionHandler,
     stream: impl Stream<Item = io::Result<BoxedCommand>>,
-    tx: mpsc::Sender<anyhow::Result<ClientEvent>>,
+    tx: EventSender,
 ) {
-    let mut stream = pin!(stream);
+    wrap_fut(tx.clone(), async move {
+        let mut stream = pin!(stream);
 
-    for command in buffer {
-        handle_read(SessionHandler::new(&session), command, tx.clone());
-    }
+        while let Some(read) = stream.next().await {
+            let read = read?;
 
-    while let Some(read) = stream.next().await {
-        let read = match read {
-            Ok(read) => read,
-            Err(err) => {
-                let _ = tx.send(Err(err.into())).await;
-                break;
-            }
-        };
+            tokio::spawn(handle_read(handler.clone(), read, tx.clone()));
+        }
 
-        handle_read(SessionHandler::new(&session), read, tx.clone());
+        Ok(())
+    })
+    .await;
+}
+
+async fn wrap_fut(tx: EventSender, fut: impl Future<Output = anyhow::Result<()>>) {
+    match fut.await {
+        Ok(value) => value,
+        Err(err) => {
+            let _ = tx.send(Err(err)).await;
+        }
     }
 }
 
-fn handle_read(
+async fn handle_read(
     handler: SessionHandler,
     command: BoxedCommand,
     tx: mpsc::Sender<anyhow::Result<ClientEvent>>,
 ) {
-    tokio::spawn(async move {
-        let _ = tx
-            .send(match handler.handle(&command).await {
-                Ok(Some(event)) => {
-                    if let Err(err) = handle_event(&event)
-                        .await
-                        .context("error while handling event")
-                    {
-                        let _ = tx.send(Err(err)).await;
-                    }
+    wrap_fut(tx.clone(), async move {
+        if let Some(event) = handler.handle(&command).await? {
+            handle_event(&event)
+                .await
+                .context("error while handling event")?;
 
-                    Ok(event)
-                }
-                Err(err) => Err(anyhow::Error::new(err)).context("error while handling command"),
+            let _ = tx.send(Ok(event));
+        }
 
-                _ => return,
-            })
-            .await;
-    });
+        Ok(())
+    })
+    .await;
 }
 
 async fn handle_event(event: &ClientEvent) -> anyhow::Result<()> {
