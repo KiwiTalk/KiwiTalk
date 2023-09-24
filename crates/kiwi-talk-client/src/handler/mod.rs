@@ -5,13 +5,14 @@ use talk_loco_client::command::Command;
 
 use crate::{
     channel::user::UserId,
+    chat::Chatlog,
     database::{
         channel::user::UserDatabaseExt,
         chat::{ChatDatabaseExt, ChatModel},
         pool::DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
-    KiwiTalkSession, chat::Chatlog,
+    KiwiTalkSession,
 };
 
 use self::{
