@@ -14,24 +14,23 @@ use tauri::{
 type Credential = RwLock<Option<AppCredential>>;
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
-    // TODO:: load & save global configuration from disk
-
     Builder::new(name)
         .setup(|handle| {
             configuration::setup(handle);
+            client::setup(handle);
+
             handle.manage(Credential::default());
 
             Ok(())
         })
         .invoke_handler(generate_handler![
             set_credential,
-            /*
-            initialize_client,
-            next_client_event,
-            client_user_id,
-            destroy_client,
-            channels,
-            */
+            
+            client::initialize_client,
+            client::next_client_event,
+            client::client_user_id,
+            client::destroy_client,
+
             configuration::get_global_configuration,
             configuration::set_global_configuration
         ])
