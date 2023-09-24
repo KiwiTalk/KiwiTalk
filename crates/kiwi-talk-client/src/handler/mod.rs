@@ -25,12 +25,12 @@ use self::{
 type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
 #[derive(Debug, Clone)]
-pub struct ClientHandler {
+pub struct SessionHandler {
     user_id: UserId,
     pool: DatabasePool,
 }
 
-impl ClientHandler {
+impl SessionHandler {
     pub fn new(client: &KiwiTalkSession) -> Self {
         Self {
             user_id: client.user_id(),
@@ -63,15 +63,15 @@ impl ClientHandler {
     }
 }
 
-async fn on_kickout(_: &ClientHandler, kickout: Kickout) -> HandlerResult {
+async fn on_kickout(_: &SessionHandler, kickout: Kickout) -> HandlerResult {
     Ok(Some(ClientEvent::Kickout(kickout.reason)))
 }
 
-async fn on_switch_server(_: &ClientHandler, _: ()) -> HandlerResult {
+async fn on_switch_server(_: &SessionHandler, _: ()) -> HandlerResult {
     Ok(Some(ClientEvent::SwitchServer))
 }
 
-async fn on_chat(handler: &ClientHandler, msg: Msg) -> HandlerResult {
+async fn on_chat(handler: &SessionHandler, msg: Msg) -> HandlerResult {
     handler
         .pool
         .spawn_task({
@@ -101,7 +101,7 @@ async fn on_chat(handler: &ClientHandler, msg: Msg) -> HandlerResult {
     }))
 }
 
-async fn on_chat_read(handler: &ClientHandler, read: DecunRead) -> HandlerResult {
+async fn on_chat_read(handler: &SessionHandler, read: DecunRead) -> HandlerResult {
     handler
         .pool
         .spawn_task({
