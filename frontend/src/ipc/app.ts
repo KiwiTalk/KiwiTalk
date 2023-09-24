@@ -13,8 +13,8 @@ export function setCredential(credential: AppCredential): Promise<AppCredential>
 
 export type ClientStatus = { status: 'Locked' } | { status: 'Unlocked' };
 
-export function initializeClient(clientStatus: ClientStatus): Promise<void> {
-  return tauri.invoke('plugin:app|initialize_client', { clientStatus });
+export function initializeClient(status: ClientStatus): Promise<void> {
+  return tauri.invoke('plugin:app|initialize_client', { status });
 }
 
 export type KiwiTalkClientEvent = {
