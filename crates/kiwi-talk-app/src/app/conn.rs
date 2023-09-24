@@ -42,7 +42,7 @@ pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
 
     let mut client = CheckinClient::new(LocoClient::new(stream));
 
-    Ok(client
+    client
         .checkin(&CheckinReq {
             user_id,
             os: TALK_OS,
@@ -54,5 +54,5 @@ pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
             use_sub: TALK_USE_SUB,
         })
         .await
-        .context("checkin request failed")?)
+        .context("checkin request failed")
 }
