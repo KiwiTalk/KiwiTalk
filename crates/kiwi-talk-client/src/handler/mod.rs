@@ -10,10 +10,7 @@ use crate::{
         chat::{ChatDatabaseExt, ChatModel},
         pool::DatabasePool,
     },
-    event::{
-        channel::{ChannelEvent, ChatRead, ChatReceived},
-        ClientEvent,
-    },
+    event::{channel::ChannelEvent, ClientEvent},
     KiwiTalkSession,
 };
 
@@ -91,13 +88,13 @@ async fn on_chat(handler: &SessionHandler, msg: Msg) -> HandlerResult {
     Ok(Some(ClientEvent::Channel {
         id: msg.chat_id,
 
-        event: ChannelEvent::Chat(ChatReceived {
+        event: ChannelEvent::Chat {
             link_id: msg.link_id,
 
             log_id: msg.log_id,
             user_nickname: msg.author_nickname,
             chat: msg.chatlog,
-        }),
+        },
     }))
 }
 
@@ -124,9 +121,9 @@ async fn on_chat_read(handler: &SessionHandler, read: DecunRead) -> HandlerResul
     Ok(Some(ClientEvent::Channel {
         id: read.chat_id,
 
-        event: ChannelEvent::ChatRead(ChatRead {
+        event: ChannelEvent::ChatRead {
             user_id: read.user_id,
             log_id: read.watermark,
-        }),
+        },
     }))
 }
