@@ -16,7 +16,6 @@ tauri-build = { version = "1.4.0", features = [] }
 kiwi-talk-client = { path = "../kiwi-talk-client" }
 talk-api-client = { path = "../talk-api-client" }
 talk-loco-client = { path = "../talk-loco-client" }
-talk-loco-command = { path = "../talk-loco-command" }
 
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
