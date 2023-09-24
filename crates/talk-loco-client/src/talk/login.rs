@@ -46,6 +46,7 @@ pub mod request {
         pub revision: Option<i32>,
 
         /// 6 bytes binary (0x?? 0x?? 0xff 0xff 0x?? 0x??)
+        #[serde(with = "serde_byte_array")]
         pub rp: [u8; 6],
 
         /// PC status (PC only) (Same with SETST status?)
@@ -98,6 +99,7 @@ pub mod response {
         pub sb: i32,
 
         /// 6 bytes binary
+        #[serde(with = "serde_byte_array")]
         pub rp: [u8; 6],
 
         /// Unknown
