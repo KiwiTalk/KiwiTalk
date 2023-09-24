@@ -12,7 +12,7 @@ use channel::{normal::ClientNormalChannel, user::UserId, ChannelId, ClientChanne
 use config::ClientConfig;
 use database::pool::DatabasePool;
 use error::ClientError;
-use futures::{AsyncRead, AsyncWrite, TryStreamExt};
+use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     session::LocoSession,
@@ -51,16 +51,13 @@ impl KiwiTalkSession {
         Ok(())
     }
 
-    pub async fn login<S>(
+    pub async fn login(
         session: LocoSession,
         pool: DatabasePool,
         config: ClientConfig<'_>,
         credential: ClientCredential<'_>,
         status: ClientStatus,
-    ) -> Result<Self, LoginError>
-    where
-        S: AsyncRead + AsyncWrite + Unpin,
-    {
+    ) -> Result<Self, LoginError> {
         let mut login_res = TalkSession(&session)
             .login(&LoginListReq {
                 os: config.os,
