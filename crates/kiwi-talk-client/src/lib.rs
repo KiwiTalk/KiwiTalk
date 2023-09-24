@@ -22,23 +22,15 @@ use talk_loco_client::{
 use thiserror::Error;
 
 #[derive(Debug, Clone)]
-pub struct KiwiTalkClient {
+pub struct KiwiTalkSession {
     user_id: UserId,
     session: LocoSession,
     pool: DatabasePool,
 }
 
-impl KiwiTalkClient {
+impl KiwiTalkSession {
     pub const fn user_id(&self) -> UserId {
         self.user_id
-    }
-
-    pub const fn session(&self) -> TalkSession {
-        TalkSession(&self.session)
-    }
-
-    pub const fn pool(&self) -> &DatabasePool {
-        &self.pool
     }
 
     pub const fn channel(&self, id: ChannelId) -> ClientChannel {

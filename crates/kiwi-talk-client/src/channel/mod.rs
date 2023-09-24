@@ -9,14 +9,14 @@ use crate::{
         channel::{ChannelDatabaseExt, ChannelModel, ChannelTrackingData},
         chat::{ChatDatabaseExt, ChatModel},
     },
-    ClientResult, KiwiTalkClient,
+    ClientResult, KiwiTalkSession,
 };
 use futures::{pin_mut, StreamExt};
 use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     structs::channel::{ChannelInfo, ChannelMeta as LocoChannelMeta},
-    talk::{SyncChatReq, UpdateChannelReq, WriteChatReq},
+    talk::{SyncChatReq, TalkSession, UpdateChannelReq, WriteChatReq},
 };
 use tokio::sync::mpsc::channel;
 
@@ -122,12 +122,12 @@ impl From<()> for ChannelDataVariant {
 pub struct ClientChannel<'a> {
     id: ChannelId,
 
-    client: &'a KiwiTalkClient,
+    client: &'a KiwiTalkSession,
 }
 
 impl<'a> ClientChannel<'a> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, client: &'a KiwiTalkClient) -> Self {
+    pub const fn new(id: ChannelId, client: &'a KiwiTalkSession) -> Self {
         Self { id, client }
     }
 
@@ -139,9 +139,7 @@ impl<'a> ClientChannel<'a> {
 
 impl ClientChannel<'_> {
     pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
-        let res = self
-            .client
-            .session()
+        let res = TalkSession(&self.client.session)
             .write_chat(&WriteChatReq {
                 chat_id: self.id,
                 chat_type: chat.chat_type.0,
@@ -191,7 +189,7 @@ impl ClientChannel<'_> {
         let current = {
             let channel_id = self.id;
             self.client
-                .pool()
+                .pool
                 .spawn_task(move |connection| {
                     Ok(connection
                         .chat()
@@ -209,7 +207,7 @@ impl ClientChannel<'_> {
 
         let (sender, mut recv) = channel(4);
 
-        let database_task = self.client.pool().spawn_task(move |mut connection| {
+        let database_task = self.client.pool.spawn_task(move |mut connection| {
             while let Some(list) = recv.blocking_recv() {
                 let transaction = connection.transaction()?;
 
@@ -226,7 +224,7 @@ impl ClientChannel<'_> {
             Ok(())
         });
 
-        let stream = self.client.session().sync_chat_stream(&SyncChatReq {
+        let stream = TalkSession(&self.client.session).sync_chat_stream(&SyncChatReq {
             chat_id: self.id,
             current,
             count: 0,
@@ -250,8 +248,7 @@ impl ClientChannel<'_> {
     }
 
     pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
-        self.client
-            .session()
+        TalkSession(&self.client.session)
             .update_channel(&UpdateChannelReq {
                 chat_id: self.id,
                 push_alert,
@@ -260,7 +257,7 @@ impl ClientChannel<'_> {
 
         let channel_id = self.id;
         self.client
-            .pool()
+            .pool
             .spawn_task(move |connection| {
                 connection
                     .channel()

@@ -14,7 +14,7 @@ use crate::{
         channel::{ChannelEvent, ChatRead, ChatReceived},
         ClientEvent,
     },
-    KiwiTalkClient,
+    KiwiTalkSession,
 };
 
 use self::{
@@ -31,10 +31,10 @@ pub struct ClientHandler {
 }
 
 impl ClientHandler {
-    pub fn new(client: &KiwiTalkClient) -> Self {
+    pub fn new(client: &KiwiTalkSession) -> Self {
         Self {
             user_id: client.user_id(),
-            pool: client.pool().clone(),
+            pool: client.pool.clone(),
         }
     }
 

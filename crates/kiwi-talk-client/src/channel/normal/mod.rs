@@ -6,7 +6,7 @@ use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     structs::{channel::ChannelInfo, user::UserVariant},
-    talk::{ChannelInfoReq, ChatOnChannelReq, GetUsersReq, NotiReadReq},
+    talk::{ChannelInfoReq, ChatOnChannelReq, GetUsersReq, NotiReadReq, TalkSession},
 };
 
 use crate::{
@@ -77,8 +77,7 @@ impl<'a> ClientNormalChannel<'a> {
     }
 
     pub async fn read_chat(&self, log_id: LogId) -> ClientResult<()> {
-        self.client
-            .session()
+        TalkSession(&self.client.session)
             .noti_read(&NotiReadReq {
                 chat_id: self.id,
                 watermark: log_id,
@@ -89,7 +88,7 @@ impl<'a> ClientNormalChannel<'a> {
         let client_user_id = self.client.user_id();
         let channel_id = self.id;
         self.client
-            .pool()
+            .pool
             .spawn_task(move |connection| {
                 connection
                     .channel()
@@ -106,9 +105,7 @@ impl<'a> ClientNormalChannel<'a> {
     }
 
     pub async fn chat_on(&self) -> ClientResult<Vec<NormalUserData>> {
-        let res = self
-            .client
-            .session()
+        let res = TalkSession(&self.client.session)
             .chat_on_channel(&ChatOnChannelReq {
                 chat_id: self.id,
                 token: 0,
@@ -134,7 +131,7 @@ impl<'a> ClientNormalChannel<'a> {
         };
 
         self.client
-            .pool()
+            .pool
             .spawn_task({
                 let users = users.clone();
                 let channel_id = self.id;
@@ -180,9 +177,7 @@ impl<'a> ClientNormalChannel<'a> {
             return Ok(Vec::new());
         }
 
-        let res = self
-            .client
-            .session()
+        let res = TalkSession(&self.client.session)
             .get_users(&GetUsersReq {
                 chat_id: self.id,
                 user_ids,
@@ -203,9 +198,7 @@ impl<'a> ClientNormalChannel<'a> {
     }
 
     pub async fn initialize(&self) -> ClientResult<NormalChannelData> {
-        let res = self
-            .client
-            .session()
+        let res = TalkSession(&self.client.session)
             .channel_info(&ChannelInfoReq { chat_id: self.id })
             .await?;
 
@@ -241,7 +234,7 @@ impl<'a> ClientNormalChannel<'a> {
             let channel_id = self.id;
 
             self.client
-                .pool()
+                .pool
                 .spawn_task(move |mut connection| {
                     let transaction = connection.transaction()?;
 
