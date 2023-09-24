@@ -1,4 +1,5 @@
 use serde::Serialize;
+use std::fmt::Write;
 
 pub type TauriResult<T> = Result<T, TauriAnyhowError>;
 
@@ -16,6 +17,9 @@ impl Serialize for TauriAnyhowError {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(&self.0.to_string())
+        let mut error = String::new();
+        write!(error, "{:#}", self.0).unwrap();
+
+        serializer.serialize_str(&error)
     }
 }
