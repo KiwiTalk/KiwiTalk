@@ -1,5 +1,3 @@
-pub mod constants;
-
 use anyhow::Context;
 use talk_api_client::{
     auth::{
@@ -14,9 +12,11 @@ use tauri::{
     Runtime, State,
 };
 
-use crate::{app::constants::TALK_VERSION, system::SystemInfo, result::TauriResult};
-
-use self::constants::{TALK_AGENT, XVC_HASHER};
+use crate::{
+    constants::{TALK_AGENT, TALK_VERSION, XVC_HASHER},
+    result::TauriResult,
+    system::SystemInfo,
+};
 
 pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
@@ -41,7 +41,8 @@ async fn login(
             }),
             forced,
         )
-        .await.context("login request failed")?;
+        .await
+        .context("login request failed")?;
 
     Ok(res)
 }
@@ -59,7 +60,8 @@ async fn request_passcode(
             email: &email,
             password: &password,
         })
-        .await.context("request_passcode request failed")?;
+        .await
+        .context("request_passcode request failed")?;
 
     Ok(res)
 }
@@ -83,7 +85,8 @@ async fn register_device(
             },
             permanent,
         )
-        .await.context("register_device request failed")?;
+        .await
+        .context("register_device request failed")?;
 
     Ok(res)
 }
