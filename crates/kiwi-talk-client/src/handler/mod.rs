@@ -31,7 +31,7 @@ pub struct SessionHandler {
 impl SessionHandler {
     pub fn new(client: &KiwiTalkSession) -> Self {
         Self {
-            user_id: client.user_id(),
+            user_id: client.user_id,
             pool: client.pool.clone(),
         }
     }
