@@ -5,7 +5,11 @@ use talk_loco_client::command::Command;
 
 use crate::{
     channel::user::UserId,
-    database::pool::DatabasePool,
+    database::{
+        channel::user::UserDatabaseExt,
+        chat::{ChatDatabaseExt, ChatModel},
+        pool::DatabasePool,
+    },
     event::{
         channel::{ChannelEvent, ChatRead, ChatReceived},
         ClientEvent,
@@ -41,7 +45,7 @@ impl ClientHandler {
             ) => {
                 match &*command.header.method {
                     $(
-                        $method => $handler(self, ::bson::from_slice(command.data.as_ref())?)?,
+                        $method => $handler(self, ::bson::from_slice(command.data.as_ref())?).await?,
                     )*
 
                     _ => None,
@@ -59,15 +63,31 @@ impl ClientHandler {
     }
 }
 
-fn on_kickout(_: &ClientHandler, kickout: Kickout) -> HandlerResult {
+async fn on_kickout(_: &ClientHandler, kickout: Kickout) -> HandlerResult {
     Ok(Some(ClientEvent::Kickout(kickout.reason)))
 }
 
-fn on_switch_server(_: &ClientHandler, _: ()) -> HandlerResult {
+async fn on_switch_server(_: &ClientHandler, _: ()) -> HandlerResult {
     Ok(Some(ClientEvent::SwitchServer))
 }
 
-fn on_chat(_handler: &ClientHandler, msg: Msg) -> HandlerResult {
+async fn on_chat(handler: &ClientHandler, msg: Msg) -> HandlerResult {
+    handler
+        .pool
+        .spawn_task({
+            let chatlog = msg.chatlog.clone();
+
+            |connection| {
+                connection.chat().insert(&ChatModel {
+                    logged: chatlog,
+                    deleted_time: None,
+                })?;
+
+                Ok(())
+            }
+        })
+        .await?;
+
     Ok(Some(ClientEvent::Channel {
         id: msg.chat_id,
 
@@ -81,7 +101,26 @@ fn on_chat(_handler: &ClientHandler, msg: Msg) -> HandlerResult {
     }))
 }
 
-fn on_chat_read(_handler: &ClientHandler, read: DecunRead) -> HandlerResult {
+async fn on_chat_read(handler: &ClientHandler, read: DecunRead) -> HandlerResult {
+    handler
+        .pool
+        .spawn_task({
+            let DecunRead {
+                chat_id,
+                user_id,
+                watermark,
+            } = read.clone();
+
+            move |connection| {
+                connection
+                    .user()
+                    .update_watermark(chat_id, user_id, watermark)?;
+
+                Ok(())
+            }
+        })
+        .await?;
+
     Ok(Some(ClientEvent::Channel {
         id: read.chat_id,
 
