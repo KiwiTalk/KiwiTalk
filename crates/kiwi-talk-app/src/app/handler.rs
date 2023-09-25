@@ -1,7 +1,7 @@
 use std::{io, pin::pin};
 
 use anyhow::Context;
-use futures::{join, Future, Stream, StreamExt};
+use futures::{Future, Stream, StreamExt};
 use kiwi_talk_client::{
     event::{channel::ChannelEvent, ClientEvent},
     handler::SessionHandler,
@@ -49,9 +49,11 @@ async fn handle_read(
     tx: mpsc::Sender<anyhow::Result<ClientEvent>>,
 ) -> anyhow::Result<()> {
     if let Some(event) = handler.handle(&command).await? {
-        let (_, res) = join!(tx.send(Ok(event)), handle_event(&event));
+        handle_event(&event)
+            .await
+            .context("error while handling event")?;
 
-        res.context("error while handling event")?;
+        let _ = tx.send(Ok(event)).await;
     }
 
     Ok(())
