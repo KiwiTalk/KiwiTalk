@@ -11,9 +11,10 @@ mod result;
 mod system;
 
 use tauri::{
-    api::dialog, AppHandle, CustomMenuItem, Manager, Runtime, SystemTray, SystemTrayEvent,
-    SystemTrayMenu,
+    api::dialog, AppHandle, CustomMenuItem, DeviceEventFilter, Manager, RunEvent, Runtime,
+    SystemTray, SystemTrayEvent, SystemTrayMenu, Window, WindowBuilder, WindowEvent,
 };
+use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 use window_shadows::set_shadow;
 
 fn init_logger() {
@@ -25,7 +26,19 @@ fn init_logger() {
     builder.init();
 }
 
-async fn init_app(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
+fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<Window<R>> {
+    let window = WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
+        .inner_size(1280.0, 720.0)
+        .resizable(true)
+        .title("KiwiTalk")
+        .decorations(false)
+        .visible(false)
+        .build()?;
+
+    Ok(window)
+}
+
+async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
 
     handle.plugin(system::init_plugin("system", handle.path_resolver()).await?)?;
@@ -39,11 +52,8 @@ async fn init_app(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
 fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::LeftClick { .. } => {
-            let main_window = app.get_window("main").unwrap();
-
-            if !main_window.is_visible().unwrap() {
-                main_window.show().unwrap();
-            }
+            let main_window = create_main_window(app).unwrap();
+            main_window.show().unwrap();
 
             main_window.set_focus().unwrap();
         }
@@ -67,13 +77,24 @@ async fn main() -> anyhow::Result<()> {
 
     let app = tauri::Builder::default()
         .system_tray(system_tray)
+        .device_event_filter(DeviceEventFilter::Never)
         .on_system_tray_event(on_tray_event)
+        .on_window_event(|event| {
+            if let WindowEvent::CloseRequested { .. } = event.event() {
+                event
+                    .window()
+                    .app_handle()
+                    .save_window_state(StateFlags::all())
+                    .unwrap();
+            }
+        })
         .build(tauri::generate_context!())?;
-    let main_window = app.get_window("main").unwrap();
 
+    let main_window = create_main_window(&app)?;
     set_shadow(&main_window, true).ok();
+    main_window.show()?;
 
-    if let Err(err) = init_app(&app.handle()).await {
+    if let Err(err) = init_plugin(&app.handle()).await {
         dialog::message(
             Some(&main_window),
             "KiwiTalk Startup Fatal Error",
@@ -81,7 +102,11 @@ async fn main() -> anyhow::Result<()> {
         );
     }
 
-    app.run(|_, _| {});
+    app.run(|_, event| {
+        if let RunEvent::ExitRequested { api, .. } = event {
+            api.prevent_exit();
+        }
+    });
 
     Ok(())
 }
