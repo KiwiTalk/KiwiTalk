@@ -77,7 +77,7 @@ async fn main() -> anyhow::Result<()> {
         dialog::message(
             Some(&main_window),
             "KiwiTalk Startup Fatal Error",
-            format!("{}", err),
+            format!("{:?}", err),
         );
     }
 
