@@ -55,14 +55,13 @@ pub(super) async fn load(path: ConfigPathState<'_>) -> TauriResult<GlobalConfigu
     Ok(spawn_blocking(move || {
         let reader = BufReader::new(File::open(path)?);
 
-        let configuration = serde_json::from_reader::<_, GlobalConfiguration>(reader)
-            .ok()
-            .unwrap_or_default();
+        let configuration = serde_json::from_reader::<_, GlobalConfiguration>(reader)?;
 
         Ok::<GlobalConfiguration, anyhow::Error>(configuration)
     })
     .await
-    .context("cannot read configuration")??)
+    .context("cannot spawn configuration read task")?
+    .unwrap_or_default())
 }
 
 #[tauri::command]
@@ -80,7 +79,8 @@ pub(super) async fn save(
         Ok::<(), anyhow::Error>(())
     })
     .await
-    .context("cannot write configuration")??;
+    .context("cannot spawn configuration write task")?
+    .context("cannot write configuration")?;
 
     Ok(())
 }
