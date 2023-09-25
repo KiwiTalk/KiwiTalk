@@ -85,7 +85,7 @@ async fn register_device(
     Ok(res)
 }
 
-fn create_config<'a>(info: &'a SystemInfo) -> AuthClientConfig<'a> {
+fn create_config(info: &SystemInfo) -> AuthClientConfig<'_> {
     AuthClientConfig {
         device: AuthDeviceConfig {
             name: &info.device_info.name,
