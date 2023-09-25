@@ -1,12 +1,14 @@
 [package]
 name = "talk-loco-client"
-version = "0.1.0"
-license = "Apache-2.0"
 keywords = ["talk", "loco"]
 readme = "README.md"
 description = "Loco client"
-authors = ["KiwiTalk contributors"]
-edition = "2021"
+
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
 
 [features]
 wasm = ["loco-protocol/wasm"]

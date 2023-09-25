@@ -1,13 +1,14 @@
 [package]
 name = "kiwi-talk-client"
-version = "0.1.0"
-authors = ["KiwiTalk contributors"]
-license = "Apache-2.0"
-repository = "https://github.com/KiwiTalk/kiwitalk"
-edition = "2021"
+
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
 
 [dependencies]
-talk-loco-client = { path = "../talk-loco-client" }
+talk-loco-client = { workspace = true }
 
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
