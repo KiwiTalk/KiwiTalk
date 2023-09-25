@@ -14,7 +14,7 @@ use tauri::{
 
 type Credential = RwLock<Option<AppCredential>>;
 
-pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
         .setup(|handle| {
             configuration::setup(handle);

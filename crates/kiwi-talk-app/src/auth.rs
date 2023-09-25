@@ -18,7 +18,7 @@ use crate::{
     system::SystemInfo,
 };
 
-pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
         .invoke_handler(generate_handler![login, register_device, request_passcode])
         .build()
