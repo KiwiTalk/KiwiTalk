@@ -14,7 +14,8 @@ use tauri::{
 
 use crate::{
     constants::{TALK_AGENT, TALK_VERSION, XVC_HASHER},
-    result::TauriResult, system::{get_system_info, SystemInfo},
+    result::TauriResult,
+    system::{get_system_info, SystemInfo},
 };
 
 pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
@@ -46,10 +47,7 @@ async fn login(
 }
 
 #[tauri::command(async)]
-async fn request_passcode(
-    email: String,
-    password: String,
-) -> TauriResult<TalkStatusResponse<()>> {
+async fn request_passcode(email: String, password: String) -> TauriResult<TalkStatusResponse<()>> {
     let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
