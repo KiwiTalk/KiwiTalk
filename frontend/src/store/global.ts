@@ -3,7 +3,7 @@ import { DeepPartial } from '../utils';
 
 export type Locale = { type: 'Auto' } | { type: 'Fixed', value: string };
 export type AuthConfiguration = (
-  { type: 'None' }
+  null
   | { type: 'SaveAccount'; email: string; }
   | { type: 'AutoLogin'; email: string; token: string; }
 );
@@ -20,7 +20,7 @@ export const ConfigurationContext = createContext<[Accessor<Configuration>, Conf
   () => ({
     configuration: {
       locale: { type: 'Auto' },
-      auth: { type: 'None' },
+      auth: null,
     },
     deviceLocale: 'en',
   } satisfies Configuration),

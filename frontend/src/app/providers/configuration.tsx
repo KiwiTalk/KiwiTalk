@@ -22,7 +22,7 @@ const ConfigurationProvider = (props: ParentProps) => {
     const defaultConfig = data()?.configuration ?? await loadConfiguration();
     const merged = deepmerge(defaultConfig, newConfig) as GlobalConfiguration;
 
-    saveConfiguration(merged);
+    await saveConfiguration(merged);
     refetch();
   };
 
