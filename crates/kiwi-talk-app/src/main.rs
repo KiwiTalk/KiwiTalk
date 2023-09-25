@@ -12,9 +12,9 @@ mod system;
 
 use tauri::{
     api::dialog, AppHandle, CustomMenuItem, DeviceEventFilter, Manager, RunEvent, Runtime,
-    SystemTray, SystemTrayEvent, SystemTrayMenu, Window, WindowBuilder, WindowEvent,
+    SystemTray, SystemTrayEvent, SystemTrayMenu, Window, WindowBuilder,
 };
-use tauri_plugin_window_state::{AppHandleExt, StateFlags};
+use tauri_plugin_window_state::{StateFlags, WindowExt};
 use window_shadows::set_shadow;
 
 fn init_logger() {
@@ -34,6 +34,9 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
         .decorations(false)
         .visible(false)
         .build()?;
+
+    set_shadow(&window, true).ok();
+    window.restore_state(StateFlags::all())?;
 
     Ok(window)
 }
@@ -57,6 +60,7 @@ fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
             }
 
             let main_window = create_main_window(app).unwrap();
+            main_window.restore_state(StateFlags::all()).unwrap();
             main_window.show().unwrap();
 
             main_window.set_focus().unwrap();
@@ -83,28 +87,17 @@ async fn main() -> anyhow::Result<()> {
         .system_tray(system_tray)
         .device_event_filter(DeviceEventFilter::Never)
         .on_system_tray_event(on_tray_event)
-        .on_window_event(|event| {
-            if let WindowEvent::CloseRequested { .. } = event.event() {
-                event
-                    .window()
-                    .app_handle()
-                    .save_window_state(StateFlags::all())
-                    .unwrap();
-            }
-        })
         .build(tauri::generate_context!())?;
 
-    let main_window = create_main_window(&app)?;
-    set_shadow(&main_window, true).ok();
-    main_window.show()?;
-
     if let Err(err) = init_plugin(&app.handle()).await {
-        dialog::message(
-            Some(&main_window),
-            "KiwiTalk Startup Fatal Error",
-            format!("{:?}", err),
-        );
+        dialog::message::<tauri::Wry>(None, "KiwiTalk Startup Fatal Error", format!("{:?}", err));
+        app.run(|_, _| {});
+
+        return Ok(());
     }
+
+    let main_window = create_main_window(&app)?;
+    main_window.show()?;
 
     app.run(|_, event| {
         if let RunEvent::ExitRequested { api, .. } = event {
