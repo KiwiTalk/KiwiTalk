@@ -1,4 +1,14 @@
+mod conn;
+mod credential;
+mod handler;
+
+use parking_lot::RwLock;
 use std::task::Poll;
+use tauri::{
+    generate_handler,
+    plugin::{Builder, TauriPlugin},
+    Manager, Runtime, State,
+};
 
 use anyhow::{anyhow, Context};
 use futures::{future::poll_fn, stream, StreamExt};
@@ -6,21 +16,36 @@ use kiwi_talk_client::{
     config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
     handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
 };
-use parking_lot::RwLock;
 use talk_loco_client::{session::LocoSession, LocoClient};
-use tauri::{AppHandle, Manager, Runtime, State};
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{result::TauriResult, system::SystemInfo};
 
-use super::{conn::checkin, handler::run_handler, stream::create_secure_stream, Credential};
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
+use conn::checkin;
 
-type Client = RwLock<Option<ClientApp>>;
+use self::{conn::create_secure_stream, credential::CredentialState, handler::run_handler};
 
-pub(super) fn setup(handle: &AppHandle<impl Runtime>) {
-    handle.manage(Client::new(None));
+pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+    Builder::new(name)
+        .setup(|handle| {
+            handle.manage::<RwLock<Option<ClientApp>>>(RwLock::new(None));
+
+            credential::setup(handle);
+
+            Ok(())
+        })
+        .invoke_handler(generate_handler![
+            initialize_client,
+            next_client_event,
+            client_user_id,
+            destroy_client,
+            credential::set_credential,
+        ])
+        .build()
 }
+
+pub type ClientState<'a> = State<'a, RwLock<Option<ClientApp>>>;
 
 pub struct ClientApp {
     session: KiwiTalkSession,
@@ -37,8 +62,8 @@ impl Drop for ClientApp {
 #[tauri::command(async)]
 pub(super) async fn initialize_client(
     status: ClientStatus,
-    credential: State<'_, Credential>,
-    client: State<'_, Client>,
+    credential: CredentialState<'_>,
+    client: ClientState<'_>,
     info: State<'_, SystemInfo>,
 ) -> TauriResult<()> {
     let credential = credential
@@ -128,9 +153,7 @@ pub(super) async fn initialize_client(
 }
 
 #[tauri::command(async)]
-pub(super) async fn next_client_event(
-    client: State<'_, Client>,
-) -> TauriResult<Option<ClientEvent>> {
+pub(super) async fn next_client_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
     let event = poll_fn(|cx| {
         let mut client = client.write();
 
@@ -150,11 +173,11 @@ pub(super) async fn next_client_event(
 }
 
 #[tauri::command(async)]
-pub(super) async fn destroy_client(client: State<'_, Client>) -> Result<bool, ()> {
+pub(super) async fn destroy_client(client: ClientState<'_>) -> Result<bool, ()> {
     Ok(client.write().take().is_some())
 }
 
 #[tauri::command]
-pub(super) fn client_user_id(client: State<'_, Client>) -> Option<i64> {
+pub(super) fn client_user_id(client: ClientState) -> Option<i64> {
     client.read().as_ref().map(|app| app.session.user_id())
 }

@@ -30,7 +30,7 @@ pub fn get_system_info() -> &'static SystemInfo {
 pub(super) async fn init_plugin<R: Runtime>(
     name: &'static str,
     path_resolver: PathResolver,
-) -> tauri::plugin::Result<TauriPlugin<R>> {
+) -> anyhow::Result<TauriPlugin<R>> {
     SYSTEM
         .set(
             create_system_info(
