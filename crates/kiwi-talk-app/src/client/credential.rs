@@ -18,7 +18,7 @@ pub struct AppCredential {
 #[tauri::command]
 pub(super) fn set_credential(
     credential: Option<AppCredential>,
-    state: State<'_, CredentialState>,
+    state: CredentialState<'_>,
 ) -> Result<(), ()> {
     *state.write() = credential;
     Ok(())

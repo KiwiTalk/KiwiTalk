@@ -19,7 +19,7 @@ use kiwi_talk_client::{
 use talk_loco_client::{session::LocoSession, LocoClient};
 use tokio::{sync::mpsc, task::JoinHandle};
 
-use crate::{result::TauriResult, system::SystemInfo};
+use crate::{result::TauriResult, system::{SystemInfo, SystemInfoState}};
 
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;
@@ -64,7 +64,7 @@ pub(super) async fn initialize_client(
     status: ClientStatus,
     credential: CredentialState<'_>,
     client: ClientState<'_>,
-    info: State<'_, SystemInfo>,
+    info: SystemInfoState<'_>,
 ) -> TauriResult<()> {
     let credential = credential
         .read()

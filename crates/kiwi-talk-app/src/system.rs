@@ -10,7 +10,7 @@ use rand::Rng;
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
-    PathResolver, Runtime,
+    PathResolver, Runtime, State,
 };
 use tokio::{
     fs::{self, File},
@@ -20,6 +20,8 @@ use tokio::{
 use crate::constants::{
     APP_DEVICE_UUID_FILE, APP_PORTABLE_DATA_DIR, DEFAULT_DEVICE_LOCALE, DEFAULT_DEVICE_NAME,
 };
+
+pub type SystemInfoState<'a> = State<'a, SystemInfo>;
 
 static SYSTEM: OnceLock<SystemInfo> = OnceLock::new();
 
