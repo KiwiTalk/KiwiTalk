@@ -77,7 +77,7 @@ pub(super) async fn initialize_client(
                 },
                 ClientCredential {
                     access_token: &credential.access_token,
-                    device_uuid: info.device_info.device_uuid.as_str(),
+                    device_uuid: &info.device_info.device_uuid,
                     user_id: credential.user_id,
                 },
                 status,

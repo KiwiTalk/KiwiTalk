@@ -96,7 +96,7 @@ fn create_config<'a>(info: &'a State<'_, SystemInfo>) -> AuthClientConfig<'a> {
         device: AuthDeviceConfig {
             name: &info.device_info.name,
             model: None,
-            uuid: info.device_info.device_uuid.as_str(),
+            uuid: &info.device_info.device_uuid,
         },
         language: info.device_info.language(),
         version: TALK_VERSION,

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{ops::Deref, path::PathBuf};
 
 use base64::{engine::general_purpose::STANDARD, Engine};
 use rand::Rng;
@@ -71,19 +71,16 @@ impl DeviceUuid {
         DeviceUuid(STANDARD.encode(data))
     }
 
-    #[inline]
-    pub fn as_str(&self) -> &str {
-        self.0.as_str()
-    }
-
     pub fn decode(&self) -> Vec<u8> {
         STANDARD.decode(&self.0).unwrap()
     }
 }
 
-impl AsRef<str> for DeviceUuid {
-    fn as_ref(&self) -> &str {
-        self.as_str()
+impl Deref for DeviceUuid {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
