@@ -14,8 +14,7 @@ use tauri::{
 
 use crate::{
     constants::{TALK_AGENT, TALK_VERSION, XVC_HASHER},
-    result::TauriResult,
-    system::SystemInfoState,
+    result::TauriResult, system::{get_system_info, SystemInfo},
 };
 
 pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
@@ -29,9 +28,8 @@ async fn login(
     email: String,
     password: String,
     forced: bool,
-    app_info: SystemInfoState<'_>,
 ) -> TauriResult<TalkStatusResponse<LoginData>> {
-    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
         .login(
@@ -51,9 +49,8 @@ async fn login(
 async fn request_passcode(
     email: String,
     password: String,
-    app_info: SystemInfoState<'_>,
 ) -> TauriResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
         .request_passcode(AccountLoginForm {
@@ -72,9 +69,8 @@ async fn register_device(
     email: String,
     password: String,
     permanent: bool,
-    app_info: SystemInfoState<'_>,
 ) -> TauriResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
         .register_device(
@@ -91,7 +87,7 @@ async fn register_device(
     Ok(res)
 }
 
-fn create_config<'a>(info: &'a SystemInfoState<'_>) -> AuthClientConfig<'a> {
+fn create_config<'a>(info: &'a SystemInfo) -> AuthClientConfig<'a> {
     AuthClientConfig {
         device: AuthDeviceConfig {
             name: &info.device_info.name,
