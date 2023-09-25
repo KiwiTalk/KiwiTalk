@@ -1,14 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", content = "value")]
 pub enum Locale {
+    #[default]
     Auto,
-    Fixed(String),
-}
 
-impl Default for Locale {
-    fn default() -> Self {
-        Self::Auto
-    }
+    Fixed(String),
 }
