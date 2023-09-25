@@ -108,7 +108,7 @@ async fn create_system_info(resolver: &PathResolver) -> anyhow::Result<SystemInf
 
     let device_config_dir = resolver
         .app_config_dir()
-        .context("cannot find device data directory")?;
+        .context("cannot find device config directory")?;
 
     let device_uuid = init_device_uuid(&device_data_dir)
         .await
