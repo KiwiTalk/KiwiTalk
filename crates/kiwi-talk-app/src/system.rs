@@ -99,7 +99,7 @@ impl Deref for DeviceUuid {
     }
 }
 
-pub fn gen_device_uuid() -> DeviceUuid {
+fn gen_device_uuid() -> DeviceUuid {
     let mut rng = rand::thread_rng();
 
     let mut random_bytes = [0_u8; 64];
@@ -108,7 +108,7 @@ pub fn gen_device_uuid() -> DeviceUuid {
     DeviceUuid::new(&random_bytes)
 }
 
-pub async fn create_system_info(device_data_dir: PathBuf) -> anyhow::Result<SystemInfo> {
+async fn create_system_info(device_data_dir: PathBuf) -> anyhow::Result<SystemInfo> {
     let data_dir = if fs::metadata(APP_PORTABLE_DATA_DIR)
         .await
         .map(|metadata| metadata.is_dir())
