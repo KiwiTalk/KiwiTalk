@@ -36,10 +36,10 @@ pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
             Ok(())
         })
         .invoke_handler(generate_handler![
-            initialize_client,
-            next_client_event,
-            client_user_id,
-            destroy_client,
+            initialize,
+            next_event,
+            user_id,
+            destroy,
             credential::set_credential,
         ])
         .build()
@@ -60,7 +60,7 @@ impl Drop for ClientApp {
 }
 
 #[tauri::command(async)]
-pub(super) async fn initialize_client(
+async fn initialize(
     status: ClientStatus,
     credential: CredentialState<'_>,
     client: ClientState<'_>,
@@ -154,7 +154,7 @@ pub(super) async fn initialize_client(
 }
 
 #[tauri::command(async)]
-pub(super) async fn next_client_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
+async fn next_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
     let event = poll_fn(|cx| {
         let mut client = client.write();
 
@@ -174,11 +174,11 @@ pub(super) async fn next_client_event(client: ClientState<'_>) -> TauriResult<Op
 }
 
 #[tauri::command(async)]
-pub(super) async fn destroy_client(client: ClientState<'_>) -> Result<bool, ()> {
+async fn destroy(client: ClientState<'_>) -> Result<bool, ()> {
     Ok(client.write().take().is_some())
 }
 
 #[tauri::command]
-pub(super) fn client_user_id(client: ClientState) -> Option<i64> {
+fn user_id(client: ClientState) -> Option<i64> {
     client.read().as_ref().map(|app| app.session.user_id())
 }
