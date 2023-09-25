@@ -53,7 +53,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
       return {
         email: auth.email,
         password: '',
-        saveId: auth.type === 'SaveAccount',
+        saveId: true,
         autoLogin: auth.type === 'AutoLogin',
       };
     }
