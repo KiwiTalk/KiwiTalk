@@ -52,6 +52,10 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
 fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::LeftClick { .. } => {
+            if app.get_window("main").is_some() {
+                return;
+            }
+
             let main_window = create_main_window(app).unwrap();
             main_window.show().unwrap();
 
