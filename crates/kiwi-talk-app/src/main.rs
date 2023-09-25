@@ -10,8 +10,6 @@ mod constants;
 mod result;
 mod system;
 
-use std::error::Error;
-
 use tauri::{
     api::dialog, AppHandle, CustomMenuItem, Manager, Runtime, SystemTray, SystemTrayEvent,
     SystemTrayMenu,
@@ -27,7 +25,9 @@ fn init_logger() {
     builder.init();
 }
 
-async fn init_app(handle: &AppHandle<impl Runtime>) -> Result<(), Box<dyn Error + 'static>> {
+async fn init_app(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
+    handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
+
     handle.plugin(system::init_plugin("system", handle.path_resolver()).await?)?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(auth::init_plugin("auth"))?;
@@ -57,7 +57,7 @@ fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error + 'static>> {
+async fn main() -> anyhow::Result<()> {
     init_logger();
 
     tauri::async_runtime::set(tokio::runtime::Handle::current());
