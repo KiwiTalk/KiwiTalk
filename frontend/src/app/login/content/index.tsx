@@ -44,26 +44,40 @@ export const AppLoginContent = (props: LoginContentProp) => {
 
 
   const input = () => {
-    const auth = config().configuration.auth;
+    if (props.input) {
+      return props.input;
+    }
 
-    return props.input ?? {
-      email: auth.type !== 'None' ? (auth.email ?? '') : '',
+    const auth = config().configuration.auth;
+    if (auth) {
+      return {
+        email: auth.email,
+        password: '',
+        saveId: true,
+        autoLogin: auth.type === 'AutoLogin',
+      };
+    }
+
+    return {
+      email: '',
       password: '',
-      saveId: auth.type === 'SaveAccount',
-      autoLogin: auth.type === 'AutoLogin',
+      saveId: true,
+      autoLogin: true,
     };
   };
 
   const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
 
   function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
-    let auth: AuthConfiguration = { type: 'None' };
+    let auth: AuthConfiguration = null;
+
     if (input.saveId) {
       auth = {
         type: 'SaveAccount',
         email: input.email,
       };
     }
+
     if (input.autoLogin && res.status === 0) {
       auth = {
         type: 'AutoLogin',

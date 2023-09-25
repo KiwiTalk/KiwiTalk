@@ -9,16 +9,16 @@ use talk_api_client::{
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
-    Runtime, State,
+    Runtime,
 };
 
 use crate::{
     constants::{TALK_AGENT, TALK_VERSION, XVC_HASHER},
     result::TauriResult,
-    system::SystemInfo,
+    system::{get_system_info, SystemInfo},
 };
 
-pub fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
+pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
         .invoke_handler(generate_handler![login, register_device, request_passcode])
         .build()
@@ -29,9 +29,8 @@ async fn login(
     email: String,
     password: String,
     forced: bool,
-    app_info: State<'_, SystemInfo>,
 ) -> TauriResult<TalkStatusResponse<LoginData>> {
-    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
         .login(
@@ -48,12 +47,8 @@ async fn login(
 }
 
 #[tauri::command(async)]
-async fn request_passcode(
-    email: String,
-    password: String,
-    app_info: State<'_, SystemInfo>,
-) -> TauriResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
+async fn request_passcode(email: String, password: String) -> TauriResult<TalkStatusResponse<()>> {
+    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
         .request_passcode(AccountLoginForm {
@@ -72,9 +67,8 @@ async fn register_device(
     email: String,
     password: String,
     permanent: bool,
-    app_info: State<'_, SystemInfo>,
 ) -> TauriResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(create_config(&app_info), XVC_HASHER);
+    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
 
     let res = client
         .register_device(
@@ -91,12 +85,12 @@ async fn register_device(
     Ok(res)
 }
 
-fn create_config<'a>(info: &'a State<'_, SystemInfo>) -> AuthClientConfig<'a> {
+fn create_config<'a>(info: &'a SystemInfo) -> AuthClientConfig<'a> {
     AuthClientConfig {
         device: AuthDeviceConfig {
             name: &info.device_info.name,
             model: None,
-            uuid: info.device_info.device_uuid.as_str(),
+            uuid: &info.device_info.device_uuid,
         },
         language: info.device_info.language(),
         version: TALK_VERSION,

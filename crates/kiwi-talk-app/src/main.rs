@@ -3,8 +3,9 @@
     windows_subsystem = "windows"
 )]
 
-mod app;
 mod auth;
+mod client;
+mod configuration;
 mod constants;
 mod result;
 mod system;
@@ -28,9 +29,9 @@ fn init_logger() {
 
 async fn init_app(handle: &AppHandle<impl Runtime>) -> Result<(), Box<dyn Error + 'static>> {
     handle.plugin(system::init_plugin("system", handle.path_resolver()).await?)?;
-
+    handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(auth::init_plugin("auth"))?;
-    handle.plugin(app::init_plugin("app"))?;
+    handle.plugin(client::init_plugin("client"))?;
 
     Ok(())
 }
