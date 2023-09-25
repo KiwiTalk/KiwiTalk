@@ -29,6 +29,9 @@ dependencies:
   solid-js:
     specifier: ^1.7.11
     version: 1.7.11
+  tauri-plugin-window-state-api:
+    specifier: github:tauri-apps/tauri-plugin-window-state#v1
+    version: github.com/tauri-apps/tauri-plugin-window-state/5ea9eb0d4a9affd17269f92c0085935046be3f4a
 
 devDependencies:
   '@babel/core':
@@ -1473,13 +1476,13 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.22.13
-      '@babel/generator': 7.22.15
+      '@babel/generator': 7.23.0
       '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.22.16
-      '@babel/types': 7.22.19
+      '@babel/parser': 7.23.0
+      '@babel/types': 7.23.0
       debug: 4.3.4
       globals: 11.12.0
     transitivePeerDependencies:
@@ -3512,10 +3515,10 @@ packages:
   /@storybook/csf-tools@7.5.0-alpha.3:
     resolution: {integrity: sha512-D7rk9mcyUXjJikmcmDghe4oJQXim7uKh2rxJP66lW1jD2Z5prkFzKbsYLbG57HGuly4ik4yox+Pd4r6w6QcCNQ==}
     dependencies:
-      '@babel/generator': 7.22.15
-      '@babel/parser': 7.22.16
-      '@babel/traverse': 7.22.20
-      '@babel/types': 7.22.19
+      '@babel/generator': 7.23.0
+      '@babel/parser': 7.23.0
+      '@babel/traverse': 7.23.0
+      '@babel/types': 7.23.0
       '@storybook/csf': 0.1.1
       '@storybook/types': 7.5.0-alpha.3
       fs-extra: 11.1.1
@@ -6781,7 +6784,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       '@babel/core': 7.23.0
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.0
       semver: 6.3.1
@@ -9369,3 +9372,11 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+  github.com/tauri-apps/tauri-plugin-window-state/5ea9eb0d4a9affd17269f92c0085935046be3f4a:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/5ea9eb0d4a9affd17269f92c0085935046be3f4a}
+    name: tauri-plugin-window-state-api
+    version: 0.0.0
+    dependencies:
+      '@tauri-apps/api': 1.4.0
+    dev: false

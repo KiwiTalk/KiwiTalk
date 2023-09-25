@@ -53,17 +53,6 @@
     "updater": {
       "active": false
     },
-    "windows": [
-      {
-        "fullscreen": false,
-        "width": 1280,
-        "height": 720,
-        "resizable": true,
-        "title": "KiwiTalk",
-        "decorations": false,
-        "label": "main"
-      }
-    ],
     "systemTray": {
       "iconPath": "icons/512x512.png",
       "iconAsTemplate": true

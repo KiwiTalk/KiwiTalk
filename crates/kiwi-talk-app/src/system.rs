@@ -32,14 +32,7 @@ pub(super) async fn init_plugin<R: Runtime>(
     path_resolver: PathResolver,
 ) -> anyhow::Result<TauriPlugin<R>> {
     SYSTEM
-        .set(
-            create_system_info(
-                path_resolver
-                    .app_data_dir()
-                    .context("cannot find device data directory")?,
-            )
-            .await?,
-        )
+        .set(create_system_info(&path_resolver).await?)
         .expect("Cannot initialize System information");
 
     Ok(Builder::new(name)
@@ -59,8 +52,8 @@ fn get_device_name() -> String {
 
 #[derive(Debug)]
 pub struct SystemInfo {
-    pub device_data_dir: PathBuf,
     pub data_dir: PathBuf,
+    pub config_dir: PathBuf,
     pub device_info: DeviceInfo,
 }
 
@@ -108,20 +101,30 @@ fn gen_device_uuid() -> DeviceUuid {
     DeviceUuid::new(&random_bytes)
 }
 
-async fn create_system_info(device_data_dir: PathBuf) -> anyhow::Result<SystemInfo> {
-    let data_dir = if fs::metadata(APP_PORTABLE_DATA_DIR)
-        .await
-        .map(|metadata| metadata.is_dir())
-        .unwrap_or(false)
-    {
-        APP_PORTABLE_DATA_DIR.into()
-    } else {
-        device_data_dir.clone()
-    };
+async fn create_system_info(resolver: &PathResolver) -> anyhow::Result<SystemInfo> {
+    let device_data_dir = resolver
+        .app_data_dir()
+        .context("cannot find device data directory")?;
+
+    let device_config_dir = resolver
+        .app_config_dir()
+        .context("cannot find device data directory")?;
 
     let device_uuid = init_device_uuid(&device_data_dir)
         .await
         .context("cannot initialize device uuid")?;
+
+    let (data_dir, config_dir) = if fs::metadata(APP_PORTABLE_DATA_DIR)
+        .await
+        .map(|metadata| metadata.is_dir())
+        .unwrap_or(false)
+    {
+        let data_dir = PathBuf::from(APP_PORTABLE_DATA_DIR);
+
+        (data_dir.clone(), data_dir)
+    } else {
+        (device_data_dir, device_config_dir)
+    };
 
     let locale = sys_locale::get_locale().unwrap_or_else(|| String::from(DEFAULT_DEVICE_LOCALE));
     let name = hostname::get()
@@ -137,8 +140,8 @@ async fn create_system_info(device_data_dir: PathBuf) -> anyhow::Result<SystemIn
     };
 
     Ok(SystemInfo {
-        device_data_dir,
         data_dir,
+        config_dir,
         device_info,
     })
 }
