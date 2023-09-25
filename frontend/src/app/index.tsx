@@ -30,7 +30,7 @@ export const App = () => {
       userId: data.userId,
     });
 
-    await initializeClient({ status: 'Unlocked' });
+    await initializeClient('Unlocked');
 
     setLogon(true);
   };

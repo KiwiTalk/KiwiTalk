@@ -11,7 +11,7 @@ export function setCredential(credential: AppCredential): Promise<AppCredential>
   return tauri.invoke<AppCredential>('plugin:app|set_credential', { credential });
 }
 
-export type ClientStatus = { status: 'Locked' } | { status: 'Unlocked' };
+export type ClientStatus = 'Locked' | 'Unlocked';
 
 export function initializeClient(status: ClientStatus): Promise<void> {
   return tauri.invoke('plugin:app|initialize_client', { status });
