@@ -1,5 +1,5 @@
 import { AppLogin } from './login';
-import { setCredential, initializeClient } from '../ipc/app';
+import { setCredential, initializeClient } from '../ipc/client';
 import { LoginAccessData } from '../ipc/auth';
 import { AppMain } from './main';
 import { Show, createEffect, createSignal, on } from 'solid-js';

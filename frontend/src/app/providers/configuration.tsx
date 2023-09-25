@@ -1,7 +1,7 @@
 import { ParentProps, createResource } from 'solid-js';
 import { deepmerge } from 'deepmerge-ts';
 
-import { getGlobalConfiguration, setGlobalConfiguration } from '../../ipc/app';
+import { getGlobalConfiguration, setGlobalConfiguration } from '../../ipc/client';
 import { getDeviceLocale } from '../../ipc/system';
 import { ConfigurationContext, GlobalConfiguration } from '../../store/global';
 import { DeepPartial } from '../../utils';
