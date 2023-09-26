@@ -11,21 +11,17 @@ authors.workspace = true
 repository.workspace = true
 
 [features]
-wasm = ["loco-protocol/wasm"]
+wasm = ["futures-loco-protocol/wasm"]
 
 [dependencies]
 serde = { version = "1.0" }
 serde_with = "3.3.0"
-tokio = { version = "1", features = ["sync"] }
 bson = "2.7.0"
-nohash-hasher = "0.2.0"
-loco-protocol = "6.4.0"
-
+futures-loco-protocol = "0.2.0"
 thiserror = "1.0"
 async-stream = "0.3.5"
 parking_lot = "0.12.1"
 pin-project-lite = "0.2.13"
-rand = "0.8.5"
 futures-lite = "1.13.0"
 structstruck = "0.4.1"
 bitflags = { version = "2.4.0", features = ["serde"] }

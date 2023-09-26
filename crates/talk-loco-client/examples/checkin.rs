@@ -1,12 +1,11 @@
 use std::error::Error;
 
-use loco_protocol::secure::client::RsaPublicKey;
-use num_bigint_dig::BigUint;
-use talk_loco_client::{
-    client::checkin::{CheckinClient, CheckinReq},
-    secure::LocoSecureLayer,
+use futures_loco_protocol::{
+    secure::{LocoSecureStream, RsaPublicKey},
     LocoClient,
 };
+use num_bigint_dig::BigUint;
+use talk_loco_client::client::checkin::{CheckinClient, CheckinReq};
 use tokio::{io::BufStream, net::TcpStream};
 use tokio_util::compat::TokioAsyncReadCompatExt;
 
@@ -38,7 +37,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .unwrap();
 
-    let stream = LocoSecureLayer::new(
+    let stream = LocoSecureStream::new(
         rsa_key,
         BufStream::new(
             TcpStream::connect("ticket-loco.kakao.com:443")

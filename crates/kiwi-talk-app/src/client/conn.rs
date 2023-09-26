@@ -1,13 +1,15 @@
 use anyhow::Context;
 use num_bigint_dig::BigUint;
 use once_cell::sync::Lazy;
-use talk_loco_client::secure::{LocoSecureLayer, RsaPublicKey};
 use talk_loco_client::{
     client::{
         booking::{BookingClient, GetConfReq, GetConfRes},
         checkin::{CheckinClient, CheckinReq, CheckinRes},
     },
-    LocoClient,
+    futures_loco_protocol::{
+        secure::{LocoSecureStream, RsaPublicKey},
+        LocoClient,
+    },
 };
 use thiserror::Error;
 use tokio::{
@@ -95,7 +97,7 @@ static LOCO_SECURE_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
 });
 
 pub type TlsTcpStream = Compat<TlsStream<BufStream<TcpStream>>>;
-pub type SecureTcpStream = LocoSecureLayer<Compat<BufStream<TcpStream>>>;
+pub type SecureTcpStream = LocoSecureStream<Compat<BufStream<TcpStream>>>;
 
 pub async fn create_tls_stream<A: ToSocketAddrs>(
     connector: &mut TlsConnector,
@@ -109,7 +111,7 @@ pub async fn create_tls_stream<A: ToSocketAddrs>(
 }
 
 pub async fn create_secure_stream<A: ToSocketAddrs>(addr: A) -> io::Result<SecureTcpStream> {
-    Ok(LocoSecureLayer::new(
+    Ok(LocoSecureStream::new(
         LOCO_SECURE_KEY.to_owned(),
         BufStream::new(TcpStream::connect(addr).await?).compat(),
     ))

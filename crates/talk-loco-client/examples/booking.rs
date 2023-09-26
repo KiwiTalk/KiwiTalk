@@ -1,9 +1,7 @@
 use std::error::Error;
 
-use talk_loco_client::{
-    client::booking::{BookingClient, GetConfReq},
-    LocoClient,
-};
+use futures_loco_protocol::LocoClient;
+use talk_loco_client::client::booking::{BookingClient, GetConfReq};
 use tokio::{io::BufStream, net::TcpStream};
 use tokio_native_tls::native_tls;
 use tokio_util::compat::TokioAsyncReadCompatExt;

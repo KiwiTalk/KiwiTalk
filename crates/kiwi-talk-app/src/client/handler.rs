@@ -6,7 +6,7 @@ use kiwi_talk_client::{
     event::{channel::ChannelEvent, ClientEvent},
     handler::SessionHandler,
 };
-use talk_loco_client::BoxedCommand;
+use talk_loco_client::loco_protocol::command::BoxedCommand;
 use tauri::api::notification::Notification;
 use tokio::sync::mpsc;
 
