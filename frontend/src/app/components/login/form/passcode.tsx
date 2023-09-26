@@ -36,7 +36,7 @@ export const PasscodeForm = (props: PasscodeFormProp) => {
       type='number'
       maxLength={4}
       placeholder={t('login.passcode_placeholder')}
-      defaultValue={props.passcode}
+      value={props.passcode}
       onInput={onInputHandler}
     />
   </div>;

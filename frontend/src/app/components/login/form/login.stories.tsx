@@ -16,7 +16,7 @@ type Prop = Partial<LoginFormInput> & {
 
 const Template: StoryFn<Prop> = (args) =>
   <LoginForm
-    defaultInput={args}
+    input={args}
     onSubmit={args.onSubmit}
   />;
 
