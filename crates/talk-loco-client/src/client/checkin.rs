@@ -1,8 +1,8 @@
 use futures_lite::{AsyncRead, AsyncWrite};
-use loco_protocol::command::Method;
+use futures_loco_protocol::{loco_protocol::command::Method, LocoClient};
 use serde::{Deserialize, Serialize};
 
-use crate::{LocoClient, RequestResult};
+use crate::RequestResult;
 
 use super::request_simple;
 

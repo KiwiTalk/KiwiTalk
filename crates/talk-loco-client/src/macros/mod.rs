@@ -41,7 +41,7 @@ macro_rules! impl_session {
     ) => {
         $(#[$meta])*
         #[derive(Clone, Copy)]
-        $vis struct $name<'a>(pub &'a $crate::session::LocoSession);
+        $vis struct $name<'a>(pub &'a $crate::macros::__private::futures_loco_protocol::session::LocoSession);
 
         impl_session!(
             @internal {

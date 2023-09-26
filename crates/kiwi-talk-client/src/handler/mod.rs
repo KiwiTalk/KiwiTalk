@@ -1,7 +1,7 @@
 mod command;
 pub mod error;
 
-use talk_loco_client::command::Command;
+use talk_loco_client::loco_protocol::command::Command;
 
 use crate::{
     channel::user::UserId,

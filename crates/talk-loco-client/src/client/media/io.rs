@@ -5,10 +5,11 @@ use std::{
 };
 
 use futures_lite::{future::poll_fn, ready, AsyncRead, AsyncWrite};
+use futures_loco_protocol::LocoClient;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::{structs::chat::Chatlog, BsonCommandStatus, LocoClient};
+use crate::{structs::chat::Chatlog, BsonCommandStatus};
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]

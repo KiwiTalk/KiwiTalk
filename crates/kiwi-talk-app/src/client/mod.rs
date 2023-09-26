@@ -16,7 +16,7 @@ use kiwi_talk_client::{
     config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
     handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
 };
-use talk_loco_client::{session::LocoSession, LocoClient};
+use talk_loco_client::futures_loco_protocol::{session::LocoSession, LocoClient};
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{result::TauriResult, system::get_system_info};
@@ -137,7 +137,7 @@ async fn initialize(
 
     run_handler(
         handler.clone(),
-        stream::iter(stream_buffer).map(|command| Ok(command)),
+        stream::iter(stream_buffer).map(Ok),
         event_tx.clone(),
     )
     .await;

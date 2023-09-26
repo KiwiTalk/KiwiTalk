@@ -3,12 +3,12 @@ pub mod checkin;
 pub mod media;
 
 use futures_lite::{AsyncRead, AsyncWrite};
-use loco_protocol::command::Method;
+use futures_loco_protocol::{loco_protocol::command::Method, LocoClient};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{BsonCommandStatus, LocoClient, RequestError, RequestResult};
+use crate::{BsonCommandStatus, RequestError, RequestResult};
 
-pub(super) async fn request_simple<Res: DeserializeOwned>(
+async fn request_simple<Res: DeserializeOwned>(
     client: &mut LocoClient<impl AsyncRead + AsyncWrite + Unpin>,
     method: Method,
     req: &impl Serialize,
