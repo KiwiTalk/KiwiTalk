@@ -19,7 +19,7 @@ pub struct SavedAccount {
 }
 
 fn file_path() -> PathBuf {
-    get_system_info().config_dir.join("account_saved")
+    get_system_info().config_dir.join("saved_account")
 }
 
 pub async fn read() -> anyhow::Result<Option<SavedAccount>> {
