@@ -6,14 +6,31 @@ export type AppCredential = {
   userId?: number
 }
 
-export function setCredential(credential: AppCredential): Promise<AppCredential> {
-  return tauri.invoke<AppCredential>('plugin:client|set_credential', { credential });
+export type LoginForm = {
+  email: string,
+  password: string,
+  saveEmail: boolean,
+  autoLogin: boolean,
 }
+
+export type ClientState = 'NeedLogin' | 'Logon';
 
 export type ClientStatus = 'Locked' | 'Unlocked';
 
-export function initializeClient(status: ClientStatus): Promise<void> {
-  return tauri.invoke('plugin:client|initialize', { status });
+export function getClientState(): Promise<ClientState> {
+  return tauri.invoke('plugin:client|get_state');
+}
+
+export function defaultLoginForm(): Promise<LoginForm> {
+  return tauri.invoke('plugin:client|default_login_form');
+}
+
+export function login(form: LoginForm, forced: boolean, status: ClientStatus): Promise<number> {
+  return tauri.invoke('plugin:client|login', { form, forced, status });
+}
+
+export function logout(): Promise<void> {
+  return tauri.invoke('plugin:client|logout');
 }
 
 export type KiwiTalkClientEvent = {

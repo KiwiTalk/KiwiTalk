@@ -1,10 +1,7 @@
 use anyhow::Context;
-use talk_api_client::{
-    auth::{
-        resources::LoginData, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, LoginMethod,
-        TalkAuthClient,
-    },
-    response::TalkStatusResponse,
+use sha2::{Digest, Sha512};
+use talk_api_client::auth::{
+    xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, TalkAuthClient,
 };
 use tauri::{
     generate_handler,
@@ -13,52 +10,47 @@ use tauri::{
 };
 
 use crate::{
-    constants::{TALK_AGENT, TALK_VERSION, XVC_HASHER},
+    constants::{AUTO_LOGIN_KEY, TALK_AGENT, TALK_VERSION, XVC_HASHER},
     result::TauriResult,
     system::{get_system_info, SystemInfo},
 };
 
 pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)
-        .invoke_handler(generate_handler![login, register_device, request_passcode])
+        .invoke_handler(generate_handler![register_device, request_passcode])
         .build()
 }
 
-#[tauri::command(async)]
-async fn login(
-    email: String,
-    password: String,
-    forced: bool,
-) -> TauriResult<TalkStatusResponse<LoginData>> {
-    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
+pub fn create_auto_login_token(
+    auto_login_email: &str,
+    refresh_token: &str,
+    device_uuid: &str,
+) -> [u8; 64] {
+    let mut hasher = Sha512::new();
 
-    let res = client
-        .login(
-            LoginMethod::Account(AccountLoginForm {
-                email: &email,
-                password: &password,
-            }),
-            forced,
-        )
-        .await
-        .context("login request failed")?;
+    hasher.update(AUTO_LOGIN_KEY.0);
+    hasher.update("|");
+    hasher.update(auto_login_email);
+    hasher.update("|");
+    hasher.update(refresh_token);
+    hasher.update("|");
+    hasher.update(device_uuid);
+    hasher.update("|");
+    hasher.update(AUTO_LOGIN_KEY.1);
 
-    Ok(res)
+    hasher.finalize().into()
 }
 
 #[tauri::command(async)]
-async fn request_passcode(email: String, password: String) -> TauriResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
-
-    let res = client
+async fn request_passcode(email: String, password: String) -> TauriResult<i32> {
+    Ok(create_auth_client()
         .request_passcode(AccountLoginForm {
             email: &email,
             password: &password,
         })
         .await
-        .context("request_passcode request failed")?;
-
-    Ok(res)
+        .context("request_passcode request failed")?
+        .status)
 }
 
 #[tauri::command(async)]
@@ -67,10 +59,8 @@ async fn register_device(
     email: String,
     password: String,
     permanent: bool,
-) -> TauriResult<TalkStatusResponse<()>> {
-    let client = TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER);
-
-    let res = client
+) -> TauriResult<i32> {
+    Ok(create_auth_client()
         .register_device(
             &passcode,
             AccountLoginForm {
@@ -80,9 +70,12 @@ async fn register_device(
             permanent,
         )
         .await
-        .context("register_device request failed")?;
+        .context("register_device request failed")?
+        .status)
+}
 
-    Ok(res)
+pub fn create_auth_client() -> TalkAuthClient<'static, impl XVCHasher> {
+    TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER)
 }
 
 fn create_config(info: &SystemInfo) -> AuthClientConfig<'_> {

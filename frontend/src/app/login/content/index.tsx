@@ -1,21 +1,19 @@
 import { LoginFormInput } from '../../components/login/form/login';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
-import type { LoginAccessData, TalkResponseStatus } from '../../../ipc/auth';
 import { PasscodeContent } from './passcode';
 import { DeviceRegisterContent } from './device-register';
 import { LoginContent } from './login';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { errorMessage, resetText } from './index.css';
 import { styled } from '../../../utils';
-import { Match, Show, Switch, createSignal } from 'solid-js';
-import { AuthConfiguration, useConfiguration } from '../../../store/global';
+import { Match, Show, Switch, createResource, createSignal } from 'solid-js';
+import { defaultLoginForm } from '../../../ipc/client';
 
 const ErrorMessage = styled('p', errorMessage);
 const ResetText = styled('p', resetText);
 
 export type LoginContentProp = {
-  input?: LoginFormInput,
-  onLogin?: (data: LoginAccessData) => void
+  onLogin?: () => void
 };
 
 type LoginStateKey<T> = {
@@ -40,60 +38,36 @@ const DEFAULT_STATE: LoginState = { type: 'login', forced: false };
 
 export const AppLoginContent = (props: LoginContentProp) => {
   const [t] = useTransContext();
-  const [config, setConfig] = useConfiguration();
 
+  const [input, setInput] = createSignal({
+    email: '',
+    password: '',
+    saveId: true,
+    autoLogin: false,
+  });
 
-  const input = () => {
-    if (props.input) {
-      return props.input;
+  createResource(async () => {
+    const form = await defaultLoginForm();
+
+    if (form) {
+      setInput({
+        email: form.email,
+        password: form.password,
+        saveId: form.saveEmail,
+        autoLogin: form.autoLogin,
+      });
     }
-
-    const auth = config().configuration.auth;
-    if (auth) {
-      return {
-        email: auth.email,
-        password: '',
-        saveId: true,
-        autoLogin: auth.type === 'AutoLogin',
-      };
-    }
-
-    return {
-      email: '',
-      password: '',
-      saveId: true,
-      autoLogin: true,
-    };
-  };
+  });
 
   const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
 
-  function onLoginSubmit(input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) {
-    let auth: AuthConfiguration = null;
+  function onLoginSubmit(input: LoginFormInput, status: number) {
+    switch (status) {
+      case 0: {
+        props.onLogin?.();
+        return;
+      }
 
-    if (input.saveId) {
-      auth = {
-        type: 'SaveAccount',
-        email: input.email,
-      };
-    }
-
-    if (input.autoLogin && res.status === 0) {
-      auth = {
-        type: 'AutoLogin',
-        email: input.email,
-        token: (res as LoginAccessData).access_token,
-      };
-    }
-
-    setConfig({ auth });
-
-    if (res.status === 0) {
-      props.onLogin?.(res as LoginAccessData);
-      return;
-    }
-
-    switch (res.status) {
       case -100: {
         setState({ type: 'device_register' });
         return;
@@ -105,7 +79,8 @@ export const AppLoginContent = (props: LoginContentProp) => {
       }
     }
 
-    setState({ ...state(), errorMessage: `login.status.login.${res.status}` });
+    setInput(input);
+    setState({ ...state(), errorMessage: `login.status.login.${status}` });
   }
 
   function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
@@ -126,7 +101,8 @@ export const AppLoginContent = (props: LoginContentProp) => {
     setState({ ...state(), errorMessage: `login.status.passcode.${status}` });
   }
 
-  function onError() {
+  function onError(err: unknown) {
+    console.error(err);
     setState({ ...state(), errorMessage: `login.network_error` });
   }
 

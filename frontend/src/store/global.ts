@@ -2,15 +2,9 @@ import { Accessor, createContext, useContext } from 'solid-js';
 import { DeepPartial } from '../utils';
 
 export type Locale = { type: 'Auto' } | { type: 'Fixed', value: string };
-export type AuthConfiguration = (
-  null
-  | { type: 'SaveAccount'; email: string; }
-  | { type: 'AutoLogin'; email: string; token: string; }
-);
 
 export type GlobalConfiguration = {
   locale: Locale;
-  auth: AuthConfiguration;
 }
 
 export type Configuration = { configuration: GlobalConfiguration; deviceLocale: string; };
@@ -20,7 +14,6 @@ export const ConfigurationContext = createContext<[Accessor<Configuration>, Conf
   () => ({
     configuration: {
       locale: { type: 'Auto' },
-      auth: null,
     },
     deviceLocale: 'en',
   } satisfies Configuration),

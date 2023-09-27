@@ -1,8 +1,7 @@
 import { AppLogin } from './login';
-import { setCredential, initializeClient } from '../ipc/client';
-import { LoginAccessData } from '../ipc/auth';
+import { ClientState, getClientState } from '../ipc/client';
 import { AppMain } from './main';
-import { Show, createEffect, createSignal, on } from 'solid-js';
+import { Match, Switch, createEffect, createResource, createSignal, on } from 'solid-js';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { useConfiguration } from '../store/global';
 
@@ -10,8 +9,11 @@ export const App = () => {
   const [, { changeLanguage }] = useTransContext();
   const [config] = useConfiguration();
 
-  // TODO:: replace to proper implementation
-  const [logon, setLogon] = createSignal(false);
+  const [state, setState] = createSignal<ClientState>('NeedLogin');
+
+  createResource(async () => {
+    setState(await getClientState());
+  });
 
   createEffect(on(config, (config) => {
     if (!config) return;
@@ -23,24 +25,14 @@ export const App = () => {
     }
   }));
 
-  const onLogin = async (data: LoginAccessData) => {
-    await setCredential({
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      userId: data.userId,
-    });
-
-    await initializeClient('Unlocked');
-
-    setLogon(true);
-  };
-
   return (
-    <Show
-      when={logon()}
-      fallback={<AppLogin onLogin={onLogin} />}
-    >
-      <AppMain profile={{ name: 'TODO', contact: 'example@example.com' }} />
-    </Show>
+    <Switch>
+      <Match when={state() === 'NeedLogin'}>
+        <AppLogin onLogin={() => setState('Logon')} />
+      </Match>
+      <Match when={state() === 'Logon'}>
+        <AppMain onLogout={() => setState('NeedLogin')} />
+      </Match>
+    </Switch>
   );
 };
