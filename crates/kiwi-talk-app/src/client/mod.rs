@@ -267,7 +267,10 @@ async fn try_auto_login(
             res.data
                 .ok_or_else(|| anyhow!("cannot deserialize login data"))?
         } else {
-            return Err(anyhow!("cannot login account using given token. status: {}", res.status));
+            return Err(anyhow!(
+                "cannot login account using given token. status: {}",
+                res.status
+            ));
         }
     };
 
