@@ -43,7 +43,7 @@ async fn load() -> TauriResult<Option<LoginData>> {
 }
 
 #[command(async)]
-async fn save(data: LoginData) -> TauriResult<()> {
+async fn save(data: Option<LoginData>) -> TauriResult<()> {
     Ok(spawn_blocking(move || -> anyhow::Result<_> {
         let writer = BufWriter::new(File::create(file_path())?);
 
