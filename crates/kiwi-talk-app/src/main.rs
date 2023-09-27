@@ -7,6 +7,7 @@ mod auth;
 mod client;
 mod configuration;
 mod constants;
+mod credential;
 mod result;
 mod system;
 
@@ -47,6 +48,7 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     handle.plugin(system::init_plugin("system", handle.path_resolver()).await?)?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(auth::init_plugin("auth"))?;
+    handle.plugin(credential::init_plugin("credential"))?;
     handle.plugin(client::init_plugin("client"))?;
 
     Ok(())
