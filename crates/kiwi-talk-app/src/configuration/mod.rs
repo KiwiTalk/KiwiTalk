@@ -59,8 +59,7 @@ pub(super) async fn load(path: ConfigPathState<'_>) -> TauriResult<GlobalConfigu
 
         Ok::<GlobalConfiguration, anyhow::Error>(configuration)
     })
-    .await
-    .context("cannot spawn configuration read task")?
+    .await?
     .unwrap_or_default())
 }
 
@@ -78,8 +77,7 @@ pub(super) async fn save(
 
         Ok::<(), anyhow::Error>(())
     })
-    .await
-    .context("cannot spawn configuration write task")?
+    .await?
     .context("cannot write configuration")?;
 
     Ok(())

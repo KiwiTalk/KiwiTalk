@@ -6,9 +6,9 @@ pub type TauriResult<T> = Result<T, TauriAnyhowError>;
 #[repr(transparent)]
 pub struct TauriAnyhowError(anyhow::Error);
 
-impl From<anyhow::Error> for TauriAnyhowError {
-    fn from(err: anyhow::Error) -> Self {
-        Self(err)
+impl<T: Into<anyhow::Error>> From<T> for TauriAnyhowError {
+    fn from(err: T) -> Self {
+        Self(err.into())
     }
 }
 
