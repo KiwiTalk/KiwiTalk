@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-#[serde(tag = "type", content = "content")]
+#[serde(tag = "type", content = "content", rename_all = "camelCase")]
 pub enum MainEvent {
     Chat {
         channel: String,
