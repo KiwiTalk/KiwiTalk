@@ -20,7 +20,10 @@ use kiwi_talk_client::{
     config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
     handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
 };
-use talk_loco_client::{futures_loco_protocol::{session::LocoSession, LocoClient}, talk::stream::TalkStream};
+use talk_loco_client::{
+    futures_loco_protocol::{session::LocoSession, LocoClient},
+    talk::stream::TalkStream,
+};
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
