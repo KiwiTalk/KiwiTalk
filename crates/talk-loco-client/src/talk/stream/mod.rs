@@ -50,7 +50,7 @@ macro_rules! create_enum {
         $vis:vis enum $name:ident {
             $(
                 $(#[$variant_meta:meta])*
-                $method:literal => $variant_name:ident$(($variant_ty:ident))?
+                $method:literal => $variant_name:ident$(($variant_ty:ty))?
             ),* $(,)?
         }
     ) => {
