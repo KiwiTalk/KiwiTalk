@@ -149,6 +149,20 @@ export const AppLoginContent = (props: LoginContentProp) => {
     setState(DEFAULT_STATE);
   }
 
+  function getErrorMessage() {
+    const currentState = state();
+    if (currentState.errorMessage == null) {
+      return '';
+    }
+
+    let errorMessage = t(currentState.errorMessage);
+    if (currentState.type === 'login' && currentState.forced) {
+      errorMessage += ` ${t('login.set_forced')}`;
+    }
+
+    return errorMessage;
+  }
+
   return <>
     <Switch>
       <Match when={state().type === 'login'}>
@@ -177,7 +191,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
     </Switch>
     <Show when={state().errorMessage}>
       <ErrorMessage>
-        {t(state().errorMessage!)}
+        {getErrorMessage()}
       </ErrorMessage>
     </Show>
     <Show when={state().type !== DEFAULT_STATE.type}>
