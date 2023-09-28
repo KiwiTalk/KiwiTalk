@@ -24,7 +24,7 @@ use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
     auth::{create_auth_client, create_auto_login_token},
-    result::TauriResult,
+    result::{TauriAnyhowError, TauriResult},
     system::get_system_info,
 };
 
@@ -42,14 +42,13 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
         try_auto_login(&email, &hex::encode(token), false, ClientStatus::Unlocked)
             .await
             .map_or_else(
-                |err| {
-                    println!("cannot login: {:?}", err);
-                    State::NeedLogin
+                |err| State::NeedLogin {
+                    reason: Some(Reason::AutoLoginFailed(err.into())),
                 },
                 State::Logon,
             )
     } else {
-        State::NeedLogin
+        State::NeedLogin { reason: None }
     };
 
     Ok(Builder::new(name)
@@ -60,6 +59,7 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
         })
         .invoke_handler(generate_handler![
             get_state,
+            take_login_reason,
             default_login_form,
             login,
             logout,
@@ -74,6 +74,15 @@ type ClientState<'a> = tauri::State<'a, RwLock<State>>;
 #[tauri::command]
 fn get_state(state: ClientState) -> StateKind {
     StateKind::from(&*state.read())
+}
+
+#[tauri::command]
+fn take_login_reason(state: ClientState) -> TauriResult<Option<Reason>> {
+    match &mut *state.write() {
+        State::NeedLogin { reason } => Ok(reason.take()),
+
+        _ => Err(anyhow!("client already logon").into()),
+    }
 }
 
 #[tauri::command(async)]
@@ -165,7 +174,7 @@ async fn login(
 fn logout(state: ClientState<'_>) -> TauriResult<()> {
     match &mut *state.write() {
         state @ State::Logon(_) => {
-            *state = State::NeedLogin;
+            *state = State::NeedLogin { reason: None };
 
             Ok(())
         }
@@ -225,13 +234,20 @@ impl Default for LoginForm {
 
 #[derive(Debug, EnumKind)]
 #[enum_kind(StateKind, derive(Serialize, Deserialize))]
-pub enum State {
-    NeedLogin,
+enum State {
+    NeedLogin { reason: Option<Reason> },
     Logon(Client),
 }
 
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", content = "content")]
+enum Reason {
+    AutoLoginFailed(TauriAnyhowError),
+    Kickout,
+}
+
 #[derive(Debug)]
-pub struct Client {
+struct Client {
     session: KiwiTalkSession,
     event_rx: mpsc::Receiver<anyhow::Result<ClientEvent>>,
     stream_task: JoinHandle<()>,
