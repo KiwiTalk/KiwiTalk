@@ -1,11 +1,5 @@
 import { tauri } from '@tauri-apps/api';
 
-export type AppCredential = {
-  access_token: string,
-  refresh_token: string,
-  userId?: number
-}
-
 export type LoginForm = {
   email: string,
   password: string,
