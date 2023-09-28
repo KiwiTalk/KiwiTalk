@@ -39,7 +39,7 @@ where
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         Poll::Ready(
             ready!(self.project().stream.poll_next(cx)?)
-                .map(|read| Ok(StreamCommand::from_command(read)?)),
+                .map(|read| Ok(StreamCommand::deserialize_from(read)?)),
         )
     }
 }
@@ -66,7 +66,7 @@ macro_rules! create_enum {
         }
 
         impl $name {
-            pub fn from_command(command: BoxedCommand) -> ::bson::de::Result<Self> {
+            pub fn deserialize_from(command: BoxedCommand) -> ::bson::de::Result<Self> {
                 Ok(match &*command.header.method {
                     $(
                         $method => StreamCommand::$variant_name$((::bson::from_slice::<$variant_ty>(&command.data)?))?,
