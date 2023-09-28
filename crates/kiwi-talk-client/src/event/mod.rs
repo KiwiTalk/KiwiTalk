@@ -1,6 +1,6 @@
 pub mod channel;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::channel::ChannelId;
 

@@ -10,7 +10,9 @@ use talk_loco_client::{talk::stream::StreamCommand, StreamResult};
 use tauri::api::notification::Notification;
 use tokio::sync::mpsc;
 
-type EventSender = mpsc::Sender<anyhow::Result<ClientEvent>>;
+use super::event::MainEvent;
+
+type EventSender = mpsc::Sender<anyhow::Result<MainEvent>>;
 
 pub(super) async fn run_handler(
     handler: SessionHandler,
@@ -44,22 +46,21 @@ async fn wrap_fut(tx: EventSender, fut: impl Future<Output = anyhow::Result<()>>
 async fn handle_read(
     handler: SessionHandler,
     command: StreamCommand,
-    tx: mpsc::Sender<anyhow::Result<ClientEvent>>,
+    tx: EventSender,
 ) -> anyhow::Result<()> {
     if let Some(event) = handler.handle(command).await? {
-        handle_event(&event)
+        handle_event(event, tx)
             .await
             .context("error while handling event")?;
-
-        let _ = tx.send(Ok(event)).await;
     }
 
     Ok(())
 }
 
-async fn handle_event(event: &ClientEvent) -> anyhow::Result<()> {
+async fn handle_event(event: ClientEvent, tx: EventSender) -> anyhow::Result<()> {
     match event {
         ClientEvent::Channel {
+            id,
             event:
                 ChannelEvent::Chat {
                     chat,
@@ -68,10 +69,31 @@ async fn handle_event(event: &ClientEvent) -> anyhow::Result<()> {
                 },
             ..
         } => {
+            let message = chat
+                .chat
+                .content
+                .message
+                .as_deref()
+                .unwrap_or("Unknown message");
+
             Notification::new("chat")
                 .title(user_nickname.as_deref().unwrap_or("KiwiTalk"))
-                .body(chat.chat.content.message.as_deref().unwrap_or(""))
+                .body(message)
                 .show()?;
+
+            let _ = tx
+                .send(Ok(MainEvent::Chat {
+                    channel: format!("{id}"),
+                    preview_message: message.to_string(),
+
+                    // TODO:: fix or remove
+                    unread_count: 1,
+                }))
+                .await;
+        }
+
+        ClientEvent::Kickout(reason) => {
+            let _ = tx.send(Ok(MainEvent::Kickout { reason })).await;
         }
 
         _ => {}
