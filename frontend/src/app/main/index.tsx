@@ -7,7 +7,7 @@ import { AppWindow } from './window';
 import { styled } from '../../utils';
 import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.css';
 import { useTransContext } from '@jellybrick/solid-i18next';
-import { createClientSession } from '../session';
+import { createMainEventStream } from './event';
 
 const AppSidebar = styled(Sidebar, appSideBar);
 const SideMenuContainer = styled('div', sideMenuContainer);
@@ -24,10 +24,14 @@ export const AppMain = ({
   const [t] = useTransContext();
 
   createResource(async () => {
-    const session = createClientSession();
+    const stream = createMainEventStream();
 
     try {
-      for await (const event of session) {
+      for await (const event of stream) {
+        if (event.type === 'Kickout') {
+          break;
+        }
+
         console.log(event);
       }
     } catch (err) {

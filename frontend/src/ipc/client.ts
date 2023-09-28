@@ -26,7 +26,7 @@ export type LoginReason = {
   content: AutoLoginError,
 } | {
   type: 'Kickout'
-} | null;
+};
 
 export type AutoLoginError = {
   type: 'InvalidFile'
@@ -38,7 +38,7 @@ export type AutoLoginError = {
   content: string,
 };
 
-export function takeLoginReason(): Promise<LoginReason> {
+export function takeLoginReason(): Promise<LoginReason | null> {
   return tauri.invoke('plugin:client|take_login_reason');
 }
 
@@ -54,11 +54,19 @@ export function logout(): Promise<void> {
   return tauri.invoke('plugin:client|logout');
 }
 
-export type KiwiTalkClientEvent = {
-  // TODO
+export type KiwiTalkMainEvent = {
+  type: 'Kickout',
+  content: { reason: number },
+} | {
+  type: 'Chat',
+  content: {
+    channel: string,
+    previewMessage: string,
+    unreadCount: number,
+  },
 }
 
-export function nextClientEvent(): Promise<KiwiTalkClientEvent | void> {
-  return tauri.invoke<KiwiTalkClientEvent | void>('plugin:client|next_event');
+export function nextMainEvent(): Promise<KiwiTalkMainEvent | null> {
+  return tauri.invoke<KiwiTalkMainEvent | null>('plugin:client|next_main_event');
 }
 
