@@ -1,4 +1,4 @@
-import { Match, Switch, createSignal } from 'solid-js';
+import { Match, Switch, createResource, createSignal } from 'solid-js';
 import { Profile } from '../components/profile';
 import { Sidebar, SidebarMenuItem } from '../components/sidebar';
 import { ChatMenu } from './menu/chat';
@@ -7,13 +7,14 @@ import { AppWindow } from './window';
 import { styled } from '../../utils';
 import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.css';
 import { useTransContext } from '@jellybrick/solid-i18next';
+import { createClientSession } from '../session';
 
 const AppSidebar = styled(Sidebar, appSideBar);
 const SideMenuContainer = styled('div', sideMenuContainer);
 const ChatWindowPlaceholder = styled('p', chatWindowPlaceholder);
 
 export type AppMainProp = {
-  onLogout?: () => void,
+  onLogout?: (err?: unknown) => void,
 };
 
 export const AppMain = ({
@@ -21,6 +22,21 @@ export const AppMain = ({
 }: AppMainProp) => {
   const [menu, setMenu] = createSignal<SidebarMenuItem>('friend');
   const [t] = useTransContext();
+
+  createResource(async () => {
+    const session = createClientSession();
+
+    try {
+      for await (const event of session) {
+        console.log(event);
+      }
+    } catch (err) {
+      onLogout?.(err);
+      return;
+    }
+
+    onLogout?.();
+  });
 
   return <AppWindow>
     <AppSidebar defaultMenu={menu()} onMenuSelect={setMenu} />

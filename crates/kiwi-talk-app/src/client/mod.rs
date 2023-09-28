@@ -1,4 +1,5 @@
 mod conn;
+mod event;
 mod handler;
 mod saved_account;
 
@@ -179,23 +180,25 @@ fn logout(state: ClientState<'_>) -> TauriResult<()> {
 }
 
 #[tauri::command(async)]
-async fn next_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
-    let event = poll_fn(|cx| {
-        let mut client = client.write();
+async fn next_event(state: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
+    Ok(poll_fn(|cx| {
+        let mut state = state.write();
 
-        let client = match &mut *client {
+        let client = match &mut *state {
             State::Logon(client) => client,
             _ => return Poll::Ready(None),
         };
 
-        client.event_rx.poll_recv(cx)
-    })
-    .await;
+        let poll = client.event_rx.poll_recv(cx);
 
-    Ok(match event {
-        Some(res) => Some(res?),
-        None => None,
+        if let Poll::Ready(None) = &poll {
+            *state = State::NeedLogin { reason: None };
+        }
+
+        poll
     })
+    .await
+    .transpose()?)
 }
 
 #[tauri::command]
