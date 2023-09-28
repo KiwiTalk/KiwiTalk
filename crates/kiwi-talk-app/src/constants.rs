@@ -8,6 +8,7 @@ pub const APP_DEVICE_UUID_FILE: &str = "device_uuid";
 
 pub const TALK_AGENT: TalkApiAgent = TalkApiAgent::Win32("10.0");
 pub const XVC_HASHER: Win32XVCHasher = Win32XVCHasher("ARTHUR", "RUZ");
+pub const AUTO_LOGIN_KEY: (&str, &str) = ("PITT", "INORAN");
 
 pub const TALK_VERSION: &str = "3.4.7";
 pub const TALK_OS: &str = "win32";

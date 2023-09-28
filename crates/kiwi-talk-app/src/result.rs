@@ -1,14 +1,23 @@
 use serde::Serialize;
-use std::fmt::Write;
+use std::{fmt::Write, ops::Deref};
 
 pub type TauriResult<T> = Result<T, TauriAnyhowError>;
 
+#[derive(Debug)]
 #[repr(transparent)]
 pub struct TauriAnyhowError(anyhow::Error);
 
-impl From<anyhow::Error> for TauriAnyhowError {
-    fn from(err: anyhow::Error) -> Self {
-        Self(err)
+impl<T: Into<anyhow::Error>> From<T> for TauriAnyhowError {
+    fn from(err: T) -> Self {
+        Self(err.into())
+    }
+}
+
+impl Deref for TauriAnyhowError {
+    type Target = anyhow::Error;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 

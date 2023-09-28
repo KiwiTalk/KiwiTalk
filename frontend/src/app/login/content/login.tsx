@@ -1,12 +1,12 @@
+import { login } from '../../../ipc/client';
 import { LoginForm, LoginFormInput } from '../../components/login/form/login';
-import { login, LoginAccessData, TalkResponseStatus } from '../../../ipc/auth';
 import { createResource, createSignal } from 'solid-js';
 
 export type LoginContentProp = {
   input?: Partial<LoginFormInput>,
   forced?: boolean,
 
-  onSubmit?: (input: LoginFormInput, res: TalkResponseStatus<LoginAccessData>) => void,
+  onSubmit?: (input: LoginFormInput, status: number) => void,
   onError?: (e: unknown) => void
 }
 
@@ -17,9 +17,14 @@ export const LoginContent = (props: LoginContentProp) => {
     if (data.loading) return;
 
     try {
-      const res = await login(input.email, input.password, props.forced ?? false);
+      const status = await login({
+        email: input.email,
+        password: input.password,
+        saveEmail: input.saveId,
+        autoLogin: input.autoLogin,
+      }, props.forced ?? false, 'Unlocked');
 
-      props.onSubmit?.(input, res);
+      props.onSubmit?.(input, status);
     } catch (e) {
       props.onError?.(e);
     }

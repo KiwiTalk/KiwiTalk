@@ -1,5 +1,5 @@
 import { Match, Switch, createSignal } from 'solid-js';
-import { Profile, ProfileProp } from '../components/profile';
+import { Profile } from '../components/profile';
 import { Sidebar, SidebarMenuItem } from '../components/sidebar';
 import { ChatMenu } from './menu/chat';
 import { FriendMenu } from './menu/friend';
@@ -13,15 +13,13 @@ const SideMenuContainer = styled('div', sideMenuContainer);
 const ChatWindowPlaceholder = styled('p', chatWindowPlaceholder);
 
 export type AppMainProp = {
-  defaultMenu?: SidebarMenuItem,
-  profile: ProfileProp,
+  onLogout?: () => void,
 };
 
 export const AppMain = ({
-  defaultMenu,
-  profile,
+  onLogout,
 }: AppMainProp) => {
-  const [menu, setMenu] = createSignal<SidebarMenuItem>(defaultMenu ?? 'friend');
+  const [menu, setMenu] = createSignal<SidebarMenuItem>('friend');
   const [t] = useTransContext();
 
   return <AppWindow>
@@ -35,7 +33,7 @@ export const AppMain = ({
           <ChatMenu />
         </Match>
       </Switch>
-      <Profile {...profile} />
+      <Profile name='TODO' contact='example@example.com' />
     </SideMenuContainer>
     <ChatWindowPlaceholder>{t(`main.chat.empty.${menu()}`)}</ChatWindowPlaceholder>
   </AppWindow>;
