@@ -6,7 +6,8 @@ mod saved_account;
 use enum_kinds::EnumKind;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use std::task::Poll;
+use sha2::{Digest, Sha256};
+use std::{path::PathBuf, task::Poll};
 use talk_api_client::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
 use tauri::{
     generate_handler,
@@ -15,10 +16,10 @@ use tauri::{
 };
 
 use anyhow::{anyhow, Context};
-use futures::{future::poll_fn, stream, StreamExt};
+use futures::{future::poll_fn, ready, stream, StreamExt};
 use kiwi_talk_client::{
-    config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
-    handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
+    config::ClientConfig, database::pool::DatabasePool, handler::SessionHandler, ClientCredential,
+    ClientStatus, KiwiTalkSession,
 };
 use talk_loco_client::{
     futures_loco_protocol::{session::LocoSession, LocoClient},
@@ -35,7 +36,9 @@ use crate::{
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;
 
-use self::{conn::create_secure_stream, handler::run_handler, saved_account::SavedAccount};
+use self::{
+    conn::create_secure_stream, event::MainEvent, handler::run_handler, saved_account::SavedAccount,
+};
 
 pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
     let state = try_auto_login(false, ClientStatus::Unlocked)
@@ -62,7 +65,7 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             default_login_form,
             login,
             logout,
-            next_event,
+            next_main_event,
             user_id
         ])
         .build())
@@ -183,7 +186,7 @@ fn logout(state: ClientState<'_>) -> TauriResult<()> {
 }
 
 #[tauri::command(async)]
-async fn next_event(state: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
+async fn next_main_event(state: ClientState<'_>) -> TauriResult<Option<MainEvent>> {
     Ok(poll_fn(|cx| {
         let mut state = state.write();
 
@@ -192,13 +195,17 @@ async fn next_event(state: ClientState<'_>) -> TauriResult<Option<ClientEvent>> 
             _ => return Poll::Ready(None),
         };
 
-        let poll = client.event_rx.poll_recv(cx);
+        let read = ready!(client.event_rx.poll_recv(cx));
 
-        if let Poll::Ready(None) = &poll {
+        if let Some(Ok(MainEvent::Kickout { reason })) = &read {
+            *state = State::NeedLogin {
+                reason: Some(Reason::Kickout(*reason)),
+            };
+        } else if let None = &read {
             *state = State::NeedLogin { reason: None };
         }
 
-        poll
+        Poll::Ready(read)
     })
     .await
     .transpose()?)
@@ -244,7 +251,7 @@ enum State {
 #[serde(tag = "type", content = "content")]
 enum Reason {
     AutoLoginFailed(AutoLoginError),
-    Kickout,
+    Kickout(i16),
 }
 
 #[derive(Debug, Serialize)]
@@ -264,7 +271,8 @@ impl<T: Into<TauriAnyhowError>> From<T> for AutoLoginError {
 #[derive(Debug)]
 struct Client {
     session: KiwiTalkSession,
-    event_rx: mpsc::Receiver<anyhow::Result<ClientEvent>>,
+    user_dir: PathBuf,
+    event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
     stream_task: JoinHandle<()>,
 }
 
@@ -343,8 +351,17 @@ async fn create_client(
     credential: ClientCredential<'_>,
     user_id: i64,
 ) -> anyhow::Result<Client> {
-    let pool = DatabasePool::file("file:memdb?mode=memory&cache=shared")
-        .context("failed to open database")?;
+    let user_dir = get_system_info().data_dir.join("userdata").join({
+        let mut digest = Sha256::new();
+
+        digest.update("user_");
+        digest.update(format!("{user_id}"));
+
+        hex::encode(digest.finalize())
+    });
+
+    let pool =
+        DatabasePool::file(user_dir.join("database.db")).context("failed to open database")?;
     pool.migrate_to_latest()
         .await
         .context("failed to migrate database to latest")?;
@@ -415,6 +432,7 @@ async fn create_client(
 
     Ok(Client {
         session,
+        user_dir,
         event_rx,
         stream_task,
     })
