@@ -68,7 +68,24 @@ export const AppLoginContent = (props: LoginContentProp) => {
     let errorMessage: string;
     switch (reason.type) {
       case 'AutoLoginFailed': {
-        errorMessage = 'login.reason.auto_login_failed';
+        const error = reason.content;
+        switch (error.type) {
+          case 'InvalidFile': {
+            errorMessage = 'login.reason.auto_login_failed.file_read';
+            break;
+          }
+
+          case 'Status': {
+            errorMessage = `login.status.login.${error.content}`;
+            break;
+          }
+
+          default: {
+            errorMessage = 'login.reason.auto_login_failed.general';
+            break;
+          }
+        }
+
         break;
       }
 

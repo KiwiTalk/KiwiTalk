@@ -43,7 +43,7 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             .await
             .map_or_else(
                 |err| State::NeedLogin {
-                    reason: Some(Reason::AutoLoginFailed(err.into())),
+                    reason: Some(Reason::AutoLoginFailed(err)),
                 },
                 State::Logon,
             )
@@ -242,8 +242,22 @@ enum State {
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "content")]
 enum Reason {
-    AutoLoginFailed(TauriAnyhowError),
+    AutoLoginFailed(AutoLoginError),
     Kickout,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", content = "content")]
+enum AutoLoginError {
+    InvalidFile,
+    Status(i32),
+    Other(TauriAnyhowError),
+}
+
+impl<T: Into<TauriAnyhowError>> From<T> for AutoLoginError {
+    fn from(value: T) -> Self {
+        Self::Other(value.into())
+    }
 }
 
 #[derive(Debug)]
@@ -264,7 +278,7 @@ async fn try_auto_login(
     token: &str,
     forced: bool,
     status: ClientStatus,
-) -> anyhow::Result<Client> {
+) -> Result<Client, AutoLoginError> {
     let login_data = {
         let res = create_auth_client()
             .login(
@@ -278,19 +292,15 @@ async fn try_auto_login(
             .await?;
 
         if res.status == 0 {
-            res.data
-                .ok_or_else(|| anyhow!("cannot deserialize login data"))?
+            res.data.ok_or_else(|| AutoLoginError::InvalidFile)?
         } else {
-            return Err(anyhow!(
-                "cannot login account using given token. status: {}",
-                res.status
-            ));
+            return Err(AutoLoginError::Status(res.status));
         }
     };
 
     let device_uuid = &get_system_info().device_info.device_uuid;
 
-    create_client(
+    Ok(create_client(
         status,
         ClientCredential {
             access_token: &login_data.credential.access_token,
@@ -298,7 +308,7 @@ async fn try_auto_login(
             user_id: Some(login_data.user_id as i64),
         },
     )
-    .await
+    .await?)
 }
 
 async fn create_client(

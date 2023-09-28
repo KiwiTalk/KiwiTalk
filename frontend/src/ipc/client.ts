@@ -23,10 +23,20 @@ export function getClientState(): Promise<ClientState> {
 
 export type LoginReason = {
   type: 'AutoLoginFailed',
-  content: string,
+  content: AutoLoginError,
 } | {
   type: 'Kickout'
 } | null;
+
+export type AutoLoginError = {
+  type: 'InvalidFile'
+} | {
+  type: 'Status',
+  content: number,
+} | {
+  type: 'Other',
+  content: string,
+};
 
 export function takeLoginReason(): Promise<LoginReason> {
   return tauri.invoke('plugin:client|take_login_reason');
