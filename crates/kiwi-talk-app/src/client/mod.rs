@@ -360,8 +360,12 @@ async fn create_client(
         hex::encode(digest.finalize())
     });
 
-    let pool = DatabasePool::file(user_dir.join("database.db"), true)
-        .context("failed to open database")?;
+    tokio::fs::create_dir_all(&user_dir)
+        .await
+        .context("cannot create user directory")?;
+
+    let pool =
+        DatabasePool::file(user_dir.join("database.db")).context("failed to open database")?;
     pool.migrate_to_latest()
         .await
         .context("failed to migrate database to latest")?;
