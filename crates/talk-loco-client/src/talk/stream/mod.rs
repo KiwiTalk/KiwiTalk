@@ -10,7 +10,9 @@ use std::{
     task::{Context, Poll},
 };
 
-use self::command::{Msg, DecunRead, ChgMeta, SyncJoin, SyncDlMsg, SyncLinkCr, SyncMemT, SyncLinkPf, SyncRewr};
+use self::command::{
+    ChgMeta, DecunRead, Msg, SyncDlMsg, SyncJoin, SyncLinkCr, SyncLinkPf, SyncMemT, SyncRewr,
+};
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]
@@ -60,7 +62,7 @@ macro_rules! create_enum {
                 $(#[$variant_meta])*
                 $variant_name$(($variant_ty))?,
             )*
-            
+
             #[doc = "Unknown command"]
             Unknown(BoxedCommand),
         }

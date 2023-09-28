@@ -1,7 +1,9 @@
-mod command;
 pub mod error;
 
-use talk_loco_client::loco_protocol::command::Command;
+use talk_loco_client::talk::stream::{
+    command::{DecunRead, Kickout, Msg},
+    StreamCommand,
+};
 
 use crate::{
     channel::user::UserId,
@@ -15,10 +17,7 @@ use crate::{
     KiwiTalkSession,
 };
 
-use self::{
-    command::{DecunRead, Kickout, Msg},
-    error::HandlerError,
-};
+use self::error::HandlerError;
 
 type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
@@ -36,97 +35,82 @@ impl SessionHandler {
         }
     }
 
-    pub async fn handle(&self, command: &Command<impl AsRef<[u8]>>) -> HandlerResult {
-        macro_rules! create_handler {
-            (
-                $($method:literal => $handler:path),* $(,)?
-            ) => {
-                match &*command.header.method {
-                    $(
-                        $method => $handler(self, ::bson::from_slice(command.data.as_ref())?).await?,
-                    )*
+    pub async fn handle(&self, command: StreamCommand) -> HandlerResult {
+        match command {
+            StreamCommand::Kickout(kickout) => self.on_kickout(kickout).await,
+            StreamCommand::SwitchServer => self.on_switch_server().await,
+            StreamCommand::Chat(msg) => self.on_chat(msg).await,
+            StreamCommand::ChatRead(read) => self.on_chat_read(read).await,
 
-                    _ => None,
-                }
-            };
+            _ => Ok(None),
         }
-
-        Ok(create_handler!(
-            "KICKOUT" => on_kickout,
-            "CHANGESVR" => on_switch_server,
-
-            "MSG" => on_chat,
-            "DECUNREAD" => on_chat_read,
-        ))
     }
-}
 
-async fn on_kickout(_: &SessionHandler, kickout: Kickout) -> HandlerResult {
-    Ok(Some(ClientEvent::Kickout(kickout.reason)))
-}
+    async fn on_kickout(&self, kickout: Kickout) -> HandlerResult {
+        Ok(Some(ClientEvent::Kickout(kickout.reason)))
+    }
 
-async fn on_switch_server(_: &SessionHandler, _: ()) -> HandlerResult {
-    Ok(Some(ClientEvent::SwitchServer))
-}
+    async fn on_switch_server(&self) -> HandlerResult {
+        Ok(Some(ClientEvent::SwitchServer))
+    }
 
-async fn on_chat(handler: &SessionHandler, msg: Msg) -> HandlerResult {
-    let chat = Chatlog::from(msg.chatlog);
+    async fn on_chat(&self, msg: Msg) -> HandlerResult {
+        let chat = Chatlog::from(msg.chatlog);
 
-    handler
-        .pool
-        .spawn_task({
-            let chatlog = chat.clone();
+        self.pool
+            .spawn_task({
+                let chatlog = chat.clone();
 
-            |connection| {
-                connection.chat().insert(&ChatModel {
-                    logged: chatlog,
-                    deleted_time: None,
-                })?;
+                |connection| {
+                    connection.chat().insert(&ChatModel {
+                        logged: chatlog,
+                        deleted_time: None,
+                    })?;
 
-                Ok(())
-            }
-        })
-        .await?;
+                    Ok(())
+                }
+            })
+            .await?;
 
-    Ok(Some(ClientEvent::Channel {
-        id: msg.chat_id,
+        Ok(Some(ClientEvent::Channel {
+            id: msg.chat_id,
 
-        event: ChannelEvent::Chat {
-            link_id: msg.link_id,
+            event: ChannelEvent::Chat {
+                link_id: msg.link_id,
 
-            log_id: msg.log_id,
-            user_nickname: msg.author_nickname,
-            chat,
-        },
-    }))
-}
+                log_id: msg.log_id,
+                user_nickname: msg.author_nickname,
+                chat,
+            },
+        }))
+    }
 
-async fn on_chat_read(handler: &SessionHandler, read: DecunRead) -> HandlerResult {
-    handler
-        .pool
-        .spawn_task({
-            let DecunRead {
-                chat_id,
-                user_id,
-                watermark,
-            } = read.clone();
+    async fn on_chat_read(&self, read: DecunRead) -> HandlerResult {
+        self.pool
+            .spawn_task({
+                let DecunRead {
+                    chat_id,
+                    user_id,
+                    watermark,
+                } = read.clone();
 
-            move |connection| {
-                connection
-                    .user()
-                    .update_watermark(chat_id, user_id, watermark)?;
+                move |connection| {
+                    connection
+                        .user()
+                        .update_watermark(chat_id, user_id, watermark)?;
 
-                Ok(())
-            }
-        })
-        .await?;
+                    Ok(())
+                }
+            })
+            .await?;
 
-    Ok(Some(ClientEvent::Channel {
-        id: read.chat_id,
+        Ok(Some(ClientEvent::Channel {
+            id: read.chat_id,
 
-        event: ChannelEvent::ChatRead {
-            user_id: read.user_id,
-            log_id: read.watermark,
-        },
-    }))
+            event: ChannelEvent::ChatRead {
+                user_id: read.user_id,
+                log_id: read.watermark,
+            },
+        }))
+    }
 }

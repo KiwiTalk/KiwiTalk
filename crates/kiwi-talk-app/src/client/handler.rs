@@ -1,4 +1,4 @@
-use std::{io, pin::pin};
+use std::pin::pin;
 
 use anyhow::Context;
 use futures::{Future, Stream, StreamExt};
@@ -6,7 +6,7 @@ use kiwi_talk_client::{
     event::{channel::ChannelEvent, ClientEvent},
     handler::SessionHandler,
 };
-use talk_loco_client::loco_protocol::command::BoxedCommand;
+use talk_loco_client::{talk::stream::StreamCommand, StreamResult};
 use tauri::api::notification::Notification;
 use tokio::sync::mpsc;
 
@@ -14,7 +14,7 @@ type EventSender = mpsc::Sender<anyhow::Result<ClientEvent>>;
 
 pub(super) async fn run_handler(
     handler: SessionHandler,
-    stream: impl Stream<Item = io::Result<BoxedCommand>>,
+    stream: impl Stream<Item = StreamResult<StreamCommand>>,
     tx: EventSender,
 ) {
     wrap_fut(tx.clone(), async move {
@@ -43,10 +43,10 @@ async fn wrap_fut(tx: EventSender, fut: impl Future<Output = anyhow::Result<()>>
 
 async fn handle_read(
     handler: SessionHandler,
-    command: BoxedCommand,
+    command: StreamCommand,
     tx: mpsc::Sender<anyhow::Result<ClientEvent>>,
 ) -> anyhow::Result<()> {
-    if let Some(event) = handler.handle(&command).await? {
+    if let Some(event) = handler.handle(command).await? {
         handle_event(&event)
             .await
             .context("error while handling event")?;

@@ -118,7 +118,6 @@ pub enum LoginError {
 pub struct ClientCredential<'a> {
     pub access_token: &'a str,
     pub device_uuid: &'a str,
-    pub user_id: Option<i64>,
 }
 
 #[repr(i32)]

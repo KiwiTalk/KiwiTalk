@@ -20,7 +20,7 @@ use kiwi_talk_client::{
     config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
     handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
 };
-use talk_loco_client::futures_loco_protocol::{session::LocoSession, LocoClient};
+use talk_loco_client::{futures_loco_protocol::{session::LocoSession, LocoClient}, talk::stream::TalkStream};
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
@@ -155,8 +155,8 @@ async fn login(
         ClientCredential {
             access_token: &login_data.credential.access_token,
             device_uuid,
-            user_id: Some(login_data.user_id as i64),
         },
+        login_data.user_id as _,
     )
     .await
     .context("cannot create client")?;
@@ -328,8 +328,8 @@ async fn try_auto_login(
             ClientCredential {
                 access_token: &login_data.credential.access_token,
                 device_uuid,
-                user_id: Some(login_data.user_id as i64),
             },
+            login_data.user_id as i64,
         )
         .await?,
     ))
@@ -338,6 +338,7 @@ async fn try_auto_login(
 async fn create_client(
     status: ClientStatus,
     credential: ClientCredential<'_>,
+    user_id: i64,
 ) -> anyhow::Result<Client> {
     let pool = DatabasePool::file("file:memdb?mode=memory&cache=shared")
         .context("failed to open database")?;
@@ -345,13 +346,15 @@ async fn create_client(
         .await
         .context("failed to migrate database to latest")?;
 
-    let checkin = checkin(credential.user_id.unwrap_or(1)).await?;
+    let checkin = checkin(user_id).await?;
 
-    let (session, mut stream) = LocoSession::new(LocoClient::new(
+    let (session, stream) = LocoSession::new(LocoClient::new(
         create_secure_stream((checkin.host.as_str(), checkin.port as u16))
             .await
             .context("failed to create secure stream")?,
     ));
+
+    let mut stream = TalkStream::new(stream);
 
     let mut stream_buffer = Vec::new();
 
