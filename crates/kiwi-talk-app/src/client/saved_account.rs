@@ -5,6 +5,7 @@ use std::{
 };
 
 use anyhow::Context;
+use bincode::Options;
 use serde::{Deserialize, Serialize};
 use tokio::task::spawn_blocking;
 
@@ -26,7 +27,9 @@ pub async fn read() -> anyhow::Result<Option<SavedAccount>> {
     spawn_blocking(move || -> anyhow::Result<_> {
         let reader = BufReader::new(File::open(file_path())?);
 
-        Ok(bincode::deserialize_from(reader)?)
+        Ok(Option::deserialize(
+            &mut bincode::Deserializer::with_reader(reader, bincode::options().with_limit(1024)),
+        )?)
     })
     .await?
 }
