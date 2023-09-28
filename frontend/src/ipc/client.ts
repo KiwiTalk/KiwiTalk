@@ -61,6 +61,10 @@ export type KiwiTalkMainEvent = {
 }
 
 export function nextMainEvent(): Promise<KiwiTalkMainEvent | null> {
-  return tauri.invoke<KiwiTalkMainEvent | null>('plugin:client|next_main_event');
+  return tauri.invoke('plugin:client|next_main_event');
+}
+
+export function getUserEmail(): Promise<string> {
+  return tauri.invoke('plugin:client|user_email');
 }
 

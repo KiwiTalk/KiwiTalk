@@ -8,6 +8,7 @@ import { styled } from '../../utils';
 import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.css';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { createMainEventStream } from './event';
+import { getUserEmail } from '../../ipc/client';
 
 const AppSidebar = styled(Sidebar, appSideBar);
 const SideMenuContainer = styled('div', sideMenuContainer);
@@ -22,6 +23,8 @@ export const AppMain = ({
 }: AppMainProp) => {
   const [menu, setMenu] = createSignal<SidebarMenuItem>('friend');
   const [t] = useTransContext();
+
+  const [email] = createResource(getUserEmail);
 
   createResource(async () => {
     const stream = createMainEventStream();
@@ -53,7 +56,7 @@ export const AppMain = ({
           <ChatMenu />
         </Match>
       </Switch>
-      <Profile name='TODO' contact='example@example.com' />
+      <Profile name='TODO' contact={email() ?? ''} />
     </SideMenuContainer>
     <ChatWindowPlaceholder>{t(`main.chat.empty.${menu()}`)}</ChatWindowPlaceholder>
   </AppWindow>;

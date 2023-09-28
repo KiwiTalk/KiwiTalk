@@ -47,8 +47,8 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             |err| State::NeedLogin {
                 reason: Some(Reason::AutoLoginFailed(err)),
             },
-            |client| match client {
-                Some(client) => State::Logon(client),
+            |opt| match opt {
+                Some((client, email)) => State::Logon { client, email },
                 None => State::NeedLogin { reason: None },
             },
         );
@@ -66,7 +66,7 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             login,
             logout,
             next_main_event,
-            user_id
+            user_email,
         ])
         .build())
 }
@@ -111,7 +111,7 @@ async fn login(
     status: ClientStatus,
     state: ClientState<'_>,
 ) -> TauriResult<i32> {
-    if let State::Logon(_) = &*state.read() {
+    if let State::Logon { .. } = &*state.read() {
         return Err(anyhow!("already logon").into());
     }
 
@@ -148,7 +148,7 @@ async fn login(
         };
 
         Some(SavedAccount {
-            email: login_data.auto_login_account_id,
+            email: login_data.auto_login_account_id.clone(),
             token,
         })
     } else {
@@ -167,7 +167,10 @@ async fn login(
     .await
     .context("cannot create client")?;
 
-    *state.write() = State::Logon(client);
+    *state.write() = State::Logon {
+        client,
+        email: login_data.auto_login_account_id,
+    };
 
     Ok(0)
 }
@@ -175,7 +178,7 @@ async fn login(
 #[tauri::command]
 fn logout(state: ClientState<'_>) -> TauriResult<()> {
     match &mut *state.write() {
-        state @ State::Logon(_) => {
+        state @ State::Logon { .. } => {
             *state = State::NeedLogin { reason: None };
 
             Ok(())
@@ -191,7 +194,7 @@ async fn next_main_event(state: ClientState<'_>) -> TauriResult<Option<MainEvent
         let mut state = state.write();
 
         let client = match &mut *state {
-            State::Logon(client) => client,
+            State::Logon { client, .. } => client,
             _ => return Poll::Ready(None),
         };
 
@@ -212,9 +215,9 @@ async fn next_main_event(state: ClientState<'_>) -> TauriResult<Option<MainEvent
 }
 
 #[tauri::command]
-fn user_id(client: ClientState) -> TauriResult<i64> {
+fn user_email(client: ClientState) -> TauriResult<String> {
     match &*client.read() {
-        State::Logon(client) => Ok(client.session.user_id()),
+        State::Logon { email, .. } => Ok(email.clone()),
 
         _ => Err(anyhow!("not logon").into()),
     }
@@ -244,7 +247,7 @@ impl Default for LoginForm {
 #[enum_kind(StateKind, derive(Serialize, Deserialize))]
 enum State {
     NeedLogin { reason: Option<Reason> },
-    Logon(Client),
+    Logon { client: Client, email: String },
 }
 
 #[derive(Debug, Serialize)]
@@ -285,7 +288,7 @@ impl Drop for Client {
 async fn try_auto_login(
     forced: bool,
     status: ClientStatus,
-) -> Result<Option<Client>, AutoLoginError> {
+) -> Result<Option<(Client, String)>, AutoLoginError> {
     let (email, token) = if let Some(SavedAccount {
         email,
         token: Some(token),
@@ -327,13 +330,13 @@ async fn try_auto_login(
         );
 
         saved_account::write(Some(SavedAccount {
-            email: login_data.auto_login_account_id,
+            email: login_data.auto_login_account_id.clone(),
             token: Some(token),
         }))
         .await
     };
 
-    Ok(Some(
+    Ok(Some((
         create_client(
             status,
             ClientCredential {
@@ -343,7 +346,8 @@ async fn try_auto_login(
             login_data.user_id as i64,
         )
         .await?,
-    ))
+        login_data.auto_login_account_id,
+    )))
 }
 
 async fn create_client(
