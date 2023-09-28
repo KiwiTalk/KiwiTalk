@@ -11,7 +11,7 @@ export const App = () => {
 
   const [state, setState] = createSignal<ClientState>('NeedLogin');
 
-  createResource(async () => {
+  createResource(state, async () => {
     setState(await getClientState());
   });
 
