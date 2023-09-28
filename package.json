@@ -37,7 +37,7 @@
     "@storybook/preview-api": "7.4.5",
     "@storybook/testing-library": "0.2.1",
     "@storybook/types": "7.4.5",
-    "@tauri-apps/cli": "1.4.0",
+    "@tauri-apps/cli": "1.5.0",
     "@types/node": "18.18.0",
     "@typescript-eslint/eslint-plugin": "6.7.3",
     "@typescript-eslint/parser": "6.7.3",
@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@jellybrick/solid-i18next": "^1.2.2",
-    "@tauri-apps/api": "1.4.0",
+    "@tauri-apps/api": "1.5.0",
     "@vanilla-extract/css": "^1.13.0",
     "@vanilla-extract/dynamic": "^2.0.3",
     "deepmerge-ts": "^5.1.0",
