@@ -66,7 +66,7 @@ macro_rules! create_enum {
         }
 
         impl $name {
-            fn from_command(command: BoxedCommand) -> ::bson::de::Result<Self> {
+            pub fn from_command(command: BoxedCommand) -> ::bson::de::Result<Self> {
                 Ok(match &*command.header.method {
                     $(
                         $method => StreamCommand::$variant_name$((::bson::from_slice::<$variant_ty>(&command.data)?))?,
