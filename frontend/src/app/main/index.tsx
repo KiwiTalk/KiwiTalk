@@ -28,7 +28,7 @@ export const AppMain = ({
 
     try {
       for await (const event of stream) {
-        if (event.type === 'Kickout') {
+        if (event.type === 'kickout') {
           break;
         }
 

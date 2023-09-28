@@ -49,10 +49,10 @@ export function logout(): Promise<void> {
 }
 
 export type KiwiTalkMainEvent = {
-  type: 'Kickout',
+  type: 'kickout',
   content: { reason: number },
 } | {
-  type: 'Chat',
+  type: 'chat',
   content: {
     channel: string,
     previewMessage: string,
