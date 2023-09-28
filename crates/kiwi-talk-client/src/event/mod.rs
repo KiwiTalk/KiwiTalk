@@ -1,12 +1,12 @@
 pub mod channel;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::channel::ChannelId;
 
 use self::channel::ChannelEvent;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum ClientEvent {
     /// Channel event
