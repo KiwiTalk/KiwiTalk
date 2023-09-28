@@ -7,7 +7,7 @@ import { useTransContext } from '@jellybrick/solid-i18next';
 import { errorMessage, resetText } from './index.css';
 import { styled } from '../../../utils';
 import { Match, Show, Switch, createResource, createSignal } from 'solid-js';
-import { defaultLoginForm } from '../../../ipc/client';
+import { defaultLoginForm, takeLoginReason } from '../../../ipc/client';
 
 const ErrorMessage = styled('p', errorMessage);
 const ResetText = styled('p', resetText);
@@ -46,6 +46,8 @@ export const AppLoginContent = (props: LoginContentProp) => {
     autoLogin: false,
   });
 
+  const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
+
   createResource(async () => {
     const form = await defaultLoginForm();
 
@@ -57,9 +59,29 @@ export const AppLoginContent = (props: LoginContentProp) => {
         autoLogin: form.autoLogin,
       });
     }
-  });
 
-  const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
+    const reason = await takeLoginReason();
+    if (!reason) {
+      return;
+    }
+
+    let errorMessage: string;
+    switch (reason.type) {
+      case 'AutoLoginFailed': {
+        errorMessage = 'login.reason.auto_login_failed';
+        break;
+      }
+
+      case 'Kickout': {
+        errorMessage = 'login.reason.kickout';
+        break;
+      }
+
+      default: return;
+    }
+
+    setState({ errorMessage, ...state() });
+  });
 
   function onLoginSubmit(input: LoginFormInput, status: number) {
     switch (status) {

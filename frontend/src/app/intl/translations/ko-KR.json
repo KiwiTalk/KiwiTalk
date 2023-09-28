@@ -15,6 +15,10 @@
       "permanent": "내 PC 인증 받기",
       "temporary": "1회용 인증 받기"
     },
+    "reason": {
+      "auto_login_failed": "자동 로그인이 실패 했습니다",
+      "kickout": "다른 기기 로그인으로 인해 로그아웃 되었습니다"
+    },
     "passcode_placeholder": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
     "status": {
       "login": {
