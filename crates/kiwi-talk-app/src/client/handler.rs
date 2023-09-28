@@ -20,9 +20,7 @@ pub(super) async fn run_handler(
     wrap_fut(tx.clone(), async move {
         let mut stream = pin!(stream);
 
-        while let Some(read) = stream.next().await {
-            let read = read?;
-
+        while let Some(read) = stream.next().await.transpose()? {
             tokio::spawn(wrap_fut(
                 tx.clone(),
                 handle_read(handler.clone(), read, tx.clone()),

@@ -16,7 +16,7 @@ use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     futures_loco_protocol::session::LocoSession,
-    talk::{LChatListReq, LoginListReq, SetStReq, TalkSession},
+    talk::session::{LChatListReq, LoginListReq, SetStReq, TalkSession},
     RequestError,
 };
 use thiserror::Error;

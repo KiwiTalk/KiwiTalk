@@ -5,7 +5,7 @@ pub mod user;
 use nohash_hasher::IntMap;
 use rusqlite::{Connection, OptionalExtension, Row};
 use serde::{Deserialize, Serialize};
-use talk_loco_client::talk::load_channel_list::response::ChannelListData;
+use talk_loco_client::talk::session::load_channel_list::response::ChannelListData;
 
 use crate::{
     channel::{ChannelData, ChannelId, ChannelMeta, ChannelSettings},

@@ -35,3 +35,14 @@ pub enum RequestError {
     #[error(transparent)]
     Deserialize(#[from] bson::de::Error),
 }
+
+pub type StreamResult<T> = Result<T, StreamError>;
+
+#[derive(Debug, Error)]
+pub enum StreamError {
+    #[error(transparent)]
+    Io(#[from] io::Error),
+
+    #[error(transparent)]
+    Deserialize(#[from] bson::de::Error),
+}

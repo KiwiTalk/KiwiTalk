@@ -378,9 +378,7 @@ async fn create_client(
         };
 
         let stream_task = async {
-            while let Some(read) = stream.next().await {
-                let read = read?;
-
+            while let Some(read) = stream.next().await.transpose()? {
                 stream_buffer.push(read);
             }
 

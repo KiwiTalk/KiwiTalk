@@ -16,7 +16,7 @@ use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     structs::channel::{ChannelInfo, ChannelMeta as LocoChannelMeta},
-    talk::{SyncChatReq, TalkSession, UpdateChannelReq, WriteChatReq},
+    talk::session::{SyncChatReq, TalkSession, UpdateChannelReq, WriteChatReq},
 };
 use tokio::sync::mpsc::channel;
 
