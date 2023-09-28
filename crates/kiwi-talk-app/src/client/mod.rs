@@ -360,8 +360,8 @@ async fn create_client(
         hex::encode(digest.finalize())
     });
 
-    let pool =
-        DatabasePool::file(user_dir.join("database.db")).context("failed to open database")?;
+    let pool = DatabasePool::file(user_dir.join("database.db"), true)
+        .context("failed to open database")?;
     pool.migrate_to_latest()
         .await
         .context("failed to migrate database to latest")?;

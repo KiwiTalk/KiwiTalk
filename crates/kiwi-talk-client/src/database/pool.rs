@@ -3,6 +3,7 @@ use std::path::Path;
 use futures::{Future, FutureExt};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::OpenFlags;
 use thiserror::Error;
 
 use super::MigrationExt;
@@ -11,8 +12,13 @@ use super::MigrationExt;
 pub struct DatabasePool(Pool<SqliteConnectionManager>);
 
 impl DatabasePool {
-    pub fn file(path: impl AsRef<Path>) -> Result<Self, PoolError> {
-        Ok(Self(Pool::new(SqliteConnectionManager::file(path))?))
+    pub fn file(path: impl AsRef<Path>, create: bool) -> Result<Self, PoolError> {
+        let mut manager = SqliteConnectionManager::file(path);
+        if create {
+            manager = manager.with_flags(OpenFlags::default() | OpenFlags::SQLITE_OPEN_CREATE);
+        }
+
+        Ok(Self(Pool::new(manager)?))
     }
 
     pub fn get(&self) -> Result<PooledConnection, PoolError> {
