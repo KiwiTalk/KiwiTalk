@@ -34,22 +34,17 @@ use conn::checkin;
 use self::{conn::create_secure_stream, handler::run_handler, saved_account::SavedAccount};
 
 pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
-    let state = if let Some(SavedAccount {
-        email,
-        token: Some(token),
-    }) = saved_account::read().await.unwrap_or_default()
-    {
-        try_auto_login(&email, &hex::encode(token), false, ClientStatus::Unlocked)
-            .await
-            .map_or_else(
-                |err| State::NeedLogin {
-                    reason: Some(Reason::AutoLoginFailed(err)),
-                },
-                State::Logon,
-            )
-    } else {
-        State::NeedLogin { reason: None }
-    };
+    let state = try_auto_login(false, ClientStatus::Unlocked)
+        .await
+        .map_or_else(
+            |err| State::NeedLogin {
+                reason: Some(Reason::AutoLoginFailed(err)),
+            },
+            |client| match client {
+                Some(client) => State::Logon(client),
+                None => State::NeedLogin { reason: None },
+            },
+        );
 
     Ok(Builder::new(name)
         .setup(move |handle| {
@@ -274,17 +269,27 @@ impl Drop for Client {
 }
 
 async fn try_auto_login(
-    email: &str,
-    token: &str,
     forced: bool,
     status: ClientStatus,
-) -> Result<Client, AutoLoginError> {
+) -> Result<Option<Client>, AutoLoginError> {
+    let (email, token) = if let Some(SavedAccount {
+        email,
+        token: Some(token),
+    }) = saved_account::read()
+        .await
+        .map_err(|_| AutoLoginError::InvalidFile)?
+    {
+        (email, token)
+    } else {
+        return Ok(None);
+    };
+
     let login_data = {
         let res = create_auth_client()
             .login(
                 LoginMethod::Token(TokenLoginForm {
-                    email,
-                    auto_login_token: token,
+                    email: &email,
+                    auto_login_token: &hex::encode(token),
                     locked: status == ClientStatus::Locked,
                 }),
                 forced,
@@ -300,15 +305,31 @@ async fn try_auto_login(
 
     let device_uuid = &get_system_info().device_info.device_uuid;
 
-    Ok(create_client(
-        status,
-        ClientCredential {
-            access_token: &login_data.credential.access_token,
+    let _ = {
+        let token = create_auto_login_token(
+            &login_data.auto_login_account_id,
+            &login_data.credential.refresh_token,
             device_uuid,
-            user_id: Some(login_data.user_id as i64),
-        },
-    )
-    .await?)
+        );
+
+        saved_account::write(Some(SavedAccount {
+            email: login_data.auto_login_account_id,
+            token: Some(token),
+        }))
+        .await
+    };
+
+    Ok(Some(
+        create_client(
+            status,
+            ClientCredential {
+                access_token: &login_data.credential.access_token,
+                device_uuid,
+                user_id: Some(login_data.user_id as i64),
+            },
+        )
+        .await?,
+    ))
 }
 
 async fn create_client(
