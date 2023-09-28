@@ -34,25 +34,23 @@ use conn::checkin;
 use self::{conn::create_secure_stream, handler::run_handler, saved_account::SavedAccount};
 
 pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
-    let mut state = State::NeedLogin;
-
-    if let Some(SavedAccount {
+    let state = if let Some(SavedAccount {
         email,
         token: Some(token),
     }) = saved_account::read().await.unwrap_or_default()
     {
-        let _ = try_auto_login(&email, &hex::encode(&token), false, ClientStatus::Unlocked)
+        try_auto_login(&email, &hex::encode(token), false, ClientStatus::Unlocked)
             .await
-            .and_then(|client| {
-                state = State::Logon(client);
-
-                Ok(())
-            })
-            .or_else(|err| {
-                println!("cannot login: {:?}", err);
-                Err(err)
-            });
-    }
+            .map_or_else(
+                |err| {
+                    println!("cannot login: {:?}", err);
+                    State::NeedLogin
+                },
+                State::Logon,
+            )
+    } else {
+        State::NeedLogin
+    };
 
     Ok(Builder::new(name)
         .setup(move |handle| {
@@ -276,7 +274,7 @@ async fn try_auto_login(
 
     let device_uuid = &get_system_info().device_info.device_uuid;
 
-    Ok(create_client(
+    create_client(
         status,
         ClientCredential {
             access_token: &login_data.credential.access_token,
@@ -284,7 +282,7 @@ async fn try_auto_login(
             user_id: Some(login_data.user_id as i64),
         },
     )
-    .await?)
+    .await
 }
 
 async fn create_client(
