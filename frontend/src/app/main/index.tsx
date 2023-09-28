@@ -1,5 +1,5 @@
 import { Match, Switch, createSignal } from 'solid-js';
-import { Profile, ProfileProp } from '../components/profile';
+import { Profile } from '../components/profile';
 import { Sidebar, SidebarMenuItem } from '../components/sidebar';
 import { ChatMenu } from './menu/chat';
 import { FriendMenu } from './menu/friend';
@@ -17,7 +17,7 @@ export type AppMainProp = {
 };
 
 export const AppMain = ({
-  onLogout
+  onLogout,
 }: AppMainProp) => {
   const [menu, setMenu] = createSignal<SidebarMenuItem>('friend');
   const [t] = useTransContext();
