@@ -52,8 +52,8 @@ body:
       required: false
   - type: checkboxes
     attributes:
-      label: 위 내용과 중복되는 이슈가 있나요?
-      description: 작성전 [이곳](https://github.com/KiwiTalk/KiwiTalk/issues) 에서 이미 이슈가 올라와 있는지 확인해 주세요.
+      label: 중복되는 이슈가 있나요?
+      description: 작성전 [이곳](https://github.com/KiwiTalk/KiwiTalk/issues) 에서 중복되는 이슈가 올라와 있는지 확인해 주세요.
       options:
         - label: 이슈 제출전 중복되는 이슈가 없는지 확인 했습니다.
           required: true
