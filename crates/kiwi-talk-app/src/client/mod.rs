@@ -205,7 +205,7 @@ async fn next_main_event(state: ClientState<'_>) -> TauriResult<Option<MainEvent
             *state = State::NeedLogin {
                 reason: Some(Reason::Kickout(*reason)),
             };
-        } else if let None = &read {
+        } else if read.is_none() {
             *state = State::NeedLogin { reason: None };
         }
 
