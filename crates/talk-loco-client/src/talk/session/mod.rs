@@ -202,6 +202,8 @@ impl_session!(
 impl<'a> TalkSession<'a> {
     pub fn channel_list_stream(
         self,
+        chat_ids: &'a [i64],
+        max_ids: &'a [i64],
         mut last_token_id: i64,
         mut last_chat_id: Option<i64>,
     ) -> impl Stream<Item = RequestResult<LChatListRes>> + 'a {
@@ -210,8 +212,8 @@ impl<'a> TalkSession<'a> {
 
             while !eof {
                 let res = self.load_channel_list(&LChatListReq {
-                    chat_ids: &[],
-                    max_ids: &[],
+                    chat_ids,
+                    max_ids,
                     last_token_id,
                     last_chat_id,
                 }).await?;
