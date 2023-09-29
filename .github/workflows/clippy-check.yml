@@ -26,13 +26,13 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            crates/target/debug/
-            crates/target/release/
+            target/debug/
+            target/release/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all --manifest-path=crates/Cargo.toml -- --check
+          args: --all --manifest-path=Cargo.toml -- --check
       - uses: reinismu/clippy-check@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
