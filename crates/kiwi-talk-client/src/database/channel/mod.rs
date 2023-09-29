@@ -106,28 +106,26 @@ impl ChannelEntry<'_> {
             .optional()
     }
 
-    pub fn load_list_data(
-        self,
-        id: ChannelId,
-    ) -> Result<Option<ChannelListData>, rusqlite::Error> {
+    pub fn load_list_data(self, id: ChannelId) -> Result<Option<ChannelListData>, rusqlite::Error> {
         let row = self.get(id)?;
         let row = match row {
             Some(row) => row,
             _ => return Ok(None),
         };
 
-        let metas = self.get_all_meta_in::<Vec<_>>(id)?;
-
         let last_chat = self.0.chat().get_latest_in(id)?.map(|row| row.log);
+
+        let last_log_id = last_chat
+            .as_ref()
+            .map(|log| log.log_id)
+            .unwrap_or(row.last_seen_log_id);
 
         Ok(Some(ChannelListData {
             channel_type: row.channel_type,
 
             last_chat,
             last_seen_log_id: row.last_seen_log_id,
-            last_log_id: last_chat
-                .map(|log| log.log_id)
-                .unwrap_or(row.last_seen_log_id),
+            last_log_id,
         }))
     }
 
