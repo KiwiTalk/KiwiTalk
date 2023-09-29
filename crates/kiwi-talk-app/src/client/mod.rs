@@ -1,3 +1,4 @@
+mod channel_list;
 mod conn;
 mod event;
 mod handler;
@@ -18,8 +19,8 @@ use tauri::{
 use anyhow::{anyhow, Context};
 use futures::{future::poll_fn, ready, stream, StreamExt};
 use kiwi_talk_client::{
-    channel::ChannelListData, config::ClientConfig, database::pool::DatabasePool,
-    handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
+    config::ClientConfig, database::pool::DatabasePool, handler::SessionHandler, ClientCredential,
+    ClientStatus, KiwiTalkSession,
 };
 use talk_loco_client::{
     futures_loco_protocol::{session::LocoSession, LocoClient},
@@ -67,7 +68,7 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             logout,
             next_main_event,
             user_email,
-            channel_list,
+            channel_list::channel_list,
         ])
         .build())
 }
@@ -222,20 +223,6 @@ fn user_email(client: ClientState) -> TauriResult<String> {
 
         _ => Err(anyhow!("not logon").into()),
     }
-}
-
-#[tauri::command(async)]
-async fn channel_list(client: ClientState<'_>) -> TauriResult<Vec<ChannelListData>> {
-    let session = match &*client.read() {
-        State::Logon { client, .. } => client.session.clone(),
-
-        _ => return Err(anyhow!("not logon").into()),
-    };
-
-    Ok(session
-        .channel_list()
-        .await
-        .context("cannot load channel list")?)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

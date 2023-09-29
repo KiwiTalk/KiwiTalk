@@ -43,6 +43,7 @@ enum-kinds = "0.5.1"
 sha2 = "0.10.8"
 serde-byte-array = "0.1.2"
 hex = "0.4.3"
+arrayvec = { version = "0.7.4", features = ["serde"] }
 
 [features]
 default = []
