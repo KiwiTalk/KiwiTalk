@@ -10,7 +10,7 @@ use crate::{
     chat::Chatlog,
     database::{
         channel::user::UserDatabaseExt,
-        chat::{ChatDatabaseExt, ChatModel},
+        chat::{ChatDatabaseExt, ChatRow},
         pool::DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
@@ -62,8 +62,8 @@ impl SessionHandler {
                 let chatlog = chat.clone();
 
                 |connection| {
-                    connection.chat().insert(&ChatModel {
-                        logged: chatlog,
+                    connection.chat().insert(&ChatRow {
+                        log: chatlog,
                         deleted_time: None,
                     })?;
 

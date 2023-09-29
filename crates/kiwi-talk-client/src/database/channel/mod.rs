@@ -139,8 +139,8 @@ impl ChannelEntry<'_> {
         let last_chat = self
             .0
             .chat()
-            .get_latest_not_deleted_in(id)?
-            .map(|model| model.logged);
+            .get_latest_in(id)?
+            .map(|row| row.log);
 
         Ok(Some(ChannelData {
             channel_type: model.channel_type,

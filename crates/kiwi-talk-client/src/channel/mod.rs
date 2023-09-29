@@ -7,7 +7,7 @@ use crate::{
     chat::{Chat, Chatlog, LogId},
     database::{
         channel::{ChannelDatabaseExt, ChannelModel, ChannelTrackingData},
-        chat::{ChatDatabaseExt, ChatModel},
+        chat::{ChatDatabaseExt, ChatRow},
     },
     ClientResult, KiwiTalkSession,
 };
@@ -172,8 +172,8 @@ impl ClientChannel<'_> {
             self.client
                 .pool
                 .spawn_task(move |connection| {
-                    connection.chat().insert(&ChatModel {
-                        logged,
+                    connection.chat().insert(&ChatRow {
+                        log: logged,
                         deleted_time: None,
                     })?;
 
@@ -212,8 +212,8 @@ impl ClientChannel<'_> {
                 let transaction = connection.transaction()?;
 
                 for chatlog in list {
-                    transaction.chat().insert(&ChatModel {
-                        logged: Chatlog::from(chatlog),
+                    transaction.chat().insert(&ChatRow {
+                        log: Chatlog::from(chatlog),
                         deleted_time: None,
                     })?;
                 }
