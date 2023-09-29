@@ -6,10 +6,7 @@ pub mod user;
 
 use crate::{
     chat::{Chat, Chatlog, LogId},
-    database::{
-        channel::ChannelDatabaseExt,
-        chat::{ChatDatabaseExt, ChatRow},
-    },
+    database::chat::{ChatDatabaseExt, ChatRow},
     ClientResult, KiwiTalkSession,
 };
 use futures::{pin_mut, StreamExt};
@@ -17,7 +14,7 @@ use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     structs::channel::ChannelMeta as LocoChannelMeta,
-    talk::session::{SyncChatReq, TalkSession, UpdateChannelReq, WriteChatReq},
+    talk::session::{SyncChatReq, TalkSession, WriteChatReq},
 };
 use tokio::sync::mpsc::channel;
 
@@ -55,6 +52,7 @@ impl From<LocoChannelMeta> for ChannelMeta {
     }
 }
 
+/*
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum ChannelDataVariant {
@@ -74,6 +72,7 @@ impl From<()> for ChannelDataVariant {
         Self::Open(data)
     }
 }
+*/
 
 #[derive(Debug, Clone, Copy)]
 pub struct ClientChannel<'a> {
@@ -202,28 +201,5 @@ impl ClientChannel<'_> {
         database_task.await?;
 
         Ok(count)
-    }
-
-    pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
-        TalkSession(&self.client.session)
-            .update_channel(&UpdateChannelReq {
-                chat_id: self.id,
-                push_alert,
-            })
-            .await?;
-
-        let channel_id = self.id;
-        self.client
-            .pool
-            .spawn_task(move |connection| {
-                connection
-                    .channel()
-                    .set_push_alert(channel_id, push_alert)?;
-
-                Ok(())
-            })
-            .await?;
-
-        Ok(())
     }
 }

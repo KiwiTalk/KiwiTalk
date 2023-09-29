@@ -57,8 +57,12 @@ impl KiwiTalkSession {
         credential: ClientCredential<'_>,
         status: ClientStatus,
     ) -> Result<Self, LoginError> {
-        let chat_ids = &[];
-        let max_ids = &[];
+        let update_map: Vec<_> = pool
+            .spawn_task(|conn| Ok(conn.channel_updater().get_update_map()?))
+            .await?;
+
+        let chat_ids: &Vec<_> = &update_map.iter().map(|(id, _)| *id).collect();
+        let max_ids: &Vec<_> = &update_map.iter().map(|(_, max_id)| *max_id).collect();
 
         let login_res = TalkSession(&session)
             .login(&LoginListReq {
@@ -100,10 +104,16 @@ impl KiwiTalkSession {
             }
         }
 
-        pool.spawn_task(|conn| {
-            Ok(conn
-                .channel_updater()
-                .update(channel_list_vec.into_iter().flatten())?)
+        pool.spawn_task(|mut conn| {
+            let transaction = conn.transaction()?;
+
+            for list_data in channel_list_vec.into_iter().flatten() {
+                transaction.channel_updater().update(list_data)?;
+            }
+
+            transaction.commit()?;
+
+            Ok(())
         })
         .await?;
 
