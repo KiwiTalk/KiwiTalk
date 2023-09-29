@@ -26,12 +26,4 @@ impl ChannelUpdater<'_> {
 
         Ok(())
     }
-
-    pub fn get_update_map<B: FromIterator<(ChannelId, i64)>>(self) -> Result<B, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT id, last_update FROM channel_update")?;
-
-        let rows = statement.query(())?;
-
-        rows.mapped(|row| Ok((row.get(0)?, row.get(1)?))).collect()
-    }
 }
