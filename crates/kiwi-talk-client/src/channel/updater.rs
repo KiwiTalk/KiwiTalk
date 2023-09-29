@@ -1,16 +1,22 @@
 use nohash_hasher::IntMap;
-use talk_loco_client::talk::session::load_channel_list::response::ChannelListData as LocoChannelListData;
+use talk_loco_client::{
+    talk::session::{
+        load_channel_list::response::ChannelListData as LocoChannelListData, GetAllUsersReq,
+        TalkSession,
+    },
+    RequestError,
+};
 use thiserror::Error;
 
 use crate::{
     database::{
-        channel::{ChannelDatabaseExt, ChannelUpdateRow},
+        channel::{user::UserDatabaseExt, ChannelDatabaseExt, ChannelUpdateRow},
         pool::PoolTaskError,
     },
     KiwiTalkSession,
 };
 
-use super::ChannelId;
+use super::{user::UserProfile, ChannelId};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChannelUpdater<'a>(&'a KiwiTalkSession);
@@ -42,7 +48,46 @@ impl ChannelUpdater<'_> {
                 continue;
             }
 
-            // TODO:: add user update
+            let members = TalkSession(&self.0.session)
+                .get_all_users(&GetAllUsersReq {
+                    chat_id: list_data.id,
+                })
+                .await?
+                .members;
+
+            self.0
+                .pool
+                .spawn_task({
+                    let channel_id = list_data.id;
+
+                    move |mut conn| {
+                        let transaction = conn.transaction()?;
+
+                        for user in members {
+                            let id = user.id();
+
+                            let profile = UserProfile {
+                                nickname: user.nickname().to_string(),
+                                image_url: user.profile_image_url().map(ToString::to_string),
+                                full_image_url: user
+                                    .full_profile_image_url()
+                                    .map(ToString::to_string),
+                                original_image_url: user
+                                    .original_profile_image_url()
+                                    .map(ToString::to_string),
+                            };
+
+                            transaction
+                                .user()
+                                .insert_or_update_profile(id, channel_id, &profile)?;
+                        }
+
+                        transaction.commit()?;
+
+                        Ok(())
+                    }
+                })
+                .await?;
 
             row_list.push(ChannelUpdateRow {
                 id: list_data.id,
@@ -73,6 +118,9 @@ impl ChannelUpdater<'_> {
 
 #[derive(Debug, Error)]
 pub enum UpdateError {
+    #[error(transparent)]
+    Request(#[from] RequestError),
+
     #[error(transparent)]
     Pool(#[from] PoolTaskError),
 }
