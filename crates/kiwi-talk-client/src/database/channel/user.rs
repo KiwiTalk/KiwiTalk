@@ -100,7 +100,10 @@ impl UserEntry<'_> {
             .optional()
     }
 
-    pub fn get_all<B: FromIterator<UserProfileRow>>(self, id: UserId) -> Result<B, rusqlite::Error> {
+    pub fn get_all<B: FromIterator<UserProfileRow>>(
+        self,
+        id: UserId,
+    ) -> Result<B, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM user_profile WHERE id = ?")?;
 
         let rows = statement.query([id])?;

@@ -130,14 +130,14 @@ impl ChannelEntry<'_> {
     }
 
     pub fn get_all_id<B: FromIterator<ChannelId>>(self) -> Result<B, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT id FROM channel")?;
+        let mut statement = self.0.prepare("SELECT id FROM channel_update")?;
 
         let rows = statement.query(())?;
         rows.mapped(|row| row.get(0)).collect()
     }
 
     pub fn get_all<B: FromIterator<ChannelUpdateRow>>(self) -> Result<B, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT * FROM channel")?;
+        let mut statement = self.0.prepare("SELECT * FROM channel_update")?;
 
         let rows = statement.query(())?;
         rows.mapped(ChannelUpdateRow::map_row).collect()
