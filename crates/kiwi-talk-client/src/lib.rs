@@ -58,7 +58,7 @@ impl KiwiTalkSession {
         credential: ClientCredential<'_>,
         status: ClientStatus,
     ) -> Result<Self, LoginError> {
-        let mut login_res = TalkSession(&session)
+        let login_res = TalkSession(&session)
             .login(&LoginListReq {
                 os: config.os,
                 net_type: config.net_type,
@@ -83,16 +83,17 @@ impl KiwiTalkSession {
             })
             .await?;
 
+        let mut channel_list_vec = vec![login_res.chat_list.chat_datas];
+
         if !login_res.chat_list.eof {
             let mut stream = pin!(TalkSession(&session).channel_list_stream(0, None));
 
-            while let Some(mut res) = stream.try_next().await? {
-                login_res.chat_list.chat_datas.append(&mut res.chat_datas);
+            while let Some(res) = stream.try_next().await? {
+                channel_list_vec.push(res.chat_datas);
             }
         }
 
         // TODO:: implement channel update
-        let _update_list = login_res.chat_list.chat_datas;
 
         Ok(Self {
             user_id: login_res.user_id,
