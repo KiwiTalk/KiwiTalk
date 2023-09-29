@@ -47,7 +47,7 @@ pub impl Connection {
 pub struct UserEntry<'a>(pub &'a Connection);
 
 impl UserEntry<'_> {
-    pub fn insert_or_replace(&self, model: &UserProfileRow) -> Result<(), rusqlite::Error> {
+    pub fn insert_or_replace(self, model: &UserProfileRow) -> Result<(), rusqlite::Error> {
         self.0.execute(
             "INSERT OR REPLACE INTO user_profile VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
@@ -65,7 +65,7 @@ impl UserEntry<'_> {
     }
 
     pub fn insert_or_update_profile(
-        &self,
+        self,
         id: UserId,
         channel_id: i64,
         profile: &UserProfile,
@@ -87,7 +87,7 @@ impl UserEntry<'_> {
     }
 
     pub fn get(
-        &self,
+        self,
         id: UserId,
         channel_id: ChannelId,
     ) -> Result<Option<UserProfileRow>, rusqlite::Error> {
@@ -100,7 +100,7 @@ impl UserEntry<'_> {
             .optional()
     }
 
-    pub fn get_all<B: FromIterator<UserProfileRow>>(&self, id: UserId) -> Result<B, rusqlite::Error> {
+    pub fn get_all<B: FromIterator<UserProfileRow>>(self, id: UserId) -> Result<B, rusqlite::Error> {
         let mut statement = self.0.prepare("SELECT * FROM user_profile WHERE id = ?")?;
 
         let rows = statement.query([id])?;
@@ -108,7 +108,7 @@ impl UserEntry<'_> {
     }
 
     pub fn get_all_in<B: FromIterator<UserProfileRow>>(
-        &self,
+        self,
         id: ChannelId,
     ) -> Result<B, rusqlite::Error> {
         let mut statement = self
@@ -120,7 +120,7 @@ impl UserEntry<'_> {
     }
 
     pub fn update_watermark(
-        &self,
+        self,
         id: UserId,
         channel_id: ChannelId,
         watermark: LogId,
