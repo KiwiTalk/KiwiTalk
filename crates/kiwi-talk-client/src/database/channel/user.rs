@@ -100,6 +100,13 @@ impl UserEntry<'_> {
             .optional()
     }
 
+    pub fn user_count(self, channel_id: ChannelId) -> Result<usize, rusqlite::Error> {
+        self.0.execute(
+            "SELECT COUNT(*) FROM user_profile WHERE channel_id = ?",
+            [channel_id],
+        )
+    }
+
     pub fn get_all<B: FromIterator<UserProfileRow>>(
         self,
         id: UserId,

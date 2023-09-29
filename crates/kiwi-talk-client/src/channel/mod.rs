@@ -35,6 +35,8 @@ pub struct ChannelListData {
 
     pub display_users: ArrayVec<DisplayUser, 4>,
 
+    pub user_count: usize,
+
     pub metas: ChannelMetaMap,
 }
 

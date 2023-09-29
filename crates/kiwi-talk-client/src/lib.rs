@@ -12,7 +12,7 @@ use arrayvec::ArrayVec;
 use channel::{user::UserId, ChannelId, ChannelListData, ClientChannel};
 use config::ClientConfig;
 use database::{
-    channel::{updater::ChannelUpdaterExt, ChannelDatabaseExt},
+    channel::{updater::ChannelUpdaterExt, ChannelDatabaseExt, user::UserDatabaseExt},
     chat::ChatDatabaseExt,
     pool::{DatabasePool, PoolTaskError},
 };
@@ -59,6 +59,8 @@ impl KiwiTalkSession {
 
                     let metas = transaction.channel().get_all_meta_in(row.id)?;
 
+                    let user_count = transaction.user().user_count(row.id)?;
+
                     list_data_vec.push(ChannelListData {
                         channel_type: row.channel_type,
 
@@ -67,6 +69,8 @@ impl KiwiTalkSession {
                         last_seen_log_id: row.last_seen_log_id,
 
                         display_users: ArrayVec::new(),
+
+                        user_count,
 
                         metas,
                     });
