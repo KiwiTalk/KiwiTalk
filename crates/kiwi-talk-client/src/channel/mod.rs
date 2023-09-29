@@ -9,6 +9,7 @@ use crate::{
     database::chat::{ChatDatabaseExt, ChatRow},
     ClientResult, KiwiTalkSession,
 };
+use arrayvec::ArrayVec;
 use futures::{pin_mut, StreamExt};
 use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
@@ -17,6 +18,8 @@ use talk_loco_client::{
     talk::session::{SyncChatReq, TalkSession, WriteChatReq},
 };
 use tokio::sync::mpsc::channel;
+
+use self::user::DisplayUser;
 
 pub type ChannelId = i64;
 
@@ -29,6 +32,10 @@ pub struct ChannelListData {
     pub last_chat: Option<Chatlog>,
     pub last_log_id: LogId,
     pub last_seen_log_id: LogId,
+
+    pub display_users: ArrayVec<DisplayUser, 4>,
+
+    pub metas: ChannelMetaMap,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

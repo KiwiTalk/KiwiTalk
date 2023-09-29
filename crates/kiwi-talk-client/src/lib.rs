@@ -8,10 +8,12 @@ pub mod handler;
 
 use std::{io, pin::pin};
 
-use channel::{user::UserId, ChannelId, ClientChannel};
+use arrayvec::ArrayVec;
+use channel::{user::UserId, ChannelId, ChannelListData, ClientChannel};
 use config::ClientConfig;
 use database::{
-    channel::updater::ChannelUpdaterExt,
+    channel::{updater::ChannelUpdaterExt, ChannelDatabaseExt},
+    chat::ChatDatabaseExt,
     pool::{DatabasePool, PoolTaskError},
 };
 use error::ClientError;
@@ -38,6 +40,43 @@ impl KiwiTalkSession {
 
     pub const fn channel(&self, id: ChannelId) -> ClientChannel {
         ClientChannel::new(id, self)
+    }
+
+    pub async fn channel_list(&self) -> Result<Vec<ChannelListData>, PoolTaskError> {
+        self.pool
+            .spawn_task(|mut conn| {
+                let update_rows = conn.channel().get_all::<Vec<_>>()?;
+
+                let transaction = conn.transaction()?;
+
+                let mut list_data_vec = Vec::with_capacity(update_rows.capacity());
+                for row in update_rows {
+                    let last_chat = transaction.chat().get_latest_in(row.id)?.map(|row| row.log);
+                    let last_log_id = last_chat
+                        .as_ref()
+                        .map(|log| log.log_id)
+                        .unwrap_or(row.last_seen_log_id);
+
+                    let metas = transaction.channel().get_all_meta_in(row.id)?;
+
+                    list_data_vec.push(ChannelListData {
+                        channel_type: row.channel_type,
+
+                        last_chat,
+                        last_log_id,
+                        last_seen_log_id: row.last_seen_log_id,
+
+                        display_users: ArrayVec::new(),
+
+                        metas,
+                    });
+                }
+
+                transaction.commit()?;
+
+                Ok(list_data_vec)
+            })
+            .await
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {

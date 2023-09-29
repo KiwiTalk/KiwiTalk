@@ -6,7 +6,6 @@ pub type UserId = i64;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DisplayUser {
     pub id: UserId,
-
     pub profile: DisplayUserProfile,
 }
 
