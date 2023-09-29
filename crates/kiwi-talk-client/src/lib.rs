@@ -9,10 +9,10 @@ pub mod handler;
 use std::{io, pin::pin};
 
 use arrayvec::ArrayVec;
-use channel::{user::UserId, ChannelId, ChannelListData, ClientChannel};
+use channel::{updater::ChannelUpdater, user::UserId, ChannelId, ChannelListData, ClientChannel};
 use config::ClientConfig;
 use database::{
-    channel::{updater::ChannelUpdaterExt, ChannelDatabaseExt, user::UserDatabaseExt},
+    channel::{user::UserDatabaseExt, ChannelDatabaseExt},
     chat::ChatDatabaseExt,
     pool::{DatabasePool, PoolTaskError},
 };
@@ -143,24 +143,17 @@ impl KiwiTalkSession {
             }
         }
 
-        pool.spawn_task(|mut conn| {
-            let transaction = conn.transaction()?;
-
-            for list_data in channel_list_vec.into_iter().flatten() {
-                transaction.channel_updater().update(list_data)?;
-            }
-
-            transaction.commit()?;
-
-            Ok(())
-        })
-        .await?;
-
-        Ok(Self {
+        let session = Self {
             user_id: login_res.user_id,
             session,
             pool,
-        })
+        };
+
+        ChannelUpdater::new(&session)
+            .update(channel_list_vec.into_iter().flatten())
+            .await?;
+
+        Ok(session)
     }
 }
 

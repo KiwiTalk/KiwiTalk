@@ -2,6 +2,7 @@
 pub mod normal;
 pub mod open;
 */
+pub mod updater;
 pub mod user;
 
 use crate::{

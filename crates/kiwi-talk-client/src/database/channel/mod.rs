@@ -2,10 +2,8 @@
 pub mod normal;
 pub mod open;
 */
-pub mod updater;
 pub mod user;
 
-use arrayvec::ArrayVec;
 use rusqlite::{Connection, OptionalExtension, Row};
 use serde::{Deserialize, Serialize};
 
