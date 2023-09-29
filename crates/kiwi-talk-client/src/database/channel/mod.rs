@@ -187,6 +187,16 @@ impl ChannelEntry<'_> {
         })
         .collect()
     }
+
+    pub fn get_update_map<B: FromIterator<(ChannelId, i64)>>(&self) -> Result<B, rusqlite::Error> {
+        Ok(self
+            .0
+            .query_row("SELECT (id, last_update) FROM channel_update", [], |row| {
+                Ok((row.get(0)?, row.get(1)?))
+            })
+            .into_iter()
+            .collect())
+    }
 }
 
 #[cfg(test)]

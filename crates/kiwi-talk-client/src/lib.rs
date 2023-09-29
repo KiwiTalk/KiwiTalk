@@ -9,7 +9,7 @@ pub mod handler;
 use std::{io, pin::pin};
 
 use arrayvec::ArrayVec;
-use channel::{updater::ChannelUpdater, user::UserId, ChannelId, ChannelListData, ClientChannel};
+use channel::{updater::{ChannelUpdater, UpdateError}, user::UserId, ChannelId, ChannelListData, ClientChannel};
 use config::ClientConfig;
 use database::{
     channel::{user::UserDatabaseExt, ChannelDatabaseExt},
@@ -166,7 +166,7 @@ pub enum LoginError {
     Io(#[from] io::Error),
 
     #[error(transparent)]
-    Database(#[from] PoolTaskError),
+    Update(#[from] UpdateError),
 
     #[error("session closed")]
     SessionClosed,
