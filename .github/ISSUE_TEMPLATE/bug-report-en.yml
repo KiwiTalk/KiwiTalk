@@ -15,12 +15,12 @@ body:
   - type: textarea
     attributes:
       id: expected-behavior
-      label: Expected behavior
+      label: Expected behavior (optional)
       description: Please describe what you expected to happen.
       placeholder: |
         ex) The X button should work normally.
     validations:
-      required: true
+      required: false
   - type: textarea
     attributes:
       id: step-to-reproduce
