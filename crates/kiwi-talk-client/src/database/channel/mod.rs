@@ -5,7 +5,6 @@ pub mod open;
 pub mod updater;
 pub mod user;
 
-use nohash_hasher::IntMap;
 use rusqlite::{Connection, OptionalExtension, Row};
 use serde::{Deserialize, Serialize};
 
