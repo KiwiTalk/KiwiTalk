@@ -35,15 +35,6 @@ CREATE TABLE IF NOT EXISTS channel_meta (
     PRIMARY KEY(channel_id, type)
 );
 
-CREATE TABLE IF NOT EXISTS watermark {
-    user_id INTEGER NOT NULL,
-    channel_id INTEGER NOT NULL,
-
-    watermark INTEGER NOT NULL,
-
-    PRIMARY KEY(user_id, channel_id)
-}
-
 CREATE TABLE IF NOT EXISTS user_profile (
     id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
@@ -53,6 +44,8 @@ CREATE TABLE IF NOT EXISTS user_profile (
     profile_url TEXT,
     full_profile_url TEXT,
     original_profile_url TEXT,
+    
+    watermark INTEGER NOT NULL DEFAULT 0,
 
     PRIMARY KEY(id, channel_id)
 );
