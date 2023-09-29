@@ -75,34 +75,6 @@ impl UserVariant {
             UserVariant::Open(open) => open.user_id,
         }
     }
-
-    pub fn nickname(&self) -> &str {
-        match self {
-            UserVariant::Normal(normal) => &normal.nickname,
-            UserVariant::Open(open) => &open.nickname,
-        }
-    }
-
-    pub fn profile_image_url(&self) -> Option<&str> {
-        match self {
-            UserVariant::Normal(normal) => normal.profile_image_url.as_deref(),
-            UserVariant::Open(open) => open.profile_image_url.as_deref(),
-        }
-    }
-
-    pub fn full_profile_image_url(&self) -> Option<&str> {
-        match self {
-            UserVariant::Normal(normal) => normal.full_profile_image_url.as_deref(),
-            UserVariant::Open(open) => open.full_profile_image_url.as_deref(),
-        }
-    }
-
-    pub fn original_profile_image_url(&self) -> Option<&str> {
-        match self {
-            UserVariant::Normal(normal) => normal.original_profile_image_url.as_deref(),
-            UserVariant::Open(open) => open.original_profile_image_url.as_deref(),
-        }
-    }
 }
 
 /// User types. Don't confuse with OpenMemberType.

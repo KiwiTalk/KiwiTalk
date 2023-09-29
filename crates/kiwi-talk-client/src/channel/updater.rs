@@ -66,16 +66,7 @@ impl ChannelUpdater<'_> {
                         for user in members {
                             let id = user.id();
 
-                            let profile = UserProfile {
-                                nickname: user.nickname().to_string(),
-                                image_url: user.profile_image_url().map(ToString::to_string),
-                                full_image_url: user
-                                    .full_profile_image_url()
-                                    .map(ToString::to_string),
-                                original_image_url: user
-                                    .original_profile_image_url()
-                                    .map(ToString::to_string),
-                            };
+                            let profile = UserProfile::from(user);
 
                             transaction
                                 .user()

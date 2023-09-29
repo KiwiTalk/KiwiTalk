@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use talk_loco_client::structs::user::DisplayUserInfo;
+use talk_loco_client::structs::{
+    openlink::OpenUser as LocoOpenUser,
+    user::{DisplayUserInfo, User as LocoNormalUser, UserVariant as LocoUserVariant},
+};
 
 pub type UserId = i64;
 
@@ -38,6 +41,37 @@ impl From<DisplayUserProfile> for UserProfile {
             image_url: profile.image_url,
             full_image_url: None,
             original_image_url: None,
+        }
+    }
+}
+
+impl From<LocoUserVariant> for UserProfile {
+    fn from(value: LocoUserVariant) -> Self {
+        match value {
+            LocoUserVariant::Normal(normal) => UserProfile::from(normal),
+            LocoUserVariant::Open(open) => UserProfile::from(open),
+        }
+    }
+}
+
+impl From<LocoNormalUser> for UserProfile {
+    fn from(value: LocoNormalUser) -> Self {
+        Self {
+            nickname: value.nickname,
+            image_url: value.profile_image_url,
+            full_image_url: value.full_profile_image_url,
+            original_image_url: value.original_profile_image_url,
+        }
+    }
+}
+
+impl From<LocoOpenUser> for UserProfile {
+    fn from(value: LocoOpenUser) -> Self {
+        Self {
+            nickname: value.nickname,
+            image_url: value.profile_image_url,
+            full_image_url: value.full_profile_image_url,
+            original_image_url: value.original_profile_image_url,
         }
     }
 }
