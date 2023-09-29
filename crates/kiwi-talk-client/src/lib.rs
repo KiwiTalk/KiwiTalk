@@ -46,7 +46,7 @@ impl KiwiTalkSession {
         ClientChannel::new(id, self)
     }
 
-    pub async fn channel_list(&self) -> Result<Vec<ChannelListData>, PoolTaskError> {
+    pub async fn channel_list(&self) -> Result<Vec<(ChannelId, ChannelListData)>, PoolTaskError> {
         self.pool
             .spawn_task(|mut conn| {
                 let update_rows = conn.channel().get_all::<Vec<_>>()?;
@@ -75,19 +75,22 @@ impl KiwiTalkSession {
 
                     let user_count = transaction.user().user_count(row.id)?;
 
-                    list_data_vec.push(ChannelListData {
-                        channel_type: row.channel_type,
+                    list_data_vec.push((
+                        row.id,
+                        ChannelListData {
+                            channel_type: row.channel_type,
 
-                        last_chat,
-                        last_log_id,
-                        last_seen_log_id: row.last_seen_log_id,
+                            last_chat,
+                            last_log_id,
+                            last_seen_log_id: row.last_seen_log_id,
 
-                        display_users,
+                            display_users,
 
-                        user_count,
+                            user_count,
 
-                        metas,
-                    });
+                            metas,
+                        },
+                    ));
                 }
 
                 transaction.commit()?;
