@@ -4,6 +4,7 @@ pub mod open;
 */
 pub mod user;
 
+use arrayvec::ArrayVec;
 use rusqlite::{Connection, OptionalExtension, Row};
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +19,8 @@ pub struct ChannelUpdateRow {
     pub id: ChannelId,
     pub channel_type: String,
 
+    pub display_users: ArrayVec<i64, 4>,
+
     pub last_seen_log_id: LogId,
     pub last_update: i64,
 }
@@ -28,8 +31,10 @@ impl ChannelUpdateRow {
             id: row.get(0)?,
             channel_type: row.get(1)?,
 
-            last_seen_log_id: row.get(2)?,
-            last_update: row.get(3)?,
+            display_users: serde_json::from_str(&row.get::<_, String>(2)?).unwrap_or_default(),
+
+            last_seen_log_id: row.get(3)?,
+            last_update: row.get(4)?,
         })
     }
 }
@@ -39,6 +44,17 @@ impl From<LocoChanneListData> for ChannelUpdateRow {
         Self {
             id: data.id,
             channel_type: data.channel_type,
+
+            display_users: {
+                let mut vec = ArrayVec::new();
+
+                if let Some(user_ids) = data.icon_user_ids {
+                    vec.extend(user_ids.into_iter().take(4));
+                }
+
+                vec
+            },
+
             last_seen_log_id: data.last_seen_log_id,
             last_update: data.last_update,
         }
@@ -81,10 +97,11 @@ pub struct ChannelEntry<'a>(pub &'a Connection);
 impl ChannelEntry<'_> {
     pub fn insert_or_replace(self, row: &ChannelUpdateRow) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel_update VALUES (?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO channel_update VALUES (?, ?, ?, ?, ?)",
             (
                 row.id,
                 &row.channel_type,
+                &serde_json::to_string(&row.display_users).unwrap(),
                 row.last_seen_log_id,
                 row.last_update,
             ),
@@ -203,6 +220,7 @@ impl ChannelEntry<'_> {
 pub(crate) mod tests {
     use std::error::Error;
 
+    use arrayvec::ArrayVec;
     use rusqlite::Connection;
 
     use crate::{
@@ -219,6 +237,9 @@ pub(crate) mod tests {
         let row = ChannelUpdateRow {
             id,
             channel_type: "OM".into(),
+
+            display_users: ArrayVec::new(),
+
             last_seen_log_id: 0,
             last_update: 0,
         };

@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS chat (
 CREATE TABLE IF NOT EXISTS channel_update (
     id INTEGER PRIMARY KEY NOT NULL,
     type VARCHAR(16) NOT NULL,
+    
+    display_users VARCHAR(255) NOT NULL,
 
     last_seen_log_id INTEGER NOT NULL,
     last_update INTEGER NOT NULL

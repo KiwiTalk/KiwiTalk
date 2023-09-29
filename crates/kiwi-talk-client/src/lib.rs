@@ -11,7 +11,7 @@ use std::{io, pin::pin};
 use arrayvec::ArrayVec;
 use channel::{
     updater::{ChannelUpdater, UpdateError},
-    user::UserId,
+    user::{DisplayUser, DisplayUserProfile, UserId},
     ChannelId, ChannelListData, ClientChannel,
 };
 use config::ClientConfig;
@@ -63,6 +63,16 @@ impl KiwiTalkSession {
 
                     let metas = transaction.channel().get_all_meta_in(row.id)?;
 
+                    let mut display_users = ArrayVec::new();
+                    for id in row.display_users {
+                        if let Some(user) = transaction.user().get(id, row.id)? {
+                            display_users.push(DisplayUser {
+                                id,
+                                profile: DisplayUserProfile::from(user.profile),
+                            });
+                        }
+                    }
+
                     let user_count = transaction.user().user_count(row.id)?;
 
                     list_data_vec.push(ChannelListData {
@@ -72,7 +82,7 @@ impl KiwiTalkSession {
                         last_log_id,
                         last_seen_log_id: row.last_seen_log_id,
 
-                        display_users: ArrayVec::new(),
+                        display_users,
 
                         user_count,
 
