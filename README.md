@@ -7,10 +7,6 @@
 
 **카카오톡 재구현 프로젝트 (SolidJS & Tauri & Rust)**
 
-## 프론트엔드
-
-- [KiwiTalk UI Mockup](https://www.figma.com/file/JYO6jyz0Kji2KiPCW5cH5o/KiwiTalk-UI-Mockup-2?node-id=0%3A1)
-
 ## 주의사항
 
 ```
@@ -18,6 +14,16 @@ KiwiTalk은 카카오톡이 제공되지 않는 기기 및 OS (예: Ubuntu, Arch
 이 소스코드는 Kakao Corp.이 만들거나 인가하지 않았으며, 언제든지 이용이 제한될 수 있습니다.
 즉, KiwiTalk을 통해 이루어지는 모든 활동에 대한 모든 책임은 전적으로 사용자에게 있습니다.
 ```
+
+## 개발
+
+[프로젝트 간략 구조도](./img/big-picture.svg)
+
+프로젝트 기여를 생각하고 계시다면 [CONTRIBUTORS.md](./CONTRIBUTORS.md)를 우선 읽어 주세요.
+- [Discord](https://discord.gg/vVs8WVY3y6): 공식 디스코드 서버
+- [KiwiTalk UI Mockup](https://www.figma.com/file/JYO6jyz0Kji2KiPCW5cH5o/KiwiTalk-UI-Mockup-2?node-id=0%3A1): 프론트엔드 디자인 목업
+
+프로젝트 구조에 대한 더 자세한 문서는 [ARCHITECTURE.md](./ARCHITECTURE.md)에서 확인 하실 수 있습니다.
 
 ## 실행 (개발 환경)
 
