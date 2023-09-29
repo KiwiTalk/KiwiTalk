@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct UserModel {
+pub struct UserProfileRow {
     pub id: UserId,
     pub channel_id: i64,
 
@@ -18,7 +18,7 @@ pub struct UserModel {
     pub watermark: i64,
 }
 
-impl UserModel {
+impl UserProfileRow {
     pub fn map_row(row: &Row) -> Result<Self, rusqlite::Error> {
         Ok(Self {
             id: row.get(0)?,
@@ -36,14 +36,6 @@ impl UserModel {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct InitialUserModel {
-    pub id: UserId,
-    pub channel_id: i64,
-
-    pub profile: UserProfile,
-}
-
 #[extend::ext(name = UserDatabaseExt)]
 pub impl Connection {
     fn user(&self) -> UserEntry {
@@ -55,9 +47,9 @@ pub impl Connection {
 pub struct UserEntry<'a>(pub &'a Connection);
 
 impl UserEntry<'_> {
-    pub fn insert(&self, model: &UserModel) -> Result<(), rusqlite::Error> {
+    pub fn insert_or_replace(&self, model: &UserProfileRow) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel_user VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO user_profile VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 model.id,
                 model.channel_id,
@@ -74,18 +66,20 @@ impl UserEntry<'_> {
 
     pub fn insert_or_update_profile(
         &self,
-        model: &InitialUserModel,
+        id: UserId,
+        channel_id: i64,
+        profile: &UserProfile,
     ) -> Result<(), rusqlite::Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO channel_user (id, channel_id, nickname, profile_url, full_profile_url, original_profile_url) \
+            "INSERT OR REPLACE INTO user_profile (id, channel_id, nickname, profile_url, full_profile_url, original_profile_url) \
             VALUES (?, ?, ?, ?, ?, ?)",
             (
-                model.id,
-                model.channel_id,
-                &model.profile.nickname,
-                model.profile.image_url.as_ref(),
-                model.profile.full_image_url.as_ref(),
-                model.profile.original_image_url.as_ref(),
+                id,
+                channel_id,
+                &profile.nickname,
+                profile.image_url.as_ref(),
+                profile.full_image_url.as_ref(),
+                profile.original_image_url.as_ref(),
             ),
         )?;
 
@@ -96,33 +90,33 @@ impl UserEntry<'_> {
         &self,
         id: UserId,
         channel_id: ChannelId,
-    ) -> Result<Option<UserModel>, rusqlite::Error> {
+    ) -> Result<Option<UserProfileRow>, rusqlite::Error> {
         self.0
             .query_row(
-                "SELECT * FROM channel_user WHERE id = ? AND channel_id = ?",
+                "SELECT * FROM user_profile WHERE id = ? AND channel_id = ?",
                 (id, channel_id),
-                UserModel::map_row,
+                UserProfileRow::map_row,
             )
             .optional()
     }
 
-    pub fn get_all<B: FromIterator<UserModel>>(&self, id: UserId) -> Result<B, rusqlite::Error> {
-        let mut statement = self.0.prepare("SELECT * FROM channel_user WHERE id = ?")?;
+    pub fn get_all<B: FromIterator<UserProfileRow>>(&self, id: UserId) -> Result<B, rusqlite::Error> {
+        let mut statement = self.0.prepare("SELECT * FROM user_profile WHERE id = ?")?;
 
         let rows = statement.query([id])?;
-        rows.mapped(UserModel::map_row).collect()
+        rows.mapped(UserProfileRow::map_row).collect()
     }
 
-    pub fn get_all_in<B: FromIterator<UserModel>>(
+    pub fn get_all_in<B: FromIterator<UserProfileRow>>(
         &self,
         id: ChannelId,
     ) -> Result<B, rusqlite::Error> {
         let mut statement = self
             .0
-            .prepare("SELECT * FROM channel_user WHERE channel_id = ?")?;
+            .prepare("SELECT * FROM user_profile WHERE channel_id = ?")?;
 
         let rows = statement.query([id])?;
-        rows.mapped(UserModel::map_row).collect()
+        rows.mapped(UserProfileRow::map_row).collect()
     }
 
     pub fn update_watermark(
@@ -132,7 +126,7 @@ impl UserEntry<'_> {
         watermark: LogId,
     ) -> Result<usize, rusqlite::Error> {
         self.0.execute(
-            "UPDATE channel_user SET watermark = ? WHERE id = ? AND channel_id = ?",
+            "UPDATE user_profile SET watermark = ? WHERE id = ? AND channel_id = ?",
             (watermark, id, channel_id),
         )
     }
@@ -150,7 +144,7 @@ pub(crate) mod tests {
             ChannelId,
         },
         database::{
-            channel::{tests::add_test_channel, user::UserModel},
+            channel::{tests::add_test_channel, user::UserProfileRow},
             tests::prepare_test_database,
         },
     };
@@ -161,8 +155,8 @@ pub(crate) mod tests {
         db: &Connection,
         id: UserId,
         channel_id: ChannelId,
-    ) -> Result<UserModel, rusqlite::Error> {
-        let model = UserModel {
+    ) -> Result<UserProfileRow, rusqlite::Error> {
+        let model = UserProfileRow {
             id,
             channel_id,
             profile: UserProfile {
@@ -172,7 +166,7 @@ pub(crate) mod tests {
             watermark: 0,
         };
 
-        db.user().insert(&model)?;
+        db.user().insert_or_replace(&model)?;
 
         Ok(model)
     }
