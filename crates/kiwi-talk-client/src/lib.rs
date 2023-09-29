@@ -8,9 +8,12 @@ pub mod handler;
 
 use std::{io, pin::pin};
 
-use channel::{normal::ClientNormalChannel, user::UserId, ChannelId, ClientChannel};
+use channel::{user::UserId, ChannelId, ClientChannel};
 use config::ClientConfig;
-use database::pool::DatabasePool;
+use database::{
+    channel::updater::ChannelUpdaterExt,
+    pool::{DatabasePool, PoolTaskError},
+};
 use error::ClientError;
 use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
@@ -37,10 +40,6 @@ impl KiwiTalkSession {
         ClientChannel::new(id, self)
     }
 
-    pub const fn normal_channel(&self, id: ChannelId) -> ClientNormalChannel {
-        ClientNormalChannel::new(self.channel(id))
-    }
-
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
         TalkSession(&self.session)
             .set_status(&SetStReq {
@@ -58,6 +57,9 @@ impl KiwiTalkSession {
         credential: ClientCredential<'_>,
         status: ClientStatus,
     ) -> Result<Self, LoginError> {
+        let chat_ids = &[];
+        let max_ids = &[];
+
         let login_res = TalkSession(&session)
             .login(&LoginListReq {
                 os: config.os,
@@ -73,8 +75,8 @@ impl KiwiTalkSession {
                 revision: None,
                 rp: [0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
                 chat_list: LChatListReq {
-                    chat_ids: &[],
-                    max_ids: &[],
+                    chat_ids,
+                    max_ids,
                     last_token_id: 0,
                     last_chat_id: None,
                 },
@@ -86,14 +88,24 @@ impl KiwiTalkSession {
         let mut channel_list_vec = vec![login_res.chat_list.chat_datas];
 
         if !login_res.chat_list.eof {
-            let mut stream = pin!(TalkSession(&session).channel_list_stream(0, None));
+            let mut stream = pin!(TalkSession(&session).channel_list_stream(
+                chat_ids,
+                max_ids,
+                login_res.chat_list.last_token_id.unwrap_or(0),
+                login_res.chat_list.last_chat_id
+            ));
 
             while let Some(res) = stream.try_next().await? {
                 channel_list_vec.push(res.chat_datas);
             }
         }
 
-        // TODO:: implement channel update
+        pool.spawn_task(|conn| {
+            Ok(conn
+                .channel_updater()
+                .update(channel_list_vec.into_iter().flatten())?)
+        })
+        .await?;
 
         Ok(Self {
             user_id: login_res.user_id,
@@ -110,6 +122,9 @@ pub enum LoginError {
 
     #[error(transparent)]
     Io(#[from] io::Error),
+
+    #[error(transparent)]
+    Database(#[from] PoolTaskError),
 
     #[error("session closed")]
     SessionClosed,
