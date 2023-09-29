@@ -68,3 +68,32 @@ export function getUserEmail(): Promise<string> {
   return tauri.invoke('plugin:client|user_email');
 }
 
+export type ChannelListItem = {
+  channelType: string,
+
+  displayUsers: {
+    nickname: string,
+    profileUrl?: string,
+  }[],
+
+  lastChat?: {
+    chatType: number,
+    nickname?: string,
+    content: {
+      message?: string,
+      attachment?: string,
+      supplement?: string,
+    },
+  },
+
+  name?: string,
+  profile?: string,
+
+  unreadCount: number,
+
+  userCount: number,
+}
+
+export function getChannelList(): Promise<[string, ChannelListItem][]> {
+  return tauri.invoke('plugin:client|channel_list');
+}
