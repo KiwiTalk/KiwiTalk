@@ -1,14 +1,13 @@
 {
-  "$schema": "../../node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "../../../node_modules/@tauri-apps/cli/schema.json",
   "build": {
     "beforeBuildCommand": "pnpm run frontend:build",
     "beforeDevCommand": "pnpm run frontend:dev",
     "devPath": "http://localhost:5173",
-    "distDir": "../../frontend/dist"
+    "distDir": "../../../frontend/dist"
   },
   "package": {
-    "productName": "kiwi-talk",
-    "version": "0.1.0"
+    "productName": "KiwiTalk"
   },
   "tauri": {
     "allowlist": {

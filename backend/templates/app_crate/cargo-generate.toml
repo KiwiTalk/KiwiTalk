@@ -1,0 +1,2 @@
+[placeholders]
+description = { type = "string", prompt = "Description for the app crate: " }

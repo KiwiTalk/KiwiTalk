@@ -1,6 +1,6 @@
 on: pull_request
 
-name: Clippy check
+name: Clippy
 jobs:
   check:
     runs-on: ubuntu-latest
