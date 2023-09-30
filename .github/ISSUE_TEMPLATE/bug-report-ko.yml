@@ -16,7 +16,7 @@ body:
     attributes:
       id: expected-behavior
       label: 예상했던 작동 방식 (선택)
-      description: Please describe what you expected to happen.
+      description: 예상했던 작동 방식을 설명해 주세요.
       placeholder: |
         ex) X 버튼 클릭시 정상 작동합니다.
     validations:
