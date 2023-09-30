@@ -6,8 +6,8 @@ body:
   - type: textarea
     attributes:
       id: current-behavior
-      label: Current behavior
-      description: Please provide a clear and concise description of the issue.
+      label: 현재 작동 방식
+      description: 문제점을 깔끔하고 명료하게 작성해 주세요.
       placeholder: |
         ex) X 버튼 클릭시 프로그램이 강제 종료 됩니다.
     validations:
@@ -15,7 +15,7 @@ body:
   - type: textarea
     attributes:
       id: expected-behavior
-      label: 예상된 동작 (선택)
+      label: 예상했던 작동 방식 (선택)
       description: Please describe what you expected to happen.
       placeholder: |
         ex) X 버튼 클릭시 정상 작동합니다.
