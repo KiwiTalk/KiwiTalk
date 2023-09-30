@@ -6,7 +6,6 @@ use talk_loco_client::talk::stream::{
 };
 
 use crate::{
-    channel::user::UserId,
     chat::Chatlog,
     database::{
         channel::user::UserDatabaseExt,
@@ -23,14 +22,12 @@ type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
 #[derive(Debug, Clone)]
 pub struct SessionHandler {
-    user_id: UserId,
     pool: DatabasePool,
 }
 
 impl SessionHandler {
     pub fn new(client: &KiwiTalkSession) -> Self {
         Self {
-            user_id: client.user_id,
             pool: client.pool.clone(),
         }
     }
