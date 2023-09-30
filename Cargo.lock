@@ -90,6 +90,9 @@ name = "anyhow"
 version = "1.0.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
+dependencies = [
+ "backtrace",
+]
 
 [[package]]
 name = "arrayvec"
@@ -2012,6 +2015,7 @@ name = "kiwi-talk-app"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arrayvec",
  "base64 0.21.4",
  "bincode",
  "enum-kinds",
@@ -2021,7 +2025,6 @@ dependencies = [
  "hostname",
  "kiwi-talk-client",
  "log",
- "nohash-hasher",
  "num-bigint-dig",
  "once_cell",
  "parking_lot",
@@ -2059,6 +2062,7 @@ dependencies = [
  "rusqlite",
  "rusqlite_migration",
  "serde",
+ "serde_json",
  "talk-loco-client",
  "thiserror",
  "tokio",
@@ -4137,9 +4141,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-build"
-version = "1.4.1"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a62b3327886e7ef2978adc668432f1cc53f14e1d46e7ae04f730f4d48584623"
+checksum = "defbfc551bd38ab997e5f8e458f87396d2559d05ce32095076ad6c30f7fc5f9c"
 dependencies = [
  "anyhow",
  "cargo_toml",
