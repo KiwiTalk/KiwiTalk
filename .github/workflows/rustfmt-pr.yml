@@ -1,6 +1,6 @@
 on: pull_request
 
-name: Rustfmt
+name: rustfmt
 jobs:
   review:
     runs-on: ubuntu-latest

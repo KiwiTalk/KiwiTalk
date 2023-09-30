@@ -2,7 +2,7 @@ on:
   push:
     branches: 'dev'
 
-name: Rustfmt
+name: rustfmt
 jobs:
   format:
     runs-on: ubuntu-latest
