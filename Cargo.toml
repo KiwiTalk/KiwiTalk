@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = ["./backend/app/*", "./backend/crates/*"]
+members = ["./backend/bin/*", "./backend/crates/*"]
 
 [workspace.package]
 version = "0.1.0"

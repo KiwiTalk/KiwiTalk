@@ -1,8 +1,8 @@
 [package]
-name = "kiwi-talk-{{project-name}}"
+name = "{{project-name}}"
 description = "{{description}}"
+version = "0.1.0"
 
-version.workspace = true
 license.workspace = true
 edition.workspace = true
 authors.workspace = true
