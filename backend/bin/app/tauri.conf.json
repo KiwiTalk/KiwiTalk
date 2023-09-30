@@ -7,8 +7,7 @@
     "distDir": "../../../frontend/dist"
   },
   "package": {
-    "productName": "kiwi-talk",
-    "version": "0.1.0"
+    "productName": "KiwiTalk"
   },
   "tauri": {
     "allowlist": {
