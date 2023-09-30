@@ -1,0 +1,2 @@
+[alias]
+gen = "generate -p ./backend/templates"

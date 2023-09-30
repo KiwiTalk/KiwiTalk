@@ -1,0 +1,11 @@
+[package]
+name = "{{project-name}}"
+description = "{{description}}"
+
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]

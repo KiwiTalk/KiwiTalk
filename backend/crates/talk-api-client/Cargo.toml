@@ -1,8 +1,8 @@
 [package]
 name = "talk-api-client"
 categories = [ "api-bindings" ]
+version = "0.1.0"
 
-version.workspace = true
 license.workspace = true
 edition.workspace = true
 authors.workspace = true
