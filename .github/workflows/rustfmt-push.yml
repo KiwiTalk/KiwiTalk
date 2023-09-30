@@ -4,7 +4,7 @@ on:
 
 name: Rustfmt
 jobs:
-  clippy_check:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
