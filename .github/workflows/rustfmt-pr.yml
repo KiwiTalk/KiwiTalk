@@ -2,7 +2,7 @@ on: pull_request
 
 name: Rustfmt
 jobs:
-  format:
+  review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
