@@ -1,10 +1,6 @@
 use serde::Deserialize;
 
-use talk_loco_client::structs::{
-    channel::ChannelInfo as LocoChannelInfo, chat::Chatlog as LocoChatlog,
-};
-
-use crate::channel::ChannelMeta;
+use crate::structs::{channel::ChannelInfo, channel::ChannelMeta, chat::Chatlog};
 
 /// Send before server disconnect connection
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -29,7 +25,7 @@ pub struct Msg {
     pub log_id: i64,
 
     #[serde(rename = "chatLog")]
-    pub chatlog: LocoChatlog,
+    pub chatlog: Chatlog,
 
     /// Sender nickname
     #[serde(rename = "authorNickname")]
@@ -87,7 +83,7 @@ pub struct SyncJoin {
 
     /// Last chat
     #[serde(rename = "chatLog")]
-    pub chat_log: Option<LocoChatlog>,
+    pub chat_log: Option<Chatlog>,
 }
 
 /// Sync chat delete
@@ -95,7 +91,7 @@ pub struct SyncJoin {
 pub struct SyncDlMsg {
     /// Deleted chat
     #[serde(rename = "chatLog")]
-    pub chat_log: LocoChatlog,
+    pub chat_log: Chatlog,
 }
 
 /// Sync openlink creation
@@ -107,7 +103,7 @@ pub struct SyncLinkCr {
 
     /// Only presents if the openlink is openchat.
     #[serde(rename = "chatRoom")]
-    pub chat_room: Option<LocoChannelInfo>,
+    pub chat_room: Option<ChannelInfo>,
 }
 
 /// Sync openchat member type
@@ -148,5 +144,5 @@ pub struct SyncLinkPf {
 pub struct SyncRewr {
     /// Chatlog
     #[serde(rename = "chatLog")]
-    pub chat_log: LocoChatlog,
+    pub chat_log: Chatlog,
 }

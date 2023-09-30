@@ -6,7 +6,7 @@ use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     structs::{channel::ChannelInfo, user::UserVariant},
-    talk::{ChannelInfoReq, ChatOnChannelReq, GetUsersReq, NotiReadReq, TalkSession},
+    talk::session::{ChannelInfoReq, ChatOnChannelReq, GetUsersReq, NotiReadReq, TalkSession},
 };
 
 use crate::{

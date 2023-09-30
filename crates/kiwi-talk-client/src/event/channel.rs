@@ -5,7 +5,7 @@ use crate::{
     chat::{Chatlog, LogId},
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum ChannelEvent {
     Chat {

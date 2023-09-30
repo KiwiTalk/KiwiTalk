@@ -2,7 +2,7 @@ pub mod request {
     use serde::Serialize;
     use serde_with::skip_serializing_none;
 
-    use crate::talk::LChatListReq;
+    use super::super::LChatListReq;
 
     /// Login to loco server
     #[skip_serializing_none]
@@ -70,7 +70,7 @@ pub mod response {
     use serde::Deserialize;
     use serde_with::skip_serializing_none;
 
-    use crate::talk::LChatListRes;
+    use super::super::LChatListRes;
 
     /// Contains userId, tokens, chatroom list.
     /// The purposes of tokens, revisions are unknown yet.

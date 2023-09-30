@@ -1,11 +1,14 @@
+mod channel_list;
 mod conn;
+mod event;
 mod handler;
 mod saved_account;
 
 use enum_kinds::EnumKind;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
-use std::task::Poll;
+use sha2::{Digest, Sha256};
+use std::{path::PathBuf, task::Poll};
 use talk_api_client::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
 use tauri::{
     generate_handler,
@@ -14,12 +17,15 @@ use tauri::{
 };
 
 use anyhow::{anyhow, Context};
-use futures::{future::poll_fn, stream, StreamExt};
+use futures::{future::poll_fn, ready, stream, StreamExt};
 use kiwi_talk_client::{
-    config::ClientConfig, database::pool::DatabasePool, event::ClientEvent,
-    handler::SessionHandler, ClientCredential, ClientStatus, KiwiTalkSession,
+    config::ClientConfig, database::pool::DatabasePool, handler::SessionHandler, ClientCredential,
+    ClientStatus, KiwiTalkSession,
 };
-use talk_loco_client::futures_loco_protocol::{session::LocoSession, LocoClient};
+use talk_loco_client::{
+    futures_loco_protocol::{session::LocoSession, LocoClient},
+    talk::stream::TalkStream,
+};
 use tokio::{sync::mpsc, task::JoinHandle};
 
 use crate::{
@@ -31,7 +37,9 @@ use crate::{
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;
 
-use self::{conn::create_secure_stream, handler::run_handler, saved_account::SavedAccount};
+use self::{
+    conn::create_secure_stream, event::MainEvent, handler::run_handler, saved_account::SavedAccount,
+};
 
 pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
     let state = try_auto_login(false, ClientStatus::Unlocked)
@@ -40,8 +48,8 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             |err| State::NeedLogin {
                 reason: Some(Reason::AutoLoginFailed(err)),
             },
-            |client| match client {
-                Some(client) => State::Logon(client),
+            |opt| match opt {
+                Some((client, email)) => State::Logon { client, email },
                 None => State::NeedLogin { reason: None },
             },
         );
@@ -58,8 +66,9 @@ pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Resul
             default_login_form,
             login,
             logout,
-            next_event,
-            user_id
+            next_main_event,
+            user_email,
+            channel_list::channel_list,
         ])
         .build())
 }
@@ -104,7 +113,7 @@ async fn login(
     status: ClientStatus,
     state: ClientState<'_>,
 ) -> TauriResult<i32> {
-    if let State::Logon(_) = &*state.read() {
+    if let State::Logon { .. } = &*state.read() {
         return Err(anyhow!("already logon").into());
     }
 
@@ -141,7 +150,7 @@ async fn login(
         };
 
         Some(SavedAccount {
-            email: login_data.auto_login_account_id,
+            email: login_data.auto_login_account_id.clone(),
             token,
         })
     } else {
@@ -154,13 +163,16 @@ async fn login(
         ClientCredential {
             access_token: &login_data.credential.access_token,
             device_uuid,
-            user_id: Some(login_data.user_id as i64),
         },
+        login_data.user_id as _,
     )
     .await
     .context("cannot create client")?;
 
-    *state.write() = State::Logon(client);
+    *state.write() = State::Logon {
+        client,
+        email: login_data.auto_login_account_id,
+    };
 
     Ok(0)
 }
@@ -168,7 +180,7 @@ async fn login(
 #[tauri::command]
 fn logout(state: ClientState<'_>) -> TauriResult<()> {
     match &mut *state.write() {
-        state @ State::Logon(_) => {
+        state @ State::Logon { .. } => {
             *state = State::NeedLogin { reason: None };
 
             Ok(())
@@ -179,29 +191,35 @@ fn logout(state: ClientState<'_>) -> TauriResult<()> {
 }
 
 #[tauri::command(async)]
-async fn next_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
-    let event = poll_fn(|cx| {
-        let mut client = client.write();
+async fn next_main_event(state: ClientState<'_>) -> TauriResult<Option<MainEvent>> {
+    Ok(poll_fn(|cx| {
+        let mut state = state.write();
 
-        let client = match &mut *client {
-            State::Logon(client) => client,
+        let client = match &mut *state {
+            State::Logon { client, .. } => client,
             _ => return Poll::Ready(None),
         };
 
-        client.event_rx.poll_recv(cx)
-    })
-    .await;
+        let read = ready!(client.event_rx.poll_recv(cx));
 
-    Ok(match event {
-        Some(res) => Some(res?),
-        None => None,
+        if let Some(Ok(MainEvent::Kickout { reason })) = &read {
+            *state = State::NeedLogin {
+                reason: Some(Reason::Kickout(*reason)),
+            };
+        } else if read.is_none() {
+            *state = State::NeedLogin { reason: None };
+        }
+
+        Poll::Ready(read)
     })
+    .await
+    .transpose()?)
 }
 
 #[tauri::command]
-fn user_id(client: ClientState) -> TauriResult<i64> {
+fn user_email(client: ClientState) -> TauriResult<String> {
     match &*client.read() {
-        State::Logon(client) => Ok(client.session.user_id()),
+        State::Logon { email, .. } => Ok(email.clone()),
 
         _ => Err(anyhow!("not logon").into()),
     }
@@ -231,14 +249,14 @@ impl Default for LoginForm {
 #[enum_kind(StateKind, derive(Serialize, Deserialize))]
 enum State {
     NeedLogin { reason: Option<Reason> },
-    Logon(Client),
+    Logon { client: Client, email: String },
 }
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "content")]
 enum Reason {
     AutoLoginFailed(AutoLoginError),
-    Kickout,
+    Kickout(i16),
 }
 
 #[derive(Debug, Serialize)]
@@ -258,7 +276,8 @@ impl<T: Into<TauriAnyhowError>> From<T> for AutoLoginError {
 #[derive(Debug)]
 struct Client {
     session: KiwiTalkSession,
-    event_rx: mpsc::Receiver<anyhow::Result<ClientEvent>>,
+    user_dir: PathBuf,
+    event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
     stream_task: JoinHandle<()>,
 }
 
@@ -271,7 +290,7 @@ impl Drop for Client {
 async fn try_auto_login(
     forced: bool,
     status: ClientStatus,
-) -> Result<Option<Client>, AutoLoginError> {
+) -> Result<Option<(Client, String)>, AutoLoginError> {
     let (email, token) = if let Some(SavedAccount {
         email,
         token: Some(token),
@@ -313,42 +332,59 @@ async fn try_auto_login(
         );
 
         saved_account::write(Some(SavedAccount {
-            email: login_data.auto_login_account_id,
+            email: login_data.auto_login_account_id.clone(),
             token: Some(token),
         }))
         .await
     };
 
-    Ok(Some(
+    Ok(Some((
         create_client(
             status,
             ClientCredential {
                 access_token: &login_data.credential.access_token,
                 device_uuid,
-                user_id: Some(login_data.user_id as i64),
             },
+            login_data.user_id as i64,
         )
         .await?,
-    ))
+        login_data.auto_login_account_id,
+    )))
 }
 
 async fn create_client(
     status: ClientStatus,
     credential: ClientCredential<'_>,
+    user_id: i64,
 ) -> anyhow::Result<Client> {
-    let pool = DatabasePool::file("file:memdb?mode=memory&cache=shared")
-        .context("failed to open database")?;
+    let user_dir = get_system_info().data_dir.join("userdata").join({
+        let mut digest = Sha256::new();
+
+        digest.update("user_");
+        digest.update(format!("{user_id}"));
+
+        hex::encode(digest.finalize())
+    });
+
+    tokio::fs::create_dir_all(&user_dir)
+        .await
+        .context("cannot create user directory")?;
+
+    let pool =
+        DatabasePool::file(user_dir.join("database.db")).context("failed to open database")?;
     pool.migrate_to_latest()
         .await
         .context("failed to migrate database to latest")?;
 
-    let checkin = checkin(credential.user_id.unwrap_or(1)).await?;
+    let checkin = checkin(user_id).await?;
 
-    let (session, mut stream) = LocoSession::new(LocoClient::new(
+    let (session, stream) = LocoSession::new(LocoClient::new(
         create_secure_stream((checkin.host.as_str(), checkin.port as u16))
             .await
             .context("failed to create secure stream")?,
     ));
+
+    let mut stream = TalkStream::new(stream);
 
     let mut stream_buffer = Vec::new();
 
@@ -375,9 +411,7 @@ async fn create_client(
         };
 
         let stream_task = async {
-            while let Some(read) = stream.next().await {
-                let read = read?;
-
+            while let Some(read) = stream.next().await.transpose()? {
                 stream_buffer.push(read);
             }
 
@@ -408,6 +442,7 @@ async fn create_client(
 
     Ok(Client {
         session,
+        user_dir,
         event_rx,
         stream_task,
     })

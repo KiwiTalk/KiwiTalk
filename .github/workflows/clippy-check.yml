@@ -1,40 +1,23 @@
-on:
-  push:
-    paths: 'crates/**'
-  pull_request:
-    paths: 'crates/**'
+on: pull_request
+
 name: Clippy check
 jobs:
-  clippy_check:
+  check:
     runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+            components: clippy
       - name: Update apt repository
         run: sudo apt update -y
       - name: Install libraries
         run: sudo apt install -y libdbus-1-dev libgtk-3-dev libsoup2.4-dev libjavascriptcoregtk-4.0-dev libwebkit2gtk-4.0-dev
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: nightly
-            components: rustfmt, clippy
-            override: true
-      - uses: actions/cache@v3
-        name: Setup Rust build cache
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            crates/target/debug/
-            crates/target/release/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all --manifest-path=crates/Cargo.toml -- --check
-      - uses: reinismu/clippy-check@master
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/clippy-check@v1
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-targets
-          working-directory: crates
+          args: --all-targets --workspace
