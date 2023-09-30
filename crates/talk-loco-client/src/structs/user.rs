@@ -68,6 +68,15 @@ pub enum UserVariant {
     Open(OpenUser),
 }
 
+impl UserVariant {
+    pub fn id(&self) -> i64 {
+        match self {
+            UserVariant::Normal(normal) => normal.user_id,
+            UserVariant::Open(open) => open.user_id,
+        }
+    }
+}
+
 /// User types. Don't confuse with OpenMemberType.
 #[repr(i32)]
 pub enum UserType {

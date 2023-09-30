@@ -7,16 +7,15 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct ChatModel {
-    pub logged: Chatlog,
-
+pub struct ChatRow {
+    pub log: Chatlog,
     pub deleted_time: Option<i64>,
 }
 
-impl ChatModel {
+impl ChatRow {
     pub fn map_row(row: &Row) -> Result<Self, rusqlite::Error> {
         Ok(Self {
-            logged: Chatlog {
+            log: Chatlog {
                 log_id: row.get(0)?,
                 prev_log_id: row.get(2)?,
 
@@ -54,34 +53,34 @@ pub impl Connection {
 pub struct ChatEntry<'a>(pub &'a Connection);
 
 impl ChatEntry<'_> {
-    pub fn insert(&self, model: &ChatModel) -> Result<(), rusqlite::Error> {
+    pub fn insert(&self, row: &ChatRow) -> Result<(), rusqlite::Error> {
         self.0.execute(
             "INSERT OR REPLACE INTO chat VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
-                model.logged.log_id,
-                model.logged.channel_id,
-                model.logged.prev_log_id,
-                model.logged.chat.chat_type.0,
-                model.logged.chat.message_id,
-                model.logged.send_at,
-                model.logged.sender_id,
-                model.logged.chat.content.message.as_ref(),
-                model.logged.chat.content.attachment.as_ref(),
-                model.logged.chat.content.supplement.as_ref(),
-                model.logged.referer,
-                model.deleted_time,
+                row.log.log_id,
+                row.log.channel_id,
+                row.log.prev_log_id,
+                row.log.chat.chat_type.0,
+                row.log.chat.message_id,
+                row.log.send_at,
+                row.log.sender_id,
+                row.log.chat.content.message.as_ref(),
+                row.log.chat.content.attachment.as_ref(),
+                row.log.chat.content.supplement.as_ref(),
+                row.log.referer,
+                row.deleted_time,
             ),
         )?;
 
         Ok(())
     }
 
-    pub fn get_from_log_id(&self, log_id: LogId) -> Result<Option<ChatModel>, rusqlite::Error> {
+    pub fn get_from_log_id(&self, log_id: LogId) -> Result<Option<ChatRow>, rusqlite::Error> {
         self.0
             .query_row(
                 "SELECT * FROM chat WHERE log_id = ?",
                 [log_id],
-                ChatModel::map_row,
+                ChatRow::map_row,
             )
             .optional()
     }
@@ -113,7 +112,7 @@ impl ChatEntry<'_> {
             .execute("DELETE FROM chat WHERE channel_id = ?", [channel_id])
     }
 
-    pub fn get_from_latest<B: FromIterator<ChatModel>>(
+    pub fn get_from_latest<B: FromIterator<ChatRow>>(
         &self,
         channel_id: ChannelId,
         offset: u64,
@@ -124,33 +123,15 @@ impl ChatEntry<'_> {
             .prepare("SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT ?, ?")?;
 
         let rows = statement.query((channel_id, offset, limit))?;
-        rows.mapped(ChatModel::map_row).collect()
+        rows.mapped(ChatRow::map_row).collect()
     }
 
-    pub fn get_latest_in(
-        &self,
-        channel_id: ChannelId,
-    ) -> Result<Option<ChatModel>, rusqlite::Error> {
+    pub fn get_latest_in(&self, channel_id: ChannelId) -> Result<Option<ChatRow>, rusqlite::Error> {
         self.0
             .query_row(
                 "SELECT * FROM chat WHERE channel_id = ? ORDER BY log_id DESC LIMIT 1",
                 [channel_id],
-                ChatModel::map_row,
-            )
-            .optional()
-    }
-
-    pub fn get_latest_not_deleted_in(
-        &self,
-        channel_id: ChannelId,
-    ) -> Result<Option<ChatModel>, rusqlite::Error> {
-        self.0
-            .query_row(
-                "SELECT * FROM chat \
-                WHERE channel_id = ? AND deleted_time IS NULL \
-                ORDER BY log_id DESC LIMIT 1",
-                [channel_id],
-                ChatModel::map_row,
+                ChatRow::map_row,
             )
             .optional()
     }
@@ -181,15 +162,15 @@ pub(crate) mod tests {
         database::tests::prepare_test_database,
     };
 
-    use super::{ChatDatabaseExt, ChatModel};
+    use super::{ChatDatabaseExt, ChatRow};
 
     pub fn add_test_chat(
         db: &Connection,
         log_id: LogId,
         channel_id: ChannelId,
-    ) -> Result<ChatModel, rusqlite::Error> {
-        let model = ChatModel {
-            logged: Chatlog {
+    ) -> Result<ChatRow, rusqlite::Error> {
+        let model = ChatRow {
+            log: Chatlog {
                 log_id,
                 prev_log_id: None,
                 channel_id,

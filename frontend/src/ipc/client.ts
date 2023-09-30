@@ -1,11 +1,5 @@
 import { tauri } from '@tauri-apps/api';
 
-export type AppCredential = {
-  access_token: string,
-  refresh_token: string,
-  userId?: number
-}
-
 export type LoginForm = {
   email: string,
   password: string,
@@ -26,7 +20,7 @@ export type LoginReason = {
   content: AutoLoginError,
 } | {
   type: 'Kickout'
-} | null;
+};
 
 export type AutoLoginError = {
   type: 'InvalidFile'
@@ -38,7 +32,7 @@ export type AutoLoginError = {
   content: string,
 };
 
-export function takeLoginReason(): Promise<LoginReason> {
+export function takeLoginReason(): Promise<LoginReason | null> {
   return tauri.invoke('plugin:client|take_login_reason');
 }
 
@@ -54,11 +48,52 @@ export function logout(): Promise<void> {
   return tauri.invoke('plugin:client|logout');
 }
 
-export type KiwiTalkClientEvent = {
-  // TODO
+export type KiwiTalkMainEvent = {
+  type: 'kickout',
+  content: { reason: number },
+} | {
+  type: 'chat',
+  content: {
+    channel: string,
+    previewMessage: string,
+    unreadCount: number,
+  },
 }
 
-export function nextClientEvent(): Promise<KiwiTalkClientEvent | void> {
-  return tauri.invoke<KiwiTalkClientEvent | void>('plugin:client|next_event');
+export function nextMainEvent(): Promise<KiwiTalkMainEvent | null> {
+  return tauri.invoke('plugin:client|next_main_event');
 }
 
+export function getUserEmail(): Promise<string> {
+  return tauri.invoke('plugin:client|user_email');
+}
+
+export type ChannelListItem = {
+  channelType: string,
+
+  displayUsers: {
+    nickname: string,
+    profileUrl?: string,
+  }[],
+
+  lastChat?: {
+    chatType: number,
+    nickname?: string,
+    content: {
+      message?: string,
+      attachment?: string,
+      supplement?: string,
+    },
+  },
+
+  name?: string,
+  profile?: string,
+
+  unreadCount: number,
+
+  userCount: number,
+}
+
+export function getChannelList(): Promise<[string, ChannelListItem][]> {
+  return tauri.invoke('plugin:client|channel_list');
+}

@@ -1,6 +1,6 @@
 -- See /src/database/chat.rs
 CREATE TABLE IF NOT EXISTS chat (
-    log_id INTEGER PRIMARY KEY,
+    log_id INTEGER PRIMARY KEY NOT NULL,
     channel_id INTEGER NOT NULL,
     prev_log_id INTEGER,
     type INTEGER NOT NULL,
@@ -15,14 +15,14 @@ CREATE TABLE IF NOT EXISTS chat (
     deleted_time INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS channel (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS channel_update (
+    id INTEGER PRIMARY KEY NOT NULL,
     type VARCHAR(16) NOT NULL,
+    
+    display_users VARCHAR(255) NOT NULL,
 
     last_seen_log_id INTEGER NOT NULL,
-    last_update INTEGER NOT NULL,
-
-    push_alert BOOLEAN NOT NULL
+    last_update INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channel_meta (
@@ -34,11 +34,10 @@ CREATE TABLE IF NOT EXISTS channel_meta (
     revision INTEGER NOT NULL,
     content TEXT NOT NULL,
 
-    PRIMARY KEY(channel_id, type),
-    FOREIGN KEY(channel_id) REFERENCES channel(id)
+    PRIMARY KEY(channel_id, type)
 );
 
-CREATE TABLE IF NOT EXISTS channel_user (
+CREATE TABLE IF NOT EXISTS user_profile (
     id INTEGER NOT NULL,
     channel_id INTEGER NOT NULL,
 
@@ -47,20 +46,17 @@ CREATE TABLE IF NOT EXISTS channel_user (
     profile_url TEXT,
     full_profile_url TEXT,
     original_profile_url TEXT,
-
+    
     watermark INTEGER NOT NULL DEFAULT 0,
 
-    PRIMARY KEY(id, channel_id),
-    FOREIGN KEY(channel_id) REFERENCES channel(id)
+    PRIMARY KEY(id, channel_id)
 );
 
 CREATE TABLE IF NOT EXISTS normal_channel (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY NOT NULL,
 
     joined_at_for_new_mem INTEGER,
-    inviter_user_id INTEGER,
-
-    FOREIGN KEY(id) REFERENCES channel(id)
+    inviter_user_id INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS normal_channel_user (
@@ -73,7 +69,5 @@ CREATE TABLE IF NOT EXISTS normal_channel_user (
     linked_services TEXT,
     suspended BOOLEAN NOT NULL,
 
-    PRIMARY KEY(id, channel_id),
-    FOREIGN KEY(id, channel_id) REFERENCES channel_user(id, channel_id),
-    FOREIGN KEY(channel_id) REFERENCES channel(id)
+    PRIMARY KEY(id, channel_id)
 );

@@ -1,80 +1,44 @@
-// pub(crate) mod loader;
+/*
 pub mod normal;
 pub mod open;
+*/
+pub mod updater;
 pub mod user;
 
 use crate::{
     chat::{Chat, Chatlog, LogId},
-    database::{
-        channel::{ChannelDatabaseExt, ChannelModel, ChannelTrackingData},
-        chat::{ChatDatabaseExt, ChatModel},
-    },
+    database::chat::{ChatDatabaseExt, ChatRow},
     ClientResult, KiwiTalkSession,
 };
+use arrayvec::ArrayVec;
 use futures::{pin_mut, StreamExt};
 use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
-    structs::channel::{ChannelInfo, ChannelMeta as LocoChannelMeta},
-    talk::{SyncChatReq, TalkSession, UpdateChannelReq, WriteChatReq},
+    structs::channel::ChannelMeta as LocoChannelMeta,
+    talk::session::{SyncChatReq, TalkSession, WriteChatReq},
 };
 use tokio::sync::mpsc::channel;
 
-use self::normal::NormalChannelData;
+use self::user::DisplayUser;
 
 pub type ChannelId = i64;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct ChannelSettings {
-    pub push_alert: bool,
-}
+pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ChannelData {
+pub struct ChannelListData {
     pub channel_type: String,
 
     pub last_chat: Option<Chatlog>,
+    pub last_log_id: LogId,
     pub last_seen_log_id: LogId,
 
-    pub metas: IntMap<i32, ChannelMeta>,
+    pub display_users: ArrayVec<DisplayUser, 4>,
 
-    pub settings: ChannelSettings,
-}
+    pub user_count: usize,
 
-impl ChannelData {
-    pub fn create_model(&self, id: i64, last_update: i64) -> ChannelModel {
-        ChannelModel {
-            id,
-            channel_type: self.channel_type.clone(),
-            tracking_data: ChannelTrackingData {
-                last_seen_log_id: self.last_seen_log_id,
-                last_update,
-            },
-            settings: self.settings.clone(),
-        }
-    }
-}
-
-impl From<ChannelInfo> for ChannelData {
-    fn from(info: ChannelInfo) -> Self {
-        let metas = info
-            .channel_metas
-            .into_iter()
-            .map(|meta| (meta.meta_type, ChannelMeta::from(meta)))
-            .collect();
-
-        Self {
-            channel_type: info.channel_type,
-
-            last_chat: info.last_chat_log.map(Chatlog::from),
-            last_seen_log_id: info.last_seen_log_id,
-
-            metas,
-            settings: ChannelSettings {
-                push_alert: info.push_alert,
-            },
-        }
-    }
+    pub metas: ChannelMetaMap,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -98,6 +62,7 @@ impl From<LocoChannelMeta> for ChannelMeta {
     }
 }
 
+/*
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", content = "data")]
 pub enum ChannelDataVariant {
@@ -117,6 +82,7 @@ impl From<()> for ChannelDataVariant {
         Self::Open(data)
     }
 }
+*/
 
 #[derive(Debug, Clone, Copy)]
 pub struct ClientChannel<'a> {
@@ -172,8 +138,8 @@ impl ClientChannel<'_> {
             self.client
                 .pool
                 .spawn_task(move |connection| {
-                    connection.chat().insert(&ChatModel {
-                        logged,
+                    connection.chat().insert(&ChatRow {
+                        log: logged,
                         deleted_time: None,
                     })?;
 
@@ -212,8 +178,8 @@ impl ClientChannel<'_> {
                 let transaction = connection.transaction()?;
 
                 for chatlog in list {
-                    transaction.chat().insert(&ChatModel {
-                        logged: Chatlog::from(chatlog),
+                    transaction.chat().insert(&ChatRow {
+                        log: Chatlog::from(chatlog),
                         deleted_time: None,
                     })?;
                 }
@@ -245,28 +211,5 @@ impl ClientChannel<'_> {
         database_task.await?;
 
         Ok(count)
-    }
-
-    pub async fn update(&self, push_alert: bool) -> ClientResult<()> {
-        TalkSession(&self.client.session)
-            .update_channel(&UpdateChannelReq {
-                chat_id: self.id,
-                push_alert,
-            })
-            .await?;
-
-        let channel_id = self.id;
-        self.client
-            .pool
-            .spawn_task(move |connection| {
-                connection
-                    .channel()
-                    .set_push_alert(channel_id, push_alert)?;
-
-                Ok(())
-            })
-            .await?;
-
-        Ok(())
     }
 }
