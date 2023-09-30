@@ -8,7 +8,7 @@ use enum_kinds::EnumKind;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::{path::PathBuf, task::Poll};
+use std::task::Poll;
 use talk_api_client::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
 use tauri::{
     generate_handler,
@@ -276,7 +276,6 @@ impl<T: Into<TauriAnyhowError>> From<T> for AutoLoginError {
 #[derive(Debug)]
 struct Client {
     session: KiwiTalkSession,
-    user_dir: PathBuf,
     event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
     stream_task: JoinHandle<()>,
 }
@@ -442,7 +441,6 @@ async fn create_client(
 
     Ok(Client {
         session,
-        user_dir,
         event_rx,
         stream_task,
     })

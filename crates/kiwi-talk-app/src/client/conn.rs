@@ -2,49 +2,22 @@ use anyhow::Context;
 use num_bigint_dig::BigUint;
 use once_cell::sync::Lazy;
 use talk_loco_client::{
-    client::{
-        booking::{BookingClient, GetConfReq, GetConfRes},
-        checkin::{CheckinClient, CheckinReq, CheckinRes},
-    },
+    client::checkin::{CheckinClient, CheckinReq, CheckinRes},
     futures_loco_protocol::{
         secure::{LocoSecureStream, RsaPublicKey},
         LocoClient,
     },
 };
-use thiserror::Error;
 use tokio::{
     io,
     io::BufStream,
     net::{TcpStream, ToSocketAddrs},
 };
-use tokio_native_tls::{native_tls, TlsConnector, TlsStream};
 use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
 
 use crate::constants::{
-    BOOKING_SERVER, CHECKIN_SERVER, TALK_MCCMNC, TALK_MODEL, TALK_NET_TYPE, TALK_OS, TALK_USE_SUB,
-    TALK_VERSION,
+    CHECKIN_SERVER, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_USE_SUB, TALK_VERSION,
 };
-
-pub async fn get_conf() -> anyhow::Result<GetConfRes> {
-    let mut connector = tokio_native_tls::TlsConnector::from(
-        native_tls::TlsConnector::new().context("cannot create tls connector")?,
-    );
-
-    let stream = create_tls_stream(&mut connector, BOOKING_SERVER.0, BOOKING_SERVER)
-        .await
-        .context("cannot create tls stream")?;
-
-    let mut client = BookingClient::new(LocoClient::new(stream));
-
-    client
-        .get_conf(&GetConfReq {
-            os: TALK_OS,
-            mccmnc: TALK_MCCMNC,
-            model: TALK_MODEL,
-        })
-        .await
-        .context("getconf request failed")
-}
 
 pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
     let stream = create_secure_stream(CHECKIN_SERVER)
@@ -96,32 +69,11 @@ static LOCO_SECURE_KEY: Lazy<RsaPublicKey> = Lazy::new(|| {
     .unwrap()
 });
 
-pub type TlsTcpStream = Compat<TlsStream<BufStream<TcpStream>>>;
 pub type SecureTcpStream = LocoSecureStream<Compat<BufStream<TcpStream>>>;
-
-pub async fn create_tls_stream<A: ToSocketAddrs>(
-    connector: &mut TlsConnector,
-    domain: &str,
-    addr: A,
-) -> Result<TlsTcpStream, TlsIoError> {
-    Ok(connector
-        .connect(domain, BufStream::new(TcpStream::connect(addr).await?))
-        .await?
-        .compat())
-}
 
 pub async fn create_secure_stream<A: ToSocketAddrs>(addr: A) -> io::Result<SecureTcpStream> {
     Ok(LocoSecureStream::new(
         LOCO_SECURE_KEY.to_owned(),
         BufStream::new(TcpStream::connect(addr).await?).compat(),
     ))
-}
-
-#[derive(Debug, Error)]
-pub enum TlsIoError {
-    #[error(transparent)]
-    Io(#[from] io::Error),
-
-    #[error(transparent)]
-    Tls(#[from] native_tls::Error),
 }

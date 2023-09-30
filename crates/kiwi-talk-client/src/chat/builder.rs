@@ -9,10 +9,6 @@ impl ChatContentBuilder {
     }
 
     pub fn build(self) -> ChatContent {
-        ChatContent {
-            message: todo!(),
-            attachment: todo!(),
-            supplement: todo!(),
-        }
+        todo!()
     }
 }
