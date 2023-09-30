@@ -1,0 +1,95 @@
+<mxfile host="app.diagrams.net" modified="2023-09-29T13:55:44.374Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36" etag="_5bIjd66045JeypuiWBZ" version="22.0.0" type="device">
+  <diagram name="페이지-1" id="X0sKONroYUU5qt4YS1Te">
+    <mxGraphModel dx="3585" dy="1955" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-2" target="LHJeClmQ3FNGh9vp-nyy-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-2" target="LHJeClmQ3FNGh9vp-nyy-19">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="390" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-2" target="LHJeClmQ3FNGh9vp-nyy-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-2" target="LHJeClmQ3FNGh9vp-nyy-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-2" value="kiwi_talk_app" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="460" y="260" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-4" target="LHJeClmQ3FNGh9vp-nyy-21">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="484" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-4" value="talk_loco_client" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="240" y="370" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-5" value="talk_api_client" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="690" y="260" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;fontSize=14;" edge="1" parent="1" target="LHJeClmQ3FNGh9vp-nyy-16">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="250" y="290" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" target="LHJeClmQ3FNGh9vp-nyy-22">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="544" as="sourcePoint" />
+            <mxPoint x="320" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-16" target="LHJeClmQ3FNGh9vp-nyy-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-16" value="frontend" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="50" y="260" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontSize=14;" edge="1" parent="1" source="LHJeClmQ3FNGh9vp-nyy-19" target="LHJeClmQ3FNGh9vp-nyy-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-19" value="tauri&lt;br&gt;(backend framework)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="250" y="260" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-21" value="futures_loco_protocol&lt;br&gt;(async protocol io)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="250" y="484" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-22" value="loco_protocol&lt;br&gt;(protocol impl)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-23" value="tokio&lt;br&gt;(runtime)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="250" y="150" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-30" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;fontSize=14;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="230" y="660" as="sourcePoint" />
+            <mxPoint x="230" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-31" value="Solid.js&lt;br&gt;(frontend framework)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="370" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-35" value="Information" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;dashed=1;perimeterSpacing=0;fontSize=20;verticalAlign=top;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="370" width="250" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-36" value="&lt;h1 style=&quot;font-size: 32px;&quot;&gt;KiwiTalk big picture&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=32;fontStyle=1;align=left;verticalAlign=top;horizontal=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="310" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-40" value="Important library" style="rounded=0;whiteSpace=wrap;html=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="655" y="440" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="LHJeClmQ3FNGh9vp-nyy-42" value="Project crate" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="645" y="550" width="160" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
