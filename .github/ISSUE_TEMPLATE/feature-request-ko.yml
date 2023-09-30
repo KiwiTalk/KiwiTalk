@@ -21,7 +21,7 @@ body:
     attributes:
       id: additional-notes
       label: 추가 참고 사항
-      description: 내용에 대한 추가 자료가 있다면 이곳에 작성해주세요.
+      description: 내용에 대한 추가 자료가 있다면 이곳에 적어주세요.
       value: |
         1. ...
         2. ...
