@@ -1,2 +1,2 @@
 [template]
-sub_templates = ["app_crate"]
+sub_templates = ["app_crate", "lib_crate"]
