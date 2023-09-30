@@ -2041,7 +2041,6 @@ dependencies = [
  "tauri-plugin-window-state",
  "thiserror",
  "tokio",
- "tokio-native-tls",
  "tokio-util",
  "window-shadows",
 ]
