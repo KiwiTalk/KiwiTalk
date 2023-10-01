@@ -31,7 +31,7 @@ jobs:
         run: cargo install cargo-release
 
       - id: draft
-        run: gh release create ${{ github.ref_name }} -d -t "KiwiTalk ${{ github.ref_name_name }}"
+        run: gh release create ${{ github.ref_name }} -d -t "KiwiTalk ${{ github.ref_name }}"
         env:
           GH_TOKEN: ${{ github.token }}
 
