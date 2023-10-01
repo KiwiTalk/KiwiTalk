@@ -12,7 +12,7 @@ jobs:
         with:
           draft: true
           generateReleaseNotes: false
-          name: KiwiTalk ${{ github.ref }}
+          name: KiwiTalk ${{ github.ref_name }}
           prerelease: true
 
   build:
@@ -25,10 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - uses: pnpm/action-setup@v2
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -54,4 +55,4 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - run: gh release edit ${{ github.ref }} --draft=false
+      - run: gh release edit ${{ github.ref_name }} --draft=false
