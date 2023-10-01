@@ -10,6 +10,10 @@ jobs:
     outputs:
       releaseId: ${{ steps.draft.outputs.test }}
     steps:
+      - run: |
+        git config user.name 'KiwiTalk Continuous Deployment'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
       - id: draft
         uses: ncipollo/release-action@v1
         with:
