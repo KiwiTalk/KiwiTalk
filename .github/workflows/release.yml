@@ -47,12 +47,15 @@ jobs:
       - name: install frontend dependencies
         run: pnpm install
 
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: pnpm build
+
+      - uses: svenstaro/upload-release-action@v2
         with:
-          tauriScript: pnpm
-          releaseId: ${{ needs.draft.outputs.releaseId }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: target/release/bundle/**/*
+          tag: ${{ github.ref }}
 
   publish:
     needs: [build]
