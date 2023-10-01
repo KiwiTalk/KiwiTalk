@@ -1,0 +1,61 @@
+name: 버그 리포트
+description: 예상되지 않는 동작이나 강제 종료 현상이 발생했을 경우 이것을 작성해주세요.
+labels: ["Type: Bug"]
+assignees: []
+body:
+  - type: textarea
+    attributes:
+      id: current-behavior
+      label: 현재 작동 방식
+      description: 문제점을 깔끔하고 명료하게 작성해 주세요.
+      placeholder: |
+        ex) X 버튼 클릭시 프로그램이 강제 종료 됩니다.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: expected-behavior
+      label: 예상했던 작동 방식 (선택)
+      description: 예상했던 작동 방식을 설명해 주세요.
+      placeholder: |
+        ex) X 버튼 클릭시 정상 작동합니다.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      id: step-to-reproduce
+      label: 재현 단계
+      description: 재현에 필요한 단계들을 차례대로 기술해 주세요. 재현이 불가능 할 경우 이슈가 닫힐 수 있습니다.
+      value: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: os-specification
+      label: 운영체제, 실행환경 정보
+      description: 실행환경에 대한 자세한 정보를 작성해 주세요.
+      value: |
+        OS: Ubuntu 22.04 / MacOS (Intel CPU / Apple Silicon) / Arch Linux / etc...
+        System Webview version: Windows (Edge) / MacOS (Safari)
+        Using Development build: Yes/No
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      id: additional-notes
+      label: 추가 참고 사항
+      description: 추가적인 참고 사항이 있다면 이곳에 작성해 주세요.
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: 중복되는 이슈가 있나요?
+      description: 작성전 [이곳](https://github.com/KiwiTalk/KiwiTalk/issues) 에서 중복되는 이슈가 올라와 있는지 확인해 주세요.
+      options:
+        - label: 이슈 제출전 중복되는 이슈가 없는지 확인 했습니다.
+          required: true
+        - label: 필요한 정보들을 모두 작성했습니다.
+          required: true
