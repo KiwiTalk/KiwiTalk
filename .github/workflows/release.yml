@@ -75,6 +75,8 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - run: gh release edit ${{ github.ref_name }} --draft=false
         env:
           GH_TOKEN: ${{ github.token }}
