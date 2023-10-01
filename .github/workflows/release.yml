@@ -7,8 +7,11 @@ name: Deploy
 jobs:
   draft:
     runs-on: ubuntu-latest
+    outputs:
+      releaseId: ${{ steps.draft.outputs.test }}
     steps:
-      - uses: ncipollo/release-action@v1
+      - id: draft
+        uses: ncipollo/release-action@v1
         with:
           draft: true
           generateReleaseNotes: false
@@ -49,7 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tauriScript: pnpm
-          releaseId: ${{ needs.draft.outputs.id }}
+          releaseId: ${{ needs.draft.outputs.releaseId }}
 
   publish:
     needs: [build]
