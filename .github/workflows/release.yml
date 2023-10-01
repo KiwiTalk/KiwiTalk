@@ -14,7 +14,7 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           draft: true
-          generateReleaseNotes: true
+          generateReleaseNotes: false
           name: KiwiTalk $TAG
           prerelease: true
 
