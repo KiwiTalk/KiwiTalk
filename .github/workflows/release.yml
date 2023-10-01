@@ -21,12 +21,12 @@ jobs:
           generateReleaseNotes: false
           name: KiwiTalk ${{ github.ref_name }}
           prerelease: true
+          tag: ${{ github.ref }}
 
   build:
     needs: [draft]
     runs-on: ${{ matrix.platform }}
     strategy:
-      fail-fast: false
       matrix:
         platform: [macos-latest, ubuntu-20.04, windows-latest]
     steps:
@@ -57,8 +57,8 @@ jobs:
       - uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/bundle/**/*.*
           file_glob: true
-          file: target/release/bundle/**/*
           tag: ${{ github.ref }}
 
   publish:
