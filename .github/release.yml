@@ -1,0 +1,11 @@
+changelog:
+  categories:
+    - title: New Features
+      labels:
+        - 'Type: Enhancement'
+    - title: Bug fixes
+      labels:
+        - 'Type: Bug'
+    - title: Dependency updates
+      labels:
+        - 'Type: Dependency'
