@@ -51,5 +51,4 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - run: |
-      gh release edit $TAG --draft=false
+      - run: gh release edit $TAG --draft=false
