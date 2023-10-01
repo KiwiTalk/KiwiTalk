@@ -64,17 +64,18 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: build
-        run: |
-          pnpm install
-          pnpm build
+      - name: install frontend packages
+        run: pnpm install
 
-      - uses: svenstaro/upload-release-action@v2
+      - uses: JonasKruckenberg/tauri-build@v1
+        id: tauri_build
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/release/bundle/*/*.*
-          file_glob: true
-          tag: ${{ github.ref }}
+          runner: pnpm
+
+      - name: upload
+        run: gh release upload ${{ github.ref }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
+        env:
+          CARGO_TARGET_DIR: target
 
   publish:
     needs: [build]
