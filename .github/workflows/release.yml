@@ -65,8 +65,6 @@ jobs:
 
       - uses: JonasKruckenberg/tauri-build@v1
         id: tauri_build
-        with:
-          runner: pnpm
 
       - name: upload
         run: gh release upload ${{ github.ref_name }} --verify-tag ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
