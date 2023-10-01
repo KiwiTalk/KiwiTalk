@@ -1,5 +1,6 @@
 [package]
 name = "talk-api-client"
+description = "Various web API for KiwiTalk"
 categories = [ "api-bindings" ]
 version = "0.1.0"
 
