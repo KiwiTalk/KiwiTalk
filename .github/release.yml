@@ -3,9 +3,15 @@ changelog:
     - title: New Features
       labels:
         - 'Type: Enhancement'
-    - title: Bug fixes
+    - title: Bug Fixes
       labels:
         - 'Type: Bug'
-    - title: Dependency updates
+    - title: Other Changes
+      labels:
+        - "*"
+      exclude:
+        labels:
+          - 'Type: Dependency'
+    - title: Dependency Updates
       labels:
         - 'Type: Dependency'
