@@ -12,6 +12,3 @@ changelog:
       exclude:
         labels:
           - 'Type: Dependency'
-    - title: Dependency Updates
-      labels:
-        - 'Type: Dependency'
