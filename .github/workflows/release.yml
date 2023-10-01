@@ -1,5 +1,6 @@
 on:
-  tags:
+  push:
+    tags:
       - 'v*'
 
 env:
