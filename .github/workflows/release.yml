@@ -31,7 +31,9 @@ jobs:
         run: cargo install cargo-release
 
       - id: draft
-        run: gh release create ${{ github.ref }} -d -t "KiwiTalk ${{ github.ref_name }}"
+        run: gh release create ${{ github.ref_name }} -d -t "KiwiTalk ${{ github.ref_name_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   build:
     needs: [draft]
@@ -67,10 +69,12 @@ jobs:
           runner: pnpm
 
       - name: upload
-        run: gh release upload ${{ github.ref }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
+        run: gh release upload ${{ github.ref_name }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
 
   publish:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
       - run: gh release edit ${{ github.ref_name }} --draft=false
+        env:
+          GH_TOKEN: ${{ github.token }}
