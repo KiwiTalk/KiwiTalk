@@ -67,7 +67,7 @@ jobs:
         id: tauri_build
 
       - name: upload
-        run: gh release upload ${{ github.ref_name }} --verify-tag ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
+        run: gh release upload ${{ github.ref_name }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
         env:
           GH_TOKEN: ${{ github.token }}
 
