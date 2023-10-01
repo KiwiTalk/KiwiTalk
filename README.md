@@ -19,7 +19,7 @@ KiwiTalk은 카카오톡이 제공되지 않는 기기 및 OS (예: Ubuntu, Arch
 
 [프로젝트 간략 구조도](./img/big-picture.svg)
 
-프로젝트 기여를 생각하고 계시다면 [CONTRIBUTORS.md](./CONTRIBUTORS.md)를 우선 읽어 주세요.
+프로젝트 기여를 생각하고 계시다면 [CONTRIBUTING.md](./CONTRIBUTING.md)를 우선 읽어 주세요.
 - [Discord](https://discord.gg/vVs8WVY3y6): 공식 디스코드 서버
 - [KiwiTalk UI Mockup](https://www.figma.com/file/JYO6jyz0Kji2KiPCW5cH5o/KiwiTalk-UI-Mockup-2?node-id=0%3A1): 프론트엔드 디자인 목업
 
