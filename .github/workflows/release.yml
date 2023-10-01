@@ -74,8 +74,6 @@ jobs:
 
       - name: upload
         run: gh release upload ${{ github.ref }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
-        env:
-          CARGO_TARGET_DIR: target
 
   publish:
     needs: [build]
