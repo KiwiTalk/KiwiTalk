@@ -123,6 +123,3 @@ jobs:
       - run: gh release edit v${{ needs.draft.outputs.version }} --draft=false --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
-
-
-env: huTI_AfReqlk&y1#
