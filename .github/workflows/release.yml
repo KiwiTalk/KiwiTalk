@@ -67,6 +67,7 @@ jobs:
         id: tauri_build
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
       - name: upload
         run: gh release upload v${{ needs.draft.outputs.version }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
