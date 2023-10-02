@@ -11,7 +11,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'release') && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.draft.outputs.version }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
