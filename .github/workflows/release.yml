@@ -26,12 +26,12 @@ jobs:
 
       - name: push new tag
         run: |
-          git tag v${{ steps.draft.outputs.version }}
-          git push origin v${{ steps.draft.outputs.version }}
+          git tag v${{ steps.get_version.outputs.version }}
+          git push origin v${{ steps.get_version.outputs.version }}
 
       - name: draft
         run: |
-          gh release create v${{ steps.draft.outputs.version }} --generate-notes -d -t "KiwiTalk ${{ steps.draft.outputs.version }}"
+          gh release create v${{ steps.get_version.outputs.version }} --generate-notes -d -t "KiwiTalk ${{ steps.get_version.outputs.version }}"
         env:
           GH_TOKEN: ${{ github.token }}
 
