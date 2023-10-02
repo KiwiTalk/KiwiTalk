@@ -35,7 +35,7 @@
     "@storybook/channel-postmessage": "7.4.5",
     "@storybook/channel-websocket": "7.4.5",
     "@storybook/preview-api": "7.4.5",
-    "@storybook/testing-library": "0.2.1",
+    "@storybook/testing-library": "0.2.2",
     "@storybook/types": "7.4.5",
     "@tauri-apps/cli": "1.5.0",
     "@types/node": "18.18.1",
