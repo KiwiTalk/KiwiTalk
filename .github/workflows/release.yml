@@ -72,7 +72,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   publish:
-    needs: [build]
+    needs: [draft, build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
