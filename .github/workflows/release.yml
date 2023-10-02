@@ -102,8 +102,8 @@ jobs:
             --no-push \
             --no-publish \
             --execute
-          env:
-            CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
 
       - name: bump package.json version, commit
         run: |
