@@ -2012,7 +2012,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "arrayvec",
@@ -2047,7 +2047,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-client"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "arrayvec",
  "bson",
@@ -3967,7 +3967,7 @@ dependencies = [
 
 [[package]]
 name = "talk-api-client"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "hex",
  "reqwest",
@@ -3980,7 +3980,7 @@ dependencies = [
 
 [[package]]
 name = "talk-loco-client"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-stream",
  "bitflags 2.4.0",
