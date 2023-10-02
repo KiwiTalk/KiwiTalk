@@ -1,12 +1,18 @@
-on:
-  workflow_dispatch
-
 name: Deploy
+on:
+  pull_request:
+    types:
+    - closed
+    branches:
+    - dev
+
+name: Release new version
 jobs:
   draft:
+    if: contains(github.event.pull_request.labels.*.name, 'release') && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      releaseId: ${{ steps.draft.outputs.test }}
+      version: ${{ steps.draft.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -14,24 +20,19 @@ jobs:
           git config user.name 'KiwiTalk Continuous Deployment'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
+      - id: get_version
+        run: |
+          echo 'version=$(cargo metadata --format-version 1 --no-deps | \
+            jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version')' >> "$GITHUB_OUTPUT"
 
-      - uses: pnpm/action-setup@v2
+      - name: push new tag
+        run: |
+          git tag v${{ steps.draft.outputs.version }}
+          git push origin v${{ steps.draft.outputs.version }}
 
-      - uses: dtolnay/rust-toolchain@stable
-      
-      - uses: Swatinem/rust-cache@v2
-
-      - name: install frontend dependencies
-        run: pnpm install
-
-      - name: install cargo-release
-        run: cargo install cargo-release
-
-      - id: draft
-        run: gh release create ${{ github.ref_name }} --generate-notes -d -t "KiwiTalk ${{ github.ref_name }}"
+      - name: draft
+        run: |
+          gh release create v${{ steps.draft.outputs.version }} --generate-notes -d -t "KiwiTalk ${{ steps.draft.outputs.version }}"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -67,7 +68,7 @@ jobs:
         id: tauri_build
 
       - name: upload
-        run: gh release upload ${{ github.ref_name }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
+        run: gh release upload v${{ needs.draft.outputs.version }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -76,7 +77,47 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - run: |
+          git config user.name 'KiwiTalk Continuous Integration'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
 
-      - run: gh release edit ${{ github.ref_name }} --draft=false --verify-tag
+      - uses: dtolnay/rust-toolchain@stable
+      
+      - uses: Swatinem/rust-cache@v2
+
+      - name: install cargo-release
+        run: cargo install cargo-release
+
+      - name: publish crates, bump version, commit
+          run: cargo release minor \
+                --workspace \
+                --no-confirm \
+                --no-tag \
+                --no-push \
+                --no-publish \
+                --execute
+          env:
+            CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+      - name: bump package.json version, commit
+        run: |
+          npm version minor
+
+      - uses: peter-evans/create-pull-request@v5
+        with:
+          delete-branch: true
+          base: dev
+          title: "chore: bump versions after release"
+          body: |
+            Bump package.json and Cargo.toml versions after release.
+            This PR has been auto-generated
+
+      - run: gh release edit v${{ needs.draft.outputs.version }} --draft=false --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}

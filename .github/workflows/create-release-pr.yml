@@ -1,0 +1,52 @@
+on:
+  workflow_dispatch
+
+name: Create release PR
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    outputs:
+      releaseId: ${{ steps.draft.outputs.test }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          git config user.name 'KiwiTalk Continuous Deployment'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+
+      - uses: pnpm/action-setup@v2
+
+      - uses: dtolnay/rust-toolchain@stable
+      
+      - uses: Swatinem/rust-cache@v2
+
+      - name: install frontend dependencies
+        run: pnpm install
+
+      - name: install cargo-release
+        run: cargo install cargo-release
+
+      - name: bump cargo packages version, commits
+          run: cargo release release \
+                --workspace \
+                --no-confirm \
+                --no-tag \
+                --no-push \
+                --dependent-version upgrade \
+                --no-publish \
+                --execute
+
+      - uses: peter-evans/create-pull-request@v5
+        with:
+          delete-branch: true
+          base: dev
+          labels: release
+          title: Release next version
+          body: |
+            Preparing next release
+            This PR has been auto-generated
