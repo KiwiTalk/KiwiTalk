@@ -100,7 +100,6 @@ jobs:
             --no-confirm \
             --no-tag \
             --no-push \
-            --no-publish \
             --execute
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
