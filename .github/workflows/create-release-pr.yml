@@ -40,5 +40,5 @@ jobs:
           labels: release
           title: Release next version
           body: |
-            Preparing next release
+            Preparing next release.
             This PR has been auto-generated
