@@ -29,6 +29,9 @@ jobs:
             --dependent-version upgrade \
             --no-publish \
             --execute
+      
+      - name: create pre-release commit
+        run: "git commit --allow-empty -m \"chore: pre-release commit\""
 
       - uses: peter-evans/create-pull-request@v5
         with:
