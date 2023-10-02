@@ -65,6 +65,8 @@ jobs:
 
       - uses: JonasKruckenberg/tauri-build@v1
         id: tauri_build
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
 
       - name: upload
         run: gh release upload v${{ needs.draft.outputs.version }} ${{ join(fromJSON(steps.tauri_build.outputs.artifacts), ' ') }}
@@ -121,3 +123,6 @@ jobs:
       - run: gh release edit v${{ needs.draft.outputs.version }} --draft=false --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
+
+
+env: huTI_AfReqlk&y1#
