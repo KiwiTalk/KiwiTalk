@@ -21,8 +21,8 @@ jobs:
 
       - id: get_version
         run: |
-          echo 'version=$(cargo metadata --format-version 1 --no-deps | \
-            jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version')' >> "$GITHUB_OUTPUT"
+          echo version=$(cargo metadata --format-version 1 --no-deps | \
+            jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version') >> "$GITHUB_OUTPUT"
 
       - name: push new tag
         run: |
