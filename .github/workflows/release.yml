@@ -95,13 +95,14 @@ jobs:
         run: cargo install cargo-release
 
       - name: publish crates, bump version, commit
-          run: cargo release minor \
-                --workspace \
-                --no-confirm \
-                --no-tag \
-                --no-push \
-                --no-publish \
-                --execute
+          run: |
+            cargo release minor \
+              --workspace \
+              --no-confirm \
+              --no-tag \
+              --no-push \
+              --no-publish \
+              --execute
           env:
             CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
 
