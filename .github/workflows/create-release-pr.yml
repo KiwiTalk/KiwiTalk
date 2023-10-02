@@ -14,24 +14,14 @@ jobs:
           git config user.name 'KiwiTalk Continuous Deployment'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-
-      - uses: pnpm/action-setup@v2
-
       - uses: dtolnay/rust-toolchain@stable
       
       - uses: Swatinem/rust-cache@v2
 
-      - name: install frontend dependencies
-        run: pnpm install
-
       - name: install cargo-release
         run: cargo install cargo-release
 
-      - name: bump cargo packages version, commits
+      - name: ensure cargo packages version, commits
         run: |
           cargo release release \
             --workspace \
