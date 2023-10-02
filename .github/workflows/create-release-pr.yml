@@ -3,10 +3,8 @@ on:
 
 name: Create release PR
 jobs:
-  draft:
+  create_pr:
     runs-on: ubuntu-latest
-    outputs:
-      releaseId: ${{ steps.draft.outputs.test }}
     steps:
       - uses: actions/checkout@v4
 
