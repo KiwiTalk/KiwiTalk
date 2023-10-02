@@ -32,15 +32,15 @@ jobs:
         run: cargo install cargo-release
 
       - name: bump cargo packages version, commits
-          run: |
-            cargo release release \
-              --workspace \
-              --no-confirm \
-              --no-tag \
-              --no-push \
-              --dependent-version upgrade \
-              --no-publish \
-              --execute
+        run: |
+          cargo release release \
+            --workspace \
+            --no-confirm \
+            --no-tag \
+            --no-push \
+            --dependent-version upgrade \
+            --no-publish \
+            --execute
 
       - uses: peter-evans/create-pull-request@v5
         with:
