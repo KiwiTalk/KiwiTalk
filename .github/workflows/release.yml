@@ -15,10 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: |
-          git config user.name 'KiwiTalk Continuous Deployment'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
       - id: get_version
         run: |
           echo version=$(cargo metadata --format-version 1 --no-deps | \
