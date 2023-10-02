@@ -93,6 +93,7 @@ jobs:
         run: |
           cargo release minor \
             --workspace \
+            --no-publish \
             --no-confirm \
             --no-tag \
             --no-push \
@@ -107,6 +108,7 @@ jobs:
       - uses: peter-evans/create-pull-request@v5
         with:
           delete-branch: true
+          branch: release/bump-version
           base: dev
           title: "chore: bump versions after release"
           body: |
