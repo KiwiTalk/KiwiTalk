@@ -21,7 +21,7 @@ talk-loco-client = { workspace = true }
 
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5.1", features = ["api-all", "system-tray"] }
+tauri = { version = "1.5.1", features = [ "updater", "api-all", "system-tray"] }
 tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7.9", features = ["compat"] }
 thiserror = "1.0"
