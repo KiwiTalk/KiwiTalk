@@ -115,7 +115,6 @@ jobs:
         run: |
           cargo release minor \
             --workspace \
-            --no-publish \
             --no-confirm \
             --no-tag \
             --no-push \
