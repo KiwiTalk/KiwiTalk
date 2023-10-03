@@ -40,7 +40,7 @@ jobs:
 
   build:
     needs: [draft]
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       matrix:
         platform:
