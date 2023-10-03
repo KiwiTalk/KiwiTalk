@@ -7,6 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - id: get_version
+        run: |
+          echo version=$(cargo metadata --format-version 1 --no-deps | \
+            jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version') >> "$GITHUB_OUTPUT"
 
       - run: |
           git config user.name 'KiwiTalk Continuous Deployment'
@@ -39,7 +44,7 @@ jobs:
           branch: release/next
           base: dev
           labels: release
-          title: Release next version
+          title: Release KiwiTalk ${{ steps.get_version.outputs.version }}
           body: |
-            Preparing next release.
+            Preparing release for KiwiTalk ${{ steps.get_version.outputs.version }}.
             This PR has been auto-generated
