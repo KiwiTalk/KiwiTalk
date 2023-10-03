@@ -98,11 +98,6 @@ jobs:
       - run: |
           git config user.name 'KiwiTalk Continuous Integration'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
 
       - uses: dtolnay/rust-toolchain@stable
       
@@ -122,10 +117,6 @@ jobs:
             --execute
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-
-      - name: bump package.json version, commit
-        run: |
-          npm version minor
 
       - uses: peter-evans/create-pull-request@v5
         with:
