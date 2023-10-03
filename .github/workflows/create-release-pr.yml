@@ -36,7 +36,7 @@ jobs:
             --execute
       
       - name: create pre-release commit
-        run: "git commit --allow-empty -m \"chore: pre-release commit\""
+        run: "git commit --allow-empty -m \"chore: release ${{ steps.get_version.outputs.version }}\""
 
       - uses: peter-evans/create-pull-request@v5
         with:
