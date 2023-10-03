@@ -75,7 +75,6 @@ jobs:
       - name: install frontend packages
         run: pnpm install
 
-      # temp fix for tauri-action unable to read workspace version
       - run: "echo {\"package\": {\"version\":${{ needs.draft.outputs.version }}}} >> tmp_tauri.conf.json",
 
       - uses: tauri-apps/tauri-action@v0
