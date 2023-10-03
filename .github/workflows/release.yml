@@ -62,7 +62,8 @@ jobs:
       - uses: pnpm/action-setup@v2
 
       - uses: dtolnay/rust-toolchain@stable
-        target: ${{ matrix.platform.rust_target }}
+        with:
+          target: ${{ matrix.platform.rust_target }}
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
