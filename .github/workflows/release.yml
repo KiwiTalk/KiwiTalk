@@ -129,7 +129,7 @@ jobs:
           base: dev
           title: "chore: bump versions after release"
           body: |
-            Bump package.json and Cargo.toml versions after release.
+            Bump Cargo.toml versions after release.
             This PR has been auto-generated
 
       - run: gh release edit v${{ needs.draft.outputs.version }} --draft=false --verify-tag
