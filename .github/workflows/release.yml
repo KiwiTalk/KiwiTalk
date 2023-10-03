@@ -76,8 +76,12 @@ jobs:
       - name: install frontend packages
         run: pnpm install
 
-      - run: >
-          echo '{"package": {"version": "${{ needs.draft.outputs.version }}"}}' >> tmp_tauri.conf.json
+      - uses: DamianReeves/write-file-action@master
+        with:
+          path: tmp_tauri.conf.json
+          contents: >
+            {"package": {"version": "${{ needs.draft.outputs.version }}"}}
+          write-mode: overwrite
 
       - uses: tauri-apps/tauri-action@v0
         with:
