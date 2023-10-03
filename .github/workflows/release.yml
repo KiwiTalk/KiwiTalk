@@ -81,7 +81,6 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         with:
           releaseId: ${{ needs.draft.outputs.release_id }}
-          tagName: v${{ needs.draft.outputs.version }}
           args: "--target ${{ matrix.platform.rust_target }} --config tmp_tauri.conf.json"
         env:
           CARGO_TARGET_DIR: target
