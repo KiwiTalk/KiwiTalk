@@ -111,9 +111,9 @@ jobs:
       - name: install cargo-release
         run: cargo install cargo-release
 
-      - name: publish crates, bump version, commit
+      - name: publish crates
         run: |
-          cargo release minor \
+          cargo release \
             --workspace \
             --no-confirm \
             --no-tag \
@@ -122,6 +122,12 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
 
+      - name: bump version, commit
+        run: |
+          cargo release version minor \
+            --workspace \
+            --no-confirm
+
       - uses: peter-evans/create-pull-request@v5
         with:
           delete-branch: true
@@ -129,7 +135,7 @@ jobs:
           base: dev
           title: "chore: bump versions after release"
           body: |
-            Bump Cargo.toml versions after release.
+            Bump versions after release.
             This PR has been auto-generated
 
       - run: gh release edit v${{ needs.draft.outputs.version }} --draft=false --verify-tag
