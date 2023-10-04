@@ -19,8 +19,8 @@ kiwi-talk-client = { workspace = true }
 talk-api-client = { workspace = true }
 talk-loco-client = { workspace = true }
 
-tokio = { workspace = true, features = [ "updater", "api-all", "system-tray"] }
-tauri = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tauri = { workspace = true, features = [ "updater", "api-all", "system-tray"] }
 anyhow = { workspace = true, features = ["backtrace"] }
 log = { workspace = true }
 
