@@ -1,6 +1,6 @@
 [package]
-name = "kiwi-talk-{{project-name}}"
-description = "{{description}}"
+name = "kiwi-talk-result"
+description = "anyhow error conversion"
 publish = false
 
 version.workspace = true
@@ -11,3 +11,5 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+anyhow = { workspace = true }
+serde = { workspace = true }

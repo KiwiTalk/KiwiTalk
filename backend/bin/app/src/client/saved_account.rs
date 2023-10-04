@@ -8,7 +8,7 @@ use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use tokio::task::spawn_blocking;
 
-use crate::system::get_system_info;
+use kiwi_talk_system::get_system_info;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SavedAccount {

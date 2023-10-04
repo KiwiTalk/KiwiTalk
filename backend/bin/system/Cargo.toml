@@ -1,0 +1,22 @@
+[package]
+name = "kiwi-talk-system"
+description = "Query device's system information"
+publish = false
+
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+tokio = { workspace = true, features = ["fs"] }
+tauri = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+
+rand = "0.8.5"
+base64 = "0.21.4"
+hostname = "0.3.1"
+sys-locale = "0.3.1"

@@ -16,9 +16,10 @@ use tauri::{
 };
 use tokio::task::spawn_blocking;
 
-use crate::{result::TauriResult, system::get_system_info};
+use kiwi_talk_result::TauriResult;
 
 use self::global::GlobalConfiguration;
+use kiwi_talk_system::get_system_info;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[repr(transparent)]

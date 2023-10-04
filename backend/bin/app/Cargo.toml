@@ -1,7 +1,6 @@
 [package]
 name = "kiwi-talk-app"
 description = "A Tauri App"
-rust-version = "1.57"
 default-run = "kiwi-talk-app"
 publish = false
 
@@ -10,33 +9,35 @@ license.workspace = true
 edition.workspace = true
 authors.workspace = true
 repository.workspace = true
+rust-version.workspace = true
 
 [build-dependencies]
 tauri-build = { version = "1.5.0", features = [] }
 
 [dependencies]
-kiwi-talk-client = { workspace = true }
 talk-api-client = { workspace = true }
+kiwi-talk-client = { workspace = true }
 talk-loco-client = { workspace = true }
 
+kiwi-talk-system = { path = "../system" }
+kiwi-talk-result = { path = "../result" }
+kiwi-talk-auth = { path = "../auth" }
+
+tokio = { workspace = true, features = ["full"] }
+tauri = { workspace = true, features = [ "updater", "api-all", "system-tray"] }
+anyhow = { workspace = true, features = ["backtrace"] }
+log = { workspace = true }
+serde = { workspace = true }
+
 serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5.1", features = [ "updater", "api-all", "system-tray"] }
-tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7.9", features = ["compat"] }
 thiserror = "1.0"
 once_cell = "1.18.0"
-hostname = "0.3.1"
-sys-locale = "0.3.1"
-rand = "0.8.5"
-base64 = "0.21.4"
-log = "0.4.20"
 env_logger = "0.10.0"
 parking_lot = "0.12.1"
 futures = "0.3.28"
 window-shadows = "0.2.1"
 num-bigint-dig = "0.8.4"
-anyhow = { version = "1.0.75", features = ["backtrace"] }
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 bincode = "1.3.3"
 enum-kinds = "0.5.1"

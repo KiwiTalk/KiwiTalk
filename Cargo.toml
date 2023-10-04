@@ -9,8 +9,23 @@ license = "Apache-2.0"
 authors = ["KiwiTalk contributors"]
 edition = "2021"
 repository = "https://github.com/KiwiTalk/KiwiTalk"
+rust-version = "1.57"
 
 [workspace.dependencies]
-kiwi-talk-client = { version = "0.2.0", path = "./backend/crates/kiwi-talk-client" }
-talk-api-client = { version = "0.2.0", path = "./backend/crates/talk-api-client" }
-talk-loco-client = { version = "0.2.0", path = "./backend/crates/talk-loco-client" }
+tokio = "1"
+tauri = "1.5.1"
+log = "0.4.20"
+anyhow = "1.0.75"
+serde = { version = "1.0", features = ["derive"] }
+
+[workspace.dependencies.kiwi-talk-client]
+version = "0.2.0"
+path = "./backend/crates/kiwi-talk-client"
+
+[workspace.dependencies.talk-api-client]
+version = "0.2.0"
+path = "./backend/crates/talk-api-client"
+
+[workspace.dependencies.talk-loco-client]
+version = "0.2.0"
+path = "./backend/crates/talk-loco-client"

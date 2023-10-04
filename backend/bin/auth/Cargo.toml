@@ -1,0 +1,22 @@
+[package]
+name = "kiwi-talk-auth"
+description = "Internal auth api"
+publish = false
+
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+talk-api-client = { workspace = true }
+
+kiwi-talk-system = { path = "../system" }
+kiwi-talk-result = { path = "../result" }
+
+tauri = { workspace = true }
+anyhow = { workspace = true }
+
+sha2 = "0.10.8"
