@@ -19,14 +19,14 @@ export const PasscodeContent = (props: PasscodeContentProp) => {
     if (data.loading) return;
 
     try {
-      const res = await registerDevice(
+      const status = await registerDevice(
           passcode,
           props.input.email,
           props.input.password,
           props.registerType === 'permanent',
       );
 
-      props.onSubmit?.(res.status);
+      props.onSubmit?.(status);
     } catch (e) {
       props.onError?.(e);
     }

@@ -3,9 +3,8 @@ mod constants;
 use anyhow::Context;
 use kiwi_talk_result::TauriResult;
 use sha2::{Digest, Sha512};
-use talk_api_client::{
-    auth::{xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, TalkAuthClient},
-    response::TalkStatusResponse,
+use talk_api_client::auth::{
+    xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, TalkAuthClient,
 };
 use tauri::{
     generate_handler,
@@ -43,14 +42,15 @@ pub fn create_auto_login_token(
 }
 
 #[tauri::command(async)]
-async fn request_passcode(email: String, password: String) -> TauriResult<TalkStatusResponse<()>> {
+async fn request_passcode(email: String, password: String) -> TauriResult<i32> {
     Ok(create_auth_client()
         .request_passcode(AccountLoginForm {
             email: &email,
             password: &password,
         })
         .await
-        .context("request_passcode request failed")?)
+        .context("request_passcode request failed")?
+        .status)
 }
 
 #[tauri::command(async)]
@@ -59,7 +59,7 @@ async fn register_device(
     email: String,
     password: String,
     permanent: bool,
-) -> TauriResult<TalkStatusResponse<()>> {
+) -> TauriResult<i32> {
     Ok(create_auth_client()
         .register_device(
             &passcode,
@@ -70,7 +70,8 @@ async fn register_device(
             permanent,
         )
         .await
-        .context("register_device request failed")?)
+        .context("register_device request failed")?
+        .status)
 }
 
 pub fn create_auth_client() -> TalkAuthClient<'static, impl XVCHasher> {
