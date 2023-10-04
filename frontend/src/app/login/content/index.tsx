@@ -110,6 +110,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
 
   function onPasscodeSubmit(status: number) {
     if (status === 0) {
+      setState(DEFAULT_STATE);
       submit(input());
       return;
     }
