@@ -21,6 +21,8 @@ use futures_lite::Stream;
 impl_session!(
     #[derive(Debug)]
     pub struct TalkSession {
+        pub fn ping("PING", struct PingReq {});
+
         pub fn set_status("SETST", struct SetStReq {
             /// Status
             ///
