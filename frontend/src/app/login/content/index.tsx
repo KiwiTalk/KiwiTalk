@@ -1,13 +1,12 @@
-import { LoginFormInput } from '../../components/login/form/login';
+import { LoginForm, LoginFormInput } from '../../components/login/form/login';
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import { PasscodeContent } from './passcode';
 import { DeviceRegisterContent } from './device-register';
-import { LoginContent } from './login';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { errorMessage, resetText } from './index.css';
 import { styled } from '../../../utils';
 import { Match, Show, Switch, createResource, createSignal } from 'solid-js';
-import { defaultLoginForm, takeLoginReason } from '../../../ipc/client';
+import { defaultLoginForm, login, takeLoginReason } from '../../../ipc/client';
 
 const ErrorMessage = styled('p', errorMessage);
 const ResetText = styled('p', resetText);
@@ -22,9 +21,7 @@ type LoginStateKey<T> = {
   errorMessage?: string,
 };
 
-type LoginStateDefault = LoginStateKey<'login'> & {
-  forced: boolean
-};
+type LoginStateDefault = LoginStateKey<'login'>;
 
 type LoginStateDeviceRegister = LoginStateKey<'device_register'>;
 
@@ -34,12 +31,14 @@ type LoginStatePasscode = LoginStateKey<'passcode'> & {
 
 type LoginState = LoginStateDefault | LoginStateDeviceRegister | LoginStatePasscode;
 
-const DEFAULT_STATE: LoginState = { type: 'login', forced: false };
+const DEFAULT_STATE: LoginState = { type: 'login' };
 
 export const AppLoginContent = (props: LoginContentProp) => {
   const [t] = useTransContext();
 
-  const [input, setInput] = createSignal({
+  const [forced, setForced] = createSignal(false);
+
+  const [input, setInput] = createSignal<LoginFormInput>({
     email: '',
     password: '',
     saveId: true,
@@ -100,28 +99,6 @@ export const AppLoginContent = (props: LoginContentProp) => {
     setState({ errorMessage, ...state() });
   });
 
-  function onLoginSubmit(input: LoginFormInput, status: number) {
-    setInput(input);
-    switch (status) {
-      case 0: {
-        props.onLogin?.();
-        return;
-      }
-
-      case -100: {
-        setState({ type: 'device_register' });
-        return;
-      }
-
-      case -101: {
-        setState({ type: 'login', forced: true });
-        break;
-      }
-    }
-
-    setState({ ...state(), errorMessage: `login.status.login.${status}` });
-  }
-
   function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
     if (status === 0) {
       setState({ type: 'passcode', registerType: type });
@@ -134,6 +111,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
   function onPasscodeSubmit(status: number) {
     if (status === 0) {
       setState(DEFAULT_STATE);
+      submit(input());
       return;
     }
 
@@ -156,22 +134,48 @@ export const AppLoginContent = (props: LoginContentProp) => {
     }
 
     let errorMessage = t(currentState.errorMessage);
-    if (currentState.type === 'login' && currentState.forced) {
+    if (forced()) {
       errorMessage += ` ${t('login.set_forced')}`;
     }
 
     return errorMessage;
   }
 
+  async function submit(input: LoginFormInput) {
+    const status = await login({
+      email: input.email,
+      password: input.password,
+      saveEmail: input.saveId,
+      autoLogin: input.autoLogin,
+    }, forced(), 'Unlocked');
+
+    switch (status) {
+      case 0: {
+        props.onLogin?.();
+        return;
+      }
+
+      case -100: {
+        setState({ type: 'device_register' });
+        return;
+      }
+
+      case -101: {
+        setForced(true);
+        break;
+      }
+    }
+
+    setState({ ...state(), errorMessage: `login.status.login.${status}` });
+  }
+
   return <>
     <Switch>
       <Match when={state().type === 'login'}>
-        <LoginContent
-          input={input()}
-          forced={(state() as LoginStateDefault).forced}
-          onSubmit={onLoginSubmit}
-          onError={onError}
-        />
+        <LoginForm input={input()} onSubmit={(input) => {
+          setInput(input);
+          submit(input);
+        }} />
       </Match>
       <Match when={state().type === 'device_register'}>
         <DeviceRegisterContent
