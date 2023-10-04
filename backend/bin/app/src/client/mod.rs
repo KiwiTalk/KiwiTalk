@@ -27,7 +27,7 @@ use talk_loco_client::{
     futures_loco_protocol::{session::LocoSession, LocoClient},
     talk::stream::TalkStream,
 };
-use tokio::{sync::mpsc, task::JoinHandle, time::interval};
+use tokio::{sync::mpsc, task::JoinHandle, time::sleep};
 
 use kiwi_talk_result::{TauriAnyhowError, TauriResult};
 use kiwi_talk_system::get_system_info;
@@ -443,10 +443,8 @@ async fn create_client(
         let session = session.clone();
 
         async move {
-            let mut timer = interval(Duration::from_secs(60));
-
             loop {
-                timer.tick().await;
+                sleep(Duration::from_secs(60)).await;
 
                 if session.send_ping().await.is_err() {
                     return;
