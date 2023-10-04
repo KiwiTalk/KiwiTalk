@@ -2,7 +2,7 @@
 name = "talk-api-client"
 description = "Various web API for KiwiTalk"
 categories = [ "api-bindings" ]
-version = "0.2.0"
+version = "0.1.0"
 
 license.workspace = true
 edition.workspace = true
