@@ -4,7 +4,7 @@ resolver = "2"
 members = ["./backend/bin/*", "./backend/crates/*"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.1.1"
 license = "Apache-2.0"
 authors = ["KiwiTalk contributors"]
 edition = "2021"
@@ -19,13 +19,13 @@ anyhow = "1.0.75"
 serde = { version = "1.0", features = ["derive"] }
 
 [workspace.dependencies.kiwi-talk-client]
-version = "0.2.0"
+version = "0.1.0"
 path = "./backend/crates/kiwi-talk-client"
 
 [workspace.dependencies.talk-api-client]
-version = "0.2.0"
+version = "0.1.0"
 path = "./backend/crates/talk-api-client"
 
 [workspace.dependencies.talk-loco-client]
-version = "0.2.0"
+version = "0.1.0"
 path = "./backend/crates/talk-loco-client"
