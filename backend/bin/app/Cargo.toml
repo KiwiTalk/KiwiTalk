@@ -1,7 +1,6 @@
 [package]
 name = "kiwi-talk-app"
 description = "A Tauri App"
-rust-version = "1.57"
 default-run = "kiwi-talk-app"
 publish = false
 
@@ -10,6 +9,7 @@ license.workspace = true
 edition.workspace = true
 authors.workspace = true
 repository.workspace = true
+rust-version.workspace = true
 
 [build-dependencies]
 tauri-build = { version = "1.5.0", features = [] }

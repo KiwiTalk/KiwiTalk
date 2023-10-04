@@ -9,6 +9,7 @@ license = "Apache-2.0"
 authors = ["KiwiTalk contributors"]
 edition = "2021"
 repository = "https://github.com/KiwiTalk/KiwiTalk"
+rust-version = "latest"
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["full"] }
