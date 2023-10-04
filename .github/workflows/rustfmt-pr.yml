@@ -3,6 +3,9 @@ on:
     paths:
       - '**.rs'
 
+permissions:
+  pull-requests: write
+
 name: rustfmt
 jobs:
   review:
