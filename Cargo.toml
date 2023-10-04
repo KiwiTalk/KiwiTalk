@@ -16,6 +16,7 @@ tokio = "1"
 tauri = "1.5.1"
 log = "0.4.20"
 anyhow = "1.0.75"
+serde = { version = "1.0", features = ["derive"] }
 
 [workspace.dependencies.kiwi-talk-client]
 version = "0.2.0"
