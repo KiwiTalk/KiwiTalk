@@ -1,4 +1,7 @@
+mod constants;
+
 use anyhow::Context;
+use kiwi_talk_result::TauriResult;
 use sha2::{Digest, Sha512};
 use talk_api_client::auth::{
     xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, TalkAuthClient,
@@ -9,14 +12,11 @@ use tauri::{
     Runtime,
 };
 
-use crate::{
-    constants::{AUTO_LOGIN_KEY, TALK_AGENT, TALK_VERSION, XVC_HASHER},
-    result::TauriResult,
-};
+use crate::constants::{AUTO_LOGIN_KEY, TALK_AGENT, TALK_VERSION, XVC_HASHER};
 use kiwi_talk_system::{get_system_info, SystemInfo};
 
-pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
-    Builder::new(name)
+pub fn init<R: Runtime>() -> TauriPlugin<R> {
+    Builder::new("auth")
         .invoke_handler(generate_handler![register_device, request_passcode])
         .build()
 }

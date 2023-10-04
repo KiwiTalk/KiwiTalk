@@ -2021,7 +2021,9 @@ dependencies = [
  "env_logger",
  "futures",
  "hex",
+ "kiwi-talk-auth",
  "kiwi-talk-client",
+ "kiwi-talk-result",
  "kiwi-talk-system",
  "log",
  "num-bigint-dig",
@@ -2040,6 +2042,18 @@ dependencies = [
  "tokio",
  "tokio-util",
  "window-shadows",
+]
+
+[[package]]
+name = "kiwi-talk-auth"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "kiwi-talk-result",
+ "kiwi-talk-system",
+ "sha2",
+ "talk-api-client",
+ "tauri",
 ]
 
 [[package]]
@@ -2062,6 +2076,14 @@ dependencies = [
  "talk-loco-client",
  "thiserror",
  "tokio",
+]
+
+[[package]]
+name = "kiwi-talk-result"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "serde",
 ]
 
 [[package]]

@@ -3,11 +3,9 @@
     windows_subsystem = "windows"
 )]
 
-mod auth;
 mod client;
 mod configuration;
 mod constants;
-mod result;
 
 use tauri::{
     api::dialog, AppHandle, CustomMenuItem, DeviceEventFilter, Manager, RunEvent, Runtime,
@@ -44,8 +42,8 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
 
     handle.plugin(kiwi_talk_system::init(handle.path_resolver()).await?)?;
+    handle.plugin(kiwi_talk_auth::init())?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
-    handle.plugin(auth::init_plugin("auth"))?;
     handle.plugin(client::init_plugin("client").await?)?;
 
     Ok(())

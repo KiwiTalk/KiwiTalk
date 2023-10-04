@@ -1,6 +1,6 @@
 [package]
-name = "kiwi-talk-system"
-description = "Query device's system information"
+name = "kiwi-talk-auth"
+description = "Internal auth api"
 publish = false
 
 version.workspace = true
@@ -11,12 +11,12 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-tokio = { workspace = true, features = ["fs"] }
+talk-api-client = { workspace = true }
+
+kiwi-talk-system = { path = "../system" }
+kiwi-talk-result = { path = "../result" }
+
 tauri = { workspace = true }
 anyhow = { workspace = true }
-log = { workspace = true }
 
-rand = "0.8.5"
-base64 = "0.21.4"
-hostname = "0.3.1"
-sys-locale = "0.3.1"
+sha2 = "0.10.8"

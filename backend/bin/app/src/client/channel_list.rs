@@ -4,7 +4,7 @@ use kiwi_talk_client::chat::{ChatContent, ChatType};
 use serde::Serialize;
 use talk_loco_client::structs::channel::ChannelMetaType;
 
-use crate::result::TauriResult;
+use kiwi_talk_result::TauriResult;
 
 use super::{ClientState, State};
 
