@@ -33,8 +33,7 @@ jobs:
               target_commitish: '${{ github.ref }}',
               name: 'KiwiTalk ${{ steps.get_version.outputs.version }}',
               draft: true,
-              generate_release_notes: true,
-              prerelease: true
+              generate_release_notes: true
             })
             return data.id
 
