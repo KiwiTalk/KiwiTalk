@@ -25,8 +25,8 @@ use futures::TryStreamExt;
 use serde::{Deserialize, Serialize};
 use talk_loco_client::{
     futures_loco_protocol::session::LocoSession,
-    talk::session::{LChatListReq, LoginListReq, SetStReq, TalkSession},
-    RequestError,
+    talk::session::{LChatListReq, LoginListReq, PingReq, SetStReq, TalkSession},
+    RequestError, RequestResult,
 };
 use thiserror::Error;
 
@@ -44,6 +44,10 @@ impl KiwiTalkSession {
 
     pub const fn channel(&self, id: ChannelId) -> ClientChannel {
         ClientChannel::new(id, self)
+    }
+
+    pub async fn send_ping(&self) -> RequestResult<()> {
+        TalkSession(&self.session).ping(&PingReq {}).await
     }
 
     pub async fn channel_list(&self) -> Result<Vec<(ChannelId, ChannelListData)>, PoolTaskError> {

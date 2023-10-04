@@ -9,7 +9,7 @@ use kiwi_talk_auth::{create_auth_client, create_auto_login_token};
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::task::Poll;
+use std::{task::Poll, time::Duration};
 use talk_api_client::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
 use tauri::{
     generate_handler,
@@ -27,7 +27,7 @@ use talk_loco_client::{
     futures_loco_protocol::{session::LocoSession, LocoClient},
     talk::stream::TalkStream,
 };
-use tokio::{sync::mpsc, task::JoinHandle};
+use tokio::{sync::mpsc, task::JoinHandle, time::interval};
 
 use kiwi_talk_result::{TauriAnyhowError, TauriResult};
 use kiwi_talk_system::get_system_info;
@@ -276,11 +276,13 @@ struct Client {
     session: KiwiTalkSession,
     event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
     stream_task: JoinHandle<()>,
+    ping_task: JoinHandle<()>,
 }
 
 impl Drop for Client {
     fn drop(&mut self) {
         self.stream_task.abort();
+        self.ping_task.abort();
     }
 }
 
@@ -437,9 +439,26 @@ async fn create_client(
 
     let stream_task = tokio::spawn(run_handler(handler, stream, event_tx));
 
+    let ping_task = tokio::spawn({
+        let session = session.clone();
+
+        async move {
+            let mut timer = interval(Duration::from_secs(60));
+
+            loop {
+                timer.tick().await;
+
+                if session.send_ping().await.is_err() {
+                    return;
+                }
+            }
+        }
+    });
+
     Ok(Client {
         session,
         event_rx,
         stream_task,
+        ping_task,
     })
 }
