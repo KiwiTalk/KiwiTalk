@@ -113,7 +113,7 @@ jobs:
 
       - name: publish crates
         run: |
-          cargo release \
+          cargo release --unpublished \
             --workspace \
             --no-confirm \
             --no-tag \
@@ -126,7 +126,8 @@ jobs:
         run: |
           cargo release version minor \
             --workspace \
-            --no-confirm
+            --no-confirm \
+            --execute
 
       - uses: peter-evans/create-pull-request@v5
         with:
