@@ -20,9 +20,9 @@ export const DeviceRegisterContent = (props: DeviceRegisterContentProp) => {
     if (data.loading) return;
 
     try {
-      const res = await requestPasscode(props.input.email, props.input.password);
+      const status = await requestPasscode(props.input.email, props.input.password);
 
-      props.onSubmit?.(res.status, type);
+      props.onSubmit?.(status, type);
     } catch (e) {
       props.onError?.(e);
     }

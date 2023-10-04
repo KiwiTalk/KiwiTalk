@@ -101,6 +101,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
   });
 
   function onLoginSubmit(input: LoginFormInput, status: number) {
+    setInput(input);
     switch (status) {
       case 0: {
         props.onLogin?.();
@@ -118,7 +119,6 @@ export const AppLoginContent = (props: LoginContentProp) => {
       }
     }
 
-    setInput(input);
     setState({ ...state(), errorMessage: `login.status.login.${status}` });
   }
 
