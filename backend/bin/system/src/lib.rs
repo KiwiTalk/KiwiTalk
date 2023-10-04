@@ -1,3 +1,5 @@
+pub mod constants;
+
 use std::{
     ops::Deref,
     path::{Path, PathBuf},
@@ -27,15 +29,12 @@ pub fn get_system_info() -> &'static SystemInfo {
     SYSTEM.get().unwrap()
 }
 
-pub(super) async fn init_plugin<R: Runtime>(
-    name: &'static str,
-    path_resolver: PathResolver,
-) -> anyhow::Result<TauriPlugin<R>> {
+pub async fn init<R: Runtime>(path_resolver: PathResolver) -> anyhow::Result<TauriPlugin<R>> {
     SYSTEM
         .set(create_system_info(&path_resolver).await?)
         .expect("Cannot initialize System information");
 
-    Ok(Builder::new(name)
+    Ok(Builder::new("system")
         .invoke_handler(generate_handler![get_device_locale, get_device_name])
         .build())
 }
@@ -51,16 +50,27 @@ fn get_device_name() -> String {
 }
 
 #[derive(Debug)]
+/// Various informations for appliaction
 pub struct SystemInfo {
+    /// Data directory path
     pub data_dir: PathBuf,
+
+    /// Config directory path
     pub config_dir: PathBuf,
+
+    /// Device information
     pub device_info: DeviceInfo,
 }
 
 #[derive(Debug)]
 pub struct DeviceInfo {
+    /// Device locale
     pub locale: String,
+
+    /// Device name
     pub name: String,
+
+    /// Generated unique id
     pub device_uuid: DeviceUuid,
 }
 

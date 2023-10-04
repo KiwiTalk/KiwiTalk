@@ -31,8 +31,8 @@ use tokio::{sync::mpsc, task::JoinHandle};
 use crate::{
     auth::{create_auth_client, create_auto_login_token},
     result::{TauriAnyhowError, TauriResult},
-    system::get_system_info,
 };
+use kiwi_talk_system::get_system_info;
 
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;

@@ -12,8 +12,8 @@ use tauri::{
 use crate::{
     constants::{AUTO_LOGIN_KEY, TALK_AGENT, TALK_VERSION, XVC_HASHER},
     result::TauriResult,
-    system::{get_system_info, SystemInfo},
 };
+use kiwi_talk_system::{get_system_info, SystemInfo};
 
 pub(super) fn init_plugin<R: Runtime>(name: &'static str) -> TauriPlugin<R> {
     Builder::new(name)

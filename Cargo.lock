@@ -2016,24 +2016,21 @@ version = "0.2.0"
 dependencies = [
  "anyhow",
  "arrayvec",
- "base64 0.21.4",
  "bincode",
  "enum-kinds",
  "env_logger",
  "futures",
  "hex",
- "hostname",
  "kiwi-talk-client",
+ "kiwi-talk-system",
  "log",
  "num-bigint-dig",
  "once_cell",
  "parking_lot",
- "rand 0.8.5",
  "serde",
  "serde-byte-array",
  "serde_json",
  "sha2",
- "sys-locale 0.3.1",
  "talk-api-client",
  "talk-loco-client",
  "tauri",
@@ -2064,6 +2061,20 @@ dependencies = [
  "serde_json",
  "talk-loco-client",
  "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "kiwi-talk-system"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "base64 0.21.4",
+ "hostname",
+ "log",
+ "rand 0.8.5",
+ "sys-locale 0.3.1",
+ "tauri",
  "tokio",
 ]
 

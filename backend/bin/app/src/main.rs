@@ -8,7 +8,6 @@ mod client;
 mod configuration;
 mod constants;
 mod result;
-mod system;
 
 use tauri::{
     api::dialog, AppHandle, CustomMenuItem, DeviceEventFilter, Manager, RunEvent, Runtime,
@@ -44,7 +43,7 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
 async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
 
-    handle.plugin(system::init_plugin("system", handle.path_resolver()).await?)?;
+    handle.plugin(kiwi_talk_system::init(handle.path_resolver()).await?)?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(auth::init_plugin("auth"))?;
     handle.plugin(client::init_plugin("client").await?)?;
