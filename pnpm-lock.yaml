@@ -41,8 +41,8 @@ devDependencies:
     specifier: 7.22.20
     version: 7.22.20(@babel/core@7.23.0)
   '@babel/preset-typescript':
-    specifier: 7.22.15
-    version: 7.22.15(@babel/core@7.23.0)
+    specifier: 7.23.0
+    version: 7.23.0(@babel/core@7.23.0)
   '@storybook/addon-actions':
     specifier: 7.4.6
     version: 7.4.6(react-dom@18.2.0)(react@18.2.0)
@@ -963,6 +963,18 @@ packages:
       '@babel/helper-simple-access': 7.22.5
     dev: true
 
+  /@babel/plugin-transform-modules-commonjs@7.23.0(@babel/core@7.23.0):
+    resolution: {integrity: sha512-32Xzss14/UVc7k9g775yMIvkVK8xwKE0DPdP5JTapr3+Z9w4tzeOuLNY6BXDQR6BdnzIlXnCGAzsk/ICHBLVWQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.23.0
+      '@babel/helper-module-transforms': 7.23.0(@babel/core@7.23.0)
+      '@babel/helper-plugin-utils': 7.22.5
+      '@babel/helper-simple-access': 7.22.5
+    dev: true
+
   /@babel/plugin-transform-modules-systemjs@7.22.11(@babel/core@7.23.0):
     resolution: {integrity: sha512-rIqHmHoMEOhI3VkVf5jQ15l539KrwhzqcBO6wdCNWPWc/JWt9ILNYNUssbRpeq0qWns8svuw8LnMNCvWBIJ8wA==}
     engines: {node: '>=6.9.0'}
@@ -1384,8 +1396,8 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /@babel/preset-typescript@7.22.15(@babel/core@7.23.0):
-    resolution: {integrity: sha512-HblhNmh6yM+cU4VwbBRpxFhxsTdfS1zsvH9W+gEjD0ARV9+8B4sNfpI6GuhePti84nuvhiwKS539jKPFHskA9A==}
+  /@babel/preset-typescript@7.23.0(@babel/core@7.23.0):
+    resolution: {integrity: sha512-6P6VVa/NM/VlAYj5s2Aq/gdVg8FSENCg3wlZ6Qau9AcPaoF5LbN1nyGlR9DTRIw9PpxI94e+ReydsJHcjwAweg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -1394,7 +1406,7 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/helper-validator-option': 7.22.15
       '@babel/plugin-syntax-jsx': 7.22.5(@babel/core@7.23.0)
-      '@babel/plugin-transform-modules-commonjs': 7.22.15(@babel/core@7.23.0)
+      '@babel/plugin-transform-modules-commonjs': 7.23.0(@babel/core@7.23.0)
       '@babel/plugin-transform-typescript': 7.22.15(@babel/core@7.23.0)
     dev: true
 
@@ -6841,7 +6853,7 @@ packages:
       '@babel/plugin-transform-modules-commonjs': 7.22.15(@babel/core@7.23.0)
       '@babel/preset-env': 7.22.20(@babel/core@7.23.0)
       '@babel/preset-flow': 7.22.15(@babel/core@7.23.0)
-      '@babel/preset-typescript': 7.22.15(@babel/core@7.23.0)
+      '@babel/preset-typescript': 7.23.0(@babel/core@7.23.0)
       '@babel/register': 7.22.15(@babel/core@7.23.0)
       babel-core: 7.0.0-bridge.0(@babel/core@7.23.0)
       chalk: 4.1.2
@@ -9002,7 +9014,7 @@ packages:
       vite: ^3.0.0 || ^4.0.0
     dependencies:
       '@babel/core': 7.23.0
-      '@babel/preset-typescript': 7.22.15(@babel/core@7.23.0)
+      '@babel/preset-typescript': 7.23.0(@babel/core@7.23.0)
       '@types/babel__core': 7.20.2
       babel-preset-solid: 1.7.7(@babel/core@7.23.0)
       merge-anything: 5.1.7
