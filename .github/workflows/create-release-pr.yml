@@ -1,5 +1,17 @@
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      level:
+        type: choice
+        description: Bump level
+        options:
+          - patch
+          - minor
+          - major
+          - release
+          - rc
+          - beta
+          - alpha
 
 name: Create release PR
 jobs:
@@ -7,11 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - id: get_version
-        run: |
-          echo version=$(cargo metadata --format-version 1 --no-deps | \
-            jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version') >> "$GITHUB_OUTPUT"
 
       - run: |
           git config user.name 'KiwiTalk Continuous Deployment'
@@ -24,9 +31,9 @@ jobs:
       - name: install cargo-release
         run: cargo install cargo-release
 
-      - name: ensure cargo packages version, commits
+      - name: bump cargo package versions, commits
         run: |
-          cargo release release \
+          cargo release ${{ github.event.inputs.level }} \
             --workspace \
             --no-confirm \
             --no-tag \
@@ -34,9 +41,11 @@ jobs:
             --dependent-version upgrade \
             --no-publish \
             --execute
-      
-      - name: create pre-release commit
-        run: "git commit --allow-empty -m \"chore: release ${{ steps.get_version.outputs.version }}\""
+
+      - id: get_version
+        run: |
+          echo version=$(cargo metadata --format-version 1 --no-deps | \
+            jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version') >> "$GITHUB_OUTPUT"
 
       - uses: peter-evans/create-pull-request@v5
         with:

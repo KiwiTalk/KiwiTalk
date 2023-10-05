@@ -121,23 +121,6 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
 
-      - name: bump version, commit
-        run: |
-          cargo release version minor \
-            --workspace \
-            --no-confirm \
-            --execute
-
-      - uses: peter-evans/create-pull-request@v5
-        with:
-          delete-branch: true
-          branch: release/bump-version
-          base: dev
-          title: "chore: bump versions after release"
-          body: |
-            Bump versions after release.
-            This PR has been auto-generated
-
       - run: gh release edit v${{ needs.draft.outputs.version }} --draft=false --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
