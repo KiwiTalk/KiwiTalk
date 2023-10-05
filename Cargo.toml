@@ -4,7 +4,7 @@ resolver = "2"
 members = ["./backend/bin/*", "./backend/crates/*"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.1.2"
 license = "Apache-2.0"
 authors = ["KiwiTalk contributors"]
 edition = "2021"
