@@ -19,7 +19,6 @@ export const container = style({
   display: 'grid',
   gridTemplateColumns: '50px 1fr auto',
   gridTemplateRows: 'auto auto',
-  alignContent: 'center',
 
   width: '100%',
   height: 50,
