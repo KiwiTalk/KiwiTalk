@@ -4,3 +4,8 @@ export const container = style({
   border: 'solid black 1px',
   width: 400,
 });
+
+export const imageContainer = style({
+  width: 300,
+  height: 300,
+});
