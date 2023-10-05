@@ -120,7 +120,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
 
   function onError(err: unknown) {
     console.error(err);
-    setState({ ...state(), errorMessage: `login.network_error` });
+    setState({ ...state(), errorMessage: `login.generic_error` });
   }
 
   function onResetClick() {
