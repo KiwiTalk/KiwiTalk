@@ -24,6 +24,7 @@
     },
     "passcode_placeholder": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
     "set_forced": "다시 로그인 시 다른 기기의 연결을 해제합니다.",
+    "generic_error": "내부 에러가 발생했습니다.",
     "status": {
       "login": {
         "500": "내부 오류가 발생했습니다",
