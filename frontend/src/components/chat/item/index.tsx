@@ -2,7 +2,7 @@ import { Show, mergeProps } from 'solid-js';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
 import ChatImage from './image';
-import { styled } from '../../../../utils';
+import { styled } from '../../../utils';
 import {
   container,
   count,

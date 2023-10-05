@@ -1,6 +1,6 @@
 import { StoryFn } from 'storybook-solidjs';
 import ChatImage from './image';
-import { styled } from '../../../../utils';
+import { styled } from '../../../utils';
 import { imageContainer } from './chat-item.stories.css';
 
 export default {

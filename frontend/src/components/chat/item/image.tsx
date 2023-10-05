@@ -1,6 +1,6 @@
 import { For, Match, Show, Switch } from 'solid-js';
 import { ChatItemProps } from './types';
-import { styled } from '../../../../utils';
+import { styled } from '../../../utils';
 import { image, avatarContainer, avatar, fallback, container, badge } from './image.css';
 
 type ChatImageProps = Pick<ChatItemProps, 'avatars' | 'thumbnail' | 'unread'>;
