@@ -98,6 +98,11 @@ async fn main() -> anyhow::Result<()> {
     let main_window = create_main_window(&app)?;
     main_window.show()?;
 
+    #[cfg(debug_assertions)]
+    {
+        main_window.open_devtools();
+    }
+
     app.run(|_, event| {
         if let RunEvent::ExitRequested { api, .. } = event {
             api.prevent_exit();
