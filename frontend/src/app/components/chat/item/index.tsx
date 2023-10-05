@@ -2,11 +2,11 @@ import { Show, mergeProps } from 'solid-js';
 
 import { container, count, message, state, time, title, unread, imageContainer } from './index.css';
 
-import { styled } from '../../../../../utils';
-import { RoomItemProps } from './types';
-import RoomImage from './image';
+import { styled } from '../../../../utils';
+import { ChatItemProps } from './types';
+import ChatImage from './image';
 
-const defaultRoomItemProps: Partial<RoomItemProps> = {
+const defaultChatItemProps: Partial<ChatItemProps> = {
   unread: 0,
   isDM: false,
   isPinned: false,
@@ -23,13 +23,13 @@ const State = styled('div', state);
 const Unread = styled('div', unread);
 const Count = styled('div', count);
 
-const RoomItem = (props: RoomItemProps) => {
-  const local = mergeProps(defaultRoomItemProps, props);
+const ChatItem = (props: ChatItemProps) => {
+  const local = mergeProps(defaultChatItemProps, props);
 
   return (
     <Container>
       <ImageContainer>
-        <RoomImage
+        <ChatImage
           thumbnail={local.thumbnail}
           avatars={local.avatars}
         />
@@ -69,5 +69,5 @@ const RoomItem = (props: RoomItemProps) => {
   );
 };
 
-export type { RoomItemProps };
-export default RoomItem;
+export type { ChatItemProps };
+export default ChatItem;

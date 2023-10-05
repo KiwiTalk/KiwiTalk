@@ -1,18 +1,18 @@
 import { StoryFn } from 'storybook-solidjs';
-import RoomImage from './image';
-import { styled } from '../../../../../utils';
-import { imageContainer } from './room-item.stories.css';
+import ChatImage from './image';
+import { styled } from '../../../../utils';
+import { imageContainer } from './chat-item.stories.css';
 
 export default {
-  title: 'KiwiTalk/chat/room/image',
-  component: RoomImage,
+  title: 'KiwiTalk/chat/image',
+  component: ChatImage,
   argTypes: {},
 };
 
 const Container = styled('div', imageContainer);
 
-const Template: StoryFn<typeof RoomImage> = (args) => <Container>
-  <RoomImage {...args} />
+const Template: StoryFn<typeof ChatImage> = (args) => <Container>
+  <ChatImage {...args} />
 </Container>;
 
 export const Default = Template.bind({});

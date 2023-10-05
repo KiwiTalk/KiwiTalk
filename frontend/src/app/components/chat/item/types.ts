@@ -1,4 +1,4 @@
-export type BaseRoomItemProps = {
+export type BaseChatItemProps = {
   memberCount: number;
 
   name: string;
@@ -12,13 +12,13 @@ export type BaseRoomItemProps = {
   isForum?: boolean;
   isMuted?: boolean;
 }
-export type ThumbnailRoomItemProps = BaseRoomItemProps & {
+export type ThumbnailChatItemProps = BaseChatItemProps & {
   thumbnail: string;
   avatars?: string[];
 };
-export type AvatarRoomItemProps = BaseRoomItemProps & {
+export type AvatarChatItemProps = BaseChatItemProps & {
   thumbnail?: string;
   avatars: string[];
 };
 
-export type RoomItemProps = ThumbnailRoomItemProps | AvatarRoomItemProps;
+export type ChatItemProps = ThumbnailChatItemProps | AvatarChatItemProps;

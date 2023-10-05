@@ -1,16 +1,16 @@
 import { For, Match, Switch } from 'solid-js';
-import { RoomItemProps } from './types';
-import { styled } from '../../../../../utils';
+import { ChatItemProps } from './types';
+import { styled } from '../../../../utils';
 import { image, avatarContainer, avatar, fallback } from './image.css';
 
-type RoomImageProps = Pick<RoomItemProps, 'avatars' | 'thumbnail'>;
+type ChatImageProps = Pick<ChatItemProps, 'avatars' | 'thumbnail'>;
 
 const Image = styled('img', image);
 const Avatar = styled('img', avatar);
 const AvatarContainer = styled('div', avatarContainer);
 const Fallback = styled('div', fallback);
 
-const RoomImage = (props: RoomImageProps) => {
+const ChatImage = (props: ChatImageProps) => {
   return (
     <Switch fallback={<Fallback>!</Fallback>}>
       <Match when={props.thumbnail}>
@@ -27,4 +27,4 @@ const RoomImage = (props: RoomImageProps) => {
   );
 };
 
-export default RoomImage;
+export default ChatImage;
