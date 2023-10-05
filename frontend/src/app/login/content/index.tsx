@@ -142,31 +142,35 @@ export const AppLoginContent = (props: LoginContentProp) => {
   }
 
   async function submit(input: LoginFormInput) {
-    const status = await login({
-      email: input.email,
-      password: input.password,
-      saveEmail: input.saveId,
-      autoLogin: input.autoLogin,
-    }, forced(), 'Unlocked');
+    try {
+      const status = await login({
+        email: input.email,
+        password: input.password,
+        saveEmail: input.saveId,
+        autoLogin: input.autoLogin,
+      }, forced(), 'Unlocked');
 
-    switch (status) {
-      case 0: {
-        props.onLogin?.();
-        return;
+      switch (status) {
+        case 0: {
+          props.onLogin?.();
+          return;
+        }
+
+        case -100: {
+          setState({ type: 'device_register' });
+          return;
+        }
+
+        case -101: {
+          setForced(true);
+          break;
+        }
       }
 
-      case -100: {
-        setState({ type: 'device_register' });
-        return;
-      }
-
-      case -101: {
-        setForced(true);
-        break;
-      }
+      setState({ ...state(), errorMessage: `login.status.login.${status}` });
+    } catch (e) {
+      setState({ ...state(), errorMessage: `login.generic_error` });
     }
-
-    setState({ ...state(), errorMessage: `login.status.login.${status}` });
   }
 
   return <>
