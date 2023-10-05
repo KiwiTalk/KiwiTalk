@@ -1,33 +1,10 @@
 import { Show, mergeProps } from 'solid-js';
 
-import { container } from './index.css';
+import { container, count, message, state, time, title, unread, imageContainer } from './index.css';
 
 import { styled } from '../../../../../utils';
-
-type BaseRoomItemProps = {
-  memberCount: number;
-
-  name: string;
-  lastMessage?: string;
-  lastUpdateTime?: Date;
-
-  /* states */
-  unread?: number;
-  isDM?: boolean;
-  isPinned?: boolean;
-  isForum?: boolean;
-  isMuted?: boolean;
-}
-type ThumbnailRoomItemProps = BaseRoomItemProps & {
-  thumbnail: string;
-  avatars?: string[];
-};
-type AvatarRoomItemProps = BaseRoomItemProps & {
-  thumbnail?: string;
-  avatars: string[];
-};
-
-export type RoomItemProps = ThumbnailRoomItemProps | AvatarRoomItemProps;
+import { RoomItemProps } from './types';
+import RoomImage from './image';
 
 const defaultRoomItemProps: Partial<RoomItemProps> = {
   unread: 0,
@@ -38,51 +15,59 @@ const defaultRoomItemProps: Partial<RoomItemProps> = {
 };
 
 const Container = styled('div', container);
+const ImageContainer = styled('div', imageContainer);
+const Title = styled('div', title);
+const Message = styled('div', message);
+const Time = styled('div', time);
+const State = styled('div', state);
+const Unread = styled('div', unread);
+const Count = styled('div', count);
 
 const RoomItem = (props: RoomItemProps) => {
   const local = mergeProps(defaultRoomItemProps, props);
 
   return (
     <Container>
-      <Show
-        when={local.thumbnail}
-        fallback={<div>avatar image</div>}
-      >
-        <div>thumbnail image</div>
-      </Show>
-      <div>
+      <ImageContainer>
+        <RoomImage
+          thumbnail={local.thumbnail}
+          avatars={local.avatars}
+        />
+      </ImageContainer>
+      <Title>
         <Show when={local.isForum}>
           forum image
         </Show>
         {local.name}
         <Show when={!local.isDM}>
-          <div>
+          <Count>
             {local.memberCount}
-          </div>
+          </Count>
         </Show>
-      </div>
-      <div>
+      </Title>
+      <Message>
         <Show when={local.unread}>
-          <div>
-            {Math.max(300, local.unread!)}
+          <Unread>
+            {Math.min(300, local.unread!)}
             {local.unread! > 300 ? '+' : ''}
-          </div>
+          </Unread>
         </Show>
         {local.lastMessage}
-      </div>
-      <div>
-        {local.lastUpdateTime?.toString()}
-      </div>
-      <div>
+      </Message>
+      <Time>
+        {local.lastUpdateTime?.toTimeString()}
+      </Time>
+      <State>
         <Show when={local.isPinned}>
           pinned image
         </Show>
         <Show when={local.isMuted}>
           muted image
         </Show>
-      </div>
+      </State>
     </Container>
   );
 };
 
+export type { RoomItemProps };
 export default RoomItem;
