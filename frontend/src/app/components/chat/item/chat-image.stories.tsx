@@ -19,4 +19,5 @@ export const Default = Template.bind({});
 Default.args = {
   thumbnail: 'https://picsum.photos/200',
   avatars: ['https://picsum.photos/200'],
+  unread: 0,
 };

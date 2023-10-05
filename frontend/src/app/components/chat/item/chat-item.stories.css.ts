@@ -6,6 +6,6 @@ export const container = style({
 });
 
 export const imageContainer = style({
-  width: 300,
-  height: 300,
+  width: 50,
+  height: 50,
 });

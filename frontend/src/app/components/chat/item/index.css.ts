@@ -4,10 +4,14 @@ import { style } from '@vanilla-extract/css';
 const titleFont = style({
   fontSize: 16,
   fontWeight: 600,
+
+  alignSelf: 'flex-end',
 });
 const messageFont = style({
   fontSize: 12,
   fontWeight: 400,
+
+  alignSelf: 'flex-start',
 });
 
 /* default */
@@ -15,6 +19,7 @@ export const container = style({
   display: 'grid',
   gridTemplateColumns: '50px 1fr auto',
   gridTemplateRows: 'auto auto',
+  alignContent: 'center',
 
   width: '100%',
   height: 50,
@@ -35,7 +40,7 @@ export const title = style([titleFont, {
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-start',
-  alignItems: 'flex-end',
+  alignItems: 'center',
   gap: 4,
 }]);
 
@@ -46,7 +51,7 @@ export const message = style([messageFont, {
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-start',
-  alignItems: 'flex-start',
+  alignItems: 'center',
   gap: 4,
 }]);
 
@@ -57,19 +62,30 @@ export const time = style([titleFont, {
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-end',
-  alignItems: 'flex-end',
+  alignItems: 'center',
 
   color: 'gray',
+  paddingRight: 8,
 }]);
 
-export const state = style({
+export const state = style([messageFont, {
   gridColumn: '3 / 4',
   gridRow: '2 / 3',
 
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-end',
-  alignItems: 'flex-start',
+  alignItems: 'center',
+  gap: 4,
+
+  paddingRight: 8,
+}]);
+
+export const stateIcon = style({
+  width: 16,
+  height: 16,
+
+  fill: 'gray',
 });
 
 /* optional */

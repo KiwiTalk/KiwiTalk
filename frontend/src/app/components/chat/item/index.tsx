@@ -1,10 +1,25 @@
 import { Show, mergeProps } from 'solid-js';
+import { useTransContext } from '@jellybrick/solid-i18next';
 
-import { container, count, message, state, time, title, unread, imageContainer } from './index.css';
-
-import { styled } from '../../../../utils';
-import { ChatItemProps } from './types';
 import ChatImage from './image';
+import { styled } from '../../../../utils';
+import {
+  container,
+  count,
+  message,
+  state,
+  stateIcon,
+  time,
+  title,
+  unread,
+  imageContainer,
+} from './index.css';
+
+import type { ChatItemProps } from './types';
+
+import Mute from './icons/mute.svg';
+import Pin from './icons/pin.svg';
+import Forum from './icons/forum.svg';
 
 const defaultChatItemProps: Partial<ChatItemProps> = {
   unread: 0,
@@ -20,11 +35,18 @@ const Title = styled('div', title);
 const Message = styled('div', message);
 const Time = styled('div', time);
 const State = styled('div', state);
+const StateIcon = styled('div', stateIcon);
 const Unread = styled('div', unread);
 const Count = styled('div', count);
 
 const ChatItem = (props: ChatItemProps) => {
   const local = mergeProps(defaultChatItemProps, props);
+
+  const [, { getI18next }] = useTransContext();
+
+  const toTime = (date: Date): string => {
+    return new Intl.DateTimeFormat(getI18next().language).format(date);
+  };
 
   return (
     <Container>
@@ -32,11 +54,14 @@ const ChatItem = (props: ChatItemProps) => {
         <ChatImage
           thumbnail={local.thumbnail}
           avatars={local.avatars}
+          unread={local.unread}
         />
       </ImageContainer>
       <Title>
         <Show when={local.isForum}>
-          forum image
+          <StateIcon>
+            <Forum />
+          </StateIcon>
         </Show>
         {local.name}
         <Show when={!local.isDM}>
@@ -55,14 +80,18 @@ const ChatItem = (props: ChatItemProps) => {
         {local.lastMessage}
       </Message>
       <Time>
-        {local.lastUpdateTime?.toTimeString()}
+        {local.lastUpdateTime ? toTime(local.lastUpdateTime) : ''}
       </Time>
       <State>
         <Show when={local.isPinned}>
-          pinned image
+          <StateIcon>
+            <Pin />
+          </StateIcon>
         </Show>
         <Show when={local.isMuted}>
-          muted image
+          <StateIcon>
+            <Mute />
+          </StateIcon>
         </Show>
       </State>
     </Container>
