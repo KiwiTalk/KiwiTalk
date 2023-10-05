@@ -86,14 +86,6 @@ async fn main() -> anyhow::Result<()> {
         .system_tray(system_tray)
         .device_event_filter(DeviceEventFilter::Never)
         .on_system_tray_event(on_tray_event)
-        .setup(|app| {
-            #[cfg(debug_assertions)]
-            {
-                let window = app.get_window("main").unwrap();
-                window.open_devtools();
-            }
-            Ok(())
-        })
         .build(tauri::generate_context!())?;
 
     if let Err(err) = init_plugin(&app.handle()).await {
@@ -105,6 +97,11 @@ async fn main() -> anyhow::Result<()> {
 
     let main_window = create_main_window(&app)?;
     main_window.show()?;
+
+    #[cfg(debug_assertions)]
+    {
+        main_window.open_devtools();
+    }
 
     app.run(|_, event| {
         if let RunEvent::ExitRequested { api, .. } = event {
