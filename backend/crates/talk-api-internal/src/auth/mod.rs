@@ -1,7 +1,7 @@
 pub mod status;
 pub mod xvc;
 
-use reqwest::{header, Client, Method, RequestBuilder, Url};
+use reqwest::{Client, Method, RequestBuilder, Url};
 use serde_with::skip_serializing_none;
 
 use crate::{config::Config, fill_api_headers, read_simple_response, ApiResult};
@@ -54,7 +54,7 @@ impl<'a, Xvc: XVCHasher> AuthApiBuilder<'a, Xvc> {
 
     fn create_url(&self, end_point: &str) -> Url {
         self.base
-            .join(&self.config.agent.agent())
+            .join(self.config.agent.agent())
             .unwrap()
             .join(end_point)
             .unwrap()
