@@ -10,7 +10,10 @@ use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{task::Poll, time::Duration};
-use talk_api_internal::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
+use talk_api_internal::{
+    auth::{AccountLoginForm, LoginMethod, TokenLoginForm},
+    ApiRequestError,
+};
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
@@ -115,23 +118,18 @@ async fn login(
         return Err(anyhow!("already logon").into());
     }
 
-    let login_data = {
-        let res = create_auth_client()
-            .login(
-                LoginMethod::Account(AccountLoginForm {
-                    email: &form.email,
-                    password: &form.password,
-                }),
-                forced,
-            )
-            .await?;
-
-        if res.status == 0 {
-            res.data
-                .ok_or_else(|| anyhow!("cannot deserialize login data"))?
-        } else {
-            return Ok(res.status);
-        }
+    let login_data = match create_auth_client()
+        .login(
+            LoginMethod::Account(AccountLoginForm {
+                email: &form.email,
+                password: &form.password,
+            }),
+            forced,
+        )
+        .await
+    {
+        Err(ApiRequestError::Status(status)) => return Ok(status),
+        res => res?,
     };
 
     let device_uuid = &get_system_info().device_info.device_uuid;
@@ -302,23 +300,20 @@ async fn try_auto_login(
         return Ok(None);
     };
 
-    let login_data = {
-        let res = create_auth_client()
-            .login(
-                LoginMethod::Token(TokenLoginForm {
-                    email: &email,
-                    auto_login_token: &hex::encode(token),
-                    locked: status == ClientStatus::Locked,
-                }),
-                forced,
-            )
-            .await?;
+    let login_data = match create_auth_client()
+        .login(
+            LoginMethod::Token(TokenLoginForm {
+                email: &email,
+                auto_login_token: &hex::encode(token),
+                locked: status == ClientStatus::Locked,
+            }),
+            forced,
+        )
+        .await
+    {
+        Err(ApiRequestError::Status(status)) => return Err(AutoLoginError::Status(status)),
 
-        if res.status == 0 {
-            res.data.ok_or_else(|| AutoLoginError::InvalidFile)?
-        } else {
-            return Err(AutoLoginError::Status(res.status));
-        }
+        res => res?,
     };
 
     let device_uuid = &get_system_info().device_info.device_uuid;

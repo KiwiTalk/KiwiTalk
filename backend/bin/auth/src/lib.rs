@@ -2,10 +2,12 @@ mod constants;
 
 use anyhow::Context;
 use kiwi_talk_result::TauriResult;
-use reqwest::{Url, Client};
+use reqwest::{Client, Url};
 use sha2::{Digest, Sha512};
-use talk_api_internal::auth::{
-    xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, AuthApi,
+use talk_api_internal::{
+    auth::{xvc::XVCHasher, AccountLoginForm, AuthApiBuilder, Device},
+    config::Config,
+    ApiRequestError, ApiResult,
 };
 use tauri::{
     generate_handler,
@@ -42,16 +44,26 @@ pub fn create_auto_login_token(
     hasher.finalize().into()
 }
 
+fn status_from(result: ApiResult<()>) -> ApiResult<i32> {
+    match result {
+        Ok(_) => Ok(0),
+        Err(ApiRequestError::Status(status)) => Ok(status),
+
+        Err(err) => Err(err),
+    }
+}
+
 #[tauri::command(async)]
 async fn request_passcode(email: String, password: String) -> TauriResult<i32> {
-    Ok(create_auth_client()
-        .request_passcode(AccountLoginForm {
-            email: &email,
-            password: &password,
-        })
-        .await
-        .context("request_passcode request failed")?
-        .status)
+    Ok(status_from(
+        create_auth_client()
+            .request_passcode(AccountLoginForm {
+                email: &email,
+                password: &password,
+            })
+            .await,
+    )
+    .context("request_passcode request failed")?)
 }
 
 #[tauri::command(async)]
@@ -61,36 +73,41 @@ async fn register_device(
     password: String,
     permanent: bool,
 ) -> TauriResult<i32> {
-    Ok(create_auth_client()
-        .register_device(
-            &passcode,
-            AccountLoginForm {
-                email: &email,
-                password: &password,
-            },
-            permanent,
-        )
-        .await
-        .context("register_device request failed")?
-        .status)
+    Ok(status_from(
+        create_auth_client()
+            .register_device(
+                &passcode,
+                AccountLoginForm {
+                    email: &email,
+                    password: &password,
+                },
+                permanent,
+            )
+            .await,
+    )
+    .context("register_device request failed")?)
 }
 
-pub fn create_auth_client() -> AuthApi<'static, impl XVCHasher> {
-    AuthApi::new(
-        create_config(get_system_info()),
+pub fn create_auth_client() -> AuthApiBuilder<'static, impl XVCHasher> {
+    AuthApiBuilder::new(
         Url::parse("https://katalk.kakao.com").unwrap(),
+        create_config(get_system_info()),
+        create_device(get_system_info()),
         XVC_HASHER,
         Client::new(),
     )
 }
 
-fn create_config(info: &SystemInfo) -> AuthClientConfig<'_> {
-    AuthClientConfig {
-        device: AuthDeviceConfig {
-            name: &info.device_info.name,
-            model: None,
-            uuid: &info.device_info.device_uuid,
-        },
+fn create_device(info: &SystemInfo) -> Device<'_> {
+    Device {
+        name: &info.device_info.name,
+        model: None,
+        uuid: &info.device_info.device_uuid,
+    }
+}
+
+fn create_config(info: &SystemInfo) -> Config<'_> {
+    Config {
         language: info.device_info.language(),
         version: TALK_VERSION,
         agent: TALK_AGENT,

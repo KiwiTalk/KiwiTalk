@@ -1,31 +1,42 @@
-pub mod login;
 pub mod status;
 pub mod xvc;
 
-use reqwest::{header, Client, RequestBuilder, Url};
+use reqwest::{
+    header::{self},
+    Client, Method, RequestBuilder, Url,
+};
 use serde_with::skip_serializing_none;
 
-use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult};
+use crate::{config::Config, read_simple_response, ApiResult};
 
-use self::{login::LoginData, xvc::XVCHasher};
+use self::xvc::XVCHasher;
 
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// Internal api wrapper for authentication
-#[derive(Debug)]
-pub struct AuthApi<'a, Xvc> {
-    pub config: AuthClientConfig<'a>,
-
+#[derive(Debug, Clone)]
+pub struct AuthApiBuilder<'a, Xvc> {
     base: Url,
+
+    config: Config<'a>,
+    device: Device<'a>,
+
     xvc_hasher: Xvc,
 
     client: Client,
 }
 
-impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
-    pub fn new(config: AuthClientConfig<'a>, base: Url, xvc_hasher: Xvc, client: Client) -> Self {
+impl<'a, Xvc: XVCHasher> AuthApiBuilder<'a, Xvc> {
+    pub const fn new(
+        base: Url,
+        config: Config<'a>,
+        device: Device<'a>,
+        xvc_hasher: Xvc,
+        client: Client,
+    ) -> Self {
         Self {
             config,
+            device,
 
             base,
             xvc_hasher,
@@ -34,17 +45,16 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
         }
     }
 
-    fn build_auth_request(&self, builder: RequestBuilder, email: &str) -> RequestBuilder {
-        let user_agent = self
-            .config
-            .agent
-            .get_user_agent(self.config.version, self.config.language);
+    fn create_request(&self, method: Method, end_point: &str, email: &str) -> RequestBuilder {
+        let user_agent = self.config.get_user_agent();
 
-        let mut builder = builder
-            .header(header::USER_AGENT, &user_agent)
+        self.client
+            .request(method, self.create_url(end_point))
+            .header("X-VC", self.hash_auth_xvc(&user_agent, email))
+            .header(header::USER_AGENT, user_agent)
             .header(
                 "A",
-                &format!(
+                format!(
                     "{}/{}/{}",
                     self.config.agent.agent(),
                     self.config.version,
@@ -52,17 +62,10 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
                 ),
             )
             .header(header::ACCEPT, "*/*")
-            .header(header::ACCEPT_LANGUAGE, self.config.language as &str)
-            .header("X-VC", self.hash_auth_xvc(&user_agent, email));
-
-        if let Some(host) = self.base.host_str() {
-            builder = builder.header(header::HOST, host);
-        }
-
-        builder
+            .header(header::ACCEPT_LANGUAGE, self.config.language)
     }
 
-    fn build_url(&self, end_point: &str) -> Url {
+    fn create_url(&self, end_point: &str) -> Url {
         self.base
             .join(&self.config.agent.agent())
             .unwrap()
@@ -73,7 +76,7 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
     fn hash_auth_xvc(&self, user_agent: &str, email: &str) -> String {
         let full_hash = self
             .xvc_hasher
-            .full_xvc_hash(self.config.device.uuid, user_agent, email);
+            .full_xvc_hash(self.device.uuid, user_agent, email);
 
         hex::encode(&full_hash[..8])
     }
@@ -82,17 +85,13 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
         AuthRequestForm {
             email,
             password,
-            device_uuid: self.config.device.uuid,
-            device_name: self.config.device.name,
-            model_name: self.config.device.model,
+            device_uuid: self.device.uuid,
+            device_name: self.device.name,
+            model_name: self.device.model,
         }
     }
 
-    pub async fn login(
-        &self,
-        method: LoginMethod<'_>,
-        forced: bool,
-    ) -> ApiResult<TalkStatusResponse<LoginData>> {
+    pub async fn login(self, method: LoginMethod<'_>, forced: bool) -> ApiResult<LoginData> {
         let response = match method {
             LoginMethod::Account(account_form) => {
                 #[derive(Serialize)]
@@ -102,14 +101,11 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
                     forced: bool,
                 }
 
-                self.build_auth_request(
-                    self.client.post(self.build_url("account/login.json")),
-                    account_form.email,
-                )
-                .form(&LoginRequestForm {
-                    auth: self.build_auth_form(account_form.email, account_form.password),
-                    forced,
-                })
+                self.create_request(Method::POST, "account/login.json", account_form.email)
+                    .form(&LoginRequestForm {
+                        auth: self.build_auth_form(account_form.email, account_form.password),
+                        forced,
+                    })
             }
 
             LoginMethod::Token(token_form) => {
@@ -122,39 +118,33 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
                     forced: bool,
                 }
 
-                self.build_auth_request(
-                    self.client.post(self.build_url("account/login.json")),
-                    token_form.email,
-                )
-                .form(&TokenLoginRequestForm {
-                    auth: self.build_auth_form(token_form.email, token_form.auto_login_token),
-                    auto_login: true,
-                    autowithlock: token_form.locked,
-                    forced,
-                })
+                self.create_request(Method::POST, "account/login.json", token_form.email)
+                    .form(&TokenLoginRequestForm {
+                        auth: self.build_auth_form(token_form.email, token_form.auto_login_token),
+                        auto_login: true,
+                        autowithlock: token_form.locked,
+                        forced,
+                    })
             }
         }
         .send()
         .await?;
 
-        Ok(response.json().await?)
+        read_simple_response(response).await
     }
 
-    pub async fn request_passcode(
-        &self,
-        account_form: AccountLoginForm<'_>,
-    ) -> ApiResult<TalkStatusResponse<()>> {
+    pub async fn request_passcode(self, account_form: AccountLoginForm<'_>) -> ApiResult<()> {
         let response = self
-            .build_auth_request(
-                self.client
-                    .post(self.build_url("account/request_passcode.json")),
+            .create_request(
+                Method::POST,
+                "account/request_passcode.json",
                 account_form.email,
             )
             .form(&self.build_auth_form(account_form.email, account_form.password))
             .send()
             .await?;
 
-        Ok(response.json().await?)
+        read_simple_response(response).await
     }
 
     pub async fn register_device(
@@ -162,7 +152,7 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
         passcode: &str,
         account_form: AccountLoginForm<'_>,
         permanent: bool,
-    ) -> ApiResult<TalkStatusResponse<()>> {
+    ) -> ApiResult<()> {
         #[derive(Serialize)]
         struct RegisterDeviceForm<'a> {
             #[serde(flatten)]
@@ -172,9 +162,9 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
         }
 
         let response = self
-            .build_auth_request(
-                self.client
-                    .post(self.build_url("account/register_device.json")),
+            .create_request(
+                Method::POST,
+                "account/register_device.json",
                 account_form.email,
             )
             .form(&RegisterDeviceForm {
@@ -185,7 +175,7 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
             .send()
             .await?;
 
-        Ok(response.json().await?)
+        read_simple_response(response).await
     }
 }
 
@@ -201,17 +191,7 @@ struct AuthRequestForm<'a> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct AuthClientConfig<'a> {
-    pub device: AuthDeviceConfig<'a>,
-
-    pub language: &'a str,
-    pub version: &'a str,
-
-    pub agent: TalkApiAgent<'a>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct AuthDeviceConfig<'a> {
+pub struct Device<'a> {
     pub name: &'a str,
     pub model: Option<&'a str>,
     pub uuid: &'a str,
@@ -235,4 +215,37 @@ pub struct TokenLoginForm<'a> {
 pub enum LoginMethod<'a> {
     Account(AccountLoginForm<'a>),
     Token(TokenLoginForm<'a>),
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct LoginData {
+    #[serde(rename = "userId")]
+    pub user_id: u64,
+
+    #[serde(rename = "countryIso")]
+    pub country_iso: String,
+    #[serde(rename = "countryCode")]
+    pub country_code: String,
+
+    #[serde(rename = "accountId")]
+    pub account_id: u64,
+
+    // pub server_time: u64,
+
+    // #[serde(rename = "resetUserData")]
+    // pub reset_user_data: bool,
+    // pub story_url: Option<String>,
+    pub access_token: String,
+    pub refresh_token: String,
+    pub token_type: String,
+
+    #[serde(rename = "autoLoginAccountId")]
+    pub auto_login_account_id: String,
+    #[serde(rename = "displayAccountId")]
+    pub display_account_id: String,
+
+    #[serde(rename = "mainDeviceAgentName")]
+    pub main_device_agent_name: String,
+    #[serde(rename = "mainDeviceAppVersion")]
+    pub main_device_app_version: String,
 }

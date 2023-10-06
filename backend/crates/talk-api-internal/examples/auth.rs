@@ -3,21 +3,21 @@ use std::env;
 use reqwest::{Client, Url};
 use talk_api_internal::{
     agent::TalkApiAgent,
-    auth::{
-        xvc::default::Win32XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig,
-        LoginMethod, AuthApi,
-    },
+    auth::{xvc::default::Win32XVCHasher, AccountLoginForm, AuthApiBuilder, Device, LoginMethod},
+    config::Config,
 };
 
-pub const CONFIG: AuthClientConfig = AuthClientConfig {
-    device: AuthDeviceConfig {
-        // Device name
-        name: "TEST_DEVICE",
+pub const DEVICE: Device = Device {
+    // Device name
+    name: "TEST_DEVICE",
 
-        model: None,
-        // Unique id base64 encoded. 62 bytes
-        uuid: "OMnpb2Rq6q4goIvDM/yiHxs7ztsaGnNtjdXmFW92SODvof2BwjvJIwbP5cDp4b++fcYCBGQYy6K8Q8jGhZYzV1==",
-    },
+    model: None,
+    // Unique id base64 encoded. 62 bytes
+    uuid:
+        "OMnpb2Rq6q4goIvDM/yiHxs7ztsaGnNtjdXmFW92SODvof2BwjvJIwbP5cDp4b++fcYCBGQYy6K8Q8jGhZYzV1==",
+};
+
+pub const CONFIG: Config = Config {
     // lang
     language: "ko",
     // Talk client version
@@ -40,9 +40,10 @@ async fn main() {
         return;
     }
 
-    let auth_client = AuthApi::new(
-        CONFIG,
+    let auth = AuthApiBuilder::new(
         Url::parse("https://katalk.kakao.com").unwrap(),
+        CONFIG,
+        DEVICE,
         HASHER,
         Client::new(),
     );
@@ -52,7 +53,7 @@ async fn main() {
         password: &args[2],
     });
 
-    let res = auth_client
+    let res = auth
         .login(
             login_form, // Force login
             true,

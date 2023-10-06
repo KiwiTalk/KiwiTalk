@@ -5,7 +5,7 @@ use super::XVCHasher;
 /// Default xvc hasher uses win32 platform client format.
 ///
 /// Format: sha512("{first_seed}|{user_agent}|{second_seed}|{email}|{device_uuid}")
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Win32XVCHasher<'a>(pub &'a str, pub &'a str);
 
 impl XVCHasher for Win32XVCHasher<'_> {
@@ -29,7 +29,7 @@ impl XVCHasher for Win32XVCHasher<'_> {
 /// Default xvc hasher uses android subdevice platform client format.
 ///
 /// Format: sha512("{first_seed}|{user_agent}|{second_seed}|{email}|{third_seed}")
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct AndroidSubXVCHasher<'a>(pub &'a str, pub &'a str, pub &'a str);
 
 impl XVCHasher for AndroidSubXVCHasher<'_> {
