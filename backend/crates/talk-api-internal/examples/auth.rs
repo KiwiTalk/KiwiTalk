@@ -5,7 +5,7 @@ use talk_api_internal::{
     agent::TalkApiAgent,
     auth::{
         xvc::default::Win32XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig,
-        LoginMethod, TalkAuthApi,
+        LoginMethod, AuthApi,
     },
 };
 
@@ -40,7 +40,7 @@ async fn main() {
         return;
     }
 
-    let auth_client = TalkAuthApi::new(
+    let auth_client = AuthApi::new(
         CONFIG,
         Url::parse("https://katalk.kakao.com").unwrap(),
         HASHER,

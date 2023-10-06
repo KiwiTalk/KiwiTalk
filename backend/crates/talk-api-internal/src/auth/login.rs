@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::credential::TalkAuthCredential;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginData {
     #[serde(rename = "userId")]
@@ -21,8 +19,8 @@ pub struct LoginData {
     // pub reset_user_data: bool,
     // pub story_url: Option<String>,
 
-    #[serde(flatten)]
-    pub credential: TalkAuthCredential,
+    pub access_token: String,
+    pub refresh_token: String,
     pub token_type: String,
 
     #[serde(rename = "autoLoginAccountId")]

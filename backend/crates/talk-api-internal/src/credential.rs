@@ -1,8 +1,5 @@
-use serde::{Deserialize, Serialize};
-
-/// OAuth credential data for internal talk service
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TalkAuthCredential {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Credential {
+    pub device_uuid: String,
     pub access_token: String,
-    pub refresh_token: String,
 }

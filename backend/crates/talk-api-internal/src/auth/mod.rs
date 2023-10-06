@@ -1,4 +1,4 @@
-pub mod resources;
+pub mod login;
 pub mod status;
 pub mod xvc;
 
@@ -7,13 +7,13 @@ use serde_with::skip_serializing_none;
 
 use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult};
 
-use self::{resources::LoginData, xvc::XVCHasher};
+use self::{login::LoginData, xvc::XVCHasher};
 
 use serde::Serialize;
 
-/// Internal talk api wrapper for authentication
+/// Internal api wrapper for authentication
 #[derive(Debug)]
-pub struct TalkAuthApi<'a, Xvc> {
+pub struct AuthApi<'a, Xvc> {
     pub config: AuthClientConfig<'a>,
 
     base: Url,
@@ -22,13 +22,8 @@ pub struct TalkAuthApi<'a, Xvc> {
     client: Client,
 }
 
-impl<'a, Xvc: XVCHasher> TalkAuthApi<'a, Xvc> {
-    pub fn new(
-        config: AuthClientConfig<'a>,
-        base: Url,
-        xvc_hasher: Xvc,
-        client: Client,
-    ) -> Self {
+impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
+    pub fn new(config: AuthClientConfig<'a>, base: Url, xvc_hasher: Xvc, client: Client) -> Self {
         Self {
             config,
 

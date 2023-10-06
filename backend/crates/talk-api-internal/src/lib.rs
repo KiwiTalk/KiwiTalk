@@ -2,6 +2,7 @@ pub mod agent;
 pub mod auth;
 pub mod credential;
 pub mod response;
+pub mod profile;
 
 use thiserror::Error;
 

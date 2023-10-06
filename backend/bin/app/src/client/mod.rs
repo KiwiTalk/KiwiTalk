@@ -140,7 +140,7 @@ async fn login(
         let token = if form.auto_login {
             Some(create_auto_login_token(
                 &login_data.auto_login_account_id,
-                &login_data.credential.refresh_token,
+                &login_data.refresh_token,
                 device_uuid,
             ))
         } else {
@@ -159,7 +159,7 @@ async fn login(
     let client = create_client(
         status,
         ClientCredential {
-            access_token: &login_data.credential.access_token,
+            access_token: &login_data.access_token,
             device_uuid,
         },
         login_data.user_id as _,
@@ -326,7 +326,7 @@ async fn try_auto_login(
     let _ = {
         let token = create_auto_login_token(
             &login_data.auto_login_account_id,
-            &login_data.credential.refresh_token,
+            &login_data.refresh_token,
             device_uuid,
         );
 
@@ -341,7 +341,7 @@ async fn try_auto_login(
         create_client(
             status,
             ClientCredential {
-                access_token: &login_data.credential.access_token,
+                access_token: &login_data.access_token,
                 device_uuid,
             },
             login_data.user_id as i64,
