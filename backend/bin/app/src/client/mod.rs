@@ -10,7 +10,7 @@ use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{task::Poll, time::Duration};
-use talk_api_client::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
+use talk_api_internal::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},

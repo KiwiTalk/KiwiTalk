@@ -1,6 +1,6 @@
 [package]
-name = "talk-api-client"
-description = "Various web API for KiwiTalk"
+name = "talk-api-internal"
+description = "Various internal API for KiwiTalk"
 categories = [ "api-bindings" ]
 version = "0.2.0"
 

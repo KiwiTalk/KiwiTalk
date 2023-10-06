@@ -5,7 +5,7 @@ pub mod xvc;
 use reqwest::{header, Client, RequestBuilder, Url};
 use serde_with::skip_serializing_none;
 
-use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult, ApiURL};
+use crate::{agent::TalkApiAgent, response::TalkStatusResponse, ApiResult};
 
 use self::{resources::LoginData, xvc::XVCHasher};
 
@@ -13,32 +13,29 @@ use serde::Serialize;
 
 /// Internal talk api wrapper for authentication
 #[derive(Debug)]
-pub struct TalkAuthClient<'a, Xvc> {
+pub struct TalkAuthApi<'a, Xvc> {
     pub config: AuthClientConfig<'a>,
 
-    url: ApiURL,
+    base: Url,
     xvc_hasher: Xvc,
 
     client: Client,
 }
 
-impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
-    pub fn new(config: AuthClientConfig<'a>, xvc_hasher: Xvc) -> Self {
-        Self::new_with_url(
-            config,
-            ApiURL::new("https", "katalk.kakao.com").unwrap(),
-            xvc_hasher,
-        )
-    }
-
-    pub fn new_with_url(config: AuthClientConfig<'a>, url: ApiURL, xvc_hasher: Xvc) -> Self {
+impl<'a, Xvc: XVCHasher> TalkAuthApi<'a, Xvc> {
+    pub fn new(
+        config: AuthClientConfig<'a>,
+        base: Url,
+        xvc_hasher: Xvc,
+        client: Client,
+    ) -> Self {
         Self {
             config,
 
-            url,
+            base,
             xvc_hasher,
 
-            client: Client::new(),
+            client,
         }
     }
 
@@ -63,7 +60,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
             .header(header::ACCEPT_LANGUAGE, self.config.language as &str)
             .header("X-VC", self.hash_auth_xvc(&user_agent, email));
 
-        if let Some(host) = self.url.host_str() {
+        if let Some(host) = self.base.host_str() {
             builder = builder.header(header::HOST, host);
         }
 
@@ -71,7 +68,7 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
     }
 
     fn build_url(&self, end_point: &str) -> Url {
-        self.url
+        self.base
             .join(&format!("{}/{}", self.config.agent.agent(), end_point))
             .unwrap()
     }
@@ -94,9 +91,9 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
         }
     }
 
-    pub async fn login<'b>(
-        &'b self,
-        method: LoginMethod<'b>,
+    pub async fn login(
+        &self,
+        method: LoginMethod<'_>,
         forced: bool,
     ) -> ApiResult<TalkStatusResponse<LoginData>> {
         let response = match method {
@@ -146,9 +143,9 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
         Ok(response.json().await?)
     }
 
-    pub async fn request_passcode<'b>(
-        &'b self,
-        account_form: AccountLoginForm<'b>,
+    pub async fn request_passcode(
+        &self,
+        account_form: AccountLoginForm<'_>,
     ) -> ApiResult<TalkStatusResponse<()>> {
         let response = self
             .build_auth_request(
@@ -163,10 +160,10 @@ impl<'a, Xvc: XVCHasher> TalkAuthClient<'a, Xvc> {
         Ok(response.json().await?)
     }
 
-    pub async fn register_device<'b>(
-        &'b self,
+    pub async fn register_device(
+        &self,
         passcode: &str,
-        account_form: AccountLoginForm<'b>,
+        account_form: AccountLoginForm<'_>,
         permanent: bool,
     ) -> ApiResult<TalkStatusResponse<()>> {
         #[derive(Serialize)]

@@ -2033,7 +2033,7 @@ dependencies = [
  "serde-byte-array",
  "serde_json",
  "sha2",
- "talk-api-client",
+ "talk-api-internal",
  "talk-loco-client",
  "tauri",
  "tauri-build",
@@ -2051,8 +2051,9 @@ dependencies = [
  "anyhow",
  "kiwi-talk-result",
  "kiwi-talk-system",
+ "reqwest",
  "sha2",
- "talk-api-client",
+ "talk-api-internal",
  "tauri",
 ]
 
@@ -4027,7 +4028,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "talk-api-client"
+name = "talk-api-internal"
 version = "0.2.0"
 dependencies = [
  "hex",

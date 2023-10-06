@@ -9,7 +9,7 @@ You may find it useful if you have interests in contributing to this project.
       - [`kiwi-talk-app`](#kiwi-talk-app)
       - [`kiwi-talk-client`](#kiwi-talk-client)
       - [`talk-loco-client`](#talk-loco-client)
-      - [`talk-api-client`](#talk-api-client)
+      - [`talk-api-internal`](#talk-api-internal)
       - [Templates](#templates)
     - [Frontend](#frontend)
 
@@ -41,9 +41,8 @@ Provides interface to send commands, deserialize read commands.
 
 To reduce repeated work, this crate uses amount of macro.
 
-#### `talk-api-client`
+#### `talk-api-internal`
 This crate abstracts various internal REST api calls.
-Provides api for login and device registration.
 
 #### Templates
 Templates are for creating app crates (in `backend/bin`) or library crates (in `backend/crates`) easily.

@@ -170,6 +170,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
       setState({ ...state(), errorMessage: `login.status.login.${status}` });
     } catch (e) {
       setState({ ...state(), errorMessage: `login.generic_error` });
+      console.error(e);
     }
   }
 

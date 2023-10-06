@@ -2,9 +2,10 @@ mod constants;
 
 use anyhow::Context;
 use kiwi_talk_result::TauriResult;
+use reqwest::{Url, Client};
 use sha2::{Digest, Sha512};
-use talk_api_client::auth::{
-    xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, TalkAuthClient,
+use talk_api_internal::auth::{
+    xvc::XVCHasher, AccountLoginForm, AuthClientConfig, AuthDeviceConfig, TalkAuthApi,
 };
 use tauri::{
     generate_handler,
@@ -74,8 +75,13 @@ async fn register_device(
         .status)
 }
 
-pub fn create_auth_client() -> TalkAuthClient<'static, impl XVCHasher> {
-    TalkAuthClient::new(create_config(get_system_info()), XVC_HASHER)
+pub fn create_auth_client() -> TalkAuthApi<'static, impl XVCHasher> {
+    TalkAuthApi::new(
+        create_config(get_system_info()),
+        Url::parse("https://katalk.kakao.com").unwrap(),
+        XVC_HASHER,
+        Client::new(),
+    )
 }
 
 fn create_config(info: &SystemInfo) -> AuthClientConfig<'_> {
