@@ -13,7 +13,7 @@ pub struct LoginData {
     #[serde(rename = "accountId")]
     pub account_id: u64,
 
-    pub server_time: u64,
+    // pub server_time: u64,
 
     // #[serde(rename = "resetUserData")]
     // pub reset_user_data: bool,

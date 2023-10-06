@@ -64,7 +64,9 @@ impl<'a, Xvc: XVCHasher> AuthApi<'a, Xvc> {
 
     fn build_url(&self, end_point: &str) -> Url {
         self.base
-            .join(&format!("{}/{}", self.config.agent.agent(), end_point))
+            .join(&self.config.agent.agent())
+            .unwrap()
+            .join(end_point)
             .unwrap()
     }
 
