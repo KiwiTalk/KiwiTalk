@@ -1,7 +1,10 @@
-use reqwest::{header, Client, Method, RequestBuilder, Url};
+use reqwest::{Client, Method, RequestBuilder, Url};
 use serde::Deserialize;
 
-use crate::{config::Config, credential::Credential, read_simple_response, ApiResult};
+use crate::{
+    config::Config, credential::Credential, fill_api_headers, fill_credential,
+    read_simple_response, ApiResult,
+};
 
 #[derive(Debug, Clone)]
 pub struct ProfileApi<'a> {
@@ -33,29 +36,13 @@ impl<'a> ProfileApi<'a> {
     }
 
     fn create_request(&self, method: Method, end_point: &str) -> RequestBuilder {
-        let user_agent = self.config.get_user_agent();
-
-        self.client
-            .request(method, self.create_url(end_point))
-            .header(header::USER_AGENT, user_agent)
-            .header(
-                "A",
-                format!(
-                    "{}/{}/{}",
-                    self.config.agent.agent(),
-                    self.config.version,
-                    self.config.language
-                ),
-            )
-            .header(
-                header::AUTHORIZATION,
-                format!(
-                    "{}-{}",
-                    self.credential.access_token, self.credential.device_uuid
-                ),
-            )
-            .header(header::ACCEPT, "*/*")
-            .header(header::ACCEPT_LANGUAGE, self.config.language)
+        fill_credential(
+            fill_api_headers(
+                self.client.request(method, self.create_url(end_point)),
+                self.config,
+            ),
+            self.credential,
+        )
     }
 
     fn create_url(&self, end_point: &str) -> Url {
@@ -68,7 +55,7 @@ impl<'a> ProfileApi<'a> {
             .unwrap()
     }
 
-    pub async fn request_my_profile(self) -> ApiResult<MeProfile> {
+    pub async fn my_profile(self) -> ApiResult<MeProfile> {
         read_simple_response(self.create_request(Method::GET, "me.json").send().await?).await
     }
 }

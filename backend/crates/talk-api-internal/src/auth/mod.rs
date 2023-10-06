@@ -1,17 +1,14 @@
 pub mod status;
 pub mod xvc;
 
-use reqwest::{
-    header::{self},
-    Client, Method, RequestBuilder, Url,
-};
+use reqwest::{header, Client, Method, RequestBuilder, Url};
 use serde_with::skip_serializing_none;
 
-use crate::{config::Config, read_simple_response, ApiResult};
+use crate::{config::Config, fill_api_headers, read_simple_response, ApiResult};
 
 use self::xvc::XVCHasher;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Internal api wrapper for authentication
 #[derive(Debug, Clone)]
@@ -48,21 +45,11 @@ impl<'a, Xvc: XVCHasher> AuthApiBuilder<'a, Xvc> {
     fn create_request(&self, method: Method, end_point: &str, email: &str) -> RequestBuilder {
         let user_agent = self.config.get_user_agent();
 
-        self.client
-            .request(method, self.create_url(end_point))
-            .header("X-VC", self.hash_auth_xvc(&user_agent, email))
-            .header(header::USER_AGENT, user_agent)
-            .header(
-                "A",
-                format!(
-                    "{}/{}/{}",
-                    self.config.agent.agent(),
-                    self.config.version,
-                    self.config.language
-                ),
-            )
-            .header(header::ACCEPT, "*/*")
-            .header(header::ACCEPT_LANGUAGE, self.config.language)
+        fill_api_headers(
+            self.client.request(method, self.create_url(end_point)),
+            self.config,
+        )
+        .header("X-VC", self.hash_auth_xvc(&user_agent, email))
     }
 
     fn create_url(&self, end_point: &str) -> Url {
