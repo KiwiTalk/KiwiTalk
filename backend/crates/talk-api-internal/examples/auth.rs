@@ -3,7 +3,12 @@ use std::env;
 use reqwest::{Client, Url};
 use talk_api_internal::{
     agent::TalkApiAgent,
-    auth::{xvc::default::Win32XVCHasher, AccountLoginForm, AuthApiBuilder, Device, LoginMethod},
+    auth::{
+        client::{AuthClient, Device},
+        xvc::default::Win32XVCHasher,
+        AccountForm, Login,
+    },
+    client::TalkHttpClient,
     config::Config,
 };
 
@@ -40,25 +45,25 @@ async fn main() {
         return;
     }
 
-    let auth = AuthApiBuilder::new(
-        Url::parse("https://katalk.kakao.com").unwrap(),
-        CONFIG,
+    let auth = AuthClient::new(
         DEVICE,
         HASHER,
-        Client::new(),
+        TalkHttpClient::new(
+            CONFIG,
+            Url::parse("https://katalk.kakao.com").unwrap(),
+            Client::new(),
+        ),
     );
 
-    let login_form = LoginMethod::Account(AccountLoginForm {
-        email: &args[1],
-        password: &args[2],
-    });
-
-    let res = auth
-        .login(
-            login_form, // Force login
-            true,
-        )
-        .await;
+    let res = Login::request_with_account(
+        auth,
+        AccountForm {
+            email: &args[1],
+            password: &args[2],
+        },
+        false,
+    )
+    .await;
 
     println!("Result: {:?}", res);
 }

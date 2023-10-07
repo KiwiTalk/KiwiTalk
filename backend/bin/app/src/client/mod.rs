@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{task::Poll, time::Duration};
 use talk_api_internal::{
-    auth::{AccountLoginForm, LoginMethod, TokenLoginForm},
-    ApiRequestError,
+    auth::{AccountForm, Login},
+    ApiError,
 };
 use tauri::{
     generate_handler,
@@ -118,17 +118,17 @@ async fn login(
         return Err(anyhow!("already logon").into());
     }
 
-    let login_data = match create_auth_client()
-        .login(
-            LoginMethod::Account(AccountLoginForm {
-                email: &form.email,
-                password: &form.password,
-            }),
-            forced,
-        )
-        .await
+    let login_data = match Login::request_with_account(
+        create_auth_client(),
+        AccountForm {
+            email: &form.email,
+            password: &form.password,
+        },
+        forced,
+    )
+    .await
     {
-        Err(ApiRequestError::Status(status)) => return Ok(status),
+        Err(ApiError::Api(status)) => return Ok(status),
         res => res?,
     };
 
@@ -300,18 +300,16 @@ async fn try_auto_login(
         return Ok(None);
     };
 
-    let login_data = match create_auth_client()
-        .login(
-            LoginMethod::Token(TokenLoginForm {
-                email: &email,
-                auto_login_token: &hex::encode(token),
-                locked: status == ClientStatus::Locked,
-            }),
-            forced,
-        )
-        .await
+    let login_data = match Login::request_with_token(
+        create_auth_client(),
+        &email,
+        &hex::encode(token),
+        forced,
+        status == ClientStatus::Locked,
+    )
+    .await
     {
-        Err(ApiRequestError::Status(status)) => return Err(AutoLoginError::Status(status)),
+        Err(ApiError::Api(status)) => return Err(AutoLoginError::Status(status)),
 
         res => res?,
     };
