@@ -44,7 +44,7 @@ pub(super) async fn me(
         .context("me api call failed")?;
 
     Ok(LogonProfile {
-        name: more_settings.nickname,
+        name: me.profile.nickname,
 
         id: more_settings.uuid,
         id_searchable: more_settings.uuid_serachable,
@@ -52,11 +52,11 @@ pub(super) async fn me(
         email: more_settings.email_address,
         email_verified: more_settings.email_verified,
 
-        status_message: me.status_message,
+        status_message: me.profile.status_message,
 
         pstn_number: more_settings.pstn_number,
 
-        profile_url: me.original_profile_image_url,
-        background_url: me.original_background_image_url,
+        profile_url: me.profile.original_profile_image_url,
+        background_url: me.profile.original_background_image_url,
     })
 }

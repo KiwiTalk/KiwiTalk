@@ -4,7 +4,12 @@ use serde::Deserialize;
 use crate::{client::ApiClient, read_simple_response, ApiResult};
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct MeProfile {
+pub struct Profile {
+    pub nickname: String,
+
+    #[serde(rename = "userId")]
+    pub user_id: u64,
+
     #[serde(rename = "backgroundImageUrl")]
     pub background_image_url: String,
     #[serde(rename = "originalBackgroundImageUrl")]
@@ -19,6 +24,11 @@ pub struct MeProfile {
     pub full_profile_image_url: String,
     #[serde(rename = "originalProfileImageUrl")]
     pub original_profile_image_url: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct MeProfile {
+    pub profile: Profile,
 }
 
 impl MeProfile {
