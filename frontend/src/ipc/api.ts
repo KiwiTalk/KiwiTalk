@@ -51,3 +51,24 @@ export function registerDevice(
     permanent,
   });
 }
+
+export type LogonProfile = {
+  name: string,
+
+  id: string,
+  idSearchable: boolean,
+
+  email: string,
+  emailVerified: boolean,
+
+  status_message: string,
+
+  pstnNumber: string,
+
+  profileUrl: string,
+  backgroundUrl: string,
+}
+
+export function meProfile(): Promise<Response<LogonProfile>> {
+  return tauri.invoke('plugin:api|me');
+}
