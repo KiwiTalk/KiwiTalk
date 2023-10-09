@@ -5,5 +5,3 @@ pub const XVC_HASHER: Win32XVCHasher = Win32XVCHasher("ARTHUR", "RUZ");
 pub const AUTO_LOGIN_KEY: (&str, &str) = ("PITT", "INORAN");
 
 pub const TALK_VERSION: &str = "3.4.7";
-
-

@@ -7,9 +7,6 @@ use crate::{client::ApiClient, read_simple_response, ApiResult};
 pub struct MoreSettings {
     pub since: u64,
 
-    #[serde(rename = "serviceUserId")]
-    pub service_user_id: u64,
-
     #[serde(rename = "accountId")]
     pub account_id: u64,
     #[serde(rename = "accountDisplayId")]
