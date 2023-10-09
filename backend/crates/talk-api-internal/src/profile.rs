@@ -23,6 +23,6 @@ pub struct MeProfile {
 
 impl MeProfile {
     pub async fn request(client: ApiClient<'_>) -> ApiResult<Self> {
-        read_simple_response(client.request(Method::GET, "me.json")?.send().await?).await
+        read_simple_response(client.request(Method::GET, "profile3/me.json")?.send().await?).await
     }
 }
