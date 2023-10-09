@@ -1,6 +1,6 @@
 [package]
-name = "kiwi-talk-auth"
-description = "Internal auth api"
+name = "kiwi-talk-api"
+description = "Internal api"
 publish = false
 
 version.workspace = true
@@ -11,13 +11,18 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-talk-api-internal = { workspace = true }
-
 kiwi-talk-system = { path = "../system" }
 kiwi-talk-result = { path = "../result" }
 
+talk-api-internal = { workspace = true }
 tauri = { workspace = true }
+tokio = { workspace = true, features = ["rt"] }
 anyhow = { workspace = true }
+serde = { workspace = true }
 
 sha2 = "0.10.8"
 reqwest = { version = "0.11.22" }
+parking_lot = "0.12.1"
+bincode = "1.3.3"
+serde-byte-array = "0.1.2"
+hex = "0.4.3"

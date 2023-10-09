@@ -7,12 +7,13 @@ import { styled } from '../../utils';
 import { ParentProps } from 'solid-js';
 
 export type AppLoginProp = {
-  onLogin?: () => void
+  errorMessage?: string,
+  onLogin?: () => void,
 }
 
 export const AppLogin = (props: AppLoginProp) => {
   return <Window>
-    <AppLoginContent onLogin={props.onLogin} />
+    <AppLoginContent errorMessage={props.errorMessage} onLogin={props.onLogin} />
   </Window>;
 };
 

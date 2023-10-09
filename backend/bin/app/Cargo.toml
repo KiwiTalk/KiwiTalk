@@ -15,13 +15,12 @@ rust-version.workspace = true
 tauri-build = { version = "1.5.0", features = [] }
 
 [dependencies]
-talk-api-internal = { workspace = true }
 kiwi-talk-client = { workspace = true }
 talk-loco-client = { workspace = true }
 
 kiwi-talk-system = { path = "../system" }
 kiwi-talk-result = { path = "../result" }
-kiwi-talk-auth = { path = "../auth" }
+kiwi-talk-api = { path = "../api" }
 
 tokio = { workspace = true, features = ["full"] }
 tauri = { workspace = true, features = [ "updater", "api-all", "system-tray"] }
@@ -39,10 +38,7 @@ futures = "0.3.28"
 window-shadows = "0.2.1"
 num-bigint-dig = "0.8.4"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-bincode = "1.3.3"
-enum-kinds = "0.5.1"
 sha2 = "0.10.8"
-serde-byte-array = "0.1.2"
 hex = "0.4.3"
 arrayvec = { version = "0.7.4", features = ["serde"] }
 

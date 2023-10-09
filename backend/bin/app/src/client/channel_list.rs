@@ -6,16 +6,16 @@ use talk_loco_client::structs::channel::ChannelMetaType;
 
 use kiwi_talk_result::TauriResult;
 
-use super::{ClientState, State};
+use super::ClientState;
 
 #[tauri::command(async)]
 pub(super) async fn channel_list(
     client: ClientState<'_>,
 ) -> TauriResult<Vec<(String, ChannelListItem)>> {
     let session = match &*client.read() {
-        State::Logon { client, .. } => client.session.clone(),
+        Some(client) => client.session.clone(),
 
-        _ => return Err(anyhow!("not logon").into()),
+        _ => return Err(anyhow!("client is not created").into()),
     };
 
     let list_channels = session
