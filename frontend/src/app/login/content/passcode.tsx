@@ -1,14 +1,14 @@
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
 import { PasscodeForm } from '../../components/login/form/passcode';
-import { registerDevice } from '../../../ipc/auth';
+import { Response, registerDevice } from '../../../ipc/api';
 import { createResource, createSignal } from 'solid-js';
 
 export type PasscodeContentProp = {
   registerType: DeviceRegisterType,
   input: LoginFormInput,
 
-  onSubmit?: (status: number) => void,
+  onSubmit?: (response: Response<void>) => void,
   onError?: (e: unknown) => void
 }
 
@@ -19,14 +19,14 @@ export const PasscodeContent = (props: PasscodeContentProp) => {
     if (data.loading) return;
 
     try {
-      const status = await registerDevice(
+      const response = await registerDevice(
           passcode,
           props.input.email,
           props.input.password,
           props.registerType === 'permanent',
       );
 
-      props.onSubmit?.(status);
+      props.onSubmit?.(response);
     } catch (e) {
       props.onError?.(e);
     }

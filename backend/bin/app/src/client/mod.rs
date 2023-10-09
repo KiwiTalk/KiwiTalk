@@ -2,15 +2,11 @@ mod channel_list;
 mod conn;
 mod event;
 mod handler;
-mod saved_account;
 
-use enum_kinds::EnumKind;
-use kiwi_talk_auth::{create_auth_client, create_auto_login_token};
+use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
-use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{task::Poll, time::Duration};
-use talk_api_client::auth::{AccountLoginForm, LoginMethod, TokenLoginForm};
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
@@ -29,246 +25,87 @@ use talk_loco_client::{
 };
 use tokio::{sync::mpsc, task::JoinHandle, time::sleep};
 
-use kiwi_talk_result::{TauriAnyhowError, TauriResult};
+use kiwi_talk_result::TauriResult;
 use kiwi_talk_system::get_system_info;
 
 use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;
 
-use self::{
-    conn::create_secure_stream, event::MainEvent, handler::run_handler, saved_account::SavedAccount,
-};
+use self::{conn::create_secure_stream, event::MainEvent, handler::run_handler};
 
 pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
-    let state = try_auto_login(false, ClientStatus::Unlocked)
-        .await
-        .map_or_else(
-            |err| State::NeedLogin {
-                reason: Some(Reason::AutoLoginFailed(err)),
-            },
-            |opt| match opt {
-                Some((client, email)) => State::Logon { client, email },
-                None => State::NeedLogin { reason: None },
-            },
-        );
-
     Ok(Builder::new(name)
         .setup(move |handle| {
-            handle.manage::<RwLock<State>>(RwLock::new(state));
+            handle.manage::<RwLock<Option<Client>>>(RwLock::new(None));
 
             Ok(())
         })
         .invoke_handler(generate_handler![
-            get_state,
-            take_login_reason,
-            default_login_form,
-            login,
-            logout,
+            created,
+            create,
+            destroy,
             next_main_event,
-            user_email,
             channel_list::channel_list,
         ])
         .build())
 }
 
-type ClientState<'a> = tauri::State<'a, RwLock<State>>;
+type ClientState<'a> = tauri::State<'a, RwLock<Option<Client>>>;
 
 #[tauri::command]
-fn get_state(state: ClientState) -> StateKind {
-    StateKind::from(&*state.read())
-}
-
-#[tauri::command]
-fn take_login_reason(state: ClientState) -> TauriResult<Option<Reason>> {
-    match &mut *state.write() {
-        State::NeedLogin { reason } => Ok(reason.take()),
-
-        _ => Err(anyhow!("client already logon").into()),
-    }
+fn created(state: ClientState<'_>) -> bool {
+    state.read().is_some()
 }
 
 #[tauri::command(async)]
-async fn default_login_form() -> Result<LoginForm, ()> {
-    Ok(saved_account::read()
-        .await
-        .map(|data| match data {
-            Some(data) => LoginForm {
-                email: data.email,
-                password: String::new(),
-                save_email: true,
-                auto_login: data.token.is_some(),
-            },
-
-            None => Default::default(),
-        })
-        .unwrap_or_default())
-}
-
-#[tauri::command(async)]
-async fn login(
-    form: LoginForm,
-    forced: bool,
+async fn create(
     status: ClientStatus,
+    cred: CredentialState<'_>,
     state: ClientState<'_>,
 ) -> TauriResult<i32> {
-    if let State::Logon { .. } = &*state.read() {
-        return Err(anyhow!("already logon").into());
-    }
-
-    let login_data = {
-        let res = create_auth_client()
-            .login(
-                LoginMethod::Account(AccountLoginForm {
-                    email: &form.email,
-                    password: &form.password,
-                }),
-                forced,
-            )
-            .await?;
-
-        if res.status == 0 {
-            res.data
-                .ok_or_else(|| anyhow!("cannot deserialize login data"))?
-        } else {
-            return Ok(res.status);
-        }
+    let Some((user_id, access_token)) = cred
+        .read()
+        .as_ref()
+        .map(|cred| (cred.user_id, cred.access_token.clone()))
+    else {
+        return Err(anyhow!("not logon").into());
     };
-
-    let device_uuid = &get_system_info().device_info.device_uuid;
-
-    let _ = saved_account::write(if form.save_email {
-        let token = if form.auto_login {
-            Some(create_auto_login_token(
-                &login_data.auto_login_account_id,
-                &login_data.credential.refresh_token,
-                device_uuid,
-            ))
-        } else {
-            None
-        };
-
-        Some(SavedAccount {
-            email: login_data.auto_login_account_id.clone(),
-            token,
-        })
-    } else {
-        None
-    })
-    .await;
 
     let client = create_client(
         status,
         ClientCredential {
-            access_token: &login_data.credential.access_token,
-            device_uuid,
+            access_token: &access_token,
+            device_uuid: &get_system_info().device_info.device_uuid,
         },
-        login_data.user_id as _,
+        user_id as _,
     )
     .await
     .context("cannot create client")?;
 
-    *state.write() = State::Logon {
-        client,
-        email: login_data.auto_login_account_id,
-    };
+    *state.write() = Some(client);
 
     Ok(0)
 }
 
 #[tauri::command]
-fn logout(state: ClientState<'_>) -> TauriResult<()> {
-    match &mut *state.write() {
-        state @ State::Logon { .. } => {
-            *state = State::NeedLogin { reason: None };
-
-            Ok(())
-        }
-
-        _ => Err(anyhow!("already logout").into()),
-    }
+fn destroy(state: ClientState<'_>) -> bool {
+    state.write().take().is_some()
 }
 
 #[tauri::command(async)]
-async fn next_main_event(state: ClientState<'_>) -> TauriResult<Option<MainEvent>> {
+async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<MainEvent>> {
     Ok(poll_fn(|cx| {
-        let mut state = state.write();
+        let mut client = client.write();
 
-        let client = match &mut *state {
-            State::Logon { client, .. } => client,
+        let read = match &mut *client {
+            Some(client) => ready!(client.event_rx.poll_recv(cx)),
             _ => return Poll::Ready(None),
         };
-
-        let read = ready!(client.event_rx.poll_recv(cx));
-
-        if let Some(Ok(MainEvent::Kickout { reason })) = &read {
-            *state = State::NeedLogin {
-                reason: Some(Reason::Kickout(*reason)),
-            };
-        } else if read.is_none() {
-            *state = State::NeedLogin { reason: None };
-        }
 
         Poll::Ready(read)
     })
     .await
     .transpose()?)
-}
-
-#[tauri::command]
-fn user_email(client: ClientState) -> TauriResult<String> {
-    match &*client.read() {
-        State::Logon { email, .. } => Ok(email.clone()),
-
-        _ => Err(anyhow!("not logon").into()),
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct LoginForm {
-    email: String,
-    password: String,
-    save_email: bool,
-    auto_login: bool,
-}
-
-impl Default for LoginForm {
-    fn default() -> Self {
-        Self {
-            email: Default::default(),
-            password: Default::default(),
-            save_email: true,
-            auto_login: false,
-        }
-    }
-}
-
-#[derive(Debug, EnumKind)]
-#[enum_kind(StateKind, derive(Serialize, Deserialize))]
-enum State {
-    NeedLogin { reason: Option<Reason> },
-    Logon { client: Client, email: String },
-}
-
-#[derive(Debug, Serialize)]
-#[serde(tag = "type", content = "content")]
-enum Reason {
-    AutoLoginFailed(AutoLoginError),
-    Kickout(i16),
-}
-
-#[derive(Debug, Serialize)]
-#[serde(tag = "type", content = "content")]
-enum AutoLoginError {
-    InvalidFile,
-    Status(i32),
-    Other(TauriAnyhowError),
-}
-
-impl<T: Into<TauriAnyhowError>> From<T> for AutoLoginError {
-    fn from(value: T) -> Self {
-        Self::Other(value.into())
-    }
 }
 
 #[derive(Debug)]
@@ -284,71 +121,6 @@ impl Drop for Client {
         self.stream_task.abort();
         self.ping_task.abort();
     }
-}
-
-async fn try_auto_login(
-    forced: bool,
-    status: ClientStatus,
-) -> Result<Option<(Client, String)>, AutoLoginError> {
-    let (email, token) = if let Some(SavedAccount {
-        email,
-        token: Some(token),
-    }) = saved_account::read()
-        .await
-        .map_err(|_| AutoLoginError::InvalidFile)?
-    {
-        (email, token)
-    } else {
-        return Ok(None);
-    };
-
-    let login_data = {
-        let res = create_auth_client()
-            .login(
-                LoginMethod::Token(TokenLoginForm {
-                    email: &email,
-                    auto_login_token: &hex::encode(token),
-                    locked: status == ClientStatus::Locked,
-                }),
-                forced,
-            )
-            .await?;
-
-        if res.status == 0 {
-            res.data.ok_or_else(|| AutoLoginError::InvalidFile)?
-        } else {
-            return Err(AutoLoginError::Status(res.status));
-        }
-    };
-
-    let device_uuid = &get_system_info().device_info.device_uuid;
-
-    let _ = {
-        let token = create_auto_login_token(
-            &login_data.auto_login_account_id,
-            &login_data.credential.refresh_token,
-            device_uuid,
-        );
-
-        saved_account::write(Some(SavedAccount {
-            email: login_data.auto_login_account_id.clone(),
-            token: Some(token),
-        }))
-        .await
-    };
-
-    Ok(Some((
-        create_client(
-            status,
-            ClientCredential {
-                access_token: &login_data.credential.access_token,
-                device_uuid,
-            },
-            login_data.user_id as i64,
-        )
-        .await?,
-        login_data.auto_login_account_id,
-    )))
 }
 
 async fn create_client(

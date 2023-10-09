@@ -22,9 +22,9 @@ serde = { version = "1.0", features = ["derive"] }
 version = "0.2.0"
 path = "./backend/crates/kiwi-talk-client"
 
-[workspace.dependencies.talk-api-client]
-version = "0.2.0"
-path = "./backend/crates/talk-api-client"
+[workspace.dependencies.talk-api-internal]
+version = "0.1.0"
+path = "./backend/crates/talk-api-internal"
 
 [workspace.dependencies.talk-loco-client]
 version = "0.2.0"

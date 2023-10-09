@@ -1,14 +1,14 @@
 use sha2::{Digest, Sha512};
 
-use super::XVCHasher;
+use super::XvcHasher;
 
 /// Default xvc hasher uses win32 platform client format.
 ///
 /// Format: sha512("{first_seed}|{user_agent}|{second_seed}|{email}|{device_uuid}")
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Win32XVCHasher<'a>(pub &'a str, pub &'a str);
 
-impl XVCHasher for Win32XVCHasher<'_> {
+impl XvcHasher for Win32XVCHasher<'_> {
     fn full_xvc_hash(&self, device_uuid: &str, user_agent: &str, email: &str) -> Vec<u8> {
         let mut hasher = Sha512::new();
 
@@ -29,10 +29,10 @@ impl XVCHasher for Win32XVCHasher<'_> {
 /// Default xvc hasher uses android subdevice platform client format.
 ///
 /// Format: sha512("{first_seed}|{user_agent}|{second_seed}|{email}|{third_seed}")
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct AndroidSubXVCHasher<'a>(pub &'a str, pub &'a str, pub &'a str);
 
-impl XVCHasher for AndroidSubXVCHasher<'_> {
+impl XvcHasher for AndroidSubXVCHasher<'_> {
     fn full_xvc_hash(&self, _: &str, user_agent: &str, email: &str) -> Vec<u8> {
         let mut hasher = Sha512::new();
 

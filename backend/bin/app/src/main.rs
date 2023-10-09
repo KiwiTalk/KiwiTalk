@@ -42,7 +42,7 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
 
     handle.plugin(kiwi_talk_system::init(handle.path_resolver()).await?)?;
-    handle.plugin(kiwi_talk_auth::init())?;
+    handle.plugin(kiwi_talk_api::init().await)?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(client::init_plugin("client").await?)?;
 

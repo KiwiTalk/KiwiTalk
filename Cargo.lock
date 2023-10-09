@@ -914,6 +914,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56ce8c6da7551ec6c462cbaf3bfbc75131ebbfa1c944aeaa9dab51ca1c5f0c3b"
 
 [[package]]
+name = "easy-ext"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "49457524c7e65648794c98283282a0b7c73b10018e7091f1cdcfff314fd7ae59"
+
+[[package]]
 name = "embed-resource"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -939,17 +945,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7268b386296a025e474d5140678f75d6de9493ae55a5d709eeb9dd08149945e1"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "enum-kinds"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e40a16955681d469ab3da85aaa6b42ff656b3c67b52e1d8d3dd36afe97fd462"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -2011,17 +2006,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "kiwi-talk-api"
+version = "0.1.2"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "easy-ext",
+ "hex",
+ "kiwi-talk-result",
+ "kiwi-talk-system",
+ "parking_lot",
+ "reqwest",
+ "serde",
+ "serde-byte-array",
+ "sha2",
+ "talk-api-internal",
+ "tauri",
+ "tokio",
+]
+
+[[package]]
 name = "kiwi-talk-app"
 version = "0.1.2"
 dependencies = [
  "anyhow",
  "arrayvec",
- "bincode",
- "enum-kinds",
  "env_logger",
  "futures",
  "hex",
- "kiwi-talk-auth",
+ "kiwi-talk-api",
  "kiwi-talk-client",
  "kiwi-talk-result",
  "kiwi-talk-system",
@@ -2030,10 +2043,8 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "serde",
- "serde-byte-array",
  "serde_json",
  "sha2",
- "talk-api-client",
  "talk-loco-client",
  "tauri",
  "tauri-build",
@@ -2042,18 +2053,6 @@ dependencies = [
  "tokio",
  "tokio-util",
  "window-shadows",
-]
-
-[[package]]
-name = "kiwi-talk-auth"
-version = "0.1.2"
-dependencies = [
- "anyhow",
- "kiwi-talk-result",
- "kiwi-talk-system",
- "sha2",
- "talk-api-client",
- "tauri",
 ]
 
 [[package]]
@@ -4027,16 +4026,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "talk-api-client"
-version = "0.2.0"
+name = "talk-api-internal"
+version = "0.1.0"
 dependencies = [
  "hex",
  "reqwest",
  "serde",
+ "serde_json",
  "serde_with",
  "sha2",
  "thiserror",
  "tokio",
+ "url",
 ]
 
 [[package]]

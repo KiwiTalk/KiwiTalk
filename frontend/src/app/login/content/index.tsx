@@ -5,20 +5,19 @@ import { DeviceRegisterContent } from './device-register';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { errorMessage, resetText } from './index.css';
 import { styled } from '../../../utils';
-import { Match, Show, Switch, createResource, createSignal } from 'solid-js';
-import { defaultLoginForm, login, takeLoginReason } from '../../../ipc/client';
+import { Match, Show, Switch, createEffect, createResource, createSignal } from 'solid-js';
+import { Response, defaultLoginForm, login } from '../../../ipc/api';
 
 const ErrorMessage = styled('p', errorMessage);
 const ResetText = styled('p', resetText);
 
 export type LoginContentProp = {
+  errorMessage?: string,
   onLogin?: () => void
 };
 
 type LoginStateKey<T> = {
-  type: T,
-
-  errorMessage?: string,
+  type: T
 };
 
 type LoginStateDefault = LoginStateKey<'login'>;
@@ -31,7 +30,7 @@ type LoginStatePasscode = LoginStateKey<'passcode'> & {
 
 type LoginState = LoginStateDefault | LoginStateDeviceRegister | LoginStatePasscode;
 
-const DEFAULT_STATE: LoginState = { type: 'login' };
+const DEFAULT_STATE: LoginStateDefault = { type: 'login' };
 
 export const AppLoginContent = (props: LoginContentProp) => {
   const [t] = useTransContext();
@@ -47,6 +46,12 @@ export const AppLoginContent = (props: LoginContentProp) => {
 
   const [state, setState] = createSignal<LoginState>(DEFAULT_STATE);
 
+  const [errorMessage, setErrorMessage] = createSignal<string>();
+
+  createEffect(() => {
+    setErrorMessage(props.errorMessage);
+  });
+
   createResource(async () => {
     const form = await defaultLoginForm();
 
@@ -58,69 +63,30 @@ export const AppLoginContent = (props: LoginContentProp) => {
         autoLogin: form.autoLogin,
       });
     }
-
-    const reason = await takeLoginReason();
-    if (!reason) {
-      return;
-    }
-
-    let errorMessage: string;
-    switch (reason.type) {
-      case 'AutoLoginFailed': {
-        const error = reason.content;
-        switch (error.type) {
-          case 'InvalidFile': {
-            errorMessage = 'login.reason.auto_login_failed.file_read';
-            break;
-          }
-
-          case 'Status': {
-            errorMessage = `login.status.login.${error.content}`;
-            break;
-          }
-
-          default: {
-            errorMessage = 'login.reason.auto_login_failed.general';
-            break;
-          }
-        }
-
-        break;
-      }
-
-      case 'Kickout': {
-        errorMessage = 'login.reason.kickout';
-        break;
-      }
-
-      default: return;
-    }
-
-    setState({ errorMessage, ...state() });
   });
 
-  function onRegisterTypeSelected(status: number, type: DeviceRegisterType) {
-    if (status === 0) {
+  function onRegisterTypeSelected(response: Response<void>, type: DeviceRegisterType) {
+    if (response.type === 'Success') {
       setState({ type: 'passcode', registerType: type });
       return;
     }
 
-    setState({ ...state(), errorMessage: `login.status.device_register.${status}` });
+    setErrorMessage(t(`login.status.device_register.${response.content}`));
   }
 
-  function onPasscodeSubmit(status: number) {
-    if (status === 0) {
+  function onPasscodeSubmit(response: Response<void>) {
+    if (response.type === 'Success') {
       setState(DEFAULT_STATE);
       submit(input());
       return;
     }
 
-    setState({ ...state(), errorMessage: `login.status.passcode.${status}` });
+    setErrorMessage(t(`login.status.passcode.${response.content}`));
   }
 
   function onError(err: unknown) {
     console.error(err);
-    setState({ ...state(), errorMessage: `login.generic_error` });
+    setErrorMessage(t(`login.generic_error`));
   }
 
   function onResetClick() {
@@ -128,34 +94,33 @@ export const AppLoginContent = (props: LoginContentProp) => {
   }
 
   function getErrorMessage() {
-    const currentState = state();
-    if (currentState.errorMessage == null) {
+    let currentMessage = errorMessage();
+    if (currentMessage == null) {
       return '';
     }
 
-    let errorMessage = t(currentState.errorMessage);
     if (forced()) {
-      errorMessage += ` ${t('login.set_forced')}`;
+      currentMessage += ` ${t('login.set_forced')}`;
     }
 
-    return errorMessage;
+    return currentMessage;
   }
 
   async function submit(input: LoginFormInput) {
     try {
-      const status = await login({
+      const response = await login({
         email: input.email,
         password: input.password,
         saveEmail: input.saveId,
         autoLogin: input.autoLogin,
-      }, forced(), 'Unlocked');
+      }, forced());
 
-      switch (status) {
-        case 0: {
-          props.onLogin?.();
-          return;
-        }
+      if (response.type === 'Success') {
+        props.onLogin?.();
+        return;
+      }
 
+      switch (response.content) {
         case -100: {
           setState({ type: 'device_register' });
           return;
@@ -167,9 +132,10 @@ export const AppLoginContent = (props: LoginContentProp) => {
         }
       }
 
-      setState({ ...state(), errorMessage: `login.status.login.${status}` });
+      setErrorMessage(t(`login.status.login.${response.content}`));
     } catch (e) {
-      setState({ ...state(), errorMessage: `login.generic_error` });
+      setErrorMessage(t(`login.generic_error`));
+      console.error(e);
     }
   }
 
@@ -197,7 +163,7 @@ export const AppLoginContent = (props: LoginContentProp) => {
         />
       </Match>
     </Switch>
-    <Show when={state().errorMessage}>
+    <Show when={errorMessage()}>
       <ErrorMessage>
         {getErrorMessage()}
       </ErrorMessage>
