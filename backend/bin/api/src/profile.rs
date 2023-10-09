@@ -24,7 +24,7 @@ pub struct Profile {
 pub struct MeProfile {
     pub nickname: String,
 
-    pub uuid: String,
+    pub uuid: Option<String>,
     pub uuid_searchable: bool,
 
     pub email: String,

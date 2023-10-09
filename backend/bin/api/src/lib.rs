@@ -1,6 +1,7 @@
 pub mod auth;
 pub mod constants;
 pub mod profile;
+pub mod friend;
 
 use std::ops::Deref;
 
@@ -53,8 +54,11 @@ pub async fn init<R: Runtime>() -> TauriPlugin<R> {
             auth::register_device,
             auth::request_passcode,
             auth::default_login_form,
+
             profile::me_profile,
             profile::friend_profile,
+
+            friend::update_friends,
         ])
         .build()
 }

@@ -28,7 +28,7 @@ pub struct MoreSettings {
     #[serde(rename = "emailVerified")]
     pub email_verified: bool,
 
-    pub uuid: String,
+    pub uuid: Option<String>,
     #[serde(rename = "uuidSearchable")]
     pub uuid_serachable: bool,
     #[serde(rename = "nickName")]

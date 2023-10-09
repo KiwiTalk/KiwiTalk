@@ -75,10 +75,37 @@ export type LogonProfile = {
   profile: Profile,
 }
 
-export function meProfile(): Promise<Response<LogonProfile>> {
+export function meProfile(): Promise<LogonProfile> {
   return tauri.invoke('plugin:api|me_profile');
 }
 
-export function friendProfile(id: string): Promise<Response<Profile>> {
+export function friendProfile(id: string): Promise<Profile> {
   return tauri.invoke('plugin:api|friend_profile', { id });
+}
+
+export type Friend = {
+  userIdd: string,
+
+  nickname: string,
+
+  userType: number,
+  userCategory: number,
+
+  statusMessage: string,
+
+  friendNickname?: string,
+  phoneticName?: string,
+
+  profileImageUrl: string,
+
+  directChatId?: string,
+}
+
+export type FriendsUpdate = {
+  added: Friend[],
+  removedIds: string[],
+}
+
+export function updateFriends(friendsIds: string[]): Promise<FriendsUpdate> {
+  return tauri.invoke('plugin:api|update_friends', { friendsIds });
 }
