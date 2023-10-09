@@ -27,7 +27,7 @@ pub enum ApiError {
     Request(RequestError),
 
     #[error("api responded with error. status: {0}")]
-    Api(i32),
+    Status(i32),
 }
 
 impl<T: Into<RequestError>> From<T> for ApiError {
@@ -40,7 +40,7 @@ pub type ApiResult<T> = Result<T, ApiError>;
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 pub(crate) struct ApiStatus {
-    status: i32,
+    pub status: i32,
 }
 
 pub(crate) async fn read_simple_response<T: DeserializeOwned>(response: Response) -> ApiResult<T> {
@@ -48,6 +48,6 @@ pub(crate) async fn read_simple_response<T: DeserializeOwned>(response: Response
 
     match serde_json::from_slice::<ApiStatus>(&data)?.status {
         0 => Ok(serde_json::from_slice(&data)?),
-        status => Err(ApiError::Api(status)),
+        status => Err(ApiError::Status(status)),
     }
 }
