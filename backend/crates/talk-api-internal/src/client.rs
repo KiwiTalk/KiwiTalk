@@ -40,7 +40,7 @@ impl<'a> TalkHttpClient<'a> {
     pub fn request(self, method: Method, end_point: &str) -> RequestResult<RequestBuilder> {
         let user_agent = self.config.get_user_agent();
 
-        let url = self.url.join(self.config.agent.agent())?.join(end_point)?;
+        let url = self.url.join(&format!("{}/{}", self.config.agent.agent(), end_point))?;
 
         let host = url.host_str().map(ToString::to_string);
 
