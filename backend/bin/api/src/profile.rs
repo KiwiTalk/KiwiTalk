@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::Context;
 use kiwi_talk_result::TauriResult;
 use serde::Serialize;
 use talk_api_internal::{
@@ -6,7 +6,10 @@ use talk_api_internal::{
     profile::{FriendInfo, Me as APIMeProfile},
 };
 
-use crate::{auth::CredentialState, create_api_client, ClientState};
+use crate::{
+    auth::{CredentialExt, CredentialState},
+    create_api_client, ClientState,
+};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -40,9 +43,7 @@ pub(super) async fn me_profile(
     cred: CredentialState<'_>,
     client: ClientState<'_>,
 ) -> TauriResult<MeProfile> {
-    let Some(access_token) = cred.read().as_ref().map(|cred| cred.access_token.clone()) else {
-        return Err(anyhow!("not logon").into());
-    };
+    let access_token = cred.read().try_access_token()?.to_owned();
 
     let api = create_api_client(&client, &access_token);
 
@@ -80,9 +81,7 @@ pub(super) async fn friend_profile(
     cred: CredentialState<'_>,
     client: ClientState<'_>,
 ) -> TauriResult<Profile> {
-    let Some(access_token) = cred.read().as_ref().map(|cred| cred.access_token.clone()) else {
-        return Err(anyhow!("not logon").into());
-    };
+    let access_token = cred.read().try_access_token()?.to_owned();
 
     let res = FriendInfo::request(
         create_api_client(&client, &access_token),

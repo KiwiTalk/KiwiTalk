@@ -1,9 +1,12 @@
-use anyhow::{anyhow, Context};
+use anyhow::Context;
 use kiwi_talk_result::TauriResult;
 use serde::Serialize;
 use talk_api_internal::friend::FriendsDiff;
 
-use crate::{auth::CredentialState, create_api_client, ClientState};
+use crate::{
+    auth::{CredentialExt, CredentialState},
+    create_api_client, ClientState,
+};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -38,9 +41,7 @@ pub(super) async fn update_friends(
     client: ClientState<'_>,
     friend_ids: Vec<String>,
 ) -> TauriResult<FriendsUpdate> {
-    let Some(access_token) = cred.read().as_ref().map(|cred| cred.access_token.clone()) else {
-        return Err(anyhow!("not logon").into());
-    };
+    let access_token = cred.read().try_access_token()?.to_owned();
 
     let ids = friend_ids
         .into_iter()

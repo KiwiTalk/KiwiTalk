@@ -1,6 +1,6 @@
 mod account;
 
-use anyhow::Context;
+use anyhow::{anyhow, Context};
 use kiwi_talk_result::TauriResult;
 use kiwi_talk_system::{get_system_info, SystemInfo};
 use parking_lot::RwLock;
@@ -189,6 +189,15 @@ pub struct Credential {
     pub user_id: u64,
     pub access_token: String,
     pub refresh_token: String,
+}
+
+#[easy_ext::ext(CredentialExt)]
+pub(crate) impl Option<Credential> {
+    fn try_access_token(&self) -> anyhow::Result<&str> {
+        self.as_ref()
+            .map(|cred| cred.access_token.as_str())
+            .ok_or(anyhow!("not logon"))
+    }
 }
 
 pub type CredentialStateSlot = RwLock<Option<Credential>>;
