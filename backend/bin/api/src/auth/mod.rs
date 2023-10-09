@@ -73,7 +73,7 @@ pub(super) async fn login(
         refresh_token: login.refresh_token.clone(),
     });
 
-    let _ = account::write(if form.save_email {
+    account::write(if form.save_email {
         let token = if form.auto_login {
             Some(create_auto_login_token(
                 &login.auto_login_account_id,
@@ -181,7 +181,7 @@ pub(super) async fn auto_login(
         refresh_token: login.refresh_token,
     });
 
-    return Ok(Response::Success(true));
+    Ok(Response::Success(true))
 }
 
 #[derive(Debug, Serialize, Deserialize)]
