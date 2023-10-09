@@ -36,16 +36,16 @@
     "@storybook/preview-api": "7.4.6",
     "@storybook/testing-library": "0.2.2",
     "@storybook/types": "7.4.6",
-    "@tauri-apps/cli": "1.5.1",
-    "@types/node": "18.18.3",
+    "@tauri-apps/cli": "1.5.2",
+    "@types/node": "18.18.4",
     "@typescript-eslint/eslint-plugin": "6.7.4",
     "@typescript-eslint/parser": "6.7.4",
     "@vanilla-extract/vite-plugin": "3.9.0",
     "@vitejs/plugin-react": "4.1.0",
     "babel-loader": "9.1.3",
-    "eslint": "8.50.0",
+    "eslint": "8.51.0",
     "eslint-config-google": "0.14.0",
-    "eslint-plugin-storybook": "0.6.14",
+    "eslint-plugin-storybook": "0.6.15",
     "storybook": "7.4.6",
     "storybook-solidjs": "1.0.0-beta.2",
     "storybook-solidjs-vite": "1.0.0-beta.2",
@@ -65,5 +65,5 @@
     "solid-js": "1.7.12",
     "tauri-plugin-window-state-api": "github:tauri-apps/tauri-plugin-window-state#v1"
   },
-  "packageManager": "pnpm@8.8.0"
+  "packageManager": "pnpm@8.9.0"
 }
