@@ -53,7 +53,8 @@ pub async fn init<R: Runtime>() -> TauriPlugin<R> {
             auth::register_device,
             auth::request_passcode,
             auth::default_login_form,
-            profile::me,
+            profile::me_profile,
+            profile::friend_profile,
         ])
         .build()
 }

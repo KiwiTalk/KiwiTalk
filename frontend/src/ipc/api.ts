@@ -52,23 +52,33 @@ export function registerDevice(
   });
 }
 
-export type LogonProfile = {
-  name: string,
-
+export type Profile = {
   id: string,
-  idSearchable: boolean,
+
+  nickname: string,
+
+  status_message: string,
+
+  profile_url: string,
+  background_url: string,
+};
+
+export type LogonProfile = {
+  uuid: string,
+  uuidSearchable: boolean,
 
   email: string,
   emailVerified: boolean,
 
-  status_message: string,
-
   pstnNumber: string,
 
-  profileUrl: string,
-  backgroundUrl: string,
+  profile: Profile,
 }
 
 export function meProfile(): Promise<Response<LogonProfile>> {
-  return tauri.invoke('plugin:api|me');
+  return tauri.invoke('plugin:api|me_profile');
+}
+
+export function friendProfile(id: string): Promise<Response<Profile>> {
+  return tauri.invoke('plugin:api|friend_profile', { id });
 }

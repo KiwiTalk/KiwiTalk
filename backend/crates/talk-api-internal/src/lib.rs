@@ -4,6 +4,7 @@ pub mod auth;
 pub mod client;
 pub mod config;
 pub mod credential;
+pub mod friend;
 pub mod profile;
 
 use reqwest::Response;
