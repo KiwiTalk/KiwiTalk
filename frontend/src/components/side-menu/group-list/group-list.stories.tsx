@@ -22,4 +22,5 @@ export const Default = Template.bind({});
 Default.args = {
   name: 'Example',
   icon: <IconSvg />,
+  itemCount: 6,
 };
