@@ -52,7 +52,6 @@ export const AppMain = ({
       }
     } catch (err) {
       onLogout?.({ type: 'Error', err });
-      return;
     } finally {
       await destroy();
     }

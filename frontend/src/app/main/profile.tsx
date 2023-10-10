@@ -6,7 +6,7 @@ export const LogonProfile = () => {
   const [profile] = createResource(meProfile);
 
   return <Profile
-    profileImageURL={profile()?.profile.profile_url}
+    profileImageURL={profile()?.profile.profileUrl}
     name={profile()?.nickname || 'Loading...'}
     contact={profile()?.email || ''}
   />;
