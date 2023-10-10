@@ -122,8 +122,8 @@ devDependencies:
     specifier: 2.7.0
     version: 2.7.0(solid-js@1.8.0)(vite@4.4.11)
   vite-plugin-solid-svg:
-    specifier: 0.6.4
-    version: 0.6.4(solid-js@1.8.0)(vite@4.4.11)
+    specifier: 0.6.5
+    version: 0.6.5(solid-js@1.8.0)(vite@4.4.11)
 
 packages:
 
@@ -8957,8 +8957,8 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-solid-svg@0.6.4(solid-js@1.8.0)(vite@4.4.11):
-    resolution: {integrity: sha512-T8uNBq8JhOvqp877v2J3Zzp575lL3NcvFXvq7VsrBGKZKyO3+jx2wKPawAxVOOKijrmDOnvu35c9eLzbU+hsHA==}
+  /vite-plugin-solid-svg@0.6.5(solid-js@1.8.0)(vite@4.4.11):
+    resolution: {integrity: sha512-a/QnrJVHDFn2SFIWY/U6hXBXl/NzxIPBpx1dwi1V3bBD2V5ET1ucryc7hFZ/Hu4YiJKIi2OAa5tNUK9npL69rA==}
     peerDependencies:
       solid-js: ^1
       vite: '>=2.4'
