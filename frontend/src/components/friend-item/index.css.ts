@@ -3,6 +3,7 @@ import { style } from '@vanilla-extract/css';
 export const container = style({
   display: 'flex',
   flexDirection: 'row',
+  alignItems: 'center',
   gap: 4,
 });
 
@@ -18,7 +19,6 @@ export const profileImageBox = style({
 export const profileNameBox = style({
   display: 'flex',
   flexDirection: 'column',
-  margin: 'auto 0px',
 });
 
 export const profileImage = style({

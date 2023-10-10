@@ -1,13 +1,14 @@
 import { useTransContext } from '@jellybrick/solid-i18next';
-import { AppSideMenu, SideButton } from '.';
-import { SideMenuGroupList } from '../../../components/side-menu/group-list';
-import ChatOutlineSvg from './icons/chat_outline.svg';
+import { AppSideMenu, SideButton } from '..';
+import { SideMenuGroupList } from '../../../../components/side-menu/group-list';
 import PeopleAltOutlineSvg from './icons/people_alt_outline.svg';
-import SearchSvg from './icons/search.svg';
-import PersonAddSvg from './icons/person_add.svg';
+import ChatOutlineSvg from '../icons/chat_outline.svg';
+import SearchSvg from '../icons/search.svg';
+import PersonAddSvg from '../icons/person_add.svg';
 import { For, createResource } from 'solid-js';
-import { ListFriend, updateFriends } from '../../../ipc/api';
-import { FriendItem } from '../../../components/friend-item';
+import { ListFriend, updateFriends } from '../../../../ipc/api';
+import { FriendItem } from '../../../../components/friend-item';
+import { friendListContainer } from './index.css';
 
 export const FriendMenu = () => {
   const [t] = useTransContext();
@@ -41,20 +42,26 @@ export const FriendMenu = () => {
     <SideMenuGroupList
       icon={<ChatOutlineSvg />}
       name={t('main.menu.friend.channel')}
+      itemCount={0}
     >
     </SideMenuGroupList>
     <SideMenuGroupList
       icon={<PeopleAltOutlineSvg />}
       name={t('main.menu.friend.name')}
       defaultExpanded={true}
+      itemCount={friends()?.size ?? 0}
     >
-      <For each={Array.from(friends()?.values() || [])}>{
-        (friend) => <FriendItem
-          nickname={friend.nickname}
-          profileImageUrl={friend.profileImageUrl}
-          statusMessage={friend.statusMessage}
-        />
-      }</For>
+      <div class={friendListContainer}>
+        <For each={
+          Array.from(friends()?.values() ?? []).sort((a, b) => a.nickname.localeCompare(b.nickname))
+        }>{
+            (friend) => <FriendItem
+              nickname={friend.nickname}
+              profileImageUrl={friend.profileImageUrl}
+              statusMessage={friend.statusMessage}
+            />
+          }</For>
+      </div>
     </SideMenuGroupList>
   </AppSideMenu>;
 };
