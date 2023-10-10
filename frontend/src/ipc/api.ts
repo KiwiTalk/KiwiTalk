@@ -84,7 +84,7 @@ export function friendProfile(id: string): Promise<Profile> {
 }
 
 export type Friend = {
-  userIdd: string,
+  userId: string,
 
   nickname: string,
 
@@ -93,12 +93,7 @@ export type Friend = {
 
   statusMessage: string,
 
-  friendNickname?: string,
-  phoneticName?: string,
-
   profileImageUrl: string,
-
-  directChatId?: string,
 }
 
 export type FriendsUpdate = {
