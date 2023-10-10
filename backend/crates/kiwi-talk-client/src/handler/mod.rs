@@ -75,7 +75,6 @@ impl SessionHandler {
             event: ChannelEvent::Chat {
                 link_id: msg.link_id,
 
-                log_id: msg.log_id,
                 user_nickname: msg.author_nickname,
                 chat,
             },

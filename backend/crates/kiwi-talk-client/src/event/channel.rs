@@ -9,8 +9,6 @@ use crate::{
 #[serde(tag = "type", content = "data")]
 pub enum ChannelEvent {
     Chat {
-        log_id: LogId,
-
         link_id: Option<i64>,
 
         user_nickname: Option<String>,
