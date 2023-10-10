@@ -40,7 +40,7 @@ export const SideMenuGroupList = (props: SideMenuGroupListProp) => {
         <ExpandMoreIcon data-expanded={expanded()} />
       </SideMenuIconContent>
     </Header>
-    <Show when={childrenCount() > 0}>
+    <Show when={expanded() && childrenCount() > 0}>
       <ItemList>{childList()}</ItemList>
     </Show>
   </SideMenuItemContainer>;
