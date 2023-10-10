@@ -14,6 +14,7 @@ const ExpandMoreIcon = styled(ExpandMoreSvg, expandMoreIcon);
 
 export type SideMenuGroupListProp = ParentProps<{
   icon: JSX.Element;
+  itemCount: number;
   name?: string;
 
   defaultExpanded?: boolean;
@@ -35,7 +36,7 @@ export const SideMenuGroupList = (props: SideMenuGroupListProp) => {
         <Show when={props.name}>
           <Name>{props.name}</Name>
         </Show>
-        <CountText>{childrenCount()}</CountText>
+        <CountText>{props.itemCount}</CountText>
         <ExpandMoreIcon data-expanded={expanded()} />
       </SideMenuIconContent>
     </Header>

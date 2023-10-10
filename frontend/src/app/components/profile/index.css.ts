@@ -11,7 +11,7 @@ export const container = style({
 });
 
 export const imageContainer = style({
-  border: '1px solid #DFDEE0',
+  background: '#DFDEE0',
   borderRadius: '50%',
 
   boxSizing: 'border-box',

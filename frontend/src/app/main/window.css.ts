@@ -21,6 +21,7 @@ export const contentContainer = style({
   display: 'flex',
 
   flexDirection: 'row',
+  minHeight: 0,
 });
 
 export const windowContainer = style({
