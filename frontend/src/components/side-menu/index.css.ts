@@ -30,13 +30,31 @@ export const headContainer = style({
   marginLeft: 'auto',
 });
 
+const scroll = {
+  '::-webkit-scrollbar': {
+    width: '1rem',
+  },
+
+  '::-webkit-scrollbar-track': {
+    width: 0,
+  },
+
+  '::-webkit-scrollbar-thumb': {
+    backgroundColor: 'rgb(200, 200, 200)',
+    border: 'solid 0.25rem #F2F2F3',
+    borderRadius: '0.5rem',
+  },
+};
+
 export const contentList = style({
   all: 'unset',
   listStyle: 'none',
-  padding: '0px 1rem 1rem 1rem',
+  padding: '0px 0px 1rem 1rem',
   overflowY: 'scroll',
   flex: 1,
   minHeight: 0,
+
+  ...scroll,
 });
 
 export const contentItem = style({
