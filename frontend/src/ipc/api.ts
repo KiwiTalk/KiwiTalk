@@ -55,8 +55,6 @@ export function registerDevice(
 export type Profile = {
   id: string,
 
-  nickname: string,
-
   status_message: string,
 
   profile_url: string,
@@ -64,6 +62,8 @@ export type Profile = {
 };
 
 export type LogonProfile = {
+  nickname: string,
+
   uuid: string,
   uuidSearchable: boolean,
 
@@ -83,7 +83,7 @@ export function friendProfile(id: string): Promise<Profile> {
   return tauri.invoke('plugin:api|friend_profile', { id });
 }
 
-export type Friend = {
+export type ListFriend = {
   userId: string,
 
   nickname: string,
@@ -97,7 +97,7 @@ export type Friend = {
 }
 
 export type FriendsUpdate = {
-  added: Friend[],
+  added: ListFriend[],
   removedIds: string[],
 }
 
