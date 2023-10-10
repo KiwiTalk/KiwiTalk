@@ -38,8 +38,8 @@
     "@storybook/types": "7.4.6",
     "@tauri-apps/cli": "1.5.2",
     "@types/node": "18.18.4",
-    "@typescript-eslint/eslint-plugin": "6.7.4",
-    "@typescript-eslint/parser": "6.7.4",
+    "@typescript-eslint/eslint-plugin": "6.7.5",
+    "@typescript-eslint/parser": "6.7.5",
     "@vanilla-extract/vite-plugin": "3.9.0",
     "@vitejs/plugin-react": "4.1.0",
     "babel-loader": "9.1.3",
@@ -52,7 +52,7 @@
     "typescript": "5.2.2",
     "vite": "4.4.11",
     "vite-plugin-solid": "2.7.0",
-    "vite-plugin-solid-svg": "0.6.4"
+    "vite-plugin-solid-svg": "0.6.5"
   },
   "dependencies": {
     "@jellybrick/solid-i18next": "1.2.2",
@@ -62,7 +62,7 @@
     "deepmerge-ts": "5.1.0",
     "html-parse-string": "0.0.9",
     "i18next": "23.5.1",
-    "solid-js": "1.7.12",
+    "solid-js": "1.8.0",
     "tauri-plugin-window-state-api": "github:tauri-apps/tauri-plugin-window-state#v1"
   },
   "packageManager": "pnpm@8.9.0"
