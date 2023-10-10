@@ -1,5 +1,4 @@
 import { Match, Switch, createResource, createSignal } from 'solid-js';
-import { Profile } from '../components/profile';
 import { Sidebar, SidebarMenuItem } from '../components/sidebar';
 import { ChatMenu } from './menu/chat';
 import { FriendMenu } from './menu/friend';
@@ -9,6 +8,7 @@ import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.cs
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { createMainEventStream } from './event';
 import { create, created, destroy } from '../../ipc/client';
+import { LogonProfile } from './profile';
 
 const AppSidebar = styled(Sidebar, appSideBar);
 const SideMenuContainer = styled('div', sideMenuContainer);
@@ -69,7 +69,7 @@ export const AppMain = ({
           <ChatMenu />
         </Match>
       </Switch>
-      <Profile name='TODO' contact={''} />
+      <LogonProfile />
     </SideMenuContainer>
     <ChatWindowPlaceholder>{t(`main.chat.empty.${menu()}`)}</ChatWindowPlaceholder>
   </AppWindow>;
