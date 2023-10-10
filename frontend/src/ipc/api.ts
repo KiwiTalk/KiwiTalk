@@ -55,10 +55,10 @@ export function registerDevice(
 export type Profile = {
   id: string,
 
-  status_message: string,
+  statusMessage: string,
 
-  profile_url: string,
-  background_url: string,
+  profileUrl: string,
+  backgroundUrl: string,
 };
 
 export type LogonProfile = {
