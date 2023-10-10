@@ -101,6 +101,6 @@ export type FriendsUpdate = {
   removedIds: string[],
 }
 
-export function updateFriends(friendsIds: string[]): Promise<FriendsUpdate> {
-  return tauri.invoke('plugin:api|update_friends', { friendsIds });
+export function updateFriends(friendIds: string[]): Promise<FriendsUpdate> {
+  return tauri.invoke('plugin:api|update_friends', { friendIds });
 }
