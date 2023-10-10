@@ -1,12 +1,15 @@
 import { style } from '@vanilla-extract/css';
 
 export const container = style({
-  padding: '1rem 1rem 0px 1rem',
+  display: 'flex',
+  flexDirection: 'column',
 
   boxSizing: 'border-box',
+  minHeight: 0,
 });
 
 export const head = style({
+  margin: '1rem',
   display: 'flex',
 
   alignItems: 'center',
@@ -28,10 +31,12 @@ export const headContainer = style({
 });
 
 export const contentList = style({
-  margin: '1rem 0px 0px 0px',
-  padding: '0px',
-
-  listStyleType: 'none',
+  all: 'unset',
+  listStyle: 'none',
+  padding: '0px 1rem 1rem 1rem',
+  overflowY: 'scroll',
+  flex: 1,
+  minHeight: 0,
 });
 
 export const contentItem = style({
