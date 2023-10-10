@@ -1,13 +1,13 @@
 import { For, JSX, ParentProps, Show, children } from 'solid-js';
 import { styled } from '../../utils';
-import { container, contentList, head, headContainer, name } from './index.css';
+import { container, contentItem, contentList, head, headContainer, name } from './index.css';
 
 const Container = styled('div', container);
 const Head = styled('div', head);
 const Name = styled('span', name);
 const HeadContainer = styled('div', headContainer);
 const ContentList = styled('ul', contentList);
-const ContentItem = styled('li', contentList);
+const ContentItem = styled('li', contentItem);
 
 export type SideMenuProp = ParentProps<{
   name: string,
