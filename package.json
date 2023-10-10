@@ -62,7 +62,7 @@
     "deepmerge-ts": "5.1.0",
     "html-parse-string": "0.0.9",
     "i18next": "23.5.1",
-    "solid-js": "1.8.0",
+    "solid-js": "1.8.1",
     "tauri-plugin-window-state-api": "github:tauri-apps/tauri-plugin-window-state#v1"
   },
   "packageManager": "pnpm@8.9.0"
