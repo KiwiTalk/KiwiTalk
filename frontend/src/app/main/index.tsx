@@ -1,5 +1,5 @@
 import { Match, Switch, createResource, createSignal } from 'solid-js';
-import { Sidebar, SidebarMenuItem } from '../components/sidebar';
+import { Sidebar, SidebarButtonItem, SidebarMenuItem } from '../components/sidebar';
 import { ChatMenu } from './menu/chat';
 import { FriendMenu } from './menu/friend';
 import { AppWindow } from './window';
@@ -22,6 +22,8 @@ export type LogoutReason = {
   err: unknown
 } | {
   type: 'Disconnected',
+} | {
+  type: 'Logout',
 };
 
 export type AppMainProp = {
@@ -34,6 +36,21 @@ export const AppMain = ({
   const [menu, setMenu] = createSignal<SidebarMenuItem>('friend');
   const [t] = useTransContext();
 
+  let finished = false;
+
+  async function logout(reason: LogoutReason) {
+    if (finished) {
+      return;
+    }
+    finished = true;
+
+    try {
+      onLogout?.(reason);
+    } finally {
+      await destroy();
+    }
+  }
+
   createResource(async () => {
     if (!await created()) {
       await create('Unlocked');
@@ -44,21 +61,31 @@ export const AppMain = ({
     try {
       for await (const event of stream) {
         if (event.type === 'kickout') {
-          onLogout?.({ type: 'Kickout', reasonId: event.content.reason });
+          logout({ type: 'Kickout', reasonId: event.content.reason });
           return;
         }
 
         console.log(event);
       }
+
+      if (finished) {
+        return;
+      }
+
+      logout({ type: 'Disconnected' });
     } catch (err) {
-      onLogout?.({ type: 'Error', err });
-    } finally {
-      await destroy();
+      logout({ type: 'Error', err });
     }
   });
 
+  function onButtonClick(item: SidebarButtonItem) {
+    if (item === 'lock') {
+      logout({ type: 'Logout' });
+    }
+  }
+
   return <AppWindow>
-    <AppSidebar defaultMenu={menu()} onMenuSelect={setMenu} />
+    <AppSidebar defaultMenu={menu()} onMenuSelect={setMenu} onButtonClick={onButtonClick} />
     <SideMenuContainer>
       <Switch>
         <Match when={menu() == 'friend'}>
