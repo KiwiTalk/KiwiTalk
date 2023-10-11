@@ -2,7 +2,6 @@ import { Show } from 'solid-js';
 import {
   container,
   nicknameText,
-  profileImage,
   profileImageBox,
   profileNameBox,
   statusMessageText,
@@ -16,11 +15,10 @@ export type FriendItemProp = {
 
 export const FriendItem = (props: FriendItemProp) => {
   return <div class={container}>
-    <div class={profileImageBox}>
-      <Show when={props.profileImageUrl}>
-        <img class={profileImage} src={props.profileImageUrl} />
-      </Show>
-    </div>
+    <div
+      class={profileImageBox}
+      style={{ 'background-image': props.profileImageUrl ? `url("${props.profileImageUrl}")` : '' }}
+    />
     <div class={profileNameBox}>
       <span class={nicknameText}>{props.nickname}</span>
       <Show when={props.statusMessage}>

@@ -12,6 +12,8 @@ export const container = style({
 
 export const imageContainer = style({
   background: '#DFDEE0',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
   borderRadius: '50%',
 
   boxSizing: 'border-box',
@@ -20,13 +22,6 @@ export const imageContainer = style({
 
   width: '2.25rem',
   height: '2.25rem',
-});
-
-export const image = style({
-  width: '100%',
-  height: '100%',
-
-  objectFit: 'cover',
 });
 
 export const info = style({
