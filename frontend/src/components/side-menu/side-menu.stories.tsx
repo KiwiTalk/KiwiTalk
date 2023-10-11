@@ -21,12 +21,12 @@ const Template: StoryFn<typeof SideMenu> = (args) => {
   >
     <Container>
       <SideMenu {...args}>
-        <SideMenuGroupList name='ABC' icon='A'>
+        <SideMenuGroupList name='ABC' icon='A' itemCount={3}>
           <li>A</li>
           <li>B</li>
           <li>C</li>
         </SideMenuGroupList>
-        <SideMenuGroupList name='XYZ' icon='X'>
+        <SideMenuGroupList name='XYZ' icon='X' itemCount={3}>
           <li>X</li>
           <li>Y</li>
           <li>Z</li>

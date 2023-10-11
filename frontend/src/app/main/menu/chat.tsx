@@ -25,9 +25,19 @@ export const ChatMenu = () => {
         </SideButton>
       </>
     }>
-    <SideMenuGroupList icon={<ChatOutlineSvg />} name={normalChat} defaultExpanded={true}>
+    <SideMenuGroupList
+      itemCount={0}
+      icon={<ChatOutlineSvg />}
+      name={normalChat}
+      defaultExpanded={true}
+    >
     </SideMenuGroupList>
-    <SideMenuGroupList icon={<ForumOutlineSvg />} name={openChat} defaultExpanded={true}>
+    <SideMenuGroupList
+      itemCount={0}
+      icon={<ForumOutlineSvg />}
+      name={openChat}
+      defaultExpanded={true}
+    >
     </SideMenuGroupList>
   </AppSideMenu>;
 };

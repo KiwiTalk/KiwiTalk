@@ -36,7 +36,9 @@ export const SideMenuGroupList = (props: SideMenuGroupListProp) => {
         <Show when={props.name}>
           <Name>{props.name}</Name>
         </Show>
-        <CountText>{props.itemCount}</CountText>
+        <Show when={props.itemCount > 0}>
+          <CountText>{props.itemCount}</CountText>
+        </Show>
         <ExpandMoreIcon data-expanded={expanded()} />
       </SideMenuIconContent>
     </Header>
