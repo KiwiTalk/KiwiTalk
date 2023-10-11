@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { globalStyle, style } from '@vanilla-extract/css';
 
 export const container = style({
   display: 'flex',
@@ -57,7 +57,7 @@ export const contentList = style({
   ...scroll,
 });
 
-export const contentItem = style({
+globalStyle(`${contentList} > li`, {
   marginTop: '0.5rem',
   padding: '0px',
 });

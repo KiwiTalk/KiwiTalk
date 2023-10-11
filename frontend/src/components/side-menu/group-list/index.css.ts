@@ -1,12 +1,24 @@
 import { style } from '@vanilla-extract/css';
 
+export const container = style({
+  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+
+  border: '1px solid #DFDEE0',
+  borderRadius: '0.5rem',
+  overflow: 'hidden',
+});
+
 export const header = style({
   padding: '0.5rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  boxSizing: 'content-box',
+  outline: '1px solid #DFDEE0',
 });
 
 export const name = style({
   userSelect: 'none',
-  marginRight: '0.5rem',
 
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -18,20 +30,26 @@ export const countText = style({
   color: '#BFBDC1',
 });
 
-export const itemList = style({
-  borderTop: '1px solid #DFDEE0',
+export const iconBox = style({
+  width: '1.75rem',
+  height: '1.75rem',
 
-  margin: 0,
+  padding: '0.25rem',
 
-  padding: 0,
-  listStyleType: 'none',
+  boxSizing: 'border-box',
+
+  color: '#1E2019',
+
+  border: '1px solid #1E2019',
+  borderRadius: '50%',
+
+  textAlign: 'center',
+  lineHeight: '0px',
 });
 
 export const expandMoreIcon = style({
   width: '1.5rem',
   height: '1.5rem',
-
-  alignSelf: 'center',
 
   marginLeft: 'auto',
 
