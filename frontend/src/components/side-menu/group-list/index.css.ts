@@ -13,7 +13,6 @@ export const header = style({
   display: 'flex',
   alignItems: 'center',
   gap: '0.5rem',
-  boxSizing: 'content-box',
   outline: '1px solid #DFDEE0',
 });
 
