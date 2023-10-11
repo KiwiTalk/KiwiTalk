@@ -1,14 +1,12 @@
-import { Show } from 'solid-js';
 import { button } from '../../../components/button/index.css';
 import { styled } from '../../../utils';
 import EditIconSvg from './icons/edit.svg';
 import {
-  contact, container, editButton, editIcon, image, imageContainer, info, name,
+  contact, container, editButton, editIcon, imageContainer, info, name,
 } from './index.css';
 
 const Container = styled('div', container);
 const ImageContainer = styled('div', imageContainer);
-const Image = styled('img', image);
 const Info = styled('address', info);
 const Name = styled('p', name);
 const Contact = styled('p', contact);
@@ -25,11 +23,9 @@ export type ProfileProp = {
 
 export const Profile = (props: ProfileProp) => {
   return <Container>
-    <ImageContainer>
-      <Show when={props.profileImageURL}>
-        <Image src={props.profileImageURL} />
-      </Show>
-    </ImageContainer>
+    <ImageContainer
+      style={{ 'background-image': props.profileImageURL ? `url(${props.profileImageURL})` : '' }}
+    />
     <Info>
       <Name>{props.name}</Name>
       <Contact>{props.contact}</Contact>

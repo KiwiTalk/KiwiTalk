@@ -13,6 +13,8 @@ export const profileImageBox = style({
   borderRadius: '50%',
   overflow: 'hidden',
   background: '#dddddd',
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
   width: '2.25rem',
   height: '2.25rem',
 });
@@ -22,13 +24,6 @@ export const profileNameBox = style({
   flexDirection: 'column',
   flex: 1,
   overflow: 'hidden',
-});
-
-export const profileImage = style({
-  width: '100%',
-  height: '100%',
-
-  objectFit: 'cover',
 });
 
 export const nicknameText = style({
