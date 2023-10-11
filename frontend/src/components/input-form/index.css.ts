@@ -51,18 +51,14 @@ export const innerWrapper = style({
   display: 'flex',
   alignItems: 'center',
 
+  gap: 9,
+
   padding: '12px 9px',
 });
 
 export const iconContainer = style({
   width: '1.25em',
   height: '1.25em',
-
-  overflow: 'hidden',
-
-  lineHeight: 1,
-
-  marginRight: 9,
 
   transition: 'all 0.25s',
 });
