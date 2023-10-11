@@ -3,7 +3,7 @@ import { style } from '@vanilla-extract/css';
 export const contentContainer = style({
   left: 0,
   top: 0,
-  padding: '3rem 3rem',
+  margin: '3rem 3rem',
 
   width: 281,
 });
