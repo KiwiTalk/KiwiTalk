@@ -69,8 +69,8 @@ pub(super) async fn me_profile(
         profile: Profile {
             id: me.profile.user_id.to_string(),
             status_message: me.profile.status_message,
-            profile_url: me.profile.original_profile_image_url,
-            background_url: me.profile.original_background_image_url,
+            profile_url: me.profile.profile_image_url,
+            background_url: me.profile.background_image_url,
         },
     })
 }

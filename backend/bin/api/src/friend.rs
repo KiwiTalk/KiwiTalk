@@ -58,7 +58,7 @@ pub(super) async fn update_friends(
                 user_type: friend.user_type,
                 user_category: friend.user_category,
                 status_message: friend.status_message,
-                profile_image_url: friend.original_profile_image_url,
+                profile_image_url: friend.profile_image_url,
             })
             .collect(),
         removed_ids: res
