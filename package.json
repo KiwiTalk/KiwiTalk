@@ -52,7 +52,7 @@
     "typescript": "5.2.2",
     "vite": "4.4.11",
     "vite-plugin-solid": "2.7.1",
-    "vite-plugin-solid-svg": "0.6.5"
+    "vite-plugin-solid-svg": "0.7.0"
   },
   "dependencies": {
     "@jellybrick/solid-i18next": "1.2.2",
