@@ -17,7 +17,7 @@ export const FriendItem = (props: FriendItemProp) => {
   return <div class={container}>
     <div
       class={profileImageBox}
-      style={{ 'background-image': props.profileImageUrl ? `url(${props.profileImageUrl})` : '' }}
+      style={{ 'background-image': props.profileImageUrl ? `url("${props.profileImageUrl}")` : '' }}
     />
     <div class={profileNameBox}>
       <span class={nicknameText}>{props.nickname}</span>

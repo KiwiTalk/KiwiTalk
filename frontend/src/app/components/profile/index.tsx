@@ -24,7 +24,7 @@ export type ProfileProp = {
 export const Profile = (props: ProfileProp) => {
   return <Container>
     <ImageContainer
-      style={{ 'background-image': props.profileImageURL ? `url(${props.profileImageURL})` : '' }}
+      style={{ 'background-image': props.profileImageURL ? `url("${props.profileImageURL}")` : '' }}
     />
     <Info>
       <Name>{props.name}</Name>
