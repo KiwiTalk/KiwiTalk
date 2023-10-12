@@ -2007,7 +2007,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-api"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2027,7 +2027,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-app"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "arrayvec",
@@ -2057,7 +2057,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-client"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "arrayvec",
  "bson",
@@ -2079,7 +2079,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-result"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "serde",
@@ -2087,7 +2087,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-system"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "base64 0.21.4",
@@ -4027,7 +4027,7 @@ dependencies = [
 
 [[package]]
 name = "talk-api-internal"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "hex",
  "reqwest",
@@ -4042,7 +4042,7 @@ dependencies = [
 
 [[package]]
 name = "talk-loco-client"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "async-stream",
  "bitflags 2.4.0",
