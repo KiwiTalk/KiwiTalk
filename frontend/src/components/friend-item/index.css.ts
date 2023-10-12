@@ -26,17 +26,17 @@ export const profileNameBox = style({
   overflow: 'hidden',
 });
 
-export const nicknameText = style({
-  fontSize: '1rem',
+const text = style({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
 });
 
-export const statusMessageText = style({
+export const nicknameText = style([text, {
+  fontSize: '1rem',
+}]);
+
+export const statusMessageText = style([text, {
   color: '#4D5061',
   fontSize: '0.75rem',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-});
+}]);
