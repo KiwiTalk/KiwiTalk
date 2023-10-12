@@ -41,9 +41,7 @@ impl<T: Into<RequestError>> From<T> for ApiError {
 
 pub type ApiResult<T> = Result<T, ApiError>;
 
-pub(crate) async fn read_response(
-    request: RequestBuilder,
-) -> ApiResult<impl Deref<Target = [u8]>> {
+pub(crate) async fn read_response(request: RequestBuilder) -> ApiResult<impl Deref<Target = [u8]>> {
     #[derive(Debug, Clone, Copy, Deserialize)]
     struct ApiStatus {
         pub status: i32,
@@ -60,7 +58,5 @@ pub(crate) async fn read_response(
 pub(crate) async fn read_structured_response<T: DeserializeOwned>(
     request: RequestBuilder,
 ) -> ApiResult<T> {
-    Ok(serde_json::from_slice(
-        &read_response(request).await?,
-    )?)
+    Ok(serde_json::from_slice(&read_response(request).await?)?)
 }
