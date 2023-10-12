@@ -1,7 +1,7 @@
 use reqwest::Method;
 use serde::{Deserialize, Serialize};
 
-use crate::{client::ApiClient, read_simple_response, ApiResult};
+use crate::{client::ApiClient, read_structured_response, ApiResult};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct DiffFriend {
@@ -46,15 +46,13 @@ impl FriendsDiff {
             ty: &'a str,
         }
 
-        read_simple_response(
+        read_structured_response(
             client
                 .request(Method::POST, "friends/diff.json")?
                 .form(&Form {
                     friend_ids: &serde_json::to_string(ids).unwrap(),
                     ty: "a",
-                })
-                .send()
-                .await?,
+                }),
         )
         .await
     }

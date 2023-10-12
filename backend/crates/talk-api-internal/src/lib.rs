@@ -7,7 +7,9 @@ pub mod credential;
 pub mod friend;
 pub mod profile;
 
-use reqwest::Response;
+use std::ops::Deref;
+
+use reqwest::RequestBuilder;
 use serde::{de::DeserializeOwned, Deserialize};
 use thiserror::Error;
 
@@ -39,16 +41,22 @@ impl<T: Into<RequestError>> From<T> for ApiError {
 
 pub type ApiResult<T> = Result<T, ApiError>;
 
-#[derive(Debug, Clone, Copy, Deserialize)]
-pub(crate) struct ApiStatus {
-    pub status: i32,
-}
+pub(crate) async fn read_response(request: RequestBuilder) -> ApiResult<impl Deref<Target = [u8]>> {
+    #[derive(Debug, Clone, Copy, Deserialize)]
+    struct ApiStatus {
+        pub status: i32,
+    }
 
-pub(crate) async fn read_simple_response<T: DeserializeOwned>(response: Response) -> ApiResult<T> {
-    let data = response.bytes().await?;
+    let data = request.send().await?.bytes().await?;
 
     match serde_json::from_slice::<ApiStatus>(&data)?.status {
-        0 => Ok(serde_json::from_slice(&data)?),
+        0 => Ok(data),
         status => Err(ApiError::Status(status)),
     }
+}
+
+pub(crate) async fn read_structured_response<T: DeserializeOwned>(
+    request: RequestBuilder,
+) -> ApiResult<T> {
+    Ok(serde_json::from_slice(&read_response(request).await?)?)
 }
