@@ -1,7 +1,7 @@
 use reqwest::Method;
 use serde::Deserialize;
 
-use crate::{client::ApiClient, read_simple_response, ApiResult};
+use crate::{client::ApiClient, read_structured_response, ApiResult};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MoreSettings {
@@ -47,13 +47,6 @@ pub struct MoreSettings {
 
 impl MoreSettings {
     pub async fn request(client: ApiClient<'_>) -> ApiResult<Self> {
-        read_simple_response(
-            &client
-                .request(Method::GET, "account/more_settings.json")?
-                .send()
-                .await?
-                .bytes()
-                .await?,
-        )
+        read_structured_response(client.request(Method::GET, "account/more_settings.json")?).await
     }
 }
