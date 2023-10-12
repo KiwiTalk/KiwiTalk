@@ -4,7 +4,7 @@ pub mod xvc;
 
 use reqwest::Method;
 
-use crate::{read_simple_response, ApiResult};
+use crate::{read_response_status, read_simple_response, ApiResult};
 
 use self::{
     client::{AuthClient, Device},
@@ -75,13 +75,14 @@ impl Login {
         };
 
         read_simple_response(
-            client
+            &client
                 .request(Method::POST, "account/login.json", account.email)?
                 .form(&form)
                 .send()
+                .await?
+                .bytes()
                 .await?,
         )
-        .await
     }
 
     pub async fn request_with_token(
@@ -113,13 +114,14 @@ impl Login {
         };
 
         read_simple_response(
-            client
+            &client
                 .request(Method::POST, "account/login.json", email)?
                 .form(&form)
                 .send()
+                .await?
+                .bytes()
                 .await?,
         )
-        .await
     }
 }
 
@@ -141,14 +143,15 @@ pub async fn request_passcode(
         account,
     };
 
-    read_simple_response(
-        client
+    read_response_status(
+        &client
             .request(Method::POST, "account/request_passcode.json", account.email)?
             .form(&form)
             .send()
+            .await?
+            .bytes()
             .await?,
     )
-    .await
 }
 
 pub async fn register_device(
@@ -176,12 +179,13 @@ pub async fn register_device(
         permanent,
     };
 
-    read_simple_response(
-        client
+    read_response_status(
+        &client
             .request(Method::POST, "account/register_device.json", account.email)?
             .form(&form)
             .send()
+            .await?
+            .bytes()
             .await?,
     )
-    .await
 }

@@ -48,11 +48,12 @@ pub struct MoreSettings {
 impl MoreSettings {
     pub async fn request(client: ApiClient<'_>) -> ApiResult<Self> {
         read_simple_response(
-            client
+            &client
                 .request(Method::GET, "account/more_settings.json")?
                 .send()
+                .await?
+                .bytes()
                 .await?,
         )
-        .await
     }
 }

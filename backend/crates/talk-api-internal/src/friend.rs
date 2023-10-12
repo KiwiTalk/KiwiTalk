@@ -47,15 +47,16 @@ impl FriendsDiff {
         }
 
         read_simple_response(
-            client
+            &client
                 .request(Method::POST, "friends/diff.json")?
                 .form(&Form {
                     friend_ids: &serde_json::to_string(ids).unwrap(),
                     ty: "a",
                 })
                 .send()
+                .await?
+                .bytes()
                 .await?,
         )
-        .await
     }
 }

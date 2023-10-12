@@ -34,12 +34,13 @@ pub struct Me {
 impl Me {
     pub async fn request(client: ApiClient<'_>) -> ApiResult<Self> {
         read_simple_response(
-            client
+            &client
                 .request(Method::GET, "profile3/me.json")?
                 .send()
+                .await?
+                .bytes()
                 .await?,
         )
-        .await
     }
 }
 #[derive(Debug, Clone, Deserialize)]
@@ -71,12 +72,13 @@ pub struct FriendInfo {
 impl FriendInfo {
     pub async fn request(client: ApiClient<'_>, id: u64) -> ApiResult<Self> {
         read_simple_response(
-            client
+            &client
                 .request(Method::GET, "profile3/friend_info.json")?
                 .query(&[("id", id)])
                 .send()
+                .await?
+                .bytes()
                 .await?,
         )
-        .await
     }
 }
