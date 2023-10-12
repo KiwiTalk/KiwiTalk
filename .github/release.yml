@@ -12,3 +12,4 @@ changelog:
       exclude:
         labels:
           - 'Type: Dependency'
+          - 'release'
