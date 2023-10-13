@@ -33,12 +33,18 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     handle.plugin(kiwi_talk_system::init(handle.path_resolver()).await?)?;
 
     handle.plugin(
-        tauri_plugin_log::Builder::default()
+        tauri_plugin_log::Builder::new()
             .targets([
                 LogTarget::Folder(get_system_info().data_dir.join("logs")),
                 LogTarget::Stderr,
                 LogTarget::Webview,
             ])
+            .level(
+                #[cfg(not(debug_assertions))]
+                log::LevelFilter::Info,
+                #[cfg(debug_assertions)]
+                log::LevelFilter::Trace,
+            )
             .build(),
     )?;
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
