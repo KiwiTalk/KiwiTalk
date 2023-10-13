@@ -1625,6 +1625,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-talk"
+version = "0.3.2"
+dependencies = [
+ "arrayvec",
+ "bson",
+ "extend",
+ "futures",
+ "log",
+ "nohash-hasher",
+ "once_cell",
+ "r2d2",
+ "r2d2_sqlite",
+ "rusqlite",
+ "rusqlite_migration",
+ "serde",
+ "serde_json",
+ "talk-loco-client",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "heck"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2030,12 +2052,32 @@ name = "kiwi-talk-app"
 version = "0.2.2"
 dependencies = [
  "anyhow",
- "arrayvec",
  "env_logger",
- "futures",
- "hex",
  "kiwi-talk-api",
  "kiwi-talk-client",
+ "kiwi-talk-result",
+ "kiwi-talk-system",
+ "log",
+ "serde",
+ "serde_json",
+ "talk-loco-client",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-window-state",
+ "tokio",
+ "window-shadows",
+]
+
+[[package]]
+name = "kiwi-talk-client"
+version = "0.2.2"
+dependencies = [
+ "anyhow",
+ "arrayvec",
+ "futures",
+ "headless-talk",
+ "hex",
+ "kiwi-talk-api",
  "kiwi-talk-result",
  "kiwi-talk-system",
  "log",
@@ -2043,38 +2085,11 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "serde",
- "serde_json",
  "sha2",
  "talk-loco-client",
  "tauri",
- "tauri-build",
- "tauri-plugin-window-state",
- "thiserror",
  "tokio",
  "tokio-util",
- "window-shadows",
-]
-
-[[package]]
-name = "kiwi-talk-client"
-version = "0.3.2"
-dependencies = [
- "arrayvec",
- "bson",
- "extend",
- "futures",
- "log",
- "nohash-hasher",
- "once_cell",
- "r2d2",
- "r2d2_sqlite",
- "rusqlite",
- "rusqlite_migration",
- "serde",
- "serde_json",
- "talk-loco-client",
- "thiserror",
- "tokio",
 ]
 
 [[package]]

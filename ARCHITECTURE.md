@@ -7,7 +7,7 @@ You may find it useful if you have interests in contributing to this project.
   - [Contents](#contents)
     - [Backend](#backend)
       - [`kiwi-talk-app`](#kiwi-talk-app)
-      - [`kiwi-talk-client`](#kiwi-talk-client)
+      - [`headless-talk`](#headless-talk)
       - [`talk-loco-client`](#talk-loco-client)
       - [`talk-api-internal`](#talk-api-internal)
       - [Templates](#templates)
@@ -32,8 +32,8 @@ You can find them in `backend/bin` directory.
 
 Widely used dependencies are in workspace `Cargo.toml`.
 
-#### `kiwi-talk-client`
-This crate implements actual usable clients on top of `talk-loco-client`.
+#### `headless-talk`
+This crate implements headless talk on top of `talk-loco-client`.
 
 #### `talk-loco-client`
 Declares various loco protocol commands used by official client.

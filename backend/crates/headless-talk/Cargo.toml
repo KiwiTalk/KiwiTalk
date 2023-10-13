@@ -1,6 +1,6 @@
 [package]
-name = "kiwi-talk-client"
-description = "KiwiTalk Loco client"
+name = "headless-talk"
+description = "Headless talk implementation"
 version = "0.3.2"
 
 license.workspace = true

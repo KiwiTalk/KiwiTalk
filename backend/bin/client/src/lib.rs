@@ -2,6 +2,7 @@ mod channel_list;
 mod conn;
 mod event;
 mod handler;
+mod constants;
 
 use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
@@ -15,7 +16,7 @@ use tauri::{
 
 use anyhow::{anyhow, Context};
 use futures::{future::poll_fn, ready, stream, StreamExt};
-use kiwi_talk_client::{
+use headless_talk::{
     config::ClientConfig, database::pool::DatabasePool, handler::SessionHandler, ClientCredential,
     ClientStatus, KiwiTalkSession,
 };
@@ -28,12 +29,12 @@ use tokio::{sync::mpsc, task::JoinHandle, time::sleep};
 use kiwi_talk_result::TauriResult;
 use kiwi_talk_system::get_system_info;
 
-use crate::constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
+use constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;
 
 use self::{conn::create_secure_stream, event::MainEvent, handler::run_handler};
 
-pub(super) async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
+pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
     Ok(Builder::new(name)
         .setup(move |handle| {
             handle.manage::<RwLock<Option<Client>>>(RwLock::new(None));

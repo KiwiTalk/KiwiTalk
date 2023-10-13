@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context};
 use arrayvec::ArrayVec;
-use kiwi_talk_client::chat::{ChatContent, ChatType};
+use headless_talk::chat::{ChatContent, ChatType};
 use serde::Serialize;
 use talk_loco_client::structs::channel::ChannelMetaType;
 

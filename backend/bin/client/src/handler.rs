@@ -2,7 +2,7 @@ use std::pin::pin;
 
 use anyhow::Context;
 use futures::{Future, Stream, StreamExt};
-use kiwi_talk_client::{
+use headless_talk::{
     event::{channel::ChannelEvent, ClientEvent},
     handler::SessionHandler,
 };
