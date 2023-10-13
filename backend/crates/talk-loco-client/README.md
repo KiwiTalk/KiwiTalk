@@ -1,2 +1,2 @@
 # Talk Loco Client
-Loco client
+Loco client and command abstraction
