@@ -46,7 +46,7 @@ export const ChatMenu = () => {
     >
       <For each={Array.from(channelList()?.values() ?? [])}>
         {(item) => <ChatItem
-          name={item.name ?? item.displayUsers.map(user => user.nickname).join(", ")}
+          name={item.name ?? item.displayUsers.map((user) => user.nickname).join(", ")}
           memberCount={item.userCount}
           avatars={item.displayUsers.reduce((list, user) => {
             if (user.profileUrl) {
