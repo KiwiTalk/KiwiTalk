@@ -14,4 +14,4 @@ render(
   document.querySelector('#root')!,
 );
 
-await attachConsole();
+attachConsole();
