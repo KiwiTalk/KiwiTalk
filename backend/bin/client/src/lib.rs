@@ -1,8 +1,8 @@
 mod channel_list;
 mod conn;
+mod constants;
 mod event;
 mod handler;
-mod constants;
 
 use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
@@ -29,8 +29,8 @@ use tokio::{sync::mpsc, task::JoinHandle, time::sleep};
 use kiwi_talk_result::TauriResult;
 use kiwi_talk_system::get_system_info;
 
-use constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 use conn::checkin;
+use constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
 
 use self::{conn::create_secure_stream, event::MainEvent, handler::run_handler};
 
