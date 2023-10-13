@@ -14,7 +14,7 @@ reqwest = "0.11.22"
 url = "2.4.1"
 sha2 = "0.10.8"
 hex = "0.4.3"
-serde = { version = "1.0.188", features = ["derive"] }
+serde = { version = "1.0.189", features = ["derive"] }
 serde_json = "1.0"
 serde_with = "3.3.0"
 thiserror = "1.0"
