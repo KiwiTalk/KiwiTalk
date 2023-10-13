@@ -23,15 +23,15 @@ kiwi-talk-api = { path = "../api" }
 kiwi-talk-client = { path = "../client" }
 
 tokio = { workspace = true, features = ["full"] }
-tauri = { workspace = true, features = [ "updater", "api-all", "system-tray"] }
+tauri = { workspace = true, features = ["updater", "api-all", "system-tray"] }
 anyhow = { workspace = true, features = ["backtrace"] }
 log = { workspace = true }
 serde = { workspace = true }
 
 serde_json = "1.0"
-env_logger = "0.10.0"
 window-shadows = "0.2.1"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 
 [features]
 default = []

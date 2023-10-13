@@ -5,21 +5,14 @@
 
 mod configuration;
 
+use kiwi_talk_system::get_system_info;
 use tauri::{
     api::dialog, AppHandle, CustomMenuItem, DeviceEventFilter, Manager, RunEvent, Runtime,
     SystemTray, SystemTrayEvent, SystemTrayMenu, Window, WindowBuilder,
 };
+use tauri_plugin_log::LogTarget;
 use tauri_plugin_window_state::{StateFlags, WindowExt};
 use window_shadows::set_shadow;
-
-fn init_logger() {
-    let mut builder = env_logger::Builder::from_default_env();
-
-    #[cfg(not(debug_assertions))]
-    builder.filter(None, log::LevelFilter::Info);
-
-    builder.init();
-}
 
 fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<Window<R>> {
     let window = WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
@@ -37,9 +30,25 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
 }
 
 async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
+    handle.plugin(kiwi_talk_system::init(handle.path_resolver()).await?)?;
+
+    handle.plugin(
+        tauri_plugin_log::Builder::new()
+            .targets([
+                LogTarget::Folder(get_system_info().data_dir.join("logs")),
+                LogTarget::Stderr,
+                LogTarget::Webview,
+            ])
+            .level(
+                #[cfg(not(debug_assertions))]
+                log::LevelFilter::Info,
+                #[cfg(debug_assertions)]
+                log::LevelFilter::Trace,
+            )
+            .build(),
+    )?;
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
 
-    handle.plugin(kiwi_talk_system::init(handle.path_resolver()).await?)?;
     handle.plugin(kiwi_talk_api::init().await)?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(kiwi_talk_client::init_plugin("client").await?)?;
@@ -73,8 +82,6 @@ fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    init_logger();
-
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
     let tray_menu = SystemTrayMenu::new().add_item(CustomMenuItem::new("quit", "Quit KiwiTalk"));

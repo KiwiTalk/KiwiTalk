@@ -29,6 +29,9 @@ dependencies:
   solid-js:
     specifier: 1.8.1
     version: 1.8.1
+  tauri-plugin-log-api:
+    specifier: github:tauri-apps/tauri-plugin-log#v1
+    version: github.com/tauri-apps/tauri-plugin-log/1a369766cf90f3aed9c2b7c68b70bf39081538b3
   tauri-plugin-window-state-api:
     specifier: github:tauri-apps/tauri-plugin-window-state#v1
     version: github.com/tauri-apps/tauri-plugin-window-state/c479a6d131999b4bcf0d05eb7fdb031f87a716d1
@@ -9267,6 +9270,14 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: true
+
+  github.com/tauri-apps/tauri-plugin-log/1a369766cf90f3aed9c2b7c68b70bf39081538b3:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/1a369766cf90f3aed9c2b7c68b70bf39081538b3}
+    name: tauri-plugin-log-api
+    version: 0.0.0
+    dependencies:
+      '@tauri-apps/api': 1.5.0
+    dev: false
 
   github.com/tauri-apps/tauri-plugin-window-state/c479a6d131999b4bcf0d05eb7fdb031f87a716d1:
     resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/c479a6d131999b4bcf0d05eb7fdb031f87a716d1}
