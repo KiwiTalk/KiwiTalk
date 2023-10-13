@@ -2,7 +2,7 @@
 name = "talk-api-internal"
 description = "Various internal API for KiwiTalk"
 categories = ["api-bindings"]
-version = "0.1.3"
+version = "0.1.2"
 
 license.workspace = true
 edition.workspace = true
