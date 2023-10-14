@@ -8,6 +8,7 @@ const sidebarBase = style({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
+  gap: '4px',
 });
 
 export const sidebar = styleVariants({
@@ -37,6 +38,7 @@ export const sidebarItem = styleVariants(
   ([background, color]) => ({
     cursor: 'pointer',
     position: 'relative',
+    display: 'flex',
     color,
     background,
     borderRadius: vars.radius.small,

@@ -14,13 +14,9 @@ import * as styles from './sidebar.stories.css';
 export default {
   title: 'KiwiTalk v2/Sidebar',
   component: Sidebar,
-  argTypes: {
-    onMenuSelect: { action: 'MenuItem' },
-    onButtonClick: { action: 'ButtonItem' },
-  },
 };
 
-const Template: StoryFn<typeof Sidebar> = () => {
+const Template: StoryFn<{ collapsed: boolean }> = (props) => {
   const [activePath, setActivePath] = createSignal<SidebarPathType>('friends');
   const NoOpViewModel: SidebarViewModelType<SidebarPathType> = () => {
     const [isNotificationActive, setIsNotificationActive] = createSignal(false);
@@ -49,6 +45,7 @@ const Template: StoryFn<typeof Sidebar> = () => {
       <Sidebar
         activePath={activePath()}
         setActivePath={setActivePath}
+        collapsed={props.collapsed}
         viewModel={NoOpViewModel}
       />
     </div>
@@ -56,4 +53,7 @@ const Template: StoryFn<typeof Sidebar> = () => {
 };
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = { collapsed: false };
+
+export const Collapsed = Template.bind({});
+Collapsed.args = { collapsed: true };

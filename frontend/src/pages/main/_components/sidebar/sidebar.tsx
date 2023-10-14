@@ -1,4 +1,4 @@
-import { Accessor, createSignal, For, JSX, Match, mergeProps, splitProps, Switch } from 'solid-js';
+import { Accessor, createSignal, For, JSX, Match, mergeProps, Show, splitProps, Switch } from 'solid-js';
 
 import IconChat from '@/assets/icons/chat.svg';
 import IconNotification from '@/assets/icons/notification.svg';
@@ -158,7 +158,9 @@ export const Sidebar = <Path extends string = SidebarPathType>(props: SidebarPro
   return (
     <aside class={styles.sidebar[props.collapsed ? 'collapsed' : 'default']}>
       <SidebarItems items={instance.topItems()} {...itemsProps} />
-      <SidebarItems items={instance.bottomItems()} {...itemsProps} />
+      <Show when={!props.collapsed}>
+        <SidebarItems items={instance.bottomItems()} {...itemsProps} />
+      </Show>
     </aside>
   );
 };
