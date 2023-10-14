@@ -1,4 +1,14 @@
-import { Accessor, createSignal, For, JSX, Match, mergeProps, Show, splitProps, Switch } from 'solid-js';
+import {
+  Accessor,
+  For,
+  JSX,
+  Match,
+  Show,
+  Switch,
+  createSignal,
+  mergeProps,
+  splitProps,
+} from 'solid-js';
 
 import IconChat from '@/assets/icons/chat.svg';
 import IconNotification from '@/assets/icons/notification.svg';
