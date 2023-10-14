@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import solid from 'vite-plugin-solid';
 import svg from 'vite-plugin-solid-svg';
@@ -18,7 +19,10 @@ export default defineConfig({
   },
 
   plugins: [
-    vanillaExtractPlugin(),
+    vanillaExtractPlugin({
+      // Revert when vanilla-extract-css/vanilla-extract#1195 merges
+      identifiers: 'short',
+    }),
     svg({
       svgo: {
         enabled: false,
@@ -26,4 +30,10 @@ export default defineConfig({
     }),
     solid(),
   ],
+
+  resolve: {
+    alias: [
+      { find: /^@\//, replacement: `${resolve(__dirname, 'frontend/src')}/` },
+    ],
+  },
 });

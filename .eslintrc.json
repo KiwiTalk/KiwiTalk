@@ -23,6 +23,7 @@
     "linebreak-style": 0,
     "object-curly-spacing": ["error", "always"],
     "spaced-comment": ["error", "always", { "markers": ["/"] }],
-    "max-len": ["error", 100]
+    "max-len": ["error", 100],
+    "indent": ["error", 2]
   }
 }
