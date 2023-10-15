@@ -52,5 +52,5 @@
     "tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1",
     "tauri-plugin-window-state-api": "github:tauri-apps/tauri-plugin-window-state#v1"
   },
-  "packageManager": "pnpm@8.9.0"
+  "packageManager": "pnpm@8.9.1"
 }
