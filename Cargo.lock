@@ -1240,9 +1240,9 @@ dependencies = [
 
 [[package]]
 name = "futures-loco-protocol"
-version = "0.3.2"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "994448014560bede7a5d22c03d567dba086ee6c49ba47efb7da5b523ff00cb5b"
+checksum = "d2e01bd62aeea8e91616b5036ebfeba7a33ccbc7cf192e29494f9147e2aba147"
 dependencies = [
  "flume",
  "futures-core",
@@ -2245,9 +2245,9 @@ dependencies = [
 
 [[package]]
 name = "loco-protocol"
-version = "6.4.0"
+version = "6.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "322048ebde3589f523da3d3a92554ccdc2d81f59b5170cac1699ca5c49a69f49"
+checksum = "c023996a61dd3fcefe0c1f4d96c91795cc825b95d7fa41728a5b3dcafb8fa729"
 dependencies = [
  "aes",
  "arrayvec",
