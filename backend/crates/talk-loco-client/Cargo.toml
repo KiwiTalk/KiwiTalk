@@ -24,7 +24,7 @@ async-stream = "0.3.5"
 pin-project-lite = "0.2.13"
 futures-lite = "1.13.0"
 structstruck = "0.4.1"
-bitflags = { version = "2.4.0", features = ["serde"] }
+bitflags = { version = "2.4.1", features = ["serde"] }
 num-bigint-dig = "0.8.4"
 serde-byte-array = "0.1.2"
 
