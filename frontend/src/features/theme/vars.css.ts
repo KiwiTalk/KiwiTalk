@@ -24,7 +24,7 @@ const [themeClass, baseVars] = createTheme({
       lightAlpha100: 'rgba(255, 255, 255, .1)',
       lightAlpha300: 'rgba(255, 255, 255, .3)',
       lightAlpha500: 'rgba(255, 255, 255, .5)',
-      
+
       darkAlpha200: 'rgba(0, 0, 0, .2)',
     },
   },
