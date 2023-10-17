@@ -131,15 +131,15 @@ impl ChatType {
     pub const DELETED_BIT: i32 = 14;
     pub const DELETED_MASK: i32 = 1 << Self::DELETED_BIT;
 
-    pub fn into_original(self) -> Self {
+    pub const fn into_original(self) -> Self {
         Self(self.0 & !Self::DELETED_MASK)
     }
 
-    pub fn into_deleted(self) -> Self {
+    pub const fn into_deleted(self) -> Self {
         Self(self.0 | Self::DELETED_MASK)
     }
 
-    pub fn deleted(self) -> bool {
+    pub const fn deleted(self) -> bool {
         (self.0 & Self::DELETED_MASK) != 0
     }
 }
