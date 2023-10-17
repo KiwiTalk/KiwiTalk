@@ -1,12 +1,9 @@
-use serde::{Deserialize, Serialize};
-
 use crate::{
     channel::user::UserId,
     chat::{Chatlog, LogId},
 };
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type", content = "data")]
+#[derive(Debug, Clone)]
 pub enum ChannelEvent {
     Chat {
         link_id: Option<i64>,

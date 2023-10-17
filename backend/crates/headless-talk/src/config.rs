@@ -1,9 +1,13 @@
 #[derive(Debug, Clone, Copy)]
-pub struct ClientConfig<'a> {
+pub struct ClientEnv<'a> {
     pub os: &'a str,
-    pub net_type: i16,
-    pub app_version: &'a str,
+    pub net_type: NetworkType,
     pub mccmnc: &'a str,
     pub language: &'a str,
-    pub device_type: i8,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(i16)]
+pub enum NetworkType {
+    Wired = 0,
 }
