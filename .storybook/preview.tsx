@@ -1,11 +1,15 @@
-import i18next from 'i18next';
-import { Decorator } from 'storybook-solidjs';
+import '@/features/style-reset';
 
-import type { JSX } from 'solid-js/jsx-runtime';
-import Provider from '../frontend/src/app/providers';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { Globals } from '@storybook/types';
+import i18next from 'i18next';
 import { ParentProps } from 'solid-js';
+import { Decorator } from 'storybook-solidjs';
+
+import Provider from '@/app/providers';
+import { themeRoot } from '@/features/theme';
+
+import type { JSX } from 'solid-js/jsx-runtime';
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
@@ -47,7 +51,9 @@ export const decorators: Decorator[] = [
   (Story: () => JSX.Element, { globals }) => (
     <Provider>
       <StoryProvider globals={globals}>
-        <Story />
+        <div class={themeRoot}>
+          <Story />
+        </div>
       </StoryProvider>
     </Provider>
   ),

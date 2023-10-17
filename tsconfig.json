@@ -18,9 +18,12 @@
     "jsxImportSource": "solid-js",
     "types": [
       "vite-plugin-solid-svg/types-component-solid",
-      "vite/client",
-    ]
+      "vite/client"
+    ],
+    "paths": {
+      "@/*": ["./frontend/src/*"]
+    }
   },
-  "include": ["frontend/src", ".storybook/preview.tsx"],
+  "include": ["frontend/src", ".storybook"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
