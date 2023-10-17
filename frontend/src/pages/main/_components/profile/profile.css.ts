@@ -9,6 +9,8 @@ export const profileContainer = style({
 
   background: vars.color.secondary.background,
   borderRadius: vars.radius.full,
+
+  flexShrink: 0,
 });
 
 export const profileImage = style({

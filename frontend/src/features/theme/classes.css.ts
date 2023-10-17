@@ -20,6 +20,15 @@ const typographySize12 = style([
   },
 ]);
 
+const typographySize16 = style([
+  typographyBase,
+  {
+    fontSize: '16px',
+    lineHeight: '18px',
+    fontWeight: 600,
+  },
+]);
+
 const typography = {
   base: typographyBase,
 
@@ -28,6 +37,9 @@ const typography = {
 
   /** 12 / 16 */
   body: typographySize12,
+
+  /** 16 / 18 */
+  head1: typographySize16,
 };
 
 export const classes = {
