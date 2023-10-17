@@ -2,13 +2,13 @@
 pub mod normal;
 pub mod open;
 */
-pub mod updater;
+pub(crate) mod updater;
 pub mod user;
 
 use crate::{
     chat::{Chat, Chatlog, LogId},
     database::chat::{ChatDatabaseExt, ChatRow},
-    ClientResult, KiwiTalkSession,
+    ClientResult, HeadlessTalk,
 };
 use arrayvec::ArrayVec;
 use futures::{pin_mut, StreamExt};
@@ -26,13 +26,11 @@ pub type ChannelId = i64;
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ChannelListData {
+#[derive(Debug, Clone)]
+pub struct ListChannelItem {
     pub channel_type: String,
 
     pub last_chat: Option<Chatlog>,
-    pub last_log_id: LogId,
-    pub last_seen_log_id: LogId,
 
     pub display_users: ArrayVec<DisplayUser, 4>,
 
@@ -88,12 +86,12 @@ impl From<()> for ChannelDataVariant {
 pub struct ClientChannel<'a> {
     id: ChannelId,
 
-    client: &'a KiwiTalkSession,
+    client: &'a HeadlessTalk,
 }
 
 impl<'a> ClientChannel<'a> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, client: &'a KiwiTalkSession) -> Self {
+    pub const fn new(id: ChannelId, client: &'a HeadlessTalk) -> Self {
         Self { id, client }
     }
 
