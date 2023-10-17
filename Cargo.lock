@@ -1668,7 +1668,6 @@ dependencies = [
  "talk-loco-client",
  "thiserror",
  "tokio",
- "tokio-util",
 ]
 
 [[package]]

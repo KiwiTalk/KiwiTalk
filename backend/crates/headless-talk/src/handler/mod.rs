@@ -13,7 +13,6 @@ use crate::{
         pool::DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
-    KiwiTalkSession,
 };
 
 use self::error::HandlerError;
@@ -26,10 +25,8 @@ pub struct SessionHandler {
 }
 
 impl SessionHandler {
-    pub fn new(client: &KiwiTalkSession) -> Self {
-        Self {
-            pool: client.pool.clone(),
-        }
+    pub fn new(pool: DatabasePool) -> Self {
+        Self { pool }
     }
 
     pub async fn handle(&self, command: StreamCommand) -> HandlerResult {

@@ -15,11 +15,11 @@ impl DatabasePool {
         Ok(Self(Pool::new(SqliteConnectionManager::file(path))?))
     }
 
-    pub fn get(&self) -> Result<PooledConnection, PoolError> {
+    pub(crate) fn get(&self) -> Result<PooledConnection, PoolError> {
         self.0.get().map_err(PoolError)
     }
 
-    pub fn spawn_task<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
+    pub(crate) fn spawn_task<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
         &self,
         closure: F,
     ) -> impl Future<Output = PoolTaskResult<R>>
@@ -36,7 +36,7 @@ impl DatabasePool {
         .map(|res| res.unwrap())
     }
 
-    pub async fn migrate_to_latest(&self) -> PoolTaskResult<()> {
+    pub(crate) async fn migrate_to_latest(&self) -> PoolTaskResult<()> {
         self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
             .await
     }

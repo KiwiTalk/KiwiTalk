@@ -11,7 +11,7 @@ repository.workspace = true
 [dependencies]
 talk-loco-client = { workspace = true }
 
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 futures = "0.3.28"

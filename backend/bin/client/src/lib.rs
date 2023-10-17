@@ -17,8 +17,8 @@ use tauri::{
 use anyhow::{anyhow, Context};
 use futures::{future::poll_fn, ready, stream, StreamExt};
 use headless_talk::{
-    config::ClientConfig, database::pool::DatabasePool, handler::SessionHandler, ClientCredential,
-    ClientStatus, KiwiTalkSession,
+    config::ClientEnv, database::pool::DatabasePool, handler::SessionHandler, Credential,
+    ClientStatus, HeadlessTalk,
 };
 use talk_loco_client::{
     futures_loco_protocol::{session::LocoSession, LocoClient},
@@ -74,7 +74,7 @@ async fn create(
 
     let client = create_client(
         status,
-        ClientCredential {
+        Credential {
             access_token: &access_token,
             device_uuid: &get_system_info().device_info.device_uuid,
         },
@@ -111,7 +111,7 @@ async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<MainEven
 
 #[derive(Debug)]
 struct Client {
-    session: KiwiTalkSession,
+    session: HeadlessTalk,
     event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
     stream_task: JoinHandle<()>,
     ping_task: JoinHandle<()>,
@@ -126,7 +126,7 @@ impl Drop for Client {
 
 async fn create_client(
     status: ClientStatus,
-    credential: ClientCredential<'_>,
+    credential: Credential<'_>,
     user_id: i64,
 ) -> anyhow::Result<Client> {
     let user_dir = get_system_info().data_dir.join("userdata").join({
@@ -164,10 +164,10 @@ async fn create_client(
         let login_task = async {
             let info = get_system_info();
 
-            KiwiTalkSession::login(
+            HeadlessTalk::login(
                 session,
                 pool,
-                ClientConfig {
+                ClientEnv {
                     os: TALK_OS,
                     net_type: TALK_NET_TYPE,
                     app_version: TALK_VERSION,

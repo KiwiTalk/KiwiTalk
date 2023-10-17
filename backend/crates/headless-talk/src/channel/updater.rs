@@ -1,6 +1,7 @@
 use arrayvec::ArrayVec;
 use nohash_hasher::IntMap;
 use talk_loco_client::{
+    futures_loco_protocol::session::LocoSession,
     structs::{channel::ChannelInfo, user::UserVariant},
     talk::session::{
         load_channel_list::response::ChannelListData as LocoChannelListData, ChannelInfoReq,
@@ -10,22 +11,22 @@ use talk_loco_client::{
 };
 use thiserror::Error;
 
-use crate::{
-    database::{
-        channel::{user::UserDatabaseExt, ChannelDatabaseExt, ChannelMetaRow, ChannelUpdateRow},
-        pool::PoolTaskError,
-    },
-    KiwiTalkSession,
+use crate::database::{
+    channel::{user::UserDatabaseExt, ChannelDatabaseExt, ChannelMetaRow, ChannelUpdateRow},
+    pool::{DatabasePool, PoolTaskError},
 };
 
 use super::{user::UserProfile, ChannelId, ChannelMeta};
 
-#[derive(Debug, Clone, Copy)]
-pub struct ChannelUpdater<'a>(&'a KiwiTalkSession);
+#[derive(Debug, Clone)]
+pub struct ChannelUpdater<'a> {
+    session: &'a LocoSession,
+    pool: &'a DatabasePool,
+}
 
 impl<'a> ChannelUpdater<'a> {
-    pub(crate) fn new(session: &'a KiwiTalkSession) -> Self {
-        Self(session)
+    pub(crate) fn new(session: &'a LocoSession, pool: &'a DatabasePool) -> Self {
+        Self { session, pool }
     }
 }
 
@@ -35,7 +36,6 @@ impl ChannelUpdater<'_> {
         iter: impl IntoIterator<Item = LocoChannelListData> + Send + 'static,
     ) -> Result<(), UpdateError> {
         let update_map: IntMap<ChannelId, i64> = self
-            .0
             .pool
             .spawn_task(|conn| Ok(conn.channel().get_update_map()?))
             .await?;
@@ -51,14 +51,14 @@ impl ChannelUpdater<'_> {
                 continue;
             }
 
-            let info = TalkSession(&self.0.session)
+            let info = TalkSession(&self.session)
                 .channel_info(&ChannelInfoReq {
                     chat_id: list_data.id,
                 })
                 .await?
                 .chat_info;
 
-            let members = TalkSession(&self.0.session)
+            let members = TalkSession(&self.session)
                 .get_all_users(&GetAllUsersReq {
                     chat_id: list_data.id,
                 })
@@ -86,8 +86,7 @@ impl ChannelUpdater<'_> {
             update_list.push((row, info, members));
         }
 
-        self.0
-            .pool
+        self.pool
             .spawn_task(move |mut conn| {
                 let transaction = conn.transaction()?;
 
