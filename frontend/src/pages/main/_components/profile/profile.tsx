@@ -1,12 +1,12 @@
 import { Show, createEffect, createSignal, on } from 'solid-js';
 
 import UserIcon from '@/assets/icons/user.svg';
-import { emptyProfileContainer, emptyProfileIcon, profileBadge, profileContainer, profileImage } from './profile.css';
+import * as styles from './profile.css';
 
 export const EmptyProfile = () => {
   return (
-    <div class={emptyProfileContainer}>
-      <UserIcon class={emptyProfileIcon} />
+    <div class={styles.emptyProfileContainer}>
+      <UserIcon class={styles.emptyProfileIcon} />
     </div>
   );
 };
@@ -23,18 +23,18 @@ export const Profile = (props: ProfileProps) => {
   }));
 
   return (
-    <div class={profileContainer}>
+    <div class={styles.profileContainer}>
       <Show
         when={!isEmpty()}
         fallback={<EmptyProfile />}
       >
         <img
           src={props.src}
-          class={profileImage}
+          class={styles.profileImage}
           onError={() => setIsEmpty(true)}
         />
       </Show>
-      <span class={profileBadge[props.badge ? 'active' : 'inactive']}>
+      <span class={styles.profileBadge[props.badge ? 'active' : 'inactive']}>
         {props.badge}
       </span>
     </div>
