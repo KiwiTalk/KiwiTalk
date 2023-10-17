@@ -1,6 +1,6 @@
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { appWindow } from '@tauri-apps/api/window';
-import { Accessor, createResource, mergeProps, onCleanup } from 'solid-js';
+import { Accessor, createResource, mergeProps, onCleanup, untrack } from 'solid-js';
 import { saveWindowState, StateFlags } from 'tauri-plugin-window-state-api';
 
 import * as styles from './window-controls.css';
@@ -40,7 +40,7 @@ type WindowControlsProps = {
 
 export const WindowControls = (props: WindowControlsProps) => {
   const merged = mergeProps({ viewModel: WindowControlsViewModel }, props);
-  const instance = merged.viewModel();
+  const instance = untrack(() => merged.viewModel());
   const [t] = useTransContext();
 
   const buttonVariant = () => instance.isActive() ? 'active' : 'inactive';

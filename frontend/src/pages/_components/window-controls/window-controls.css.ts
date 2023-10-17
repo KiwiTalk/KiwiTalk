@@ -42,7 +42,7 @@ export const buttonBase = style({
 
 export const buttonMinMax = styleVariants({
   active: [buttonBase, {
-    'background': vars.color.neutral.grey.grey800,
+    'background': vars.color.neutral.grey800,
     ':hover': { opacity: vars.opacity.hover },
   }],
   inactive: [buttonBase, { background: vars.color.secondary.fillSecondary }],
@@ -50,7 +50,7 @@ export const buttonMinMax = styleVariants({
 
 export const buttonClose = styleVariants({
   active: [buttonBase, {
-    'background': vars.color.red.red400,
+    'background': vars.color.red400,
     ':hover': { opacity: vars.opacity.hover },
   }],
   inactive: [buttonBase, { background: vars.color.secondary.fillSecondary }],

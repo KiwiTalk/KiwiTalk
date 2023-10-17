@@ -8,6 +8,7 @@ import {
   createSignal,
   mergeProps,
   splitProps,
+  untrack,
 } from 'solid-js';
 
 import IconChat from '@/assets/icons/chat.svg';
@@ -163,7 +164,7 @@ type SidebarProps<Path extends string> =
 export const Sidebar = <Path extends string = SidebarPathType>(props: SidebarProps<Path>) => {
   const [itemsProps] = splitProps(props, ['activePath', 'setActivePath']);
   const merged = mergeProps({ viewModel: SidebarViewModel as SidebarViewModelType<Path> }, props);
-  const instance = merged.viewModel();
+  const instance = untrack(() => merged.viewModel());
 
   return (
     <aside class={styles.sidebar[props.collapsed ? 'collapsed' : 'default']}>

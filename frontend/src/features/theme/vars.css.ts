@@ -2,30 +2,30 @@ import { createTheme, style } from '@vanilla-extract/css';
 
 const [themeClass, baseVars] = createTheme({
   color: {
-    red: {
-      red400: '#ff4e4e',
-    },
-    blue: {
-      blue100: '#1c1c22',
-      blue200: '#1f2634',
-      blue400: '#226cff',
-      blue500: '#618ee7',
-    },
+    /* red */
+    red400: '#ff4e4e',
+
+    /* blue */
+    blue100: '#1c1c22',
+    blue200: '#1f2634',
+    blue400: '#226cff',
+    blue500: '#618ee7',
+
+    /* neutral */
     neutral: {
       black: '#000000',
       white: '#ffffff',
-      grey: {
-        grey800: '#e3e3e3',
-      },
-      lightAlpha: {
-        lightAlpha050: 'rgba(255, 255, 255, .05)',
-        lightAlpha100: 'rgba(255, 255, 255, .1)',
-        lightAlpha300: 'rgba(255, 255, 255, .3)',
-        lightAlpha500: 'rgba(255, 255, 255, .5)',
-      },
-      darkAlpha: {
-        darkAlpha200: 'rgba(0, 0, 0, .2)',
-      },
+
+      /* grey */
+      grey800: '#e3e3e3',
+
+      /* alpha */
+      lightAlpha050: 'rgba(255, 255, 255, .05)',
+      lightAlpha100: 'rgba(255, 255, 255, .1)',
+      lightAlpha300: 'rgba(255, 255, 255, .3)',
+      lightAlpha500: 'rgba(255, 255, 255, .5)',
+      
+      darkAlpha200: 'rgba(0, 0, 0, .2)',
     },
   },
   blur: {},
@@ -65,29 +65,29 @@ const vars = {
   color: {
     ...baseVars.color,
     primary: {
-      background: baseVars.color.blue.blue400,
+      background: baseVars.color.blue400,
       fillPrimary: baseVars.color.neutral.white,
-      fillSecondary: baseVars.color.neutral.lightAlpha.lightAlpha500,
-      elevated: baseVars.color.neutral.lightAlpha.lightAlpha050,
+      fillSecondary: baseVars.color.neutral.lightAlpha500,
+      elevated: baseVars.color.neutral.lightAlpha050,
     } satisfies Surface,
     secondary: {
       background: baseVars.color.neutral.black,
       fillPrimary: baseVars.color.neutral.white,
-      fillSecondary: baseVars.color.neutral.lightAlpha.lightAlpha300,
-      attention: baseVars.color.blue.blue500,
-      elevated: baseVars.color.neutral.lightAlpha.lightAlpha100,
+      fillSecondary: baseVars.color.neutral.lightAlpha300,
+      attention: baseVars.color.blue500,
+      elevated: baseVars.color.neutral.lightAlpha100,
     } satisfies Surface,
     glass: {
-      background: baseVars.color.neutral.darkAlpha.darkAlpha200,
+      background: baseVars.color.neutral.darkAlpha200,
       fillPrimary: baseVars.color.neutral.white,
-      fillSecondary: baseVars.color.neutral.lightAlpha.lightAlpha500,
-      fillTertiary: baseVars.color.neutral.lightAlpha.lightAlpha100,
-      attention: baseVars.color.blue.blue400,
+      fillSecondary: baseVars.color.neutral.lightAlpha500,
+      fillTertiary: baseVars.color.neutral.lightAlpha100,
+      attention: baseVars.color.blue400,
     } satisfies Surface,
     overlay: {
-      background: baseVars.color.neutral.lightAlpha.lightAlpha050,
+      background: baseVars.color.neutral.lightAlpha050,
       fillPrimary: baseVars.color.neutral.white,
-      fillSecondary: baseVars.color.neutral.lightAlpha.lightAlpha300,
+      fillSecondary: baseVars.color.neutral.lightAlpha300,
     } satisfies Surface,
   },
 };
