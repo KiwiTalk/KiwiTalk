@@ -1,5 +1,13 @@
 import { globalStyle } from '@vanilla-extract/css';
 
+globalStyle('html, body, #root', {
+  width: '100%',
+  height: '100%',
+
+  padding: 0,
+  margin: 0,
+});
+
 globalStyle(`*:where(:not(canvas, iframe, img, svg, svg *, symbol *, video))`, {
   all: 'unset',
   display: 'revert',

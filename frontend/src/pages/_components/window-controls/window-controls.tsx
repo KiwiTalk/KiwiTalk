@@ -46,9 +46,9 @@ export const WindowControls = (props: WindowControlsProps) => {
   const buttonVariant = () => instance.isActive() ? 'active' : 'inactive';
 
   return (
-    <div class={styles.container}>
-      <span class={styles.title}>KiwiTalk</span>
-      <div class={styles.buttons}>
+    <div data-tauri-drag-region class={styles.container}>
+      <span data-tauri-drag-region class={styles.title}>KiwiTalk</span>
+      <div data-tauri-drag-region class={styles.buttons}>
         <button
           aria-label={t('window-controls.minimize')}
           class={styles.buttonMinMax[buttonVariant()]}

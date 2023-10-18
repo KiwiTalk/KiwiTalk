@@ -83,7 +83,7 @@ export const ChannelListViewModel: ChannelListViewModelType = () => {
 
 
 export type ChannelListProps = {
-  viewModel: ChannelListViewModelType;
+  viewModel?: ChannelListViewModelType;
   activeId?: string;
   setActiveId?: (id: string) => void;
 }
