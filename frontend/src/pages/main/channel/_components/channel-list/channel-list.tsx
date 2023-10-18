@@ -1,4 +1,4 @@
-import { Accessor, For, createResource, mergeProps, untrack, JSX } from 'solid-js';
+import { Accessor, For, createResource, mergeProps, untrack, JSX, splitProps } from 'solid-js';
 
 import * as styles from './channel-list.css';
 import { getChannelList } from '@/ipc/client';
@@ -84,9 +84,11 @@ export const ChannelListViewModel: ChannelListViewModelType = () => {
 
 export type ChannelListProps = {
   viewModel: ChannelListViewModelType;
-  selectedChannelId?: string;
+  activeId?: string;
+  setActiveId?: (id: string) => void;
 }
 export const ChannelList = (props: ChannelListProps) => {
+  const [local] = splitProps(props, ['activeId', 'setActiveId']);
   const merged = mergeProps({ viewModel: ChannelListViewModel }, props);
   const instance = untrack(() => merged.viewModel());
   const [t] = useTransContext();
@@ -113,13 +115,13 @@ export const ChannelList = (props: ChannelListProps) => {
           <ChannelItem
             name={channel.name}
             members={channel.userCount}
-
             lastMessage={channel.lastChat?.content.message}
             lastMessageTime={channel.lastChat?.content.timestamp}
             profileSrc={channel.profile}
             unreadBadge={channel.unreadCount}
             silent={channel.silent}
-            selected={channel.id === merged.selectedChannelId}
+            selected={channel.id === local.activeId}
+            onClick={() => local.setActiveId?.(channel.id)}
           />
         )}
       </For>

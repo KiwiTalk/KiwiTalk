@@ -16,10 +16,15 @@ export type ChannelItemProps = {
   unreadBadge?: number;
   silent?: boolean;
   selected?: boolean;
+
+  onClick?: () => void;
 };
 export const ChannelItem = (props: ChannelItemProps) => {
   return (
-    <li class={styles.channelItemContainer[props.selected ? 'active' : 'inactive']}>
+    <li
+      class={styles.channelItemContainer[props.selected ? 'active' : 'inactive']}
+      onClick={props.onClick}
+    >
       <Profile src={props.profileSrc} badge={props.unreadBadge} />
       <span class={styles.contentContainer}>
         <div class={styles.header}>

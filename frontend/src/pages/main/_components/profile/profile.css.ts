@@ -16,6 +16,8 @@ export const profileContainer = style({
 export const profileImage = style({
   objectFit: 'cover',
   borderRadius: vars.radius.full,
+  userSelect: 'none',
+  WebkitUserDrag: 'none',
 });
 
 export const emptyProfileContainer = style({

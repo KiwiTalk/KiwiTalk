@@ -5,13 +5,14 @@ import { ChannelList, ChannelListProps, ChannelListViewModelType } from './chann
 
 import SearchIcon from '@/assets/icons/search.svg';
 import AddChatIcon from '@/pages/main/channel/_assets/icons/add-chat.svg';
+import { createSignal } from 'solid-js';
 
 export default {
   title: 'KiwiTalk v2/Channel/Channel List',
   component: ChannelList,
 };
 
-const Template: StoryFn<ChannelListProps> = (props) => {
+const Template: StoryFn<ChannelListProps> = () => {
   const NoOpViewModel: ChannelListViewModelType = () => ({
     channels: () => [
       {
@@ -71,16 +72,18 @@ const Template: StoryFn<ChannelListProps> = (props) => {
       },
     ],
   });
+  const [activeId, setActiveId] = createSignal('1');
 
   return (
     <div class={styles.background}>
       <ChannelList
         viewModel={NoOpViewModel}
-        selectedChannelId={props.selectedChannelId}
+        activeId={activeId()}
+        setActiveId={setActiveId}
       />
     </div>
   );
 };
 
 export const Default = Template.bind({});
-Default.args = { selectedChannelId: '1' };
+Default.args = {};

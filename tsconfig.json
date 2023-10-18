@@ -18,7 +18,8 @@
     "jsxImportSource": "solid-js",
     "types": [
       "vite-plugin-solid-svg/types-component-solid",
-      "vite/client"
+      "vite/client",
+      "./frontend/kiwitalk.d.ts"
     ],
     "paths": {
       "@/*": ["./frontend/src/*"]

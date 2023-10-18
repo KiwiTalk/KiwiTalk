@@ -9,16 +9,37 @@ const baseChannelItemContainer = style({
   gap: '16px',
 
   padding: '16px',
-  borderRadius: vars.radius.regular,
-
   marginBottom: '-6px',
+
+  borderRadius: vars.radius.regular,
+  cursor: 'pointer',
+  outlineStyle: 'solid',
+  outlineColor: 'transparent',
+
+  transition: `background ${vars.easing.background}, outline ${vars.easing.background}`,
 });
 
 export const channelItemContainer = styleVariants({
   active: [baseChannelItemContainer, {
     background: vars.color.primary.elevated,
+    outlineWidth: '2px',
+
+    selectors: {
+      '&:hover': {
+        outlineColor: vars.color.secondary.elevated,
+      },
+    },
   }],
-  inactive: [baseChannelItemContainer],
+  inactive: [baseChannelItemContainer, {
+    outlineOffset: '-8px',
+    outlineWidth: '2px',
+
+    selectors: {
+      '&:hover': {
+        outlineColor: vars.color.secondary.elevated,
+      },
+    },
+  }],
 });
 
 export const contentContainer = style({
