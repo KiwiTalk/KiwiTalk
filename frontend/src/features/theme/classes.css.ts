@@ -29,6 +29,24 @@ const typographySize16 = style([
   },
 ]);
 
+const typographySize20 = style([
+  typographyBase,
+  {
+    fontSize: '20px',
+    lineHeight: '28px',
+    fontWeight: 600,
+  },
+]);
+
+const typographySize24 = style([
+  typographyBase,
+  {
+    fontSize: '24px',
+    lineHeight: '42px',
+    fontWeight: 600,
+  },
+]);
+
 const typography = {
   base: typographyBase,
 
@@ -38,8 +56,12 @@ const typography = {
   /** 12 / 16 */
   body: typographySize12,
 
+  /** 24 / 42 */
+  head1: typographySize24,
+  /** 20 / 28 */
+  head2: typographySize20,
   /** 16 / 18 */
-  head1: typographySize16,
+  head3: typographySize16,
 };
 
 export const classes = {

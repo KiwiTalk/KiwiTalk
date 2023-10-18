@@ -10,6 +10,8 @@ const baseChannelItemContainer = style({
 
   padding: '16px',
   borderRadius: vars.radius.regular,
+
+  marginBottom: '-6px',
 });
 
 export const channelItemContainer = styleVariants({
@@ -41,7 +43,7 @@ export const header = style([classes.typography.body, {
   color: vars.color.primary.fillSecondary,
 }]);
 
-export const title = style([classes.typography.head1, {
+export const title = style([classes.typography.head3, {
   color: vars.color.primary.fillPrimary,
 }]);
 
