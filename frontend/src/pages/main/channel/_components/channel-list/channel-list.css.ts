@@ -23,7 +23,7 @@ export const header = style({
 });
 
 export const title = style([classes.typography.head1, {
-  color: vars.color.primary.fillPrimary,
+  color: vars.color.secondary.fillPrimary,
 
   paddingLeft: '12px',
   paddingRight: '12px',
@@ -40,7 +40,7 @@ export const iconButton = style({
   padding: '12px',
   marginLeft: '-4px',
 
-  color: vars.color.primary.fillPrimary,
+  color: vars.color.secondary.fillPrimary,
 });
 
 export const icon = style({

@@ -3,8 +3,8 @@ import { StoryFn } from 'storybook-solidjs';
 import * as styles from './channel-list.stories.css';
 import { ChannelList, ChannelListProps, ChannelListViewModelType } from './channel-list';
 
-import SearchIcon from '@/assets/icons/search.svg';
-import AddChatIcon from '@/pages/main/channel/_assets/icons/add-chat.svg';
+import IconSearch from '@/assets/icons/search.svg';
+import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
 import { createSignal } from 'solid-js';
 
 export default {
@@ -64,11 +64,11 @@ const Template: StoryFn<ChannelListProps> = () => {
     topItems: () => [
       {
         kind: 'click',
-        icon: <SearchIcon />,
+        icon: <IconSearch />,
       },
       {
         kind: 'click',
-        icon: <AddChatIcon />,
+        icon: <IconAddChat />,
       },
     ],
   });

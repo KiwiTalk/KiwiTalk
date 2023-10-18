@@ -47,6 +47,13 @@ const typographySize24 = style([
   },
 ]);
 
+const typographyNumber = style([typographySize12, {
+  fontFeatureSettings: '"cv01" on, "ss06" on',
+  fontVariantNumeric: 'lining-nums tabular-nums',
+  fontWeight: 500,
+  letterSpacing: '-0.04em',
+}]);
+
 const typography = {
   base: typographyBase,
 
@@ -62,6 +69,9 @@ const typography = {
   head2: typographySize20,
   /** 16 / 18 */
   head3: typographySize16,
+
+  /* special */
+  number: typographyNumber,
 };
 
 export const classes = {

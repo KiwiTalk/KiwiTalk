@@ -1,12 +1,12 @@
 import { Show, createEffect, createSignal, on } from 'solid-js';
 
-import UserIcon from '@/assets/icons/user.svg';
+import IconUser from '@/assets/icons/user.svg';
 import * as styles from './profile.css';
 
 export const EmptyProfile = () => {
   return (
     <div class={styles.emptyProfileContainer}>
-      <UserIcon class={styles.emptyProfileIcon} />
+      <IconUser class={styles.emptyProfileIcon} />
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { Profile } from '@/pages/main/_components/profile';
 
 import * as styles from './channel-item.css';
 
-import NotificationOffIcon from '@/assets/icons/notification_off.svg';
+import IconNotificationOff from '@/assets/icons/notification_off.svg';
 
 export type ChannelItemProps = {
   name: string;
@@ -35,7 +35,7 @@ export const ChannelItem = (props: ChannelItemProps) => {
             {props.members}
           </Show>
           <Show when={props.silent}>
-            <NotificationOffIcon />
+            <IconNotificationOff />
           </Show>
           <span class={styles.time}>
             {props.lastMessageTime?.toLocaleTimeString()}

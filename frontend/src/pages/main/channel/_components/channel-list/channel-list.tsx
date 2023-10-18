@@ -4,8 +4,8 @@ import * as styles from './channel-list.css';
 import { getChannelList } from '@/ipc/client';
 import { ChannelItem } from '../channel-item';
 
-import SearchIcon from '@/assets/icons/search.svg';
-import AddChatIcon from '@/pages/main/channel/_assets/icons/add-chat.svg';
+import IconSearch from '@/assets/icons/search.svg';
+import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
 
 import type { ChannelListItem } from '@/pages/main/channel/_types';
 import { useTransContext } from '@jellybrick/solid-i18next';
@@ -71,11 +71,11 @@ export const ChannelListViewModel: ChannelListViewModelType = () => {
     topItems: () => [
       {
         kind: 'click', // TODO: change to 'custom' when new design created
-        icon: <SearchIcon />,
+        icon: <IconSearch />,
       },
       {
         kind: 'click',
-        icon: <AddChatIcon />,
+        icon: <IconAddChat />,
       },
     ],
   };
