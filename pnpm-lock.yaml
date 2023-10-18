@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@jellybrick/solid-i18next':
     specifier: 1.2.2
-    version: 1.2.2(html-parse-string@0.0.9)(i18next@23.5.1)(solid-js@1.8.2)
+    version: 1.2.2(html-parse-string@0.0.9)(i18next@23.5.1)(solid-js@1.8.3)
   '@tauri-apps/api':
     specifier: 1.5.1
     version: 1.5.1
@@ -27,8 +27,8 @@ dependencies:
     specifier: 23.5.1
     version: 23.5.1
   solid-js:
-    specifier: 1.8.2
-    version: 1.8.2
+    specifier: 1.8.3
+    version: 1.8.3
   tauri-plugin-log-api:
     specifier: github:tauri-apps/tauri-plugin-log#v1
     version: github.com/tauri-apps/tauri-plugin-log/1a369766cf90f3aed9c2b7c68b70bf39081538b3
@@ -69,7 +69,7 @@ devDependencies:
     version: 7.5.0
   storybook-solidjs:
     specifier: 1.0.0-beta.2
-    version: 1.0.0-beta.2(babel-preset-solid@1.8.0)(solid-js@1.8.2)
+    version: 1.0.0-beta.2(babel-preset-solid@1.8.0)(solid-js@1.8.3)
   storybook-solidjs-vite:
     specifier: 1.0.0-beta.2
     version: 1.0.0-beta.2(typescript@5.2.2)(vite@4.4.11)
@@ -81,10 +81,10 @@ devDependencies:
     version: 4.4.11
   vite-plugin-solid:
     specifier: 2.7.2
-    version: 2.7.2(solid-js@1.8.2)(vite@4.4.11)
+    version: 2.7.2(solid-js@1.8.3)(vite@4.4.11)
   vite-plugin-solid-svg:
     specifier: 0.7.0
-    version: 0.7.0(solid-js@1.8.2)(vite@4.4.11)
+    version: 0.7.0(solid-js@1.8.3)(vite@4.4.11)
 
 packages:
 
@@ -1935,7 +1935,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /@jellybrick/solid-i18next@1.2.2(html-parse-string@0.0.9)(i18next@23.5.1)(solid-js@1.8.2):
+  /@jellybrick/solid-i18next@1.2.2(html-parse-string@0.0.9)(i18next@23.5.1)(solid-js@1.8.3):
     resolution: {integrity: sha512-eXsm+8dp5djZ1EFdJ5+Kqxd+YmtNUAkiwlVGXUC++LxYfYnEvyKSEpkg+0M/vNi3mBn/twZic0/gKfzeOAUBKQ==}
     peerDependencies:
       html-parse-string: <=1.x
@@ -1947,7 +1947,7 @@ packages:
     dependencies:
       html-parse-string: 0.0.9
       i18next: 23.5.1
-      solid-js: 1.8.2
+      solid-js: 1.8.3
     dev: false
 
   /@jest/schemas@29.6.3:
@@ -7498,13 +7498,13 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /solid-js@1.8.2:
-    resolution: {integrity: sha512-Qifh2/EJ0hUgko9buZcE5oPpEykrpDp34mJoW+qxyy3UTQnfCTmwc8JbeI71UiDahZt5FqvgOzxolprTuwMAqg==}
+  /solid-js@1.8.3:
+    resolution: {integrity: sha512-S7ztgPI6X4tUaWmhZe3aDx0E9F6FGxXVU8NsocrPqqUbxHoFi8eTPlDMcenOlXuo2ITQ97j2URaj0StfJci4KQ==}
     dependencies:
       csstype: 3.1.2
       seroval: 0.11.6
 
-  /solid-refresh@0.5.3(solid-js@1.8.2):
+  /solid-refresh@0.5.3(solid-js@1.8.3):
     resolution: {integrity: sha512-Otg5it5sjOdZbQZJnvo99TEBAr6J7PQ5AubZLNU6szZzg3RQQ5MX04oteBIIGDs0y2Qv8aXKm9e44V8z+UnFdw==}
     peerDependencies:
       solid-js: ^1.3
@@ -7512,7 +7512,7 @@ packages:
       '@babel/generator': 7.23.0
       '@babel/helper-module-imports': 7.22.15
       '@babel/types': 7.23.0
-      solid-js: 1.8.2
+      solid-js: 1.8.3
     dev: true
 
   /source-map-js@1.0.2:
@@ -7585,7 +7585,7 @@ packages:
       - vite-plugin-glimmerx
     dev: true
 
-  /storybook-solidjs@1.0.0-beta.2(babel-preset-solid@1.8.0)(solid-js@1.8.2):
+  /storybook-solidjs@1.0.0-beta.2(babel-preset-solid@1.8.0)(solid-js@1.8.3):
     resolution: {integrity: sha512-wXjM/uH29IPjgxlPvQVNTM/7iBFNNzjuOugpk7iM2oy+sZl7K70eBjvOqGgX5v35pNHTaA8Ju3BlLdp+O20abg==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
@@ -7593,7 +7593,7 @@ packages:
       solid-js: ^1.6.6
     dependencies:
       babel-preset-solid: 1.8.0(@babel/core@7.23.2)
-      solid-js: 1.8.2
+      solid-js: 1.8.3
     dev: true
 
   /storybook@7.5.0:
@@ -8111,18 +8111,18 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-solid-svg@0.7.0(solid-js@1.8.2)(vite@4.4.11):
+  /vite-plugin-solid-svg@0.7.0(solid-js@1.8.3)(vite@4.4.11):
     resolution: {integrity: sha512-skErWSlCdI/NbrnyFQJWQk8RWjtRQGfknm1FjIgW190osiyVIZLWnQyT2ErV92ru9p5FjFgA4L482Y7ZBPcRzA==}
     peerDependencies:
       solid-js: ^1
       vite: ^4
     dependencies:
-      solid-js: 1.8.2
+      solid-js: 1.8.3
       svgo: 3.0.2
       vite: 4.4.11
     dev: true
 
-  /vite-plugin-solid@2.7.2(solid-js@1.8.2)(vite@4.4.11):
+  /vite-plugin-solid@2.7.2(solid-js@1.8.3)(vite@4.4.11):
     resolution: {integrity: sha512-GV2SMLAibOoXe76i02AsjAg7sbm/0lngBlERvJKVN67HOrJsHcWgkt0R6sfGLDJuFkv2aBe14Zm4vJcNME+7zw==}
     peerDependencies:
       solid-js: ^1.7.2
@@ -8133,8 +8133,8 @@ packages:
       '@types/babel__core': 7.20.2
       babel-preset-solid: 1.8.0(@babel/core@7.23.2)
       merge-anything: 5.1.7
-      solid-js: 1.8.2
-      solid-refresh: 0.5.3(solid-js@1.8.2)
+      solid-js: 1.8.3
+      solid-refresh: 0.5.3(solid-js@1.8.3)
       vite: 4.4.11
       vitefu: 0.2.4(vite@4.4.11)
     transitivePeerDependencies:
