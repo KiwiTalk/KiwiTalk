@@ -13,6 +13,7 @@ use tauri::{
 use tauri_plugin_log::LogTarget;
 use tauri_plugin_window_state::{StateFlags, WindowExt};
 use window_shadows::set_shadow;
+use window_vibrancy::{apply_acrylic, apply_vibrancy, NSVisualEffectMaterial};
 
 fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<Window<R>> {
     let window = WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
@@ -21,8 +22,17 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
         .title("KiwiTalk")
         .decorations(false)
         .visible(false)
+        .transparent(true)
         .build()?;
 
+    #[cfg(target_os = "macos")]
+    apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
+        .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+
+    #[cfg(target_os = "windows")]
+    apply_acrylic(&window, Some((0, 0, 0, 125)))
+        .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
+  
     set_shadow(&window, true).ok();
     window.restore_state(StateFlags::all())?;
 

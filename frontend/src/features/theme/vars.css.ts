@@ -26,6 +26,7 @@ const [themeClass, baseVars] = createTheme({
       lightAlpha500: 'rgba(255, 255, 255, .5)',
 
       darkAlpha200: 'rgba(0, 0, 0, .2)',
+      darkAlpha500: 'rgba(0, 0, 0, .5)',
     },
   },
   blur: {},

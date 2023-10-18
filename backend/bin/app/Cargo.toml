@@ -32,6 +32,7 @@ serde_json = "1.0"
 window-shadows = "0.2.2"
 tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+window-vibrancy = "0.4.2"
 
 [features]
 default = []
