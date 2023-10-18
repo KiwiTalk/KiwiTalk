@@ -4,7 +4,7 @@ use once_cell::sync::Lazy;
 use talk_loco_client::{
     client::checkin::{CheckinClient, CheckinReq, CheckinRes},
     futures_loco_protocol::{
-        secure::{LocoSecureStream, rsa::RsaPublicKey},
+        secure::{rsa::RsaPublicKey, LocoSecureStream},
         LocoClient,
     },
 };
