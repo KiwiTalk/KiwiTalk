@@ -1,17 +1,20 @@
-import { Outlet, useNavigate, useParams } from '@solidjs/router';
-import { Sidebar } from './_components/sidebar';
-import { container } from './page.css';
-import { createMainEventStream } from '@/app/main/event';
-import { logout } from '@/ipc/api';
-import { created, create, destroy } from '@/ipc/client';
 import { createResource } from 'solid-js';
+import { Outlet, useLocation, useNavigate } from '@solidjs/router';
+
+import { createMainEventStream } from '@/app/main/event';
 import { LogoutReason } from '@/app/main';
+import { created, create, destroy } from '@/ipc/client';
+
+import { Sidebar } from './_components/sidebar';
+
+import * as styles from './page.css';
 
 export const MainPage = () => {
   const navigate = useNavigate();
-  const param = useParams();
+  const location = useLocation();
 
-  const activeTab = () => param.tab;
+  const activeTab = () => location.pathname.match(/main\/([^/]+)/)?.[1] ?? 'chat';
+  console.log({ activeTab })
   const setActiveTab = (tab: string) => {
     navigate(`${tab}`, { replace: true });
   };
@@ -57,12 +60,14 @@ export const MainPage = () => {
   }
 
   return (
-    <main class={container}>
-      <Sidebar
-        collapsed={false}
-        activePath={activeTab()}
-        setActivePath={setActiveTab}
-      />
+    <main class={styles.container}>
+      <div class={styles.sidebarWrapper}>
+        <Sidebar
+          collapsed={false}
+          activePath={activeTab()}
+          setActivePath={setActiveTab}
+        />
+      </div>
       <Outlet />
     </main>
   )

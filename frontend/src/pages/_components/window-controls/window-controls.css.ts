@@ -6,6 +6,9 @@ export const container = style({
   'minHeight': '32px',
   'padding': '0 32px',
   'alignItems': 'center',
+
+  zIndex: 99999999,
+
   '::before': {
     content: '',
     flex: '1 1 0',

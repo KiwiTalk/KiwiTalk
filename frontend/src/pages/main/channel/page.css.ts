@@ -11,7 +11,7 @@ export const container = style({
   gap: '12px',
 });
 
-export const sidebarWrapper = style({
-  padding: '12px',
-  paddingRight: '0',
+export const list = style({
+  minWidth: '300px',
+  height: '100%',
 });
