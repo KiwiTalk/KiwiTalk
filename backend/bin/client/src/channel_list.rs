@@ -31,6 +31,7 @@ pub(super) async fn channel_list(
                 nickname: None,
                 chat_type: last_chat.chat.chat_type,
                 content: last_chat.chat.content,
+                timestamp: last_chat.send_at as f64 * 1000.0,
             })
         } else {
             None
@@ -96,6 +97,7 @@ pub(super) struct PreviewChat {
     pub nickname: Option<String>,
     pub chat_type: ChatType,
     pub content: ChatContent,
+    pub timestamp: f64,
 }
 
 #[derive(Debug, Clone, Serialize)]
