@@ -18,12 +18,20 @@ use talk_loco_client::{
     RequestError,
 };
 use thiserror::Error;
+use tokio::task::JoinHandle;
 
-#[derive(Debug, Clone)]
+use crate::{
+    channel::{ChannelKind, ChannelTypeExt},
+    database::{channel::ChannelDatabaseExt, chat::ChatDatabaseExt},
+};
+
+#[derive(Debug)]
 pub struct HeadlessTalk {
     user_id: UserId,
     session: LocoSession,
     pool: DatabasePool,
+
+    task_handle: JoinHandle<()>,
 }
 
 impl HeadlessTalk {
@@ -32,21 +40,37 @@ impl HeadlessTalk {
     }
 
     pub async fn open_channel(&self, id: ChannelId) -> ClientResult<()> {
+        let (a, last_log_id) = self
+            .pool
+            .spawn(move |conn| {
+                Ok((
+                    conn.channel().get(id)?,
+                    conn.chat().get_latest_log_id_in(id)?.unwrap_or(0),
+                ))
+            })
+            .await?;
+
         let session = TalkSession(&self.session);
 
         let res = session
             .chat_on_channel(&ChatOnChannelReq {
                 chat_id: id,
-                token: todo!(),
+                token: last_log_id,
                 open_token: todo!(),
             })
             .await?;
 
+        match res.chat_type.kind() {
+            ChannelKind::Normal => {}
+            ChannelKind::Open => {}
+            ChannelKind::Unknown => {}
+        }
+
         let sync_stream = pin!(session.sync_chat_stream(&SyncChatReq {
             chat_id: id,
-            current: todo!(),
+            current: last_log_id,
             count: 300,
-            max: todo!(),
+            max: a.as_ref().map(|a| a.last_seen_log_id).unwrap_or(0),
         }));
 
         while let Some(res) = sync_stream.try_next().await? {
@@ -54,8 +78,6 @@ impl HeadlessTalk {
                 Some(chatlogs) => chatlogs,
                 _ => continue,
             };
-
-            
         }
 
         todo!()
@@ -69,6 +91,12 @@ impl HeadlessTalk {
             .await?;
 
         Ok(())
+    }
+}
+
+impl Drop for HeadlessTalk {
+    fn drop(&mut self) {
+        self.task_handle.abort();
     }
 }
 

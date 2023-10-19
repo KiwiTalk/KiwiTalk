@@ -3,6 +3,25 @@ use serde_with::skip_serializing_none;
 
 use super::{chat::Chatlog, openlink::OpenLinkId, user::DisplayUserInfo};
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum ChannelType {
+    DirectChat,
+    MultiChat,
+
+    #[serde(rename = "OM")]
+    OpenMultiChat,
+
+    #[serde(rename = "OD")]
+    OpenDirectChat,
+
+    MemoChat,
+
+    PlusChat,
+
+    Other(String),
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChannelInfo {
@@ -10,10 +29,9 @@ pub struct ChannelInfo {
     #[serde(rename = "chatId")]
     pub chat_id: i64,
 
-    /// Chatroom type.
-    /// Check ChatroomListData chatroom_type for types.
+    /// Chatroom type
     #[serde(rename = "type")]
-    pub channel_type: String,
+    pub channel_type: ChannelType,
 
     /// Only present if chatroom is openchat
     #[serde(flatten)]
@@ -105,6 +123,7 @@ pub struct ChannelMeta {
     pub content: String,
 }
 
+#[derive(Debug, Clone, Copy)]
 #[repr(i32)]
 pub enum ChannelMetaType {
     Notice = 1,

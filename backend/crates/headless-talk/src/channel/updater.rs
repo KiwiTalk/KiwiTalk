@@ -37,7 +37,7 @@ impl ChannelUpdater<'_> {
     ) -> Result<(), UpdateError> {
         let update_map: IntMap<ChannelId, i64> = self
             .pool
-            .spawn_task(|conn| Ok(conn.channel().get_update_map()?))
+            .spawn(|conn| Ok(conn.channel().get_update_map()?))
             .await?;
 
         let mut update_list = Vec::<(ChannelUpdateRow, ChannelInfo, Vec<UserVariant>)>::new();
@@ -87,7 +87,7 @@ impl ChannelUpdater<'_> {
         }
 
         self.pool
-            .spawn_task(move |mut conn| {
+            .spawn(move |mut conn| {
                 let transaction = conn.transaction()?;
 
                 for (row, info, members) in update_list {

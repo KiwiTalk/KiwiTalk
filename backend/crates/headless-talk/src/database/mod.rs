@@ -1,5 +1,5 @@
-pub mod channel;
-pub mod chat;
+pub(crate) mod channel;
+pub(crate) mod chat;
 pub mod pool;
 
 use once_cell::sync::Lazy;
@@ -10,7 +10,7 @@ static MIGRATIONS: Lazy<Migrations<'static>> =
     Lazy::new(|| Migrations::new(vec![M::up(include_str!("./migrations/v0.1.0.sql"))]));
 
 #[extend::ext(name = MigrationExt)]
-pub impl Connection {
+pub(crate) impl Connection {
     fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
         MIGRATIONS.to_latest(self)
     }
