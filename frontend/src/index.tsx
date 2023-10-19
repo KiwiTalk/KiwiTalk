@@ -7,11 +7,11 @@ import { App, Layout } from './pages';
 import '@/features/style-reset';
 
 render(
-    () => (
-      <Layout>
-        <App />
-      </Layout>
-    ),
+  () => (
+    <Layout>
+      <App />
+    </Layout>
+  ),
   document.querySelector('#root')!,
 );
 

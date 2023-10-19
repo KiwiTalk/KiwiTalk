@@ -29,7 +29,10 @@ const [themeClass, baseVars] = createTheme({
       darkAlpha500: 'rgba(0, 0, 0, .5)',
     },
   },
-  blur: {},
+  blur: {
+    regular: 'blur(10px)',
+    large: 'blur(20px)',
+  },
   shadow: {
     regular: '0 4px 24px 0 rgba(0, 0, 0, .25)',
   },
