@@ -5,5 +5,5 @@ export const ChatPage = () => {
     <div class={styles.container}>
       TODO
     </div>
-  )
+  );
 };

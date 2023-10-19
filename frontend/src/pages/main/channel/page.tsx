@@ -8,7 +8,7 @@ import * as styles from './page.css';
 export const ChannelListPage = () => {
   const navigate = useNavigate();
   const param = useParams();
-  
+
   const activeId = () => param.channelId;
   const setActiveId = (id: string) => {
     navigate(`${id}`);
@@ -25,5 +25,5 @@ export const ChannelListPage = () => {
       </div>
       <ChatPage />
     </div>
-  )
+  );
 };

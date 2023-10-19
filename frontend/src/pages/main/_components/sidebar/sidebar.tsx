@@ -5,6 +5,7 @@ import {
   Match,
   Show,
   Switch,
+  createResource,
   createSignal,
   mergeProps,
   splitProps,
@@ -19,6 +20,7 @@ import IconSettings from '@/assets/icons/settings.svg';
 import IconUsers from '@/assets/icons/users.svg';
 
 import * as styles from './sidebar.css';
+import { getChannelList } from '@/ipc/client';
 
 type SidebarButtonProps = {
   isActive: boolean;
@@ -133,11 +135,24 @@ export const SidebarViewModel: SidebarViewModelType<SidebarPathType> = () => {
   // FIXME create @/features/config and migrate to useConfiguration
   const [isNotificationActive, setIsNotificationActive] = createSignal(false);
 
+  const [badges] = createResource(async () => {
+    let chatBadge = 0;
+    let openChatBadge = 0;
+
+    for (const [, item] of await getChannelList()) {
+      // TODO: add open chat badge
+      chatBadge += item.unreadCount;
+      openChatBadge += 0;
+    }
+
+    return [chatBadge, openChatBadge];
+  });
+
   return {
     topItems: () => [
       { kind: 'tab', icon: <IconUsers />, path: 'friends' },
-      { kind: 'tab', icon: <IconChat />, path: 'chat', badge: 6 },
-      { kind: 'tab', icon: <IconOpenChat />, path: 'openchat', badge: 12 },
+      { kind: 'tab', icon: <IconChat />, path: 'chat', badge: badges()?.[0] ?? '...' },
+      { kind: 'tab', icon: <IconOpenChat />, path: 'openchat', badge: badges()?.[1] ?? '...' },
     ],
     bottomItems: () => [
       {

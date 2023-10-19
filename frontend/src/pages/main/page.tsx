@@ -1,4 +1,4 @@
-import { createResource } from 'solid-js';
+import { Show, createResource } from 'solid-js';
 import { Outlet, useLocation, useNavigate } from '@solidjs/router';
 
 import { createMainEventStream } from '@/app/main/event';
@@ -14,16 +14,21 @@ export const MainPage = () => {
   const location = useLocation();
 
   const activeTab = () => location.pathname.match(/main\/([^/]+)/)?.[1] ?? 'chat';
-  console.log({ activeTab })
   const setActiveTab = (tab: string) => {
     navigate(`${tab}`, { replace: true });
   };
 
-  let finished = false;
-  createResource(async () => {
+  const [isClientInit] = createResource(async () => {
     if (!await created()) {
       await create('Unlocked');
     }
+
+    return true;
+  });
+
+  let finished = false;
+  createResource(isClientInit, async (isInit) => {
+    if (!isInit) return;
 
     const stream = createMainEventStream();
 
@@ -68,7 +73,9 @@ export const MainPage = () => {
           setActivePath={setActiveTab}
         />
       </div>
-      <Outlet />
+      <Show when={isClientInit()}>
+        <Outlet />
+      </Show>
     </main>
-  )
+  );
 };
