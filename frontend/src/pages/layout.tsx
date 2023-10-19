@@ -8,7 +8,7 @@ import { Router, Routes, hashIntegration } from '@solidjs/router';
 import { themeRoot } from '@/features/theme';
 import { container } from './layout.css';
 
-const Provider = (props: ParentProps) => (
+export const Provider = (props: ParentProps) => (
   <I18nProvider>
     <ConfigProvider>
       {props.children}

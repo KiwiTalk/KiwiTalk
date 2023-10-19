@@ -7,9 +7,9 @@ import {
   useContext,
 } from 'solid-js';
 
-import { LogoutReason } from '@/app/main';
-import { createMainEventStream } from '@/app/main/event';
-import { created, create } from '@/api/client';
+
+import { created, create, createMainEventStream } from '@/api/client';
+import { LogoutReason } from '@/api';
 
 const ReadyContext = createContext<Accessor<boolean>>(() => false);
 export const useReady = () => useContext(ReadyContext);

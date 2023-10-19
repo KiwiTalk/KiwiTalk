@@ -7,3 +7,16 @@ export type LoginForm = {
   saveEmail: boolean,
   autoLogin: boolean,
 }
+
+/** @deprecated */
+export type LogoutReason = {
+  type: 'Kickout',
+  reasonId: number,
+} | {
+  type: 'Error',
+  err: unknown
+} | {
+  type: 'Disconnected',
+} | {
+  type: 'Logout',
+};

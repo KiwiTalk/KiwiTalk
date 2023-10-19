@@ -1,6 +1,6 @@
 /* TODO: this file using deprecated login page. need to refactoring */
 
-import { AppLoginContent } from '@/app/login/content';
+import { AppLoginContent } from './content/login';
 import { useLocation, useNavigate } from '@solidjs/router';
 
 export const LoginPage = () => {
