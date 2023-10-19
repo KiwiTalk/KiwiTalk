@@ -46,6 +46,7 @@ export type ChannelListItem = {
       attachment?: string,
       supplement?: string,
     },
+    timestamp: number,
   },
 
   name?: string,

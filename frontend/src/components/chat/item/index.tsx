@@ -80,7 +80,7 @@ const ChatItem = (props: ChatItemProps) => {
         {local.lastMessage}
       </Message>
       <Time>
-        {local.lastUpdateTime ? toTime(local.lastUpdateTime) : ''}
+        {local.lastUpdateTime ? toTime(new Date(local.lastUpdateTime)) : ''}
       </Time>
       <State>
         <Show when={local.isPinned}>
