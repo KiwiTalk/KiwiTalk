@@ -20,7 +20,7 @@ export const contentContainer = style({
   justifyContent: 'flex-start',
   alignItems: 'flex-start',
 
-  padding: '96px 72px',
+  padding: '72px 96px',
 });
 
 export const infoContainer = style({

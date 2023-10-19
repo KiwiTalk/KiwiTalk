@@ -2,13 +2,15 @@ import { classes, vars } from '@/features/theme';
 import { style } from '@vanilla-extract/css';
 
 export const container = style({
+  minWidth: '400px',
+
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-start',
   alignItems: 'center',
   gap: '16px',
 
-  padding: '16px',
+  padding: '24px 20px',
   borderRadius: vars.radius.regular,
 
   backdropFilter: vars.blur.regular,

@@ -10,6 +10,8 @@
     "logout": "로그아웃",
     "id_placeholder": "카카오계정 (이메일 또는 전화번호)",
     "password_placeholder": "비밀번호",
+    "manage_account": "계정 관리",
+    "add_account": "새로운 계정 추가",
     "save_id": "아이디 저장",
     "auto_login_on_launch": "실행 시 자동 로그인",
     "register_type": {
