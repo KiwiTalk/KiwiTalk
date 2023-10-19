@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from '@solidjs/router';
 
-import { LogoutReason } from '@/app/main';
+import { LogoutReason } from '@/api';
 import { destroy } from '@/api/client';
 
 import { Sidebar } from './_components/sidebar';
