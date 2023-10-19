@@ -2,7 +2,7 @@ import { Accessor, For, createResource, mergeProps, untrack, JSX, splitProps } f
 import { useTransContext } from '@jellybrick/solid-i18next';
 
 import { ChannelItem } from '../channel-item';
-import { getChannelList } from '@/ipc/client';
+import { getChannelList } from '@/api/client';
 import { useReady } from '@/pages/main/_utils';
 
 import IconSearch from '@/assets/icons/search.svg';

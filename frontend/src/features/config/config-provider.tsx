@@ -1,34 +1,34 @@
 import { ParentProps, createResource } from 'solid-js';
 import { deepmerge } from 'deepmerge-ts';
 
-import { loadConfiguration, saveConfiguration } from '@/ipc/configuration';
-import { getDeviceLocale } from '@/ipc/system';
-import { ConfigurationContext, GlobalConfiguration } from '../../store/global';
-import { DeepPartial } from '../../utils';
+import { loadConfig, saveConfig } from '@/api/config';
+import { getDeviceLocale } from '@/api/system';
+import { GlobalConfig } from '@/api/_types';
+import { ConfigContext } from './config-context';
 
 export const ConfigProvider = (props: ParentProps) => {
   const [data, { refetch }] = createResource(async () => {
-    const configuration = await loadConfiguration();
+    const global = await loadConfig();
     const deviceLocale = await getDeviceLocale();
 
     return {
-      configuration,
+      global,
       deviceLocale,
     };
   });
 
-  const getConfig = () => data() ?? ConfigurationContext.defaultValue[0]();
-  const setConfig = async (newConfig: DeepPartial<GlobalConfiguration>) => {
-    const defaultConfig = data()?.configuration ?? await loadConfiguration();
-    const merged = deepmerge(defaultConfig, newConfig) as GlobalConfiguration;
+  const getConfig = () => data() ?? ConfigContext.defaultValue[0]();
+  const setConfig = async (newConfig: DeepPartial<GlobalConfig>) => {
+    const defaultConfig = data()?.global ?? await loadConfig();
+    const merged = deepmerge(defaultConfig, newConfig) as GlobalConfig;
 
-    await saveConfiguration(merged);
+    await saveConfig(merged);
     refetch();
   };
 
   return (
-    <ConfigurationContext.Provider value={[getConfig, setConfig]}>
+    <ConfigContext.Provider value={[getConfig, setConfig]}>
       {props.children}
-    </ConfigurationContext.Provider>
+    </ConfigContext.Provider>
   );
 };

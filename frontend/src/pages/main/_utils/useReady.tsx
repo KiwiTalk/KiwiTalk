@@ -9,7 +9,7 @@ import {
 
 import { LogoutReason } from '@/app/main';
 import { createMainEventStream } from '@/app/main/event';
-import { created, create } from '@/ipc/client';
+import { created, create } from '@/api/client';
 
 const ReadyContext = createContext<Accessor<boolean>>(() => false);
 export const useReady = () => useContext(ReadyContext);

@@ -12,7 +12,7 @@ import {
   untrack,
 } from 'solid-js';
 
-import { getChannelList } from '@/ipc/client';
+import { getChannelList } from '@/api/client';
 import { useReady } from '@/pages/main/_utils';
 
 import IconChat from '@/assets/icons/chat.svg';

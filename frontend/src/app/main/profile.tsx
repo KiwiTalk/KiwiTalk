@@ -1,6 +1,6 @@
 import { createResource } from 'solid-js';
 import { Profile } from '../components/profile';
-import { meProfile } from '../../ipc/api';
+import { meProfile } from '../../api/api';
 
 export const LogonProfile = () => {
   const [profile] = createResource(meProfile);

@@ -3,7 +3,7 @@ import {
   DeviceRegisterType,
 } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
-import { Response, requestPasscode } from '../../../ipc/api';
+import { Response, requestPasscode } from '../../../api/api';
 import { createResource, createSignal } from 'solid-js';
 
 export type DeviceRegisterContentProp = {

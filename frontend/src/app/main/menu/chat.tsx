@@ -6,7 +6,7 @@ import ForumOutlineSvg from './icons/forum_outline.svg';
 import SearchSvg from './icons/search.svg';
 import NewChatSvg from './icons/new_chat.svg';
 import { For, createResource } from 'solid-js';
-import { ChannelListItem, getChannelList } from '../../../ipc/client';
+import { ChannelListItem, getChannelList } from '../../../api/client';
 import ChatItem from '../../../components/chat/item';
 
 export const ChatMenu = () => {

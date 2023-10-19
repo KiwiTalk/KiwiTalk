@@ -6,7 +6,7 @@ import ChatOutlineSvg from '../icons/chat_outline.svg';
 import SearchSvg from '../icons/search.svg';
 import PersonAddSvg from '../icons/person_add.svg';
 import { For, createResource } from 'solid-js';
-import { ListFriend, updateFriends } from '../../../../ipc/api';
+import { ListFriend, updateFriends } from '../../../../api/api';
 import { FriendItem } from '../../../../components/friend-item';
 import { friendListContainer } from './index.css';
 

@@ -1,7 +1,7 @@
 import { DeviceRegisterType } from '../../components/login/form/device-register';
 import { LoginFormInput } from '../../components/login/form/login';
 import { PasscodeForm } from '../../components/login/form/passcode';
-import { Response, registerDevice } from '../../../ipc/api';
+import { Response, registerDevice } from '../../../api/api';
 import { createResource, createSignal } from 'solid-js';
 
 export type PasscodeContentProp = {

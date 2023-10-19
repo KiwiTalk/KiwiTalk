@@ -7,7 +7,7 @@ import { styled } from '../../utils';
 import { appSideBar, chatWindowPlaceholder, sideMenuContainer } from './index.css';
 import { useTransContext } from '@jellybrick/solid-i18next';
 import { createMainEventStream } from './event';
-import { create, created, destroy } from '../../ipc/client';
+import { create, created, destroy } from '../../api/client';
 import { LogonProfile } from './profile';
 
 const AppSidebar = styled(Sidebar, appSideBar);

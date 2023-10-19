@@ -1,13 +1,11 @@
 import { AppLogin } from './login';
 import { AppMain } from './main';
-import { Match, Switch, createEffect, createResource, createSignal, on } from 'solid-js';
+import { Match, Switch, createResource, createSignal } from 'solid-js';
 import { useTransContext } from '@jellybrick/solid-i18next';
-import { useConfiguration } from '../store/global';
-import { autoLogin, logon, logout } from '../ipc/api';
+import { autoLogin, logon, logout } from '../api/api';
 
 export const App = () => {
-  const [t, { changeLanguage }] = useTransContext();
-  const [config] = useConfiguration();
+  const [t] = useTransContext();
 
   const [loginState, setLoginState] = createSignal(false);
 
@@ -33,16 +31,6 @@ export const App = () => {
       console.error(err);
     }
   });
-
-  createEffect(on(config, (config) => {
-    if (!config) return;
-
-    if (config.configuration.locale.type === 'Auto') {
-      changeLanguage(config.deviceLocale);
-    } else {
-      changeLanguage(config.configuration.locale.value);
-    }
-  }));
 
   return (
     <Switch>

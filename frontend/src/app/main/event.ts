@@ -1,4 +1,4 @@
-import { KiwiTalkMainEvent, nextMainEvent } from '../../ipc/client';
+import { KiwiTalkMainEvent, nextMainEvent } from '../../api/client';
 
 export async function* createMainEventStream(): AsyncGenerator<KiwiTalkMainEvent> {
   let nextEvent: KiwiTalkMainEvent | null;

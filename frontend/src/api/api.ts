@@ -1,15 +1,6 @@
 import { tauri } from '@tauri-apps/api';
 
-export type Response<T> = { type: 'Success', content: T } | { type: 'Failure', content: number };
-
-export type State = 'NeedLogin' | 'Logon';
-
-export type LoginForm = {
-  email: string,
-  password: string,
-  saveEmail: boolean,
-  autoLogin: boolean,
-}
+import { FriendsUpdate, LoginForm, LogonProfile, Profile, Response } from './_types';
 
 export function defaultLoginForm(): Promise<LoginForm> {
   return tauri.invoke('plugin:api|default_login_form');
@@ -52,53 +43,12 @@ export function registerDevice(
   });
 }
 
-export type Profile = {
-  id: string,
-
-  statusMessage: string,
-
-  profileUrl: string,
-  backgroundUrl: string,
-};
-
-export type LogonProfile = {
-  nickname: string,
-
-  uuid: string,
-  uuidSearchable: boolean,
-
-  email: string,
-  emailVerified: boolean,
-
-  pstnNumber: string,
-
-  profile: Profile,
-}
-
 export function meProfile(): Promise<LogonProfile> {
   return tauri.invoke('plugin:api|me_profile');
 }
 
 export function friendProfile(id: string): Promise<Profile> {
   return tauri.invoke('plugin:api|friend_profile', { id });
-}
-
-export type ListFriend = {
-  userId: string,
-
-  nickname: string,
-
-  userType: number,
-  userCategory: number,
-
-  statusMessage: string,
-
-  profileImageUrl: string,
-}
-
-export type FriendsUpdate = {
-  added: ListFriend[],
-  removedIds: string[],
 }
 
 export function updateFriends(friendIds: string[]): Promise<FriendsUpdate> {

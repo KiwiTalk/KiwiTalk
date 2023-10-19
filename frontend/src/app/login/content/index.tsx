@@ -6,7 +6,7 @@ import { useTransContext } from '@jellybrick/solid-i18next';
 import { errorMessage, resetText } from './index.css';
 import { styled } from '../../../utils';
 import { Match, Show, Switch, createEffect, createResource, createSignal } from 'solid-js';
-import { Response, defaultLoginForm, login } from '../../../ipc/api';
+import { Response, defaultLoginForm, login } from '../../../api/api';
 
 const ErrorMessage = styled('p', errorMessage);
 const ResetText = styled('p', resetText);
