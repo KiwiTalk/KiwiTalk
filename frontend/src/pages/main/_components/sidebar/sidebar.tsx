@@ -12,6 +12,9 @@ import {
   untrack,
 } from 'solid-js';
 
+import { getChannelList } from '@/ipc/client';
+import { useReady } from '@/pages/main/_utils';
+
 import IconChat from '@/assets/icons/chat.svg';
 import IconNotification from '@/assets/icons/notification.svg';
 import IconNotificationOff from '@/assets/icons/notification_off.svg';
@@ -20,7 +23,6 @@ import IconSettings from '@/assets/icons/settings.svg';
 import IconUsers from '@/assets/icons/users.svg';
 
 import * as styles from './sidebar.css';
-import { getChannelList } from '@/ipc/client';
 
 type SidebarButtonProps = {
   isActive: boolean;
@@ -132,10 +134,14 @@ export type SidebarViewModelType<Path extends string> = () => {
 };
 
 export const SidebarViewModel: SidebarViewModelType<SidebarPathType> = () => {
+  const isReady = useReady();
+
   // FIXME create @/features/config and migrate to useConfiguration
   const [isNotificationActive, setIsNotificationActive] = createSignal(false);
 
-  const [badges] = createResource(async () => {
+  const [badges] = createResource(isReady, async (isReady) => {
+    if (!isReady) return ['...', '...'];
+
     let chatBadge = 0;
     let openChatBadge = 0;
 

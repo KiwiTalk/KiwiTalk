@@ -1,13 +1,12 @@
-import { Show, createResource } from 'solid-js';
 import { Outlet, useLocation, useNavigate } from '@solidjs/router';
 
-import { createMainEventStream } from '@/app/main/event';
 import { LogoutReason } from '@/app/main';
-import { created, create, destroy } from '@/ipc/client';
+import { destroy } from '@/ipc/client';
 
 import { Sidebar } from './_components/sidebar';
 
 import * as styles from './page.css';
+import { ReadyProvider } from './_utils/useReady';
 
 export const MainPage = () => {
   const navigate = useNavigate();
@@ -18,64 +17,27 @@ export const MainPage = () => {
     navigate(`${tab}`, { replace: true });
   };
 
-  const [isClientInit] = createResource(async () => {
-    if (!await created()) {
-      await create('Unlocked');
-    }
-
-    return true;
-  });
-
-  let finished = false;
-  createResource(isClientInit, async (isInit) => {
-    if (!isInit) return;
-
-    const stream = createMainEventStream();
-
-    try {
-      for await (const event of stream) {
-        if (event.type === 'kickout') {
-          logout({ type: 'Kickout', reasonId: event.content.reason });
-          return;
-        }
-
-        console.log(event);
-      }
-
-      if (finished) {
-        return;
-      }
-
-      logout({ type: 'Disconnected' });
-    } catch (err) {
-      logout({ type: 'Error', err });
-    }
-  });
-
-  async function logout(reason: LogoutReason) {
-    if (finished) return;
-    finished = true;
-
+  const onLogout = async (reason: LogoutReason) => {
     try {
       navigate('/login', { resolve: false, replace: true });
       console.log('logout', reason);
     } finally {
       await destroy();
     }
-  }
+  };
 
   return (
-    <main class={styles.container}>
-      <div class={styles.sidebarWrapper}>
-        <Sidebar
-          collapsed={false}
-          activePath={activeTab()}
-          setActivePath={setActiveTab}
-        />
-      </div>
-      <Show when={isClientInit()}>
+    <ReadyProvider onLogout={onLogout}>
+      <main class={styles.container}>
+        <div class={styles.sidebarWrapper}>
+          <Sidebar
+            collapsed={false}
+            activePath={activeTab()}
+            setActivePath={setActiveTab}
+          />
+        </div>
         <Outlet />
-      </Show>
-    </main>
+      </main>
+    </ReadyProvider>
   );
 };

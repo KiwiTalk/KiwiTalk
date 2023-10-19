@@ -11,8 +11,8 @@ export type ChannelListItem = {
       message?: string;
       attachment?: string;
       supplement?: string;
-      timestamp?: Date;
     };
+    timestamp?: Date;
   };
 
   profile?: string;
