@@ -8,6 +8,7 @@ import { useConfig } from '@/features/config';
 import { LoginPage } from './login';
 import { MainPage } from './main';
 import { ChannelListPage } from './main/channel';
+import { LoginContentPage } from './login/content';
 
 export const App = () => {
   const [t, { changeLanguage }] = useTransContext();
@@ -59,7 +60,12 @@ export const App = () => {
         </Route>
         <Route path={'/*'} element={<div>TODO</div>} />
       </Route>
-      <Route path={'/login'} component={LoginPage} data={() => ({ mutate })} />
+      <Route path={'/login'} component={LoginPage} data={() => ({ mutate })}>
+        <Route path={'/'} element={<Navigate href={'/login/login'} />} />
+        {/* <Route path={'/list'} component={LoginListPage} /> */}
+        <Route path={'/login'} component={LoginContentPage} />
+        {/* <Route path={'/device'} component={LoginContentPage} /> */}
+      </Route>
     </>
   );
 };

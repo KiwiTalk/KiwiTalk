@@ -7,7 +7,7 @@ export const container = style({
   height: '100%',
   overflow: 'hidden',
 
-  background: vars.color.surfacePrimary.background,
+  background: vars.color.glassSecondary.background,
 });
 
 const baseBackground = style({

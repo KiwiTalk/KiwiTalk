@@ -5,6 +5,7 @@
     "close": "닫기"
   },
   "login": {
+    "title": "카카오 계정 로그인",
     "login": "로그인",
     "logout": "로그아웃",
     "id_placeholder": "카카오계정 (이메일 또는 전화번호)",

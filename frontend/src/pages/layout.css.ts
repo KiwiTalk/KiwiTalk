@@ -10,5 +10,5 @@ export const container = style({
   justifyContent: 'flex-start',
   alignItems: 'stretch',
 
-  backgroundColor: vars.color.neutral.darkAlpha500,
+  backgroundColor: vars.color.glassSecondary.background,
 });

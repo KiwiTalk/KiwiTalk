@@ -90,9 +90,17 @@ const vars = {
       background: baseVars.color.blue200,
       fillPrimary: baseVars.color.neutral.white,
       fillSecondary: baseVars.color.neutral.lightAlpha500,
+      attention: baseVars.color.blue400,
     } satisfies Surface,
-    glass: {
+    glassPrimary: {
       background: baseVars.color.neutral.darkAlpha200,
+      fillPrimary: baseVars.color.neutral.white,
+      fillSecondary: baseVars.color.neutral.lightAlpha500,
+      fillTertiary: baseVars.color.neutral.lightAlpha100,
+      attention: baseVars.color.blue400,
+    } satisfies Surface,
+    glassSecondary: {
+      background: baseVars.color.neutral.darkAlpha500,
       fillPrimary: baseVars.color.neutral.white,
       fillSecondary: baseVars.color.neutral.lightAlpha500,
       fillTertiary: baseVars.color.neutral.lightAlpha100,

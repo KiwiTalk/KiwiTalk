@@ -31,7 +31,8 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
         .build()?;
 
     #[cfg(target_os = "macos")]
-    apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(10.0))
+    #[allow(deprecated)]
+    apply_vibrancy(&window, NSVisualEffectMaterial::MediumLight, None, Some(10.0))
         .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
 
     #[cfg(target_os = "windows")]
