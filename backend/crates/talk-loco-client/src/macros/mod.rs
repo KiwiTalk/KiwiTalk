@@ -38,7 +38,7 @@ macro_rules! request {
             $($status:pat => $ty:ty),* $(,)?
         }
     ) => {
-        
+
         match bson::from_slice::<$crate::BsonCommandStatus>(&$data)?.status {
             $($status => Ok(bson::from_slice::<$ty>(&$data)?),)*
 
