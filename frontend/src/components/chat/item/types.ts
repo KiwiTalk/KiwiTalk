@@ -3,7 +3,7 @@ export type BaseChatItemProps = {
 
   name: string;
   lastMessage?: string;
-  lastUpdateTime?: Date;
+  lastUpdateTime?: number;
 
   /* states */
   unread?: number;
