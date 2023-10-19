@@ -5,11 +5,15 @@ import {
   Match,
   Show,
   Switch,
+  createResource,
   createSignal,
   mergeProps,
   splitProps,
   untrack,
 } from 'solid-js';
+
+import { getChannelList } from '@/ipc/client';
+import { useReady } from '@/pages/main/_utils';
 
 import IconChat from '@/assets/icons/chat.svg';
 import IconNotification from '@/assets/icons/notification.svg';
@@ -130,14 +134,31 @@ export type SidebarViewModelType<Path extends string> = () => {
 };
 
 export const SidebarViewModel: SidebarViewModelType<SidebarPathType> = () => {
+  const isReady = useReady();
+
   // FIXME create @/features/config and migrate to useConfiguration
   const [isNotificationActive, setIsNotificationActive] = createSignal(false);
+
+  const [badges] = createResource(isReady, async (isReady) => {
+    if (!isReady) return ['...', '...'];
+
+    let chatBadge = 0;
+    let openChatBadge = 0;
+
+    for (const [, item] of await getChannelList()) {
+      // TODO: add open chat badge
+      chatBadge += item.unreadCount;
+      openChatBadge += 0;
+    }
+
+    return [chatBadge, openChatBadge];
+  });
 
   return {
     topItems: () => [
       { kind: 'tab', icon: <IconUsers />, path: 'friends' },
-      { kind: 'tab', icon: <IconChat />, path: 'chat', badge: 6 },
-      { kind: 'tab', icon: <IconOpenChat />, path: 'openchat', badge: 12 },
+      { kind: 'tab', icon: <IconChat />, path: 'chat', badge: badges()?.[0] ?? '...' },
+      { kind: 'tab', icon: <IconOpenChat />, path: 'openchat', badge: badges()?.[1] ?? '...' },
     ],
     bottomItems: () => [
       {

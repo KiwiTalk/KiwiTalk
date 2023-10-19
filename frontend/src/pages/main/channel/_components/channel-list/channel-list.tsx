@@ -1,14 +1,16 @@
 import { Accessor, For, createResource, mergeProps, untrack, JSX, splitProps } from 'solid-js';
+import { useTransContext } from '@jellybrick/solid-i18next';
 
-import * as styles from './channel-list.css';
-import { getChannelList } from '@/ipc/client';
 import { ChannelItem } from '../channel-item';
+import { getChannelList } from '@/ipc/client';
+import { useReady } from '@/pages/main/_utils';
 
 import IconSearch from '@/assets/icons/search.svg';
 import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
 
+import * as styles from './channel-list.css';
+
 import type { ChannelListItem } from '@/pages/main/channel/_types';
-import { useTransContext } from '@jellybrick/solid-i18next';
 
 export type ChannelListIconProps = {
   icon: JSX.Element;
@@ -41,7 +43,11 @@ export type ChannelListViewModelType = () => {
 };
 
 export const ChannelListViewModel: ChannelListViewModelType = () => {
-  const [channelMap] = createResource(async () => {
+  const isReady = useReady();
+
+  const [channelMap] = createResource(isReady, async (isReady) => {
+    if (!isReady) return [];
+
     const result: ChannelListItem[] = [];
 
     for (const [id, item] of await getChannelList()) {
@@ -51,10 +57,7 @@ export const ChannelListViewModel: ChannelListViewModelType = () => {
         displayUsers: item.displayUsers,
         lastChat: item.lastChat ? {
           ...item.lastChat,
-          content: {
-            ...item.lastChat.content,
-            timestamp: new Date(), // TODO: add timestamp in the backend
-          },
+          timestamp: new Date(item.lastChat.timestamp),
         } : undefined,
         userCount: item.userCount,
         unreadCount: item.unreadCount,
@@ -83,7 +86,7 @@ export const ChannelListViewModel: ChannelListViewModelType = () => {
 
 
 export type ChannelListProps = {
-  viewModel: ChannelListViewModelType;
+  viewModel?: ChannelListViewModelType;
   activeId?: string;
   setActiveId?: (id: string) => void;
 }
@@ -116,7 +119,7 @@ export const ChannelList = (props: ChannelListProps) => {
             name={channel.name}
             members={channel.userCount}
             lastMessage={channel.lastChat?.content.message}
-            lastMessageTime={channel.lastChat?.content.timestamp}
+            lastMessageTime={channel.lastChat?.timestamp}
             profileSrc={channel.profile}
             unreadBadge={channel.unreadCount}
             silent={channel.silent}

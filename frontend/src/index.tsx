@@ -1,15 +1,16 @@
 import { render } from 'solid-js/web';
-
-import { App } from './app';
-import Provider from './app/providers';
-import './global.css';
 import { attachConsole } from 'tauri-plugin-log-api';
+
+// import { App } from './app'; // TODO: remove this line
+import { App, Layout } from './pages';
+
+import '@/features/style-reset';
 
 render(
     () => (
-      <Provider>
+      <Layout>
         <App />
-      </Provider>
+      </Layout>
     ),
   document.querySelector('#root')!,
 );
