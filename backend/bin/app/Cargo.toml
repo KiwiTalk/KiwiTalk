@@ -23,7 +23,7 @@ kiwi-talk-api = { path = "../api" }
 kiwi-talk-client = { path = "../client" }
 
 tokio = { workspace = true, features = ["full"] }
-tauri = { workspace = true, features = ["updater", "api-all", "system-tray"] }
+tauri = { workspace = true, features = ["updater", "api-all", "system-tray", "macos-private-api"] }
 anyhow = { workspace = true, features = ["backtrace"] }
 log = { workspace = true }
 serde = { workspace = true }

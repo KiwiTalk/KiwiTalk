@@ -1,17 +1,18 @@
 import { render } from 'solid-js/web';
 import { attachConsole } from 'tauri-plugin-log-api';
 
-// import { App } from './app'; // TODO: remove this line
 import { App, Layout } from './pages';
 
-import '@/features/style-reset';
+import { injectMacOSGlobalStyle } from '@/features/style-reset';
+
+injectMacOSGlobalStyle();
 
 render(
-    () => (
-      <Layout>
-        <App />
-      </Layout>
-    ),
+  () => (
+    <Layout>
+      <App />
+    </Layout>
+  ),
   document.querySelector('#root')!,
 );
 
