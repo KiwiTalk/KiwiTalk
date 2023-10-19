@@ -5,12 +5,12 @@ export type GlobalConfig = {
   locale: Locale;
 }
 
-export type Config = { configuration: GlobalConfig; deviceLocale: string; };
+export type Config = { global: GlobalConfig; deviceLocale: string; };
 export type ConfigSetter = (newConfig: DeepPartial<GlobalConfig>) => Promise<void>;
 
 export const ConfigContext = createContext<[Accessor<Config>, ConfigSetter]>([
   () => ({
-    configuration: {
+    global: {
       locale: { type: 'Auto' },
     },
     deviceLocale: 'en',
@@ -18,7 +18,3 @@ export const ConfigContext = createContext<[Accessor<Config>, ConfigSetter]>([
   async () => {},
 ]);
 export const useConfig = () => useContext(ConfigContext);
-
-type DeepPartial<T> = {
-  [P in keyof T]?: DeepPartial<T[P]>;
-};

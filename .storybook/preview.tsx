@@ -6,7 +6,7 @@ import i18next from 'i18next';
 import { ParentProps } from 'solid-js';
 import { Decorator } from 'storybook-solidjs';
 
-import Provider from '@/app/providers';
+import { Provider } from '@/pages/layout';
 import { themeRoot } from '@/features/theme';
 
 import type { JSX } from 'solid-js/jsx-runtime';

@@ -2,7 +2,7 @@ import { createResource, createEffect, on } from 'solid-js';
 import { Navigate, Route, useNavigate } from '@solidjs/router';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
-import { logon, autoLogin } from '@/ipc/api';
+import { logon, autoLogin } from '@/api/api';
 import { useConfig } from '@/features/config';
 
 import { LoginPage } from './login';
@@ -35,10 +35,10 @@ export const App = () => {
   createEffect(on(config, (config) => {
     if (!config) return;
 
-    if (config.configuration.locale.type === 'Auto') {
+    if (config.global.locale.type === 'Auto') {
       changeLanguage(config.deviceLocale);
     } else {
-      changeLanguage(config.configuration.locale.value);
+      changeLanguage(config.global.locale.value);
     }
   }));
 

@@ -9,3 +9,9 @@ declare module '@vanilla-extract/css' {
     WebkitUserDrag?: 'none' | 'element' | 'auto';
   }
 }
+
+declare global {
+  type DeepPartial<T> = {
+    [P in keyof T]?: DeepPartial<T[P]>;
+  };
+}

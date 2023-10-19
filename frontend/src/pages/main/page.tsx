@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from '@solidjs/router';
 
 import { LogoutReason } from '@/app/main';
-import { destroy } from '@/ipc/client';
+import { destroy } from '@/api/client';
 
 import { Sidebar } from './_components/sidebar';
 
