@@ -13,7 +13,12 @@ use tauri::{
 use tauri_plugin_log::LogTarget;
 use tauri_plugin_window_state::{StateFlags, WindowExt};
 use window_shadows::set_shadow;
-use window_vibrancy::{apply_acrylic, apply_vibrancy, NSVisualEffectMaterial};
+
+#[cfg(target_os = "macos")]
+use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+
+#[cfg(target_os = "windows")]
+use window_vibrancy::apply_acrylic;
 
 fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<Window<R>> {
     let window = WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
