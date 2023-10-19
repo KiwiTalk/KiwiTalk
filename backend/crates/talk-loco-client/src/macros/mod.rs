@@ -19,7 +19,7 @@ macro_rules! request {
             .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
             .data;
 
-            request!(@inner(data = data) $($tt)*)
+            $crate::request!(@inner(data = data) $($tt)*)
         }
     };
 
