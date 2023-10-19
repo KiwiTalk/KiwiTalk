@@ -10,7 +10,7 @@ pub type LogId = i64;
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Chatlog {
     pub log_id: LogId,
-    pub prev_log_id: Option<i64>,
+    pub prev_log_id: Option<LogId>,
 
     pub channel_id: ChannelId,
 

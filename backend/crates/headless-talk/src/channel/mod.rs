@@ -26,9 +26,33 @@ pub type ChannelId = i64;
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
-#[derive(Debug, Clone)]
+pub use talk_loco_client::structs::channel::ChannelType;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChannelKind {
+    Normal,
+    Open,
+    Unknown,
+}
+
+#[extend::ext]
+pub impl ChannelType {
+    fn kind(&self) -> ChannelKind {
+        match self {
+            ChannelType::DirectChat | ChannelType::MemoChat | ChannelType::MultiChat => {
+                ChannelKind::Normal
+            }
+
+            ChannelType::OpenDirectChat | ChannelType::OpenMultiChat => ChannelKind::Open,
+
+            _ => ChannelKind::Unknown,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ListChannelItem {
-    pub channel_type: String,
+    pub channel_type: ChannelType,
 
     pub last_chat: Option<Chatlog>,
 
@@ -85,7 +109,6 @@ impl From<()> for ChannelDataVariant {
 #[derive(Debug, Clone, Copy)]
 pub struct ClientChannel<'a> {
     id: ChannelId,
-
     client: &'a HeadlessTalk,
 }
 
@@ -135,7 +158,7 @@ impl ClientChannel<'_> {
 
             self.client
                 .pool
-                .spawn_task(move |connection| {
+                .spawn(move |connection| {
                     connection.chat().insert(&ChatRow {
                         log: logged,
                         deleted_time: None,
@@ -154,7 +177,7 @@ impl ClientChannel<'_> {
             let channel_id = self.id;
             self.client
                 .pool
-                .spawn_task(move |connection| {
+                .spawn(move |connection| {
                     Ok(connection
                         .chat()
                         .get_latest_log_id_in(channel_id)?
@@ -171,7 +194,7 @@ impl ClientChannel<'_> {
 
         let (sender, mut recv) = channel(4);
 
-        let database_task = self.client.pool.spawn_task(move |mut connection| {
+        let database_task = self.client.pool.spawn(move |mut connection| {
             while let Some(list) = recv.blocking_recv() {
                 let transaction = connection.transaction()?;
 

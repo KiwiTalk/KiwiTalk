@@ -24,7 +24,7 @@ use crate::{
     },
     config::ClientEnv,
     constants::APP_VERSION,
-    database::pool::DatabasePool,
+    database::pool::{DatabasePool, PoolTaskError},
     handler::SessionHandler,
     ClientStatus, HeadlessTalk,
 };
@@ -130,6 +130,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
     where
         S: Send + Sync + 'static,
     {
+        pool.migrate_to_latest().await?;
+
         ChannelUpdater::new(&self.session, &pool)
             .update(self.channel_list.into_iter().flatten())
             .await?;
@@ -146,8 +148,6 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
 
                 let mut stream = TalkStream::new(self.stream);
                 while let Some(command) = stream.try_next().await? {}
-
-                Ok::<_, Box<dyn std::error::Error + Send + Sync>>(())
             }
         });
 
@@ -155,6 +155,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
             user_id: self.user_id,
             session: self.session,
             pool,
+            task_handle: handle,
         })
     }
 }
@@ -169,6 +170,7 @@ pub enum LoginError {
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum InitializeError {
+    Database(#[from] PoolTaskError),
     Request(#[from] RequestError),
     Updater(#[from] UpdateError),
 }

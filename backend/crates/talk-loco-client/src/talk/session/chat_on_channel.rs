@@ -21,7 +21,7 @@ pub mod request {
 pub mod response {
     use serde::Deserialize;
 
-    use crate::structs::{openlink::OpenLinkUser, user::UserVariant};
+    use crate::structs::{openlink::OpenLinkUser, user::UserVariant, channel::ChannelType};
 
     /// Contains user info, watermark list.
     /// Client can update chatroom information before opening chatroom window.
@@ -31,10 +31,9 @@ pub mod response {
         #[serde(rename = "c")]
         pub chat_id: i64,
 
-        /// Chatroom type.
-        /// Check `structs/chatroom.rs` ChatroomListData chatroom_type for types.
+        /// Chatroom type
         #[serde(rename = "t")]
-        pub chat_type: String,
+        pub chat_type: ChannelType,
 
         /// watermark user ids
         #[serde(rename = "a")]

@@ -52,7 +52,7 @@ impl SessionHandler {
         let chat = Chatlog::from(msg.chatlog);
 
         self.pool
-            .spawn_task({
+            .spawn({
                 let chatlog = chat.clone();
 
                 |connection| {
@@ -80,7 +80,7 @@ impl SessionHandler {
 
     async fn on_chat_read(&self, read: DecunRead) -> HandlerResult {
         self.pool
-            .spawn_task({
+            .spawn({
                 let DecunRead {
                     chat_id,
                     user_id,

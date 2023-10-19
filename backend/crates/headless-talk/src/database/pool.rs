@@ -19,7 +19,7 @@ impl DatabasePool {
         self.0.get().map_err(PoolError)
     }
 
-    pub(crate) fn spawn_task<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
+    pub(crate) fn spawn<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
         &self,
         closure: F,
     ) -> impl Future<Output = PoolTaskResult<R>>
@@ -37,7 +37,7 @@ impl DatabasePool {
     }
 
     pub(crate) async fn migrate_to_latest(&self) -> PoolTaskResult<()> {
-        self.spawn_task(|mut connection| Ok(connection.migrate_to_latest()?))
+        self.spawn(|mut connection| Ok(connection.migrate_to_latest()?))
             .await
     }
 }
