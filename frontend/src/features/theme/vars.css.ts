@@ -81,6 +81,16 @@ const vars = {
       attention: baseVars.color.blue500,
       elevated: baseVars.color.neutral.lightAlpha100,
     } satisfies Surface,
+    surfacePrimary: {
+      background: baseVars.color.blue100,
+      fillPrimary: baseVars.color.neutral.white,
+      fillSecondary: baseVars.color.neutral.lightAlpha300,
+    } satisfies Surface,
+    surfaceSecondary: {
+      background: baseVars.color.blue200,
+      fillPrimary: baseVars.color.neutral.white,
+      fillSecondary: baseVars.color.neutral.lightAlpha500,
+    } satisfies Surface,
     glass: {
       background: baseVars.color.neutral.darkAlpha200,
       fillPrimary: baseVars.color.neutral.white,
