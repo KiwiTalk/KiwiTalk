@@ -123,7 +123,7 @@ pub struct ChannelMeta {
     pub content: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum ChannelMetaType {
     Notice = 1,

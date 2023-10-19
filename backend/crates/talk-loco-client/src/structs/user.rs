@@ -77,8 +77,9 @@ impl UserVariant {
     }
 }
 
-/// User types. Don't confuse with OpenMemberType.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
+/// User types
 pub enum UserType {
     Unknown = -999999,
     NotFriend = -100,
