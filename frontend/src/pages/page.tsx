@@ -8,15 +8,16 @@ import { useConfig } from '@/features/config';
 import { LoginPage } from './login';
 import { MainPage } from './main';
 import { ChannelListPage } from './main/channel';
-import { LoginContentPage } from './login/content';
+import { LoginContentPage } from './login/login';
 import { LoginListPage } from './login/list';
+import { DeviceRegisterPage } from './login/device-register/page';
 
 export const App = () => {
   const [t, { changeLanguage }] = useTransContext();
   const [config] = useConfig();
   const navigate = useNavigate();
 
-  const [isLogin, { mutate }] = createResource(async () => {
+  const [isLogin, { refetch }] = createResource(async () => {
     if (await logon()) return true;
 
     try {
@@ -46,10 +47,9 @@ export const App = () => {
 
   createEffect(() => {
     if (isLogin() !== undefined) {
-      if (isLogin()) navigate('/main/');
+      if (isLogin()) navigate('/main');
       else navigate('/login', { state: { error: isLogin.error } });
     }
-    console.log('check is login', isLogin());
   });
 
   return (
@@ -61,11 +61,15 @@ export const App = () => {
         </Route>
         <Route path={'/*'} element={<div>TODO</div>} />
       </Route>
-      <Route path={'/login'} component={LoginPage} data={() => ({ mutate })}>
-        <Route path={'/'} element={<Navigate href={'/login/list'} />} />
+      <Route path={'/login'} component={LoginPage}>
+        <Route path={'/'} component={LoginPage}/>
         <Route path={'/list'} component={LoginListPage} />
-        <Route path={'/login'} component={LoginContentPage} />
-        {/* <Route path={'/device'} component={LoginContentPage} /> */}
+        <Route
+          path={'/login'}
+          component={LoginContentPage}
+          data={() => refetch}
+        />
+        <Route path={'/device-register'} component={DeviceRegisterPage} />
       </Route>
     </>
   );

@@ -2,10 +2,13 @@
   "common": {
     "ok": "확인",
     "cancel": "취소",
-    "close": "닫기"
+    "close": "닫기",
+    "prev": "이전으로",
+    "next": "다음으로"
   },
   "login": {
     "title": "카카오 계정 로그인",
+    "register_title": "기기 인증",
     "login": "로그인",
     "logout": "로그아웃",
     "id_placeholder": "카카오계정 (이메일 또는 전화번호)",
@@ -19,6 +22,7 @@
       "temporary": "1회용 인증 받기"
     },
     "reason": {
+      "required_id_password": "아이디와 비밀번호를 입력해주세요.",
       "auto_login_failed": {
         "file_read": "저장된 계정 정보를 읽는 중 오류가 발생했습니다",
         "general": "자동 로그인이 실패 했습니다"
