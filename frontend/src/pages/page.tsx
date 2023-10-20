@@ -5,12 +5,13 @@ import { useTransContext } from '@jellybrick/solid-i18next';
 import { logon } from '@/api/api';
 import { useConfig } from '@/features/config';
 
-import { LoginPage } from './login';
+import { LoginBasePage } from './login';
 import { MainPage } from './main';
 import { ChannelListPage } from './main/channel';
 import { LoginContentPage } from './login/login';
 import { LoginListPage } from './login/list';
 import { DeviceRegisterPage } from './login/device-register/page';
+import { LoginEndPage } from './login/end';
 
 export const App = () => {
   const [, { changeLanguage }] = useTransContext();
@@ -62,8 +63,8 @@ export const App = () => {
         </Route>
         <Route path={'/*'} element={<div>TODO</div>} />
       </Route>
-      <Route path={'/login'} component={LoginPage}>
-        <Route path={'/'} component={LoginPage}/>
+      <Route path={'/login'} component={LoginBasePage}>
+        <Route path={'/'} component={LoginBasePage/* <Navigate href={'/login/end'} /> */}/>
         <Route
           path={'/list'}
           component={LoginListPage}
@@ -75,6 +76,7 @@ export const App = () => {
           data={() => refetch}
         />
         <Route path={'/device-register'} component={DeviceRegisterPage} />
+        <Route path={'/end'} component={LoginEndPage} />
       </Route>
     </>
   );

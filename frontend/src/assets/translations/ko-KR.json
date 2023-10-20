@@ -30,7 +30,8 @@
       },
       "kickout": "다른 기기 접속으로 인해 로그아웃 되었습니다"
     },
-    "passcode_placeholder": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
+    "passcode_tip": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
+    "passcode_placeholder": "인증코드 입력",
     "set_forced": "다시 로그인 시 다른 기기의 연결을 해제합니다.",
     "generic_error": "내부 에러가 발생했습니다.",
     "unknown_error": "알수없는 에러가 발생했습니다. {{detail}}",
@@ -62,7 +63,11 @@
         "-102": "등록 가능한 기기 갯수를 초과했습니다. 등록 가능한 기기는 최대 5대 입니다."
       }
     },
-    "result": {}
+    "result": {},
+    "end_title": "시작",
+    "end_caption_title": "이제 모든 준비가\n끝났습니다",
+    "end_caption_subtitle": "시작하기를 눌러 전우주 통신규약의 첫걸음을 내딛으세요",
+    "start": "시작하기"
   },
   "main": {
     "menu": {

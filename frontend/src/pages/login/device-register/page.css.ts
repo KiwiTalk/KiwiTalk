@@ -7,6 +7,7 @@ export const container = style({
   flexDirection: 'column',
   justifyContent: 'flex-end',
   alignItems: 'flex-end',
+  gap: '16px',
 });
 
 export const tool = style({

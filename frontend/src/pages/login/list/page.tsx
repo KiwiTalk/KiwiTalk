@@ -7,6 +7,7 @@ import { Show, createResource, createSignal } from 'solid-js';
 import { useNavigate, useRouteData } from '@solidjs/router';
 import { Input } from '@/ui-common/input';
 import IconKey from '../_assets/icons/key.svg';
+import { ErrorTip } from '../_components/error-tip';
 
 export const LoginListPage = () => {
   const [t] = useTransContext();
@@ -48,7 +49,12 @@ export const LoginListPage = () => {
       refreshLoginState();
       navigate('/');
     } else if (result.type === 'NeedRegister') {
-      navigate('../device-register');
+      navigate('../device-register', {
+        state: {
+          email: data.email,
+          password: passwordInput.value,
+        },
+      });
     } else {
       if (result.forced) setForced(true);
 
@@ -62,15 +68,7 @@ export const LoginListPage = () => {
         <span class={styles.title.normal}>Kiwi</span>
         <span class={styles.title.bold}>Talk</span>
       </div>
-      <Show when={typeof error() === 'string'}>
-        <div class={styles.error}>
-          {/* TODO: replace to warning icon */}
-          <div class={styles.errorIcon}>
-            !
-          </div>
-          {error()}
-        </div>
-      </Show>
+      <ErrorTip message={error()} />
       <LoginCard
         profile={loginData()?.profile}
         name={loginData()?.name}

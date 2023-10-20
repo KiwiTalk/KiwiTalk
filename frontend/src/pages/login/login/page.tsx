@@ -7,9 +7,10 @@ import * as styles from './page.css';
 
 import IconUser from '@/assets/icons/user.svg';
 import IconKey from '../_assets/icons/key.svg';
-import { Show, createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { loginWithResult } from '@/api';
 import { useNavigate, useRouteData } from '@solidjs/router';
+import { ErrorTip } from '../_components/error-tip';
 
 export const LoginContentPage = () => {
   const [t] = useTransContext();
@@ -53,7 +54,12 @@ export const LoginContentPage = () => {
       refreshLoginState();
       navigate('/');
     } else if (result.type === 'NeedRegister') {
-      navigate('../device-register');
+      navigate('../device-register', {
+        state: {
+          email: loginInput.value,
+          password: passwordInput.value,
+        },
+      });
     } else {
       if (result.forced) setForced(true);
 
@@ -63,15 +69,7 @@ export const LoginContentPage = () => {
 
   return (
     <form class={styles.loginForm} onSubmit={onLogin}>
-      <Show when={typeof error() === 'string'}>
-        <div class={styles.error}>
-          {/* TODO: replace to warning icon */}
-          <div class={styles.errorIcon}>
-            !
-          </div>
-          {error()}
-        </div>
-      </Show>
+      <ErrorTip message={error()} />
       <Input ref={loginInput} icon={<IconUser />} placeholder={t('login.id_placeholder')} />
       <Input
         ref={passwordInput}

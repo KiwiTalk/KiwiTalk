@@ -7,11 +7,12 @@ import { KiwiBackground } from './_components/kiwi-background';
 
 import IconLock from './_assets/icons/lock.svg';
 import IconPhoneLock from './_assets/icons/phone-lock.svg';
+import IconLaunch from './_assets/icons/launch.svg';
 
 import * as styles from './page.css';
 import { Button } from '@/ui-common/button';
 
-export const LoginPage = () => {
+export const LoginBasePage = () => {
   const [t] = useTransContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,12 +37,20 @@ export const LoginPage = () => {
   const icon = createMemo(() => {
     if (step() === 'login') return <IconLock />;
     if (step() === 'device-register') return <IconPhoneLock />;
+    if (step() === 'end') return <IconLaunch />;
 
     return null;
   });
   const titles = () => {
     if (step() === 'login') return [t('login.title')];
     if (step() === 'device-register') return [t('login.register_title'), t('login.title')];
+    if (step() === 'end') {
+      return [
+        t('login.end_title'),
+        t('login.register_title'),
+        t('login.title'),
+      ];
+    }
 
     return [];
   };
@@ -51,7 +60,7 @@ export const LoginPage = () => {
       <KiwiBackground />
       <section class={styles.contentContainer}>
         <div class={styles.infoContainer}>
-          <Show when={['login', 'device-register'].includes(step() ?? '')}>
+          <Show when={['login', 'device-register', 'end'].includes(step() ?? '')}>
             <div class={styles.iconWrapper}>
               {icon()}
             </div>
