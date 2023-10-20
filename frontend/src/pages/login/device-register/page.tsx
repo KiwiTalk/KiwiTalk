@@ -3,13 +3,12 @@ import { Trans, useTransContext } from '@jellybrick/solid-i18next';
 import { createSignal, createResource, Show, createEffect } from 'solid-js';
 
 import { Button } from '@/ui-common/button';
-import { Input } from '@/ui-common/input';
 import { registerDevice, requestPasscode } from '@/api';
 
 import * as styles from './page.css';
 
-import IconKey from '../_assets/icons/key.svg';
 import { ErrorTip } from '../_components/error-tip';
+import { Passcode } from './_components/passcode';
 
 export const DeviceRegisterPage = () => {
   const [t] = useTransContext();
@@ -17,7 +16,6 @@ export const DeviceRegisterPage = () => {
   const location = useLocation<{ email?: string; password?: string; }>();
   const input = () => location.state;
 
-  let passcodeInput: HTMLInputElement | null = null;
   const [type, setType] = createSignal<'permanent' | 'temporary' | null>(null);
   const [passcode, setPasscode] = createSignal<string | null>(null);
 
@@ -83,14 +81,7 @@ export const DeviceRegisterPage = () => {
       <ErrorTip message={passcodeResponse.error?.toString()} />
       <ErrorTip message={deviceResponse.error?.toString()} />
       <Show when={passcodeResponse.state !== 'unresolved'}>
-        <Input
-          ref={(element) => passcodeInput = element}
-          icon={<IconKey />}
-          placeholder={t('login.passcode_placeholder')}
-        />
-        <Button onClick={() => setPasscode(passcodeInput?.value ?? null)}>
-          <Trans key={'common.ok'} />
-        </Button>
+        <Passcode onSubmit={setPasscode} />
       </Show>
     </div>
   );
