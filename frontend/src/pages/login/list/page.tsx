@@ -2,7 +2,7 @@ import { Button } from '@/ui-common/button';
 import { LoginCard } from './_components/card';
 import * as styles from './page.css';
 import { Trans, useTransContext } from '@jellybrick/solid-i18next';
-import { LoginForm, defaultLoginForm, loginWithResult } from '@/api';
+import { LoginDetailForm, defaultLoginForm, loginWithResult } from '@/api';
 import { Show, createResource, createSignal } from 'solid-js';
 import { useNavigate, useRouteData } from '@solidjs/router';
 import { Input } from '@/ui-common/input';
@@ -14,7 +14,7 @@ export const LoginListPage = () => {
   const refreshLoginState = useRouteData<() => () => void>();
 
   let passwordInput: HTMLInputElement | undefined;
-  const [selectedLoginData, setSelectedLoginData] = createSignal<LoginForm | null>(null);
+  const [selectedLoginData, setSelectedLoginData] = createSignal<LoginDetailForm | null>(null);
   const [error, setError] = createSignal<string | null>(null);
   const [forced, setForced] = createSignal(false);
 
@@ -96,7 +96,7 @@ export const LoginListPage = () => {
         </Button>
         <Show when={selectedLoginData()}>
           <Button onClick={onLogin}>
-            <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.email }} />
+            <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.name }} />
           </Button>
         </Show>
       </div>
