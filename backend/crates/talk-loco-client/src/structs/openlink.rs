@@ -75,41 +75,6 @@ pub struct OpenKickedUserInfo {
     pub dc: bool,
 }
 
-/// Openchat user
-#[skip_serializing_none]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OpenUser {
-    #[serde(rename = "userId")]
-    pub user_id: i64,
-
-    #[serde(rename = "nickName")]
-    pub nickname: String,
-
-    #[serde(rename = "pi")]
-    pub profile_image_url: Option<String>,
-
-    #[serde(rename = "fpi")]
-    pub full_profile_image_url: Option<String>,
-
-    #[serde(rename = "opi")]
-    pub original_profile_image_url: Option<String>,
-
-    /// See `struct/user` UserType for types.
-    #[serde(rename = "type")]
-    pub user_type: i32,
-
-    /// See OpenMemberType for types.
-    #[serde(rename = "mt")]
-    pub open_member_type: i8,
-
-    #[serde(rename = "opt")]
-    pub open_token: i32,
-
-    /// Profile link id. Only presents if user using openlink profile.
-    #[serde(rename = "pli")]
-    pub profile_link_id: Option<i64>,
-}
-
 /// Openlink user. Dont confuse with OpenUser.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

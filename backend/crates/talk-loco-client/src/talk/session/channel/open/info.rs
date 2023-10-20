@@ -1,0 +1,41 @@
+use serde::Deserialize;
+
+use crate::structs::{channel::ChannelMeta, openlink::OpenLinkId, chat::Chatlog};
+
+use super::user::DisplayUser;
+
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+pub struct ChannelInfo {
+    #[serde(rename = "type")]
+    pub channel_type: String,
+
+    #[serde(flatten)]
+    pub link: Option<OpenLinkId>,
+
+    #[serde(rename = "activeMembersCount")]
+    pub active_member_count: i32,
+
+    #[serde(rename = "displayMembers")]
+    pub display_members: Vec<DisplayUser>,
+
+    #[serde(rename = "newMessageCount")]
+    pub new_chat_count: i32,
+
+    #[serde(rename = "lastLogId")]
+    pub last_log_id: i64,
+
+    #[serde(rename = "lastSeenLogId")]
+    pub last_seen_log_id: i64,
+
+    #[serde(rename = "lastChatLog")]
+    pub last_chat_log: Option<Chatlog>,
+
+    #[serde(rename = "pushAlert")]
+    pub push_alert: bool,
+
+    #[serde(rename = "chatMetas")]
+    pub channel_metas: Vec<ChannelMeta>,
+
+    #[serde(rename = "directChat")]
+    pub direct_chat: Option<bool>,
+}
