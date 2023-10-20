@@ -17,7 +17,7 @@ export const DeviceRegisterPage = () => {
   const location = useLocation<{ email?: string; password?: string; }>();
   const input = () => location.state;
 
-  let passcodeInput: HTMLInputElement | undefined;
+  let passcodeInput: HTMLInputElement | null = null;
   const [type, setType] = createSignal<'permanent' | 'temporary' | null>(null);
   const [passcode, setPasscode] = createSignal<string | null>(null);
 
@@ -84,7 +84,7 @@ export const DeviceRegisterPage = () => {
       <ErrorTip message={deviceResponse.error?.toString()} />
       <Show when={passcodeResponse.state !== 'unresolved'}>
         <Input
-          ref={passcodeInput}
+          ref={(element) => passcodeInput = element}
           icon={<IconKey />}
           placeholder={t('login.passcode_placeholder')}
         />

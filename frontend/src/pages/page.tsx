@@ -64,7 +64,7 @@ export const App = () => {
         <Route path={'/*'} element={<div>TODO</div>} />
       </Route>
       <Route path={'/login'} component={LoginBasePage}>
-        <Route path={'/'} component={LoginBasePage/* <Navigate href={'/login/end'} /> */}/>
+        <Route path={'/'} component={LoginBasePage} />
         <Route
           path={'/list'}
           component={LoginListPage}

@@ -17,8 +17,8 @@ export const LoginContentPage = () => {
   const navigate = useNavigate();
   const refreshLoginState = useRouteData<() => () => void>();
 
-  let loginInput: HTMLInputElement;
-  let passwordInput: HTMLInputElement;
+  let loginInput: HTMLInputElement | null = null;
+  let passwordInput: HTMLInputElement | null = null;
 
   const [error, setError] = createSignal<string | null>(null);
   const [forced, setForced] = createSignal(false);
@@ -70,9 +70,13 @@ export const LoginContentPage = () => {
   return (
     <form class={styles.loginForm} onSubmit={onLogin}>
       <ErrorTip message={error()} />
-      <Input ref={loginInput!} icon={<IconUser />} placeholder={t('login.id_placeholder')} />
       <Input
-        ref={passwordInput!}
+        ref={(element) => loginInput = element}
+        icon={<IconUser />}
+        placeholder={t('login.id_placeholder')}
+      />
+      <Input
+        ref={(element) => passwordInput = element}
         type={'password'}
         icon={<IconKey />}
         placeholder={t('login.password_placeholder')}

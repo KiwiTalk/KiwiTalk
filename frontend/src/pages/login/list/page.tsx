@@ -20,7 +20,7 @@ export const LoginListPage = () => {
   const navigate = useNavigate();
   const refreshLoginState = useRouteData<() => () => void>();
 
-  let passwordInput: HTMLInputElement | undefined;
+  let passwordInput: HTMLInputElement | null = null;
   const [selectedLoginData, setSelectedLoginData] = createSignal<LoginDetailForm | null>(null);
   const [error, setError] = createSignal<string | null>(null);
   const [forced, setForced] = createSignal(false);
@@ -83,7 +83,7 @@ export const LoginListPage = () => {
       />
       <Show when={selectedLoginData()} keyed>
         <Input
-          ref={passwordInput}
+          ref={(element) => passwordInput = element}
           type={'password'}
           icon={<IconKey />}
           placeholder={t('login.password_placeholder')}
