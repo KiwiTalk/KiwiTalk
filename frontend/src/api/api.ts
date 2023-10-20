@@ -1,8 +1,15 @@
 import { tauri } from '@tauri-apps/api';
 
-import { FriendsUpdate, LoginForm, LogonProfile, Profile, Response } from './_types';
+import {
+  FriendsUpdate,
+  LoginDetailForm,
+  LoginForm,
+  LogonProfile,
+  Profile,
+  Response,
+} from './_types';
 
-export function defaultLoginForm(): Promise<LoginForm> {
+export function defaultLoginForm(): Promise<LoginDetailForm> {
   return tauri.invoke('plugin:api|default_login_form');
 }
 

@@ -12,11 +12,12 @@ use talk_api_internal::auth::{
     xvc::XvcHasher,
     AccountForm, Login,
 };
+use talk_api_internal::profile::Me as APIMeProfile;
 use tauri::{AppHandle, Manager, Runtime};
 
 use crate::{
     constants::{AUTO_LOGIN_KEY, XVC_HASHER},
-    create_http_client, result_to_response, Client, ClientState, Response,
+    create_http_client, result_to_response, Client, ClientState, Response, create_api_client,
 };
 
 use self::account::SavedAccount;
@@ -27,11 +28,13 @@ pub(super) fn logon(state: CredentialState) -> bool {
 }
 
 #[tauri::command(async)]
-pub(super) async fn default_login_form() -> Result<LoginForm, ()> {
+pub(super) async fn default_login_form() -> Result<LoginDetailForm, ()> {
     Ok(account::read()
         .await
         .map(|data| match data {
-            Some(data) => LoginForm {
+            Some(data) => LoginDetailForm {
+                profile: data.profile,
+                name: data.name,
                 email: data.email,
                 password: String::new(),
                 save_email: true,
@@ -69,7 +72,7 @@ pub(super) async fn login(
 
     *cred.write() = Some(Credential {
         user_id: login.user_id,
-        access_token: login.access_token,
+        access_token: login.access_token.clone(),
         refresh_token: login.refresh_token.clone(),
     });
 
@@ -84,7 +87,15 @@ pub(super) async fn login(
             None
         };
 
+        let api = create_api_client(&client, &login.access_token);
+
+        let me = APIMeProfile::request(api)
+            .await
+            .context("me api call failed")?;
+
         Some(SavedAccount {
+            profile: me.profile.profile_image_url,
+            name: me.profile.nickname,
             email: login.auto_login_account_id.clone(),
             token,
         })
@@ -156,6 +167,7 @@ pub(super) async fn auto_login(
     let Some(SavedAccount {
         email,
         token: Some(token),
+        ..
     }) = account::read().await.context("cannot read account file")?
     else {
         return Ok(Response::Success(false));
@@ -219,6 +231,29 @@ fn create_device(info: &SystemInfo) -> Device<'_> {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LoginDetailForm {
+    pub profile: String,
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    pub save_email: bool,
+    pub auto_login: bool,
+}
+
+impl Default for LoginDetailForm {
+    fn default() -> Self {
+        Self {
+            profile: Default::default(),
+            name: Default::default(),
+            email: Default::default(),
+            password: Default::default(),
+            save_email: true,
+            auto_login: false,
+        }
+    }
+}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginForm {
