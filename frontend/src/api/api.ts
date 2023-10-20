@@ -74,7 +74,7 @@ export const loginWithResult = async (
     };
   }
 
-  let key: string = 'login.generic_error';
+  let key: string;
   let newForced = false;
   let detail: unknown = null;
   try {
