@@ -10,14 +10,11 @@ pub use load_channel_list::{request::LChatListReq, response::LChatListRes};
 pub use login::{request::LoginListReq, response::LoginListRes};
 pub use write_chat::{request::WriteChatReq, response::WriteChatRes};
 
-use crate::{
-    impl_session,
-    structs::{channel::ChannelMeta, chat::Chatlog, user::UserVariant},
-    RequestResult,
-};
+use crate::RequestResult;
 use async_stream::try_stream;
 use futures_lite::Stream;
 
+/*
 impl_session!(
     #[derive(Debug)]
     pub struct TalkSession {
@@ -265,3 +262,4 @@ impl<'a> TalkSession<'a> {
         }
     }
 }
+*/
