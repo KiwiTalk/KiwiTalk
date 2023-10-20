@@ -32,8 +32,13 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
 
     #[cfg(target_os = "macos")]
     #[allow(deprecated)]
-    apply_vibrancy(&window, NSVisualEffectMaterial::MediumLight, None, Some(10.0))
-        .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+    apply_vibrancy(
+        &window,
+        NSVisualEffectMaterial::MediumLight,
+        None,
+        Some(10.0),
+    )
+    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
 
     #[cfg(target_os = "windows")]
     apply_acrylic(&window, Some((0, 0, 0, 125)))

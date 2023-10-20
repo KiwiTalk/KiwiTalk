@@ -17,7 +17,7 @@ use tauri::{AppHandle, Manager, Runtime};
 
 use crate::{
     constants::{AUTO_LOGIN_KEY, XVC_HASHER},
-    create_http_client, result_to_response, Client, ClientState, Response, create_api_client,
+    create_api_client, create_http_client, result_to_response, Client, ClientState, Response,
 };
 
 use self::account::SavedAccount;
