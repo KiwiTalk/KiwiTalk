@@ -13,6 +13,10 @@ export type LoginDetailForm = LoginForm & {
   name: string;
 };
 
+export type LoginResult = { type: 'Success'; }
+  | { type: 'NeedRegister' }
+  | { type: 'Error', key: string; forced?: boolean, detail?: unknown; };
+
 /** @deprecated */
 export type LogoutReason = {
   type: 'Kickout';

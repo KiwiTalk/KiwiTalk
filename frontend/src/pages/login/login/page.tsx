@@ -8,7 +8,7 @@ import * as styles from './page.css';
 import IconUser from '@/assets/icons/user.svg';
 import IconKey from '../_assets/icons/key.svg';
 import { Show, createEffect, createSignal } from 'solid-js';
-import { login } from '@/api';
+import { loginWithResult } from '@/api';
 import { useNavigate, useRouteData } from '@solidjs/router';
 
 export const LoginContentPage = () => {
@@ -42,36 +42,22 @@ export const LoginContentPage = () => {
       return;
     }
 
-    try {
-      const response = await login({
-        email: loginInput.value,
-        password: passwordInput.value,
-        saveEmail: true, // input.saveId,
-        autoLogin: false, // input.autoLogin,
-      }, forced());
+    const result = await loginWithResult({
+      email: loginInput.value,
+      password: passwordInput.value,
+      saveEmail: true, // input.saveId,
+      autoLogin: false, // input.autoLogin,
+    }, forced());
 
-      if (response.type === 'Success') {
-        refreshLoginState();
-        navigate('/');
-        return;
-      }
+    if (result.type === 'Success') {
+      refreshLoginState();
+      navigate('/');
+    } else if (result.type === 'NeedRegister') {
+      navigate('../device-register');
+    } else {
+      if (result.forced) setForced(true);
 
-      switch (response.content) {
-      case -100: {
-        navigate('../device-register');
-        return;
-      }
-
-      case -101: {
-        setForced(true);
-        break;
-      }
-      }
-
-      setError(t(`login.status.login.${response.content}`));
-    } catch (e) {
-      setError(t(`login.generic_error`));
-      console.error(e);
+      setError(t(result.key));
     }
   };
 

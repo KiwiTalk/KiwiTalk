@@ -16,6 +16,17 @@ export const container = style({
   backdropFilter: vars.blur.regular,
   WebkitBackdropFilter: vars.blur.regular,
   backgroundColor: vars.color.glassPrimary.background,
+
+  userSelect: 'none',
+  cursor: 'pointer',
+
+  transition: `background-color ${vars.easing.background}`,
+
+  selectors: {
+    '&:hover': {
+      backgroundColor: vars.color.glassPrimary.attention,
+    },
+  },
 });
 
 export const textContainer = style({

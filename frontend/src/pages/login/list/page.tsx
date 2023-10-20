@@ -1,17 +1,59 @@
 import { Button } from '@/ui-common/button';
 import { LoginCard } from './_components/card';
 import * as styles from './page.css';
-import { Trans } from '@jellybrick/solid-i18next';
-import { defaultLoginForm } from '@/api';
-import { createResource } from 'solid-js';
-import { useNavigate } from '@solidjs/router';
+import { Trans, useTransContext } from '@jellybrick/solid-i18next';
+import { LoginForm, defaultLoginForm, loginWithResult } from '@/api';
+import { Show, createResource, createSignal } from 'solid-js';
+import { useNavigate, useRouteData } from '@solidjs/router';
+import { Input } from '@/ui-common/input';
+import IconKey from '../_assets/icons/key.svg';
 
 export const LoginListPage = () => {
+  const [t] = useTransContext();
   const navigate = useNavigate();
+  const refreshLoginState = useRouteData<() => () => void>();
+
+  let passwordInput: HTMLInputElement | undefined;
+  const [selectedLoginData, setSelectedLoginData] = createSignal<LoginForm | null>(null);
+  const [error, setError] = createSignal<string | null>(null);
+  const [forced, setForced] = createSignal(false);
+
   const [loginData] = createResource(async () => defaultLoginForm());
 
   const onAddAccount = () => {
     navigate('../login');
+  };
+  const onToggleLoginData = () => {
+    if (selectedLoginData()) setSelectedLoginData(null);
+    else setSelectedLoginData(loginData() ?? null);
+
+    passwordInput?.focus();
+  };
+  const onLogin = async () => {
+    const data = loginData();
+
+    if (!data || !passwordInput?.value) {
+      setError(t(`login.reason.required_id_password`));
+      return;
+    }
+
+    const result = await loginWithResult({
+      email: data.email,
+      password: passwordInput.value,
+      saveEmail: data.saveEmail,
+      autoLogin: data.autoLogin,
+    }, forced());
+
+    if (result.type === 'Success') {
+      refreshLoginState();
+      navigate('/');
+    } else if (result.type === 'NeedRegister') {
+      navigate('../device-register');
+    } else {
+      if (result.forced) setForced(true);
+
+      setError(t(result.key));
+    }
   };
 
   return (
@@ -20,17 +62,43 @@ export const LoginListPage = () => {
         <span class={styles.title.normal}>Kiwi</span>
         <span class={styles.title.bold}>Talk</span>
       </div>
+      <Show when={typeof error() === 'string'}>
+        <div class={styles.error}>
+          {/* TODO: replace to warning icon */}
+          <div class={styles.errorIcon}>
+            !
+          </div>
+          {error()}
+        </div>
+      </Show>
       <LoginCard
-        name={loginData()?.email}
+        profile={loginData()?.profile}
+        name={loginData()?.name}
         email={loginData()?.email}
+        onClick={onToggleLoginData}
       />
+      <Show when={selectedLoginData()}>
+        <Input
+          ref={passwordInput}
+          type={'password'}
+          icon={<IconKey />}
+          placeholder={t('login.password_placeholder')}
+        />
+      </Show>
       <div class={styles.tool}>
-        <Button variant={'text'}>
-          <Trans key={'login.manage_account'} />
-        </Button>
+        <Show when={!selectedLoginData()}>
+          <Button variant={'text'}>
+            <Trans key={'login.manage_account'} />
+          </Button>
+        </Show>
         <Button variant={'text'} onClick={onAddAccount}>
           <Trans key={'login.add_account'} />
         </Button>
+        <Show when={selectedLoginData()}>
+          <Button onClick={onLogin}>
+            <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.email }} />
+          </Button>
+        </Show>
       </div>
     </ul>
   );

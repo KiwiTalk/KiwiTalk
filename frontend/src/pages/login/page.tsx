@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createResource } from 'solid-js';
+import { For, Show, createEffect, createMemo, createResource, createSignal } from 'solid-js';
 import { Outlet, useLocation, useMatch, useNavigate } from '@solidjs/router';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
@@ -18,14 +18,17 @@ export const LoginPage = () => {
   const isBasePage = useMatch(() => '/login');
 
   const [loginData] = createResource(async () => defaultLoginForm());
+  const [visibleBack, setVisibleBack] = createSignal(true);
 
   createEffect(() => {
     if (!isBasePage()) return;
 
-    console.log('base page', loginData.state);
     if (loginData.state === 'ready') {
-      if (loginData().saveEmail) navigate('list');
-      else navigate('login');
+      if (loginData().email) navigate('list');
+      else {
+        setVisibleBack(false);
+        navigate('login');
+      }
     }
   });
 
@@ -59,9 +62,11 @@ export const LoginPage = () => {
                 </h1>
               )}
             </For>
-            <Button variant={'glass'} onClick={() => navigate(-1)} style={'margin-top: auto;'}>
-              {t('common.prev')}
-            </Button>
+            <Show when={visibleBack()}>
+              <Button variant={'glass'} onClick={() => navigate(-1)} style={'margin-top: auto;'}>
+                {t('common.prev')}
+              </Button>
+            </Show>
           </Show>
         </div>
         <Outlet />
