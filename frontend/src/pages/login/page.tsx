@@ -11,6 +11,8 @@ import IconLaunch from './_assets/icons/launch.svg';
 
 import * as styles from './page.css';
 import { Button } from '@/ui-common/button';
+import { Transition, TransitionGroup } from 'solid-transition-group';
+import { classes } from '@/features/theme';
 
 export const LoginBasePage = () => {
   const [t] = useTransContext();
@@ -62,15 +64,19 @@ export const LoginBasePage = () => {
         <div class={styles.infoContainer}>
           <Show when={['login', 'device-register', 'end'].includes(step() ?? '')}>
             <div class={styles.iconWrapper}>
-              {icon()}
+              <Transition mode={'outin'} {...classes.transition.toUp}>
+                {icon()}
+              </Transition>
             </div>
-            <For each={titles()}>
-              {(title, index) => (
-                <h1 class={index() === 0 ? styles.infoTitle.main : styles.infoTitle.other}>
-                  {title}
-                </h1>
-              )}
-            </For>
+            <TransitionGroup {...classes.transition.toUp}>
+              <For each={titles()}>
+                {(title, index) => (
+                  <h1 class={index() === 0 ? styles.infoTitle.main : styles.infoTitle.other}>
+                    {title}
+                  </h1>
+                )}
+              </For>
+            </TransitionGroup>
             <Show when={visibleBack()}>
               <Button variant={'glass'} onClick={() => navigate(-1)} style={'margin-top: auto;'}>
                 {t('common.prev')}

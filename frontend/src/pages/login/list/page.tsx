@@ -1,13 +1,19 @@
-import { Button } from '@/ui-common/button';
-import { LoginCard } from './_components/card';
-import * as styles from './page.css';
-import { Trans, useTransContext } from '@jellybrick/solid-i18next';
-import { LoginDetailForm, defaultLoginForm, loginWithResult } from '@/api';
-import { Show, createResource, createSignal } from 'solid-js';
+import { TransitionGroup } from 'solid-transition-group';
 import { useNavigate, useRouteData } from '@solidjs/router';
+import { Show, createResource, createSignal } from 'solid-js';
+import { Trans, useTransContext } from '@jellybrick/solid-i18next';
+
+import { LoginDetailForm, defaultLoginForm, loginWithResult } from '@/api';
+import { classes } from '@/features/theme';
+
+import { Button } from '@/ui-common/button';
 import { Input } from '@/ui-common/input';
-import IconKey from '../_assets/icons/key.svg';
+import { LoginCard } from './_components/card';
 import { ErrorTip } from '../_components/error-tip';
+
+import * as styles from './page.css';
+
+import IconKey from '../_assets/icons/key.svg';
 
 export const LoginListPage = () => {
   const [t] = useTransContext();
@@ -75,7 +81,7 @@ export const LoginListPage = () => {
         email={loginData()?.email}
         onClick={onToggleLoginData}
       />
-      <Show when={selectedLoginData()}>
+      <Show when={selectedLoginData()} keyed>
         <Input
           ref={passwordInput}
           type={'password'}
@@ -84,19 +90,21 @@ export const LoginListPage = () => {
         />
       </Show>
       <div class={styles.tool}>
-        <Show when={!selectedLoginData()}>
-          <Button variant={'text'}>
-            <Trans key={'login.manage_account'} />
+        <TransitionGroup appear {...classes.transition.scale}>
+          <Show when={!selectedLoginData()}>
+            <Button variant={'text'}>
+              <Trans key={'login.manage_account'} />
+            </Button>
+          </Show>
+          <Button variant={'text'} onClick={onAddAccount}>
+            <Trans key={'login.add_account'} />
           </Button>
-        </Show>
-        <Button variant={'text'} onClick={onAddAccount}>
-          <Trans key={'login.add_account'} />
-        </Button>
-        <Show when={selectedLoginData()}>
-          <Button onClick={onLogin}>
-            <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.name }} />
-          </Button>
-        </Show>
+          <Show when={!!selectedLoginData()}>
+            <Button onClick={onLogin}>
+              <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.name }} />
+            </Button>
+          </Show>
+        </TransitionGroup>
       </div>
     </ul>
   );

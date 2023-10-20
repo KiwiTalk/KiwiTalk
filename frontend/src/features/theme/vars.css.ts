@@ -48,6 +48,7 @@ const [themeClass, baseVars] = createTheme({
   easing: {
     background: `cubic-bezier(0.55, 0.15, 0.25, 0.95) .4s`,
     fill: `cubic-bezier(0.60, 0.05, 0.60, 1.00) .4s`,
+    transform: `cubic-bezier(0.16, 1, 0.3, 1) .6s`,
   },
   font: {
     ui: '"Pretendard Variable", sans-serif',
