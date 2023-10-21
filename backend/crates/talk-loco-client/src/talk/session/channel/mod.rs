@@ -1,6 +1,6 @@
 pub mod normal;
-pub mod write;
 pub mod open;
+pub mod write;
 
 use async_stream::try_stream;
 use futures_lite::Stream;

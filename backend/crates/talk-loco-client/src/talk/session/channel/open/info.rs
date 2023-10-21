@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::structs::{channel::ChannelMeta, openlink::OpenLinkId, chat::Chatlog};
+use crate::structs::{channel::ChannelMeta, chat::Chatlog, openlink::OpenLinkId};
 
 use super::user::DisplayUser;
 

@@ -10,7 +10,7 @@ use crate::{request, RequestResult};
 use async_stream::try_stream;
 use futures_lite::Stream;
 
-use self::channel::TalkChannel;
+use self::channel::{normal::TalkNormalChannel, open::TalkOpenChannel, TalkChannel};
 
 #[derive(Debug, Clone, Copy)]
 pub struct TalkSession<'a>(pub &'a LocoSession);
@@ -29,9 +29,13 @@ impl<'a> TalkSession<'a> {
         req: login::Request<'a>,
     ) -> RequestResult<(
         login::Response,
-        impl Stream<Item = RequestResult<load_channel_list::Response>> + 'a,
+        Option<impl Stream<Item = RequestResult<load_channel_list::Response>> + 'a>,
     )> {
         let res = request!(self.0, "LOGINLIST", &req, login::Response).await?;
+
+        if res.chat_list.eof {
+            return Ok((res, None));
+        }
 
         let mut req = load_channel_list::Request {
             chat_ids: req.chat_list.chat_ids,
@@ -59,7 +63,7 @@ impl<'a> TalkSession<'a> {
             }
         });
 
-        Ok((res, stream))
+        Ok((res, Some(stream)))
     }
 
     pub async fn get_trailer(
@@ -79,6 +83,14 @@ impl<'a> TalkSession<'a> {
             session: self.0,
             id,
         }
+    }
+
+    pub const fn normal_channel(self, id: i64) -> TalkNormalChannel<'a> {
+        TalkNormalChannel(self.channel(id))
+    }
+
+    pub const fn open_channel(self, id: i64, link_id: i64) -> TalkOpenChannel<'a> {
+        TalkOpenChannel::new(self.channel(id), link_id)
     }
 }
 
