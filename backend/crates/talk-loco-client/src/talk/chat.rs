@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
 
 /// Chat
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[skip_serializing_none]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 pub struct Chatlog {
     #[serde(rename = "logId")]
     pub log_id: i64,
@@ -26,7 +24,7 @@ pub struct Chatlog {
     pub referer: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 pub struct Chat {
     #[serde(rename = "type")]
     pub chat_type: ChatType,
@@ -38,7 +36,7 @@ pub struct Chat {
     pub message_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct ChatContent {
     pub message: Option<String>,
     pub attachment: Option<String>,
