@@ -151,7 +151,7 @@ impl<T: AsyncWrite> AsyncWrite for MediaSink<T> {
 #[derive(Debug, Clone, Deserialize)]
 pub struct CompleteRes {
     #[serde(rename = "chatLog")]
-    chat_log: Option<Chatlog>,
+    pub chat_log: Option<Chatlog>,
 }
 
 #[derive(Debug, Error)]
