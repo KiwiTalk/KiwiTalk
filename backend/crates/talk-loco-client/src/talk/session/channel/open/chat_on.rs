@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::structs::openlink::OpenLinkUser;
+use crate::talk::openlink::OpenLinkUser;
 
 use super::user::User;
 

@@ -1,9 +1,6 @@
 use serde::Deserialize;
 
-use crate::{
-    structs::{channel::ChannelMeta, chat::Chatlog},
-    talk::session::channel::open,
-};
+use crate::talk::{channel::ChannelMeta, chat::Chatlog, session::channel::open};
 
 /// Send before server disconnect connection
 #[derive(Debug, Clone, Deserialize, PartialEq)]

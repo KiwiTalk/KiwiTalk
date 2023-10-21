@@ -17,8 +17,8 @@ use tauri::{
 use anyhow::{anyhow, Context};
 use futures::{future::poll_fn, ready, stream, StreamExt};
 use headless_talk::{
-    config::ClientEnv, database::pool::DatabasePool, handler::SessionHandler, Credential,
-    ClientStatus, HeadlessTalk,
+    config::ClientEnv, database::pool::DatabasePool, handler::SessionHandler, ClientStatus,
+    Credential, HeadlessTalk,
 };
 use talk_loco_client::{
     futures_loco_protocol::{session::LocoSession, LocoClient},

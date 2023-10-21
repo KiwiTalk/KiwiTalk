@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::structs::{chat::Chatlog, openlink::OpenLinkId};
+use crate::talk::{chat::Chatlog, openlink::OpenLinkId};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, PartialEq)]

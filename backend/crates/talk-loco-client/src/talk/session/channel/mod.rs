@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     request,
-    structs::{channel::ChannelMeta, chat::Chatlog},
+    talk::{channel::ChannelMeta, chat::Chatlog},
     RequestResult,
 };
 

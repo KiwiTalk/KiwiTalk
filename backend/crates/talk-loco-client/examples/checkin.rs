@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use futures_loco_protocol::{
-    secure::{LocoSecureStream, rsa::RsaPublicKey},
+    secure::{rsa::RsaPublicKey, LocoSecureStream},
     LocoClient,
 };
 use num_bigint_dig::BigUint;

@@ -16,14 +16,14 @@ pub struct OpenLinkId {
 }
 
 // Openlink types
-#[repr(i8)]
+#[repr(i32)]
 pub enum OpenLinkType {
     Profile = 1,
     Chatroom = 2,
 }
 
 /// Openchat user member types
-#[repr(i8)]
+#[repr(i32)]
 pub enum OpenMemberType {
     Owner = 1,
     None = 2,
@@ -32,7 +32,7 @@ pub enum OpenMemberType {
 }
 
 /// Openchat user profile types
-#[repr(i8)]
+#[repr(i32)]
 pub enum OpenProfileType {
     Main = 1,
     Anon = 2,
@@ -96,11 +96,11 @@ pub struct OpenLinkUser {
 
     /// See OpenMemberType for types.
     #[serde(rename = "lmt")]
-    pub open_member_type: i8,
+    pub open_member_type: i32,
 
     /// See OpenProfileType for types.
     #[serde(rename = "ptp")]
-    pub profile_type: i8,
+    pub profile_type: i32,
 
     /// Profile link id
     #[serde(rename = "pli")]

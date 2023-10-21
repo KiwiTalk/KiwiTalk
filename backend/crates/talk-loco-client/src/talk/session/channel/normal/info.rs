@@ -1,13 +1,16 @@
 use serde::Deserialize;
 
-use crate::structs::{channel::ChannelMeta, chat::Chatlog};
+use crate::talk::{
+    channel::{ChannelMeta, ChannelType},
+    chat::Chatlog,
+};
 
 use super::user::DisplayUser;
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct ChannelInfo {
     #[serde(rename = "type")]
-    pub channel_type: String,
+    pub channel_type: ChannelType,
 
     #[serde(rename = "activeMembersCount")]
     pub active_member_count: i32,

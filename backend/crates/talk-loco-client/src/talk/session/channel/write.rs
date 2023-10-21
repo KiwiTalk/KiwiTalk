@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::structs::chat::Chatlog;
+use crate::talk::chat::Chatlog;
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, PartialEq)]

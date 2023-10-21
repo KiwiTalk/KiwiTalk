@@ -9,7 +9,7 @@ use futures_loco_protocol::LocoClient;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::{structs::chat::Chatlog, BsonCommandStatus};
+use crate::{talk::chat::Chatlog, BsonCommandStatus};
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]
