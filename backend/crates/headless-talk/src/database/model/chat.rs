@@ -1,5 +1,5 @@
 use diesel::Insertable;
-use talk_loco_client::structs::chat::Chatlog;
+use talk_loco_client::talk::chat::Chatlog;
 
 use super::super::schema::chat;
 
