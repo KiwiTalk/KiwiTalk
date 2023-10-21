@@ -1,27 +1,12 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-use crate::talk::{channel::ChannelMeta, chat::Chatlog, openlink::OpenLinkId};
+use crate::talk::{
+    channel::{ChannelMeta, ChannelType},
+    chat::Chatlog,
+    openlink::OpenLinkId,
+};
 
 use super::user::DisplayUser;
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(untagged)]
-pub enum ChannelType {
-    DirectChat,
-    MultiChat,
-
-    #[serde(rename = "OM")]
-    OpenMultiChat,
-
-    #[serde(rename = "OD")]
-    OpenDirectChat,
-
-    MemoChat,
-
-    PlusChat,
-
-    Other(String),
-}
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct ChannelInfo {
