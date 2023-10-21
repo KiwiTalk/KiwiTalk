@@ -1,7 +1,5 @@
-use crate::{
-    channel::user::UserId,
-    chat::{Chatlog, LogId},
-};
+use talk_loco_client::talk::chat::Chatlog;
+
 
 #[derive(Debug, Clone)]
 pub enum ChannelEvent {
@@ -14,9 +12,9 @@ pub enum ChannelEvent {
 
     ChatRead {
         /// Read user id
-        user_id: UserId,
+        user_id: i64,
 
         /// Read chat log id
-        log_id: LogId,
+        log_id: i64,
     },
 }

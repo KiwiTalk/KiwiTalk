@@ -1,16 +1,15 @@
 pub mod error;
 
+use diesel::{ExpressionMethods, RunQueryDsl};
 use talk_loco_client::talk::stream::{
     command::{DecunRead, Kickout, Msg},
     StreamCommand,
 };
 
 use crate::{
-    chat::Chatlog,
     database::{
-        channel::user::UserDatabaseExt,
-        chat::{ChatDatabaseExt, ChatRow},
-        pool::DatabasePool,
+        model::{chat::ChatRow, watermark::WatermarkRow},
+        schema, DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
 };
@@ -49,17 +48,14 @@ impl SessionHandler {
     }
 
     async fn on_chat(&self, msg: Msg) -> HandlerResult {
-        let chat = Chatlog::from(msg.chatlog);
-
         self.pool
             .spawn({
-                let chatlog = chat.clone();
+                let chatlog = msg.chatlog.clone();
 
-                |connection| {
-                    connection.chat().insert(&ChatRow {
-                        log: chatlog,
-                        deleted_time: None,
-                    })?;
+                move |mut conn| {
+                    diesel::insert_into(schema::chat::table)
+                        .values(ChatRow::from_chatlog(&chatlog, None))
+                        .execute(&mut conn)?;
 
                     Ok(())
                 }
@@ -73,7 +69,7 @@ impl SessionHandler {
                 link_id: msg.link_id,
 
                 user_nickname: msg.author_nickname,
-                chat,
+                chat: msg.chatlog,
             },
         }))
     }
@@ -82,15 +78,22 @@ impl SessionHandler {
         self.pool
             .spawn({
                 let DecunRead {
-                    chat_id,
+                    chat_id: channel_id,
                     user_id,
                     watermark,
                 } = read.clone();
 
-                move |connection| {
-                    connection
-                        .user()
-                        .update_watermark(chat_id, user_id, watermark)?;
+                move |mut conn| {
+                    diesel::insert_into(schema::watermark::table)
+                        .values(WatermarkRow {
+                            user_id,
+                            channel_id,
+                            log_id: watermark,
+                        })
+                        .on_conflict(schema::watermark::user_id)
+                        .do_update()
+                        .set(schema::watermark::log_id.eq(watermark))
+                        .execute(&mut conn)?;
 
                     Ok(())
                 }

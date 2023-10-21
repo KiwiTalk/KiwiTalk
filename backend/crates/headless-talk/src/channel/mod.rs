@@ -6,27 +6,22 @@ pub(crate) mod updater;
 pub mod user;
 
 use crate::{
-    chat::{Chat, Chatlog, LogId},
-    database::chat::{ChatDatabaseExt, ChatRow},
+    database::{model::chat::ChatRow, schema},
     ClientResult, HeadlessTalk,
 };
 use arrayvec::ArrayVec;
-use futures::{pin_mut, StreamExt};
+use diesel::RunQueryDsl;
 use nohash_hasher::IntMap;
 use serde::{Deserialize, Serialize};
-use talk_loco_client::{
-    structs::channel::ChannelMeta as LocoChannelMeta,
-    talk::session::{SyncChatReq, TalkSession, WriteChatReq},
+use talk_loco_client::talk::{
+    channel::{ChannelMeta as LocoChannelMeta, ChannelType},
+    chat::{Chat, Chatlog},
+    session::{channel::write, TalkSession},
 };
-use tokio::sync::mpsc::channel;
 
 use self::user::DisplayUser;
 
-pub type ChannelId = i64;
-
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
-
-pub use talk_loco_client::structs::channel::ChannelType;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ChannelKind {
@@ -84,42 +79,20 @@ impl From<LocoChannelMeta> for ChannelMeta {
     }
 }
 
-/*
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type", content = "data")]
-pub enum ChannelDataVariant {
-    Normal(NormalChannelData),
-    Open(()),
-}
-
-impl From<NormalChannelData> for ChannelDataVariant {
-    fn from(data: NormalChannelData) -> Self {
-        Self::Normal(data)
-    }
-}
-
-// TODO
-impl From<()> for ChannelDataVariant {
-    fn from(data: ()) -> Self {
-        Self::Open(data)
-    }
-}
-*/
-
 #[derive(Debug, Clone, Copy)]
 pub struct ClientChannel<'a> {
-    id: ChannelId,
+    id: i64,
     client: &'a HeadlessTalk,
 }
 
 impl<'a> ClientChannel<'a> {
     #[inline(always)]
-    pub const fn new(id: ChannelId, client: &'a HeadlessTalk) -> Self {
+    pub const fn new(id: i64, client: &'a HeadlessTalk) -> Self {
         Self { id, client }
     }
 
     #[inline(always)]
-    pub const fn channel_id(&self) -> ChannelId {
+    pub const fn channel_id(&self) -> i64 {
         self.id
     }
 }
@@ -127,8 +100,8 @@ impl<'a> ClientChannel<'a> {
 impl ClientChannel<'_> {
     pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
         let res = TalkSession(&self.client.session)
-            .write_chat(&WriteChatReq {
-                chat_id: self.id,
+            .channel(self.id)
+            .write_chat(&write::Request {
                 chat_type: chat.chat_type.0,
                 msg_id: chat.message_id,
                 message: chat.content.message.as_deref(),
@@ -138,13 +111,13 @@ impl ClientChannel<'_> {
             })
             .await?;
 
-        let logged = res.chatlog.map(Chatlog::from).unwrap_or_else(|| Chatlog {
+        let logged = res.chatlog.unwrap_or_else(|| Chatlog {
             channel_id: self.id,
 
             log_id: res.log_id,
             prev_log_id: Some(res.prev_id),
 
-            sender_id: self.client.user_id,
+            author_id: self.client.user_id,
 
             send_at: res.send_at,
 
@@ -153,84 +126,21 @@ impl ClientChannel<'_> {
             referer: None,
         });
 
-        {
-            let logged = logged.clone();
+        self.client
+            .pool
+            .spawn({
+                let logged = logged.clone();
 
-            self.client
-                .pool
-                .spawn(move |connection| {
-                    connection.chat().insert(&ChatRow {
-                        log: logged,
-                        deleted_time: None,
-                    })?;
+                move |mut conn| {
+                    diesel::insert_into(schema::chat::table)
+                        .values(ChatRow::from_chatlog(&logged, None))
+                        .execute(&mut conn)?;
 
                     Ok(())
-                })
-                .await?;
-        }
+                }
+            })
+            .await?;
 
         Ok(logged)
-    }
-
-    pub async fn sync_chats(&self, max: LogId) -> ClientResult<usize> {
-        let current = {
-            let channel_id = self.id;
-            self.client
-                .pool
-                .spawn(move |connection| {
-                    Ok(connection
-                        .chat()
-                        .get_latest_log_id_in(channel_id)?
-                        .unwrap_or(0))
-                })
-                .await?
-        };
-
-        if current >= max {
-            return Ok(0);
-        }
-
-        let mut count = 0;
-
-        let (sender, mut recv) = channel(4);
-
-        let database_task = self.client.pool.spawn(move |mut connection| {
-            while let Some(list) = recv.blocking_recv() {
-                let transaction = connection.transaction()?;
-
-                for chatlog in list {
-                    transaction.chat().insert(&ChatRow {
-                        log: Chatlog::from(chatlog),
-                        deleted_time: None,
-                    })?;
-                }
-
-                transaction.commit()?;
-            }
-
-            Ok(())
-        });
-
-        let stream = TalkSession(&self.client.session).sync_chat_stream(&SyncChatReq {
-            chat_id: self.id,
-            current,
-            count: 0,
-            max,
-        });
-
-        pin_mut!(stream);
-        while let Some(res) = stream.next().await {
-            let res = res?;
-
-            if let Some(chatlogs) = res.chatlogs {
-                count += chatlogs.len();
-                sender.send(chatlogs).await.ok();
-            }
-        }
-
-        drop(sender);
-        database_task.await?;
-
-        Ok(count)
     }
 }

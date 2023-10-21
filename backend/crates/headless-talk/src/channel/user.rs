@@ -1,31 +1,39 @@
 use serde::{Deserialize, Serialize};
-use talk_loco_client::structs::{
-    openlink::OpenUser as LocoOpenUser,
-    user::{DisplayUserInfo, User as LocoNormalUser, UserVariant as LocoUserVariant},
-};
-
-pub type UserId = i64;
+use talk_loco_client::talk::session::channel::{normal, open};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DisplayUser {
-    pub id: UserId,
+    pub id: i64,
     pub profile: DisplayUserProfile,
 }
 
-impl From<DisplayUserInfo> for DisplayUser {
-    fn from(info: DisplayUserInfo) -> Self {
+impl From<open::user::DisplayUser> for DisplayUser {
+    fn from(info: open::user::DisplayUser) -> Self {
         Self {
             id: info.user_id,
             profile: DisplayUserProfile {
                 nickname: info.nickname,
                 image_url: info.profile_image_url,
-                country_iso: info.country_iso,
+                country_iso: None,
             },
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
+impl From<normal::user::DisplayUser> for DisplayUser {
+    fn from(info: normal::user::DisplayUser) -> Self {
+        Self {
+            id: info.user_id,
+            profile: DisplayUserProfile {
+                nickname: info.nickname,
+                image_url: info.profile_image_url,
+                country_iso: Some(info.country_iso),
+            },
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct UserProfile {
     pub nickname: String,
 
@@ -45,17 +53,8 @@ impl From<DisplayUserProfile> for UserProfile {
     }
 }
 
-impl From<LocoUserVariant> for UserProfile {
-    fn from(value: LocoUserVariant) -> Self {
-        match value {
-            LocoUserVariant::Normal(normal) => UserProfile::from(normal),
-            LocoUserVariant::Open(open) => UserProfile::from(open),
-        }
-    }
-}
-
-impl From<LocoNormalUser> for UserProfile {
-    fn from(value: LocoNormalUser) -> Self {
+impl From<normal::user::User> for UserProfile {
+    fn from(value: normal::user::User) -> Self {
         Self {
             nickname: value.nickname,
             image_url: value.profile_image_url,
@@ -65,8 +64,8 @@ impl From<LocoNormalUser> for UserProfile {
     }
 }
 
-impl From<LocoOpenUser> for UserProfile {
-    fn from(value: LocoOpenUser) -> Self {
+impl From<open::user::User> for UserProfile {
+    fn from(value: open::user::User) -> Self {
         Self {
             nickname: value.nickname,
             image_url: value.profile_image_url,
@@ -95,7 +94,7 @@ impl From<UserProfile> for DisplayUserProfile {
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct UserData<Info> {
-    pub id: UserId,
+    pub id: i64,
     pub user_type: i32,
     pub profile: UserProfile,
     pub info: Info,

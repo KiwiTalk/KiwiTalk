@@ -45,10 +45,16 @@ CREATE TABLE IF NOT EXISTS user_profile (
     profile_url TEXT,
     full_profile_url TEXT,
     original_profile_url TEXT,
-    
-    watermark BIGINT NOT NULL DEFAULT 0,
 
     PRIMARY KEY(id, channel_id)
+);
+
+CREATE TABLE IF NOT EXISTS watermark (
+    channel_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    log_id BIGINT NOT NULL,
+
+    PRIMARY KEY(channel_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS normal_channel (

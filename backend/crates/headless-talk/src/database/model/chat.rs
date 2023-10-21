@@ -36,15 +36,15 @@ impl<'a> ChatRow<'a> {
     pub const fn from_chatlog(log: &'a Chatlog, deleted_time: Option<i64>) -> Self {
         Self {
             log_id: log.log_id,
-            channel_id: log.chat_id,
+            channel_id: log.channel_id,
             prev_log_id: log.prev_log_id,
-            chat_type: log.chat_type,
-            message_id: log.msg_id,
+            chat_type: log.chat.chat_type.0,
+            message_id: log.chat.message_id,
             send_at: log.send_at,
             author_id: log.author_id,
-            message: log.message.as_deref(),
-            attachment: log.attachment.as_deref(),
-            supplement: log.supplement.as_deref(),
+            message: log.chat.content.message.as_deref(),
+            attachment: log.chat.content.attachment.as_deref(),
+            supplement: log.chat.content.supplement.as_deref(),
             referer: log.referer,
             deleted_time,
         }
