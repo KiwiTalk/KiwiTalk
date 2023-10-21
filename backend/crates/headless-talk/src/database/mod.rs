@@ -33,15 +33,16 @@ impl DatabasePool {
         tokio::task::spawn_blocking(move || closure(this.get()?)).map(|res| res.unwrap())
     }
 
-    pub async fn migrate_to_latest(&self) -> PoolTaskResult<()> {
+    pub async fn migrate_to_latest(&self) -> Result<(), MigrationError> {
         const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
-        self.spawn(|mut connection| {
-            connection.run_pending_migrations(MIGRATIONS)?;
+        let this = self.clone();
+
+        tokio::task::spawn_blocking(move || {
+            this.get()?.run_pending_migrations(MIGRATIONS)?;
 
             Ok(())
-        })
-        .await
+        }).map(|res| res.unwrap()).await
     }
 }
 
@@ -54,7 +55,15 @@ pub struct PoolError(#[from] r2d2::Error);
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum PoolTaskError {
-    Database(#[from] Box<dyn std::error::Error + Send + Sync>),
+    Database(#[from] diesel::result::Error),
+
+    Pool(#[from] PoolError),
+}
+
+#[derive(Debug, Error)]
+#[error(transparent)]
+pub enum MigrationError {
+    Migration(#[from] Box<dyn std::error::Error + Send + Sync>),
 
     Pool(#[from] PoolError),
 }
