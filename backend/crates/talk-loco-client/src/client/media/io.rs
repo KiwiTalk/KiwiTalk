@@ -6,7 +6,7 @@ use std::{
 
 use futures_lite::{future::poll_fn, ready, AsyncRead, AsyncWrite};
 use futures_loco_protocol::LocoClient;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{talk::chat::Chatlog, BsonCommandStatus};
@@ -148,7 +148,7 @@ impl<T: AsyncWrite> AsyncWrite for MediaSink<T> {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct CompleteRes {
     #[serde(rename = "chatLog")]
     chat_log: Option<Chatlog>,
