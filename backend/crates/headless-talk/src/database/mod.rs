@@ -1,36 +1,62 @@
-pub(crate) mod channel;
-pub(crate) mod chat;
-pub mod pool;
+pub mod model;
+pub mod schema;
 
-use once_cell::sync::Lazy;
-use rusqlite::Connection;
-use rusqlite_migration::{Migrations, M};
+use diesel::SqliteConnection;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use futures::{Future, FutureExt};
+use r2d2::Pool;
+use thiserror::Error;
 
-static MIGRATIONS: Lazy<Migrations<'static>> =
-    Lazy::new(|| Migrations::new(vec![M::up(include_str!("./migrations/v0.1.0.sql"))]));
+type ConnectionManager = diesel::r2d2::ConnectionManager<SqliteConnection>;
 
-#[extend::ext(name = MigrationExt)]
-pub(crate) impl Connection {
-    fn migrate_to_latest(&mut self) -> rusqlite_migration::Result<()> {
-        MIGRATIONS.to_latest(self)
+#[derive(Debug, Clone)]
+pub struct DatabasePool(Pool<ConnectionManager>);
+
+impl DatabasePool {
+    pub fn file(url: impl Into<String>) -> Result<Self, PoolError> {
+        Ok(Self(Pool::new(ConnectionManager::new(url))?))
+    }
+
+    pub fn get(&self) -> Result<PooledConnection, PoolError> {
+        self.0.get().map_err(PoolError)
+    }
+
+    pub fn spawn<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
+        &self,
+        closure: F,
+    ) -> impl Future<Output = PoolTaskResult<R>>
+    where
+        F: Send + 'static,
+    {
+        let this = self.clone();
+
+        tokio::task::spawn_blocking(move || closure(this.get()?)).map(|res| res.unwrap())
+    }
+
+    pub async fn migrate_to_latest(&self) -> PoolTaskResult<()> {
+        const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
+
+        self.spawn(|mut connection| {
+            connection.run_pending_migrations(MIGRATIONS)?;
+
+            Ok(())
+        })
+        .await
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use rusqlite::Connection;
+pub type PooledConnection = r2d2::PooledConnection<ConnectionManager>;
 
-    use super::{MigrationExt, MIGRATIONS};
+#[derive(Debug, Error)]
+#[error(transparent)]
+pub struct PoolError(#[from] r2d2::Error);
 
-    #[test]
-    fn migrations_test() {
-        assert!(MIGRATIONS.validate().is_ok());
-    }
+#[derive(Debug, Error)]
+#[error(transparent)]
+pub enum PoolTaskError {
+    Database(#[from] Box<dyn std::error::Error + Send + Sync>),
 
-    pub fn prepare_test_database() -> Result<Connection, Box<dyn std::error::Error>> {
-        let mut db = Connection::open_in_memory()?;
-        db.migrate_to_latest()?;
-
-        Ok(db)
-    }
+    Pool(#[from] PoolError),
 }
+
+pub type PoolTaskResult<T> = Result<T, PoolTaskError>;
