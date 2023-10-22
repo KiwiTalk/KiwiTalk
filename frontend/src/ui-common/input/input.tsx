@@ -2,9 +2,8 @@ import { JSX, Show, splitProps } from 'solid-js';
 
 import * as styles from './input.css';
 
-export type InputProps = JSX.HTMLAttributes<HTMLInputElement> & {
+export type InputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
   icon?: JSX.Element;
-  placeholder?: string;
 };
 export const Input = (props: InputProps) => {
   const [local, inputProps] = splitProps(props, ['icon']);

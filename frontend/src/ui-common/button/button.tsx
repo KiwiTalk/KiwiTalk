@@ -1,4 +1,4 @@
-import { JSX, ParentProps, splitProps } from 'solid-js';
+import { JSX, ParentProps, mergeProps, splitProps } from 'solid-js';
 
 import * as styles from './button.css';
 
@@ -6,7 +6,7 @@ export type ButtonProps = ParentProps<JSX.HTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'text' | 'glass';
 }>;
 export const Button = (props: ButtonProps) => {
-  const [local, buttonProps] = splitProps(props, ['variant']);
+  const [local, buttonProps] = splitProps(mergeProps({ variant: 'primary' }, props), ['variant']);
 
   return (
     <button

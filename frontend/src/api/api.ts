@@ -1,8 +1,16 @@
 import { tauri } from '@tauri-apps/api';
 
-import { FriendsUpdate, LoginForm, LogonProfile, Profile, Response } from './_types';
+import {
+  FriendsUpdate,
+  LoginDetailForm,
+  LoginForm,
+  LoginResult,
+  LogonProfile,
+  Profile,
+  Response,
+} from './_types';
 
-export function defaultLoginForm(): Promise<LoginForm> {
+export function defaultLoginForm(): Promise<LoginDetailForm> {
   return tauri.invoke('plugin:api|default_login_form');
 }
 
@@ -54,3 +62,45 @@ export function friendProfile(id: string): Promise<Profile> {
 export function updateFriends(friendIds: string[]): Promise<FriendsUpdate> {
   return tauri.invoke('plugin:api|update_friends', { friendIds });
 }
+
+export const loginWithResult = async (
+  loginForm: LoginForm,
+  forced = false,
+): Promise<LoginResult> => {
+  if (!loginForm?.email || !loginForm?.password) {
+    return {
+      type: 'Error',
+      key: 'login.reason.required_id_password',
+    };
+  }
+
+  let key: string;
+  let newForced = false;
+  let detail: unknown = null;
+  try {
+    const response = await login({
+      email: loginForm.email,
+      password: loginForm.password,
+      saveEmail: loginForm.saveEmail,
+      autoLogin: loginForm.autoLogin,
+    }, forced);
+
+    if (response.type === 'Success') return { type: 'Success' };
+
+    if (response.content === -100) return { type: 'NeedRegister' };
+    if (response.content === -101) newForced = true;
+
+    key = `login.status.login.${response.content}`;
+  } catch (e) {
+    console.error(e);
+    key = 'login.unknown_error';
+    detail = e;
+  }
+
+  return {
+    type: 'Error',
+    key,
+    forced: newForced,
+    detail,
+  };
+};

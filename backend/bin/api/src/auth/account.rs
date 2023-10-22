@@ -12,6 +12,10 @@ use kiwi_talk_system::get_system_info;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SavedAccount {
+    pub profile: String,
+
+    pub name: String,
+
     pub email: String,
 
     #[serde(with = "serde_byte_array")]
