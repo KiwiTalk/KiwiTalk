@@ -24,7 +24,6 @@ const Template: StoryFn<ChannelListProps> = () => {
       const userLength = 2 + Math.floor(Math.random() * 10);
       const displayUsers = getUsers(userLength);
 
-      console.log(displayUsers);
       const lastChat = {
         chatType: 0,
         nickname: displayUsers[Math.floor(Math.random() * userLength)].nickname,
