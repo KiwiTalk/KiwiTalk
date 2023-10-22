@@ -1,3 +1,4 @@
+import { vars } from '@/features/theme';
 import { createVar, style, styleVariants } from '@vanilla-extract/css';
 
 export const fadeValue = createVar();
@@ -17,6 +18,8 @@ export const container = style({
     [endEdge]: '16px',
     [direction]: 'to bottom',
   },
+
+  position: 'relative',
 
   width: '100%',
   height: '100%',
@@ -45,10 +48,19 @@ export const container = style({
       height: endEdge,
       minHeight: endEdge,
     },
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+    '&::-webkit-scrollbar-track': {
+      display: 'none',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      display: 'none',
+    },
   },
 });
 
-export const containerGap = styleVariants({
+export const containerDirectional = styleVariants({
   vertical: {
     width: '100%',
     height: `calc(100% + ${startEdge} + ${endEdge})`,
@@ -62,5 +74,39 @@ export const containerGap = styleVariants({
 
     marginLeft: `calc(-1 * ${startEdge})`,
     marginRight: `calc(-1 * ${endEdge})`,
+  },
+});
+
+export const thumbSize = createVar();
+export const thumbPosition = createVar();
+export const scrollThumb = style({
+  position: 'absolute',
+
+  minWidth: '8px',
+  minHeight: '8px',
+
+  background: vars.color.glassPrimary.background,
+  backdropFilter: vars.blur.regular,
+
+  borderRadius: vars.radius.full,
+  boxShadow: vars.shadow.regular,
+});
+
+export const scrollThumbDirectional = styleVariants({
+  vertical: {
+    top: '0',
+    right: '0',
+
+    margin: '0 4px',
+    height: thumbSize,
+    transform: `translateY(${thumbPosition})`,
+  },
+  horizontal: {
+    bottom: '0',
+    left: '0',
+
+    margin: '4px 0',
+    width: thumbSize,
+    transform: `translateX(${thumbPosition})`,
   },
 });

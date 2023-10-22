@@ -7,7 +7,7 @@ const baseBackground = style({
   alignItems: 'stretch',
 
   background: vars.color.solidPrimary.background,
-  padding: '12px',
+  padding: '16px',
   borderRadius: '10px',
 });
 

@@ -41,7 +41,15 @@ const HorizontalTemplate: StoryFn = (props: ScrollAreaProps) => {
 };
 
 export const Vertical = VerticalTemplate.bind({});
-Vertical.args = { edgeSize: 16, fadeValue: 0 };
+Vertical.args = {
+  edgeSize: 16,
+  fadeValue: 0,
+  style: `background: white`,
+};
 
 export const Horizontal = HorizontalTemplate.bind({});
-Horizontal.args = { edgeSize: 16, fadeValue: 0 };
+Horizontal.args = {
+  edgeSize: 16,
+  fadeValue: 0,
+  style: `background: black`,
+};
