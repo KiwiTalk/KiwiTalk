@@ -14,7 +14,7 @@ export type ScrollThumbProps = {
 export const ScrollThumb = (props: ScrollThumbProps) => {
   const [thumbRef, setThumbRef] = createSignal<HTMLDivElement | null>(null);
   const [isScroll, setIsScroll] = createSignal(false);
-  const [isHide, setIsHide] = createSignal(false);
+  const [isHide, setIsHide] = createSignal(true);
   const [expand, setExpand] = createSignal(false);
 
   const rect = useElementScrollRect(() => props.parent);
@@ -54,7 +54,7 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
     timeout = setTimeout(() => {
       setIsHide(true);
     }, 1000);
-  }));
+  }, { defer: true }));
 
   const onHover = () => {
     setIsHide(false);
