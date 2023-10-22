@@ -8,8 +8,12 @@ export type ScrollThumbProps = {
   position: number;
   direction: 'vertical' | 'horizontal';
   edgeSize: number;
+
+  onScroll?: (position: number) => void;
 };
 export const ScrollThumb = (props: ScrollThumbProps) => {
+  const [thumbRef, setThumbRef] = createSignal<HTMLDivElement | null>(null);
+  const [isScroll, setIsScroll] = createSignal(false);
   const [isHide, setIsHide] = createSignal(false);
   const [expand, setExpand] = createSignal(false);
 
@@ -59,7 +63,8 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
     setExpand(true);
   };
   const onLeave = () => {
-    if (timeout) clearTimeout(timeout);
+    if (typeof timeout === 'number') clearTimeout(timeout);
+    if (isScroll()) return;
 
     timeout = setTimeout(() => {
       setIsHide(true);
@@ -68,12 +73,53 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
     setExpand(false);
   };
 
+  const onScrollStart = (event: PointerEvent) => {
+    setIsScroll(true);
+
+    const parentRect = props.parent?.getBoundingClientRect();
+    const thumbRect = thumbRef()?.getBoundingClientRect();
+    const startPosition = props.direction === 'vertical' ?
+      (parentRect?.y ?? 0) :
+      (parentRect?.x ?? 0);
+    const thumbOffset = props.direction === 'vertical' ?
+      (event.y ?? 0) - (thumbRect?.top ?? 0) :
+      (event.x ?? 0) - (thumbRect?.left ?? 0);
+
+    const onScrollMove = (event: PointerEvent) => {
+      const currentPosition = props.direction === 'vertical' ? event.y : event.x;
+      const offset = currentPosition - startPosition - thumbOffset;
+      const scrollOffset = offset / (
+        (props.direction === 'vertical' ?
+          rect().clientHeight :
+          rect().clientWidth
+        ) - thumbSize()
+      );
+
+      props.onScroll?.(scrollOffset);
+    };
+
+    const onScrollEnd = () => {
+      window.removeEventListener('pointermove', onScrollMove);
+      window.removeEventListener('pointerup', onScrollEnd);
+
+      requestAnimationFrame(() => {
+        setExpand(true);
+        setIsHide(false);
+        setIsScroll(false);
+      });
+    };
+
+    window.addEventListener('pointermove', onScrollMove);
+    window.addEventListener('pointerup', onScrollEnd);
+  };
+
   return (
     <div
+      ref={setThumbRef}
       classList={{
         [styles.scrollThumb.normal]: !expand(),
-        [styles.scrollThumb.expand]: expand(),
-        [styles.hide]: isHide(),
+        [styles.scrollThumb.expand]: isScroll() || expand(),
+        [styles.hide]: !isScroll() && isHide(),
         [styles.scrollThumbDirectional.vertical]: props.direction === 'vertical',
         [styles.scrollThumbDirectional.horizontal]: props.direction === 'horizontal',
       }}
@@ -83,6 +129,7 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
       })}
       onPointerEnter={onHover}
       onPointerLeave={onLeave}
+      onPointerDown={onScrollStart}
     />
   );
 };

@@ -15,6 +15,7 @@ const baseScrollThumb = style({
   border: '2px solid transparent',
   borderRadius: vars.radius.full,
   cursor: 'pointer',
+  userSelect: 'none',
 
   transition: `
     opacity ${vars.easing.background},

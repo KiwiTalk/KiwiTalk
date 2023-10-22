@@ -114,6 +114,15 @@ export const ScrollArea = <
         position={scrollPosition()}
         direction={direction()}
         edgeSize={local.edgeSize}
+        onScroll={(offset) => {
+          let top: number | undefined;
+          let left: number | undefined;
+
+          if (direction() === 'vertical') top = offset * scrollHeight();
+          if (direction() === 'horizontal') left = offset * scrollWidth();
+
+          container()?.scrollTo({ top, left });
+        }}
       />
     </Dynamic>
   );
