@@ -18,6 +18,10 @@ const baseBackground = style({
     transparent 5px,
     transparent 10px
   )`,
+
+  transform: 'translate(var(--offset-x, 0), var(--offset-y, 0))',
+  transition: `transform ${vars.easing.transform}`,
+  transitionDuration: '3s',
 });
 
 const circleMask = `linear-gradient(
@@ -27,8 +31,8 @@ const circleMask = `linear-gradient(
 )`;
 export const circle = style([baseBackground, {
   position: 'absolute',
-  right: '30%',
-  bottom: '40%',
+  right: '35%',
+  bottom: '30%',
 
   width: '170px',
   height: '170px',
@@ -45,14 +49,14 @@ const kiwiMask = `linear-gradient(
 )`;
 export const kiwi = style([baseBackground, {
   position: 'absolute',
-  right: '0%',
-  bottom: '0%',
+  right: '-5%',
+  bottom: '-10%',
 
-  width: '220px',
-  height: '193px',
+  width: '348px',
+  height: '326px',
 
   // eslint-disable-next-line max-len
-  clipPath: `path('M99.1672 23.7297C100.121 24.8697 101.708 25.2647 103.085 24.7217C137.993 10.9687 177.61 21.0637 201.721 49.8157C218.652 70.0367 225.454 96.5137 220.383 122.447C215.312 148.379 198.717 170.497 174.832 183.135C144.343 199.293 107.31 195.544 80.5272 173.59C62.7772 159.081 51.4752 138.85 48.6942 116.619C48.1412 112.27 44.9252 108.644 40.6792 107.603C29.2412 104.792 19.2232 98.5307 11.6842 89.4397C11.0512 88.6407 10.4462 87.9627 9.91324 87.3677C8.53124 85.7607 7.51723 84.6347 6.42323 82.6417C4.01623 78.2587 1.46924 71.2527 0.363237 65.8857C-1.46776 56.9977 3.43824 24.9627 19.3112 12.1027C42.3442 -6.57134 76.5622 -3.26633 95.5972 19.4667L99.1672 23.7297Z')`,
+  clipPath: `path('M211.931 66.8476L212.648 71.0413L216.902 71.0047C217.268 71.0016 217.634 71 218 71C287.036 71 343 126.964 343 196C343 265.036 287.036 321 218 321C148.964 321 93 265.036 93 196C93 179.516 96.1881 163.789 101.977 149.393L103.561 145.454L99.9301 143.252C83.1416 133.072 70.7018 116.453 66.0276 96.8408L65.2219 93.4602L61.7724 93.0372L24.9941 88.5274L60.6026 78.3059L63.95 77.345L64.2092 73.8721C67.083 35.3583 99.2485 5 138.5 5C175.329 5 205.926 31.7294 211.931 66.8476Z')`,
   maskImage: kiwiMask,
   WebkitMaskImage: kiwiMask,
 }]);
