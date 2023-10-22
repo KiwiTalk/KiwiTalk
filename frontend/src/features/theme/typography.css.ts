@@ -44,7 +44,7 @@ const typographySize24 = style([
   },
 ]);
 
-const typographyNumber = style([typographySize12, {
+const typographyNumber = style([typographyBase, {
   fontFeatureSettings: '"cv01" on, "ss06" on',
   fontVariantNumeric: 'lining-nums tabular-nums',
   fontWeight: 500,
@@ -67,15 +67,17 @@ export const typography = {
   /** 16 / 18 */
   head3: style([typographySize16, { fontWeight: 600 }]),
 
-  /* special */
-  number: typographyNumber,
+  /* styled */
+  number1: style([typographyNumber, typographySize12]),
+  number2: style([typographyNumber, typographySize10]),
 
-  /* sized */
-  size: {
+  /* atom */
+  atom: {
     size10: typographySize10,
     size12: typographySize12,
     size16: typographySize16,
     size20: typographySize20,
     size24: typographySize24,
+    number: typographyNumber,
   },
 };
