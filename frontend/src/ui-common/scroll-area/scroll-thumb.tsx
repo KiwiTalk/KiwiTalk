@@ -24,10 +24,10 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
   const thumbSize = () => {
     if (props.direction === 'vertical') {
       const height = rect().clientHeight - props.edgeSize * 2;
-      return height / scrollHeight() * height;
+      return height / rect().scrollHeight * height;
     } else {
       const width = rect().clientWidth - props.edgeSize * 2;
-      return width / scrollWidth() * width;
+      return width / rect().scrollWidth * width;
     }
   };
   const thumbScrollPosition = () => {

@@ -7,7 +7,6 @@ import {
   onMount,
   onCleanup,
   createSignal,
-  untrack,
   createEffect,
   on,
 } from 'solid-js';
@@ -67,7 +66,7 @@ export const ScrollArea = <
 
   /* lifecycle */
   const handleScroll = () => {
-    let newPosition = untrack(() => scrollPosition());
+    let newPosition: number;
 
     if (direction() === 'vertical') newPosition = (container()?.scrollTop ?? 0) / scrollHeight();
     else newPosition = (container()?.scrollLeft ?? 0) / scrollWidth();
