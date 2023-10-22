@@ -11,6 +11,7 @@ import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
 import * as styles from './channel-list.css';
 
 import type { ChannelListItem } from '@/pages/main/channel/_types';
+import { ScrollArea } from '@/ui-common/scroll-area';
 
 export type ChannelListIconProps = {
   icon: JSX.Element;
@@ -97,7 +98,7 @@ export const ChannelList = (props: ChannelListProps) => {
   const [t] = useTransContext();
 
   return (
-    <ul class={styles.container}>
+    <div class={styles.container}>
       <header class={styles.header}>
         <span class={styles.title}>
           {t('main.menu.chat.name')}
@@ -113,21 +114,23 @@ export const ChannelList = (props: ChannelListProps) => {
           </For>
         </div>
       </header>
-      <For each={instance.channels()}>
-        {(channel) => (
-          <ChannelItem
-            name={channel.name}
-            members={channel.userCount}
-            lastMessage={channel.lastChat?.content.message}
-            lastMessageTime={channel.lastChat?.timestamp}
-            profileSrc={channel.profile}
-            unreadBadge={channel.unreadCount}
-            silent={channel.silent}
-            selected={channel.id === local.activeId}
-            onClick={() => local.setActiveId?.(channel.id)}
-          />
-        )}
-      </For>
-    </ul>
+      <ScrollArea component={'ul'} edgeSize={12}>
+        <For each={instance.channels()}>
+          {(channel) => (
+            <ChannelItem
+              name={channel.name}
+              members={channel.userCount}
+              lastMessage={channel.lastChat?.content.message}
+              lastMessageTime={channel.lastChat?.timestamp}
+              profileSrc={channel.profile}
+              unreadBadge={channel.unreadCount}
+              silent={channel.silent}
+              selected={channel.id === local.activeId}
+              onClick={() => local.setActiveId?.(channel.id)}
+            />
+          )}
+        </For>
+      </ScrollArea>
+    </div>
   );
 };
