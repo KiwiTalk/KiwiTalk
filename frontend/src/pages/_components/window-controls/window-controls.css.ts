@@ -2,16 +2,18 @@ import { style, styleVariants } from '@vanilla-extract/css';
 import { vars, classes } from '@/features/theme';
 
 export const container = style({
-  'display': 'flex',
-  'minHeight': '32px',
-  'padding': '0 32px',
-  'alignItems': 'center',
+  display: 'flex',
+  minHeight: '32px',
+  padding: '0 32px',
+  alignItems: 'center',
 
-  'zIndex': 99999999,
+  zIndex: vars.layer.windowFrame,
 
-  '::before': {
-    content: '',
-    flex: '1 1 0',
+  selectors: {
+    '&::before': {
+      content: '',
+      flex: '1 1 0',
+    },
   },
 });
 

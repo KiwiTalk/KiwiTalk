@@ -51,7 +51,7 @@ export const sidebarItem = styleVariants(
 export const sidebarButtonBadge = styleVariants(
   { active: 1, inactive: 0 },
   (opacity) => [
-    classes.typography.number,
+    classes.typography.number1,
     {
       position: 'absolute',
       top: '-2px',

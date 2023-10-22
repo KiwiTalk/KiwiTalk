@@ -14,11 +14,11 @@ export type WindowControlsViewModelType = () => {
 
 export const WindowControlsViewModel: WindowControlsViewModelType = () => {
   const [isFocused, { mutate: mutateIsFocused }] = createResource(
-      () => appWindow.isFocused(),
+    () => appWindow.isFocused(),
   );
 
   const [unlisten] = createResource(
-      () => appWindow.onFocusChanged(({ payload: focused }) => mutateIsFocused(focused)),
+    () => appWindow.onFocusChanged(({ payload: focused }) => mutateIsFocused(focused)),
   );
 
   onCleanup(() => unlisten()?.());

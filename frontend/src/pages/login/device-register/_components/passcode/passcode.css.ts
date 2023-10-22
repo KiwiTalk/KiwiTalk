@@ -14,7 +14,7 @@ export const container = style({
 
 export const placeholder = style([classes.typography.head3, {
   textAlign: 'left',
-  color: vars.color.glassSecondary.fillPrimary,
+  color: vars.color.glassPrimary.fillPrimary,
 
   display: 'flex',
   flexDirection: 'row',
@@ -39,5 +39,5 @@ export const codeInput = style({
 
   fontSize: '24px',
   textAlign: 'center',
-  color: vars.color.glassSecondary.fillPrimary,
+  color: vars.color.glassPrimary.fillPrimary,
 });
