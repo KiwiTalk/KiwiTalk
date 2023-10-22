@@ -3,17 +3,32 @@ import { createVar, style, styleVariants } from '@vanilla-extract/css';
 
 export const thumbSize = createVar();
 export const thumbPosition = createVar();
-export const scrollThumb = style({
+const baseScrollThumb = style({
   position: 'absolute',
 
   minWidth: '8px',
   minHeight: '8px',
 
   background: vars.color.glassPrimary.background,
-  backdropFilter: vars.blur.regular,
+  backgroundClip: 'padding-box',
 
+  border: '2px solid transparent',
   borderRadius: vars.radius.full,
-  boxShadow: vars.shadow.regular,
+  cursor: 'pointer',
+
+  transition: `
+    opacity ${vars.easing.background},
+    min-width ${vars.easing.transform},
+    min-height ${vars.easing.transform}
+  `,
+});
+
+export const scrollThumb = styleVariants({
+  normal: [baseScrollThumb],
+  expand: [baseScrollThumb, {
+    minWidth: '12px',
+    minHeight: '12px',
+  }],
 });
 
 export const scrollThumbDirectional = styleVariants({
@@ -21,7 +36,6 @@ export const scrollThumbDirectional = styleVariants({
     top: '0',
     right: '0',
 
-    margin: '0 4px',
     height: thumbSize,
     transform: `translateY(${thumbPosition})`,
   },
@@ -29,8 +43,11 @@ export const scrollThumbDirectional = styleVariants({
     bottom: '0',
     left: '0',
 
-    margin: '4px 0',
     width: thumbSize,
     transform: `translateX(${thumbPosition})`,
   },
+});
+
+export const hide = style({
+  opacity: '0',
 });
