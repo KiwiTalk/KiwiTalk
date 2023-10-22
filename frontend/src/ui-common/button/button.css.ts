@@ -70,8 +70,8 @@ export const button = styleVariants({
     },
   }],
   glass: [baseButton, {
-    backgroundColor: vars.color.glassPrimary.background,
-    color: vars.color.glassPrimary.fillPrimary,
+    backgroundColor: vars.color.glassSecondary.background,
+    color: vars.color.glassSecondary.fillPrimary,
 
     zIndex: 0,
     borderRadius: vars.radius.full,
@@ -81,7 +81,7 @@ export const button = styleVariants({
     selectors: {
       '&::before': basePseudoElement,
       '&:hover::before, &:active::before': {
-        backgroundColor: vars.color.glassPrimary.attention,
+        backgroundColor: vars.color.glassSecondary.attention,
       },
     },
   }],

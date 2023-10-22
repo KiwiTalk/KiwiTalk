@@ -15,7 +15,7 @@ export const container = style({
 
   backdropFilter: vars.blur.regular,
   WebkitBackdropFilter: vars.blur.regular,
-  backgroundColor: vars.color.glassPrimary.background,
+  backgroundColor: vars.color.glassSecondary.background,
 
   userSelect: 'none',
   cursor: 'pointer',
@@ -24,7 +24,7 @@ export const container = style({
 
   selectors: {
     '&:hover': {
-      backgroundColor: vars.color.glassPrimary.attention,
+      backgroundColor: vars.color.glassSecondary.attention,
     },
   },
 });
@@ -41,7 +41,7 @@ export const textContainer = style({
 });
 
 export const name = style([classes.typography.head1, {
-  color: vars.color.glassPrimary.fillPrimary,
+  color: vars.color.glassSecondary.fillPrimary,
   lineHeight: 'normal',
 
   gridColumn: '2 / span 1',
@@ -49,7 +49,7 @@ export const name = style([classes.typography.head1, {
 }]);
 
 export const email = style([classes.typography.body, {
-  color: vars.color.glassPrimary.fillSecondary,
+  color: vars.color.glassSecondary.fillSecondary,
 
   gridColumn: '2 / span 1',
   gridRow: '2 / span 1',

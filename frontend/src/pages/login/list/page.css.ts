@@ -16,7 +16,7 @@ const baseTitle = style([classes.typography.base, {
   textTransform: 'uppercase',
   letterSpacing: '0.04em',
 
-  color: vars.color.glassPrimary.fillPrimary,
+  color: vars.color.glassSecondary.fillPrimary,
 }]);
 export const title = styleVariants({
   normal: [baseTitle, {

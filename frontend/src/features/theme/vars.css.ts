@@ -42,6 +42,29 @@ const [themeClass, baseVars] = createTheme({
     regular: '18px',
     full: '999px',
   },
+  layer: {
+    /** 가장 아래에 깔리는 layer */
+    hidden: '-100',
+
+    /** 기본값 */
+    base: '0',
+    /** 대상보다 상단 */
+    above: '1',
+    /** 대상보다 하단 */
+    below: '-1',
+
+    /** Surface중 최상단 layer */
+    head: '100',
+    /** surface 전체를 덮는 Backdrop layer */
+    backdrop: '500',
+    /** Modal, Dialog가 사용하는 layer*/
+    modal: '1000',
+    /** 어느 위치에서든 보여야 하는 layer */
+    tooltip: '2000',
+
+    /** 최상단 레벨 이 이상의 값은 존재할수 없음 */
+    windowFrame: '10000',
+  },
   opacity: {
     hover: '0.7',
   },
@@ -82,26 +105,26 @@ const vars = {
       attention: baseVars.color.blue500,
       elevated: baseVars.color.neutral.lightAlpha100,
     } satisfies Surface,
-    surfacePrimary: {
+    solidPrimary: {
       background: baseVars.color.blue100,
       fillPrimary: baseVars.color.neutral.white,
       fillSecondary: baseVars.color.neutral.lightAlpha300,
     } satisfies Surface,
-    surfaceSecondary: {
+    solidSecondary: {
       background: baseVars.color.blue200,
       fillPrimary: baseVars.color.neutral.white,
       fillSecondary: baseVars.color.neutral.lightAlpha500,
       attention: baseVars.color.blue400,
     } satisfies Surface,
     glassPrimary: {
-      background: baseVars.color.neutral.darkAlpha200,
+      background: baseVars.color.neutral.darkAlpha500,
       fillPrimary: baseVars.color.neutral.white,
       fillSecondary: baseVars.color.neutral.lightAlpha500,
       fillTertiary: baseVars.color.neutral.lightAlpha100,
       attention: baseVars.color.blue400,
     } satisfies Surface,
     glassSecondary: {
-      background: baseVars.color.neutral.darkAlpha500,
+      background: baseVars.color.neutral.darkAlpha200,
       fillPrimary: baseVars.color.neutral.white,
       fillSecondary: baseVars.color.neutral.lightAlpha500,
       fillTertiary: baseVars.color.neutral.lightAlpha100,

@@ -23,17 +23,17 @@ export const iconWrapper = style({
   borderRadius: vars.radius.small,
   marginBottom: '12px',
 
-  background: vars.color.surfaceSecondary.background,
-  color: vars.color.surfaceSecondary.attention,
+  background: vars.color.solidSecondary.background,
+  color: vars.color.solidSecondary.attention,
 });
 
 export const infoTitle = styleVariants({
   main: [classes.typography.head1, {
     lineHeight: 'normal',
-    color: vars.color.surfacePrimary.fillPrimary,
+    color: vars.color.solidPrimary.fillPrimary,
   }],
   other: [classes.typography.head1, {
     lineHeight: 'normal',
-    color: vars.color.surfacePrimary.fillSecondary,
+    color: vars.color.solidPrimary.fillSecondary,
   }],
 });

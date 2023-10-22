@@ -18,12 +18,12 @@ export const title = style([classes.typography.base, {
   fontSize: '40px',
   fontWeight: 700,
   textTransform: 'uppercase',
-  color: vars.color.glassSecondary.fillPrimary,
+  color: vars.color.glassPrimary.fillPrimary,
 }]);
 
 export const subtitle = style([classes.typography.head3, {
   fontWeight: 400,
   lineHeight: 'normal',
   marginBottom: '72px',
-  color: vars.color.glassSecondary.fillSecondary,
+  color: vars.color.glassPrimary.fillSecondary,
 }]);
