@@ -12,15 +12,16 @@ export const container = style({
   padding: '12px 16px',
   borderRadius: vars.radius.small,
 
-  background: vars.color.glass.background,
-  color: vars.color.glass.fillSecondary,
+  background: vars.color.glassSecondary.background,
+  color: vars.color.glassSecondary.fillSecondary,
   backdropFilter: vars.blur.regular,
+  WebkitBackdropFilter: vars.blur.regular,
 
   transition: `box-shadow ${vars.easing.background}`,
 
   selectors: {
     '&:focus-within, &:focus': {
-      boxShadow: `0 0 0 2px inset ${vars.color.glass.attention}`,
+      boxShadow: `0 0 0 2px inset ${vars.color.glassSecondary.attention}`,
     },
   },
 });
@@ -29,11 +30,11 @@ export const input = style([classes.typography.head3, {
   width: '100%',
   minHeight: '24px',
 
-  color: vars.color.glass.fillPrimary,
+  color: vars.color.glassSecondary.fillPrimary,
 
   selectors: {
     '&::placeholder': {
-      color: vars.color.glass.fillSecondary,
+      color: vars.color.glassSecondary.fillSecondary,
     },
   },
 }]);
@@ -47,13 +48,13 @@ export const iconWrapper = style({
   alignItems: 'center',
 
   fontSize: '24px',
-  color: vars.color.glass.fillSecondary,
+  color: vars.color.glassSecondary.fillSecondary,
 
   transition: `color ${vars.easing.background}`,
 
   selectors: {
     'label:valid > &': {
-      color: vars.color.glass.fillPrimary,
+      color: vars.color.glassSecondary.fillPrimary,
     },
   },
 });

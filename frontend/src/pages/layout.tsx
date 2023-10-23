@@ -5,8 +5,9 @@ import { ConfigProvider } from '@/features/config';
 
 import { WindowControls } from './_components/window-controls';
 import { Router, Routes, hashIntegration } from '@solidjs/router';
-import { themeRoot } from '@/features/theme';
+import { classes, themeRoot } from '@/features/theme';
 import { container } from './layout.css';
+import { Transition } from 'solid-transition-group';
 
 export const Provider = (props: ParentProps) => (
   <I18nProvider>
@@ -26,9 +27,11 @@ export const Layout = (props: ParentProps) => (
         }}
       >
         <WindowControls />
-        <Routes>
-          {props.children}
-        </Routes>
+        <Transition appear mode={'outin'} {...classes.transition.scale}>
+          <Routes>
+            {props.children}
+          </Routes>
+        </Transition>
       </div>
     </Router>
   </Provider>
