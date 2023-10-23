@@ -11,4 +11,6 @@ export const background = style({
   `,
   padding: '12px',
   borderRadius: '10px',
+
+  overflow: 'hidden',
 });

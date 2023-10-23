@@ -13,54 +13,38 @@ export default {
 };
 
 const Template: StoryFn<ChannelListProps> = () => {
+  const getUsers = (length: number) => Array.from({ length })
+    .map((_, index) => ({
+      nickname: `User ${index + 1}`,
+      profileUrl: `https://picsum.photos/200?s=${Math.random()}`,
+    }));
+
   const NoOpViewModel: ChannelListViewModelType = () => ({
-    channels: () => [
-      {
-        id: '1',
-        displayUsers: [
-          {
-            nickname: 'User 1',
-            profileUrl: 'https://picsum.photos/200?s=1',
-          },
-          {
-            nickname: 'User 2',
-            profileUrl: 'https://picsum.photos/200?s=2',
-          },
-        ],
+    channels: () => Array.from({ length: 10 }).map((_, index) => {
+      const userLength = 2 + Math.floor(Math.random() * 10);
+      const displayUsers = getUsers(userLength);
 
-        lastChat: {
-          chatType: 0,
-          nickname: 'User 1',
-          content: {
-            message: 'last message',
-            timestamp: new Date(),
-          },
+      const lastChat = {
+        chatType: 0,
+        nickname: displayUsers[Math.floor(Math.random() * userLength)].nickname,
+        content: {
+          message: 'last message',
+          timestamp: new Date(),
         },
+      };
 
-        name: 'Channel 1',
-        profile: 'https://picsum.photos/200?s=3',
-        unreadCount: 6,
-        userCount: 2,
-        silent: false,
-      },
-      {
-        id: '2',
-        displayUsers: [
-          {
-            nickname: 'User 1',
-          },
-          {
-            nickname: 'User 2',
-            profileUrl: 'https://picsum.photos/200?s=5',
-          },
-        ],
+      return {
+        id: `${index}`,
+        displayUsers,
 
-        name: 'Channel 2',
-        unreadCount: 0,
-        userCount: 2,
-        silent: true,
-      },
-    ],
+        lastChat: Math.random() > 0.2 ? lastChat : undefined,
+
+        name: `Channel ${index + 1}`,
+        unreadCount: Math.floor(Math.random() * 10),
+        userCount: displayUsers.length,
+        silent: Math.random() > 0.5,
+      };
+    }),
     topItems: () => [
       {
         kind: 'click',
