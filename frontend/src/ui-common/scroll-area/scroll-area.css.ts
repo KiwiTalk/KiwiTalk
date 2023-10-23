@@ -20,9 +20,6 @@ export const container = style({
 
   position: 'relative',
 
-  width: '100%',
-  height: '100%',
-
   overflow: 'auto',
 
   mask: fadeMask,
@@ -61,7 +58,6 @@ export const container = style({
 
 export const containerDirectional = styleVariants({
   vertical: {
-    width: '100%',
     height: `calc(100% + ${startEdge} + ${endEdge})`,
 
     marginTop: `calc(-1 * ${startEdge})`,
@@ -69,7 +65,6 @@ export const containerDirectional = styleVariants({
   },
   horizontal: {
     width: `calc(100% + ${startEdge} + ${endEdge})`,
-    height: '100%',
 
     marginLeft: `calc(-1 * ${startEdge})`,
     marginRight: `calc(-1 * ${endEdge})`,

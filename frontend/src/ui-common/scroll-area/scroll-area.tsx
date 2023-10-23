@@ -32,8 +32,10 @@ export const ScrollArea = <
       component: 'div',
       edgeSize: 16,
       fadeValue: 0,
-    }, props) as ParentProps<DynamicProps<T, P>> & Required<ScrollAreaOnlyProps>,
-    ['component', 'children', 'edgeSize', 'fadeValue'],
+      class: '',
+    }, props) as ParentProps<DynamicProps<T, P>> &
+      Required<ScrollAreaOnlyProps & { class: string }>,
+    ['component', 'children', 'edgeSize', 'fadeValue', 'class'],
   );
 
   /* signals */
@@ -45,15 +47,19 @@ export const ScrollArea = <
 
   /* computed */
   const fallbackClassList = () => {
+    const result: Record<string, unknown> = {};
+
+    if (local.class) result[local.class as string] = true;
+
     if (
       'classList' in dynamicProps &&
       dynamicProps.classList &&
       typeof dynamicProps.classList === 'object'
     ) {
-      return dynamicProps.classList as Record<string, unknown>;
+      Object.assign(result, dynamicProps.classList);
     }
 
-    return {};
+    return result;
   };
   const fallbackStyle = () => {
     if ('style' in dynamicProps) return dynamicProps.style as Record<string, unknown> | string;
