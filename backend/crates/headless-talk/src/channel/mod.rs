@@ -73,7 +73,7 @@ impl ClientChannel<'_> {
             })
             .await?;
 
-        let logged = res.chatlog.unwrap_or_else(|| Chatlog {
+        let logged = res.chatlog.unwrap_or(Chatlog {
             channel_id: self.id,
 
             log_id: res.log_id,

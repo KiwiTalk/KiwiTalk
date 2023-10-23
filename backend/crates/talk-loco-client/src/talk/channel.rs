@@ -24,7 +24,7 @@ impl ChannelType {
             ChannelType::OpenMulti => "OpenMulti",
             ChannelType::MemoChat => "MemoChat",
             ChannelType::PlusChat => "PlusChat",
-            ChannelType::Other(other) => &other,
+            ChannelType::Other(other) => other,
         }
     }
 }

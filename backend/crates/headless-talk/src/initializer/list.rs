@@ -5,7 +5,7 @@ use nohash_hasher::IntMap;
 use talk_loco_client::talk::session::load_channel_list::ChannelListData;
 
 use crate::{
-    database::{model::channel::ChannelListRow, schema::{self, channel_list}, DatabasePool},
+    database::{model::channel::ChannelListRow, schema::channel_list, DatabasePool},
     ClientResult,
 };
 

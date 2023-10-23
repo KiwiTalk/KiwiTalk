@@ -18,7 +18,7 @@ use talk_loco_client::{
 use thiserror::Error;
 use tokio::task::JoinHandle;
 
-use crate::database::schema::{self, chat};
+use crate::database::schema::{chat};
 
 #[derive(Debug)]
 pub struct HeadlessTalk {
@@ -36,7 +36,7 @@ impl HeadlessTalk {
     }
 
     pub async fn channel_list(&self) -> Result<Vec<ChannelListRow>, PoolTaskError> {
-        Ok(self
+        self
             .pool
             .spawn(|conn| {
                 let list = channel_list::table
@@ -45,7 +45,7 @@ impl HeadlessTalk {
 
                 Ok(list)
             })
-            .await?)
+            .await
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<()> {
@@ -67,13 +67,11 @@ impl HeadlessTalk {
             .await?;
 
         match res.channel_type {
-            ChatOnChannelType::DirectChat(normal)
-            | ChatOnChannelType::MultiChat(normal)
-            | ChatOnChannelType::MemoChat(normal) => {}
+            ChatOnChannelType::DirectChat(_normal)
+            | ChatOnChannelType::MultiChat(_normal)
+            | ChatOnChannelType::MemoChat(_normal) => {}
 
-            ChatOnChannelType::OpenDirect(open) | ChatOnChannelType::OpenMulti(open) => {
-                
-            }
+            ChatOnChannelType::OpenDirect(_open) | ChatOnChannelType::OpenMulti(_open) => {}
 
             _ => {}
         }

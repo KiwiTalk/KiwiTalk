@@ -10,7 +10,7 @@ use super::ClientState;
 pub(super) async fn channel_list(
     client: ClientState<'_>,
 ) -> TauriResult<Vec<(String, ChannelListItem)>> {
-    let talk = match &*client.read() {
+    let _talk = match &*client.read() {
         Some(client) => client.talk.clone(),
 
         _ => return Err(anyhow!("client is not created").into()),

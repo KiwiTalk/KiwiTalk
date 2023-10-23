@@ -64,9 +64,9 @@ enum Status {
     Locked,
 }
 
-impl Into<ClientStatus> for Status {
-    fn into(self) -> ClientStatus {
-        match self {
+impl From<Status> for ClientStatus {
+    fn from(val: Status) -> Self {
+        match val {
             Status::Unlocked => ClientStatus::Unlocked,
             Status::Locked => ClientStatus::Locked,
         }
@@ -183,7 +183,7 @@ async fn create_client(
                 match res {
                     Ok(event) => {
                         if let Err(err) = handle_event(event, event_tx.clone()).await {
-                            event_tx.send(Err(err.into())).await;
+                            event_tx.send(Err(err)).await;
                         }
                     }
 

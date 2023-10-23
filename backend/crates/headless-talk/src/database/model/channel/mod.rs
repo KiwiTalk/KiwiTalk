@@ -1,7 +1,7 @@
 pub mod meta;
 pub mod normal;
 
-use diesel::{Insertable, prelude::Queryable};
+use diesel::{prelude::Queryable, Insertable};
 
 use crate::database::schema::channel_list;
 
