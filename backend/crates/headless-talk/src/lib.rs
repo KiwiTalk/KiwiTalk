@@ -11,7 +11,7 @@ pub use talk_loco_client;
 
 use database::{DatabasePool, PoolTaskError};
 use talk_loco_client::{
-    futures_loco_protocol::session::LocoSession, talk::session::TalkSession, RequestError,
+    futures_loco_protocol::session::LocoSession, RequestError,
 };
 use thiserror::Error;
 use tokio::task::JoinHandle;
