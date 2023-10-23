@@ -1,50 +1,10 @@
 pub mod command;
 
-use crate::StreamResult;
-use command::Kickout;
-use futures_lite::{ready, Stream};
-use futures_loco_protocol::loco_protocol::command::BoxedCommand;
-use std::{
-    io,
-    pin::Pin,
-    task::{Context, Poll},
-};
-
 use self::command::{
     ChgMeta, DecunRead, Msg, SyncDlMsg, SyncJoin, SyncLinkCr, SyncLinkPf, SyncMemT, SyncRewr,
 };
-
-pin_project_lite::pin_project!(
-    #[derive(Debug)]
-    pub struct TalkStream<S> {
-        #[pin]
-        stream: S,
-    }
-);
-
-impl<S> TalkStream<S> {
-    pub const fn new(stream: S) -> Self {
-        Self { stream }
-    }
-
-    pub fn into_inner(self) -> S {
-        self.stream
-    }
-}
-
-impl<S> Stream for TalkStream<S>
-where
-    S: Stream<Item = io::Result<BoxedCommand>>,
-{
-    type Item = StreamResult<StreamCommand>;
-
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        Poll::Ready(
-            ready!(self.project().stream.poll_next(cx)?)
-                .map(|read| Ok(StreamCommand::deserialize_from(read)?)),
-        )
-    }
-}
+use command::Kickout;
+use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 
 macro_rules! create_enum {
     (
