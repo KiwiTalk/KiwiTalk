@@ -12,6 +12,8 @@ import { LoginContentPage } from './login/login';
 import { LoginListPage } from './login/list';
 import { DeviceRegisterPage } from './login/device-register/page';
 import { LoginEndPage } from './login/end';
+import { ChatPage } from './main/channel/chat';
+import { FriendListPage } from './main/friend';
 
 export const App = () => {
   const [, { changeLanguage }] = useTransContext();
@@ -59,7 +61,12 @@ export const App = () => {
       <Route path={'/main'} component={MainPage}>
         <Route path={'/'} element={<Navigate href={'/main/chat'} />} />
         <Route path={'/chat'}>
-          <Route path={'/:channelId?'} component={ChannelListPage} />
+          <Route path={'/'} component={ChannelListPage}>
+            <Route path={'/:channelId?'} component={ChatPage} />
+          </Route>
+        </Route>
+        <Route path={'/friends'}>
+          <Route path={'/'} component={FriendListPage} />
         </Route>
         <Route path={'/*'} element={<div>TODO</div>} />
       </Route>
