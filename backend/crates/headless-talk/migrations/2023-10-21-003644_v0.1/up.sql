@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS user_profile (
 
     nickname VARCHAR NOT NULL,
 
-    profile_url TEXT,
-    full_profile_url TEXT,
-    original_profile_url TEXT,
+    profile_url TEXT NOT NULL,
+    full_profile_url TEXT NOT NULL,
+    original_profile_url TEXT NOT NULL,
 
     watermark BIGINT,
 

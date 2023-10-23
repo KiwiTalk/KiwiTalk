@@ -11,7 +11,7 @@ pub struct DisplayUser {
     pub nickname: String,
 
     #[serde(rename = "profileImageUrl")]
-    pub profile_image_url: Option<String>,
+    pub profile_image_url: String,
 
     #[serde(rename = "countryIso")]
     pub country_iso: String,
@@ -29,13 +29,13 @@ pub struct User {
     pub country_iso: String,
 
     #[serde(rename = "profileImageUrl")]
-    pub profile_image_url: Option<String>,
+    pub profile_image_url: String,
 
     #[serde(rename = "fullProfileImageUrl")]
-    pub full_profile_image_url: Option<String>,
+    pub full_profile_image_url: String,
 
     #[serde(rename = "originalProfileImageUrl")]
-    pub original_profile_image_url: Option<String>,
+    pub original_profile_image_url: String,
 
     /// See UserType for types.
     #[serde(rename = "type")]

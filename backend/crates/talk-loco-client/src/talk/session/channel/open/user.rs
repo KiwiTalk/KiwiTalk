@@ -11,7 +11,7 @@ pub struct DisplayUser {
     pub nickname: String,
 
     #[serde(rename = "profileImageUrl")]
-    pub profile_image_url: Option<String>,
+    pub profile_image_url: String,
 }
 
 #[skip_serializing_none]
@@ -24,13 +24,13 @@ pub struct User {
     pub nickname: String,
 
     #[serde(rename = "pi")]
-    pub profile_image_url: Option<String>,
+    pub profile_image_url: String,
 
     #[serde(rename = "fpi")]
-    pub full_profile_image_url: Option<String>,
+    pub full_profile_image_url: String,
 
     #[serde(rename = "opi")]
-    pub original_profile_image_url: Option<String>,
+    pub original_profile_image_url: String,
 
     #[serde(rename = "type")]
     pub user_type: i32,

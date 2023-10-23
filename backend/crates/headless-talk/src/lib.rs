@@ -18,7 +18,7 @@ use talk_loco_client::{
 use thiserror::Error;
 use tokio::task::JoinHandle;
 
-use crate::database::schema;
+use crate::database::schema::{self, chat};
 
 #[derive(Debug)]
 pub struct HeadlessTalk {
@@ -52,8 +52,6 @@ impl HeadlessTalk {
         let last_log_id = self
             .pool
             .spawn(move |conn| {
-                use schema::chat;
-
                 Ok(chat::table
                     .filter(chat::channel_id.eq(id))
                     .select(chat::log_id)
@@ -73,7 +71,9 @@ impl HeadlessTalk {
             | ChatOnChannelType::MultiChat(normal)
             | ChatOnChannelType::MemoChat(normal) => {}
 
-            ChatOnChannelType::OpenDirect(open) | ChatOnChannelType::OpenMulti(open) => {}
+            ChatOnChannelType::OpenDirect(open) | ChatOnChannelType::OpenMulti(open) => {
+                
+            }
 
             _ => {}
         }

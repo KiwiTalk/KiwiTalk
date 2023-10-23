@@ -66,9 +66,9 @@ diesel::table! {
         id -> BigInt,
         channel_id -> BigInt,
         nickname -> Text,
-        profile_url -> Nullable<Text>,
-        full_profile_url -> Nullable<Text>,
-        original_profile_url -> Nullable<Text>,
+        profile_url -> Text,
+        full_profile_url -> Text,
+        original_profile_url -> Text,
         watermark -> Nullable<BigInt>,
     }
 }

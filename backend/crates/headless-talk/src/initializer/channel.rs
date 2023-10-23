@@ -60,9 +60,9 @@ impl<'a> ChannelInitializer<'a> {
                                 id: user.user_id,
                                 channel_id: self.id,
                                 nickname: &user.nickname,
-                                profile_url: user.profile_image_url.as_deref(),
-                                full_profile_url: user.full_profile_image_url.as_deref(),
-                                original_profile_url: user.original_profile_image_url.as_deref(),
+                                profile_url: &user.profile_image_url,
+                                full_profile_url: &user.full_profile_image_url,
+                                original_profile_url: &user.original_profile_image_url,
                             })
                             .collect::<Vec<_>>();
 
@@ -118,9 +118,9 @@ impl<'a> ChannelInitializer<'a> {
                                 id: user.user_id,
                                 channel_id: self.id,
                                 nickname: &user.nickname,
-                                profile_url: user.profile_image_url.as_deref(),
-                                full_profile_url: user.full_profile_image_url.as_deref(),
-                                original_profile_url: user.original_profile_image_url.as_deref(),
+                                profile_url: &user.profile_image_url,
+                                full_profile_url: &user.full_profile_image_url,
+                                original_profile_url: &user.original_profile_image_url,
                             })
                             .collect::<Vec<_>>();
 

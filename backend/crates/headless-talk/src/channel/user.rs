@@ -37,20 +37,9 @@ impl From<normal::user::DisplayUser> for DisplayUser {
 pub struct UserProfile {
     pub nickname: String,
 
-    pub image_url: Option<String>,
-    pub full_image_url: Option<String>,
-    pub original_image_url: Option<String>,
-}
-
-impl From<DisplayUserProfile> for UserProfile {
-    fn from(profile: DisplayUserProfile) -> Self {
-        Self {
-            nickname: profile.nickname,
-            image_url: profile.image_url,
-            full_image_url: None,
-            original_image_url: None,
-        }
-    }
+    pub image_url: String,
+    pub full_image_url: String,
+    pub original_image_url: String,
 }
 
 impl From<normal::user::User> for UserProfile {
@@ -78,7 +67,7 @@ impl From<open::user::User> for UserProfile {
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct DisplayUserProfile {
     pub nickname: String,
-    pub image_url: Option<String>,
+    pub image_url: String,
     pub country_iso: Option<String>,
 }
 

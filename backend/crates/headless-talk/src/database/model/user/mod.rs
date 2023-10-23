@@ -12,7 +12,7 @@ pub struct UserProfileRow<'a> {
 
     pub nickname: &'a str,
 
-    pub profile_url: Option<&'a str>,
-    pub full_profile_url: Option<&'a str>,
-    pub original_profile_url: Option<&'a str>,
+    pub profile_url: &'a str,
+    pub full_profile_url: &'a str,
+    pub original_profile_url: &'a str,
 }
