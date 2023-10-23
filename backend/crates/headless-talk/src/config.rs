@@ -1,6 +1,7 @@
 #[derive(Debug, Clone, Copy)]
 pub struct ClientEnv<'a> {
     pub os: &'a str,
+    pub app_version: &'a str,
     pub net_type: NetworkType,
     pub mccmnc: &'a str,
     pub language: &'a str,
