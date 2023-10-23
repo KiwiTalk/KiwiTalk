@@ -64,7 +64,7 @@ pub async fn init<R: Runtime>() -> TauriPlugin<R> {
 fn create_api_client<'a>(client: &Client, access_token: &'a str) -> ApiClient<'a> {
     ApiClient::new(
         Credential {
-            device_uuid: &get_system_info().device_info.device_uuid,
+            device_uuid: &get_system_info().device.device_uuid,
             access_token,
         },
         create_http_client(client),
@@ -81,7 +81,7 @@ fn create_http_client(client: &Client) -> TalkHttpClient<'static> {
 
 fn create_config(info: &SystemInfo) -> Config<'_> {
     Config {
-        language: info.device_info.language(),
+        language: info.device.language(),
         version: TALK_VERSION,
         agent: TALK_AGENT,
     }

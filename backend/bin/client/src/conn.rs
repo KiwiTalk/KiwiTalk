@@ -16,7 +16,7 @@ use tokio::{
 use tokio_util::compat::{Compat, TokioAsyncReadCompatExt};
 
 use crate::constants::{
-    CHECKIN_SERVER, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_USE_SUB, TALK_VERSION,
+    CHECKIN_SERVER, TALK_APP_VERSION, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_USE_SUB,
 };
 
 pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
@@ -30,8 +30,8 @@ pub async fn checkin(user_id: i64) -> anyhow::Result<CheckinRes> {
         .checkin(&CheckinReq {
             user_id,
             os: TALK_OS,
-            net_type: TALK_NET_TYPE,
-            app_version: TALK_VERSION,
+            app_version: TALK_APP_VERSION,
+            net_type: TALK_NET_TYPE as _,
             mccmnc: TALK_MCCMNC,
             language: "ko",
             country_iso: "KR",

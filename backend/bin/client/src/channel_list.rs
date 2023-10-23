@@ -1,10 +1,9 @@
 use anyhow::{anyhow, Context};
 use arrayvec::ArrayVec;
-use headless_talk::chat::{ChatContent, ChatType};
 use serde::Serialize;
-use talk_loco_client::structs::channel::ChannelMetaType;
 
 use kiwi_talk_result::TauriResult;
+use talk_loco_client::talk::channel::ChannelMetaType;
 
 use super::ClientState;
 
@@ -12,13 +11,13 @@ use super::ClientState;
 pub(super) async fn channel_list(
     client: ClientState<'_>,
 ) -> TauriResult<Vec<(String, ChannelListItem)>> {
-    let session = match &*client.read() {
-        Some(client) => client.session.clone(),
+    let talk = match &*client.read() {
+        Some(client) => client.talk.clone(),
 
         _ => return Err(anyhow!("client is not created").into()),
     };
 
-    let list_channels = session
+    let list_channels = talk
         .channel_list()
         .await
         .context("cannot load channel list")?;

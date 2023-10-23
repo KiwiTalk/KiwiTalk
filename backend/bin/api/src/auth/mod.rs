@@ -78,7 +78,7 @@ pub(super) async fn login(
             Some(create_auto_login_token(
                 &login.auto_login_account_id,
                 &login.refresh_token,
-                &get_system_info().device_info.device_uuid,
+                &get_system_info().device.device_uuid,
             ))
         } else {
             None
@@ -213,9 +213,9 @@ fn create_auth_client(client: &Client) -> AuthClient<'_, impl XvcHasher> {
 
 fn create_device(info: &SystemInfo) -> Device<'_> {
     Device {
-        name: &info.device_info.name,
+        name: &info.device.name,
         model: None,
-        uuid: &info.device_info.device_uuid,
+        uuid: &info.device.device_uuid,
     }
 }
 
