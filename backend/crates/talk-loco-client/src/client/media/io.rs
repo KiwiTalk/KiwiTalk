@@ -9,7 +9,7 @@ use futures_loco_protocol::LocoClient;
 use serde::Deserialize;
 use thiserror::Error;
 
-use crate::{talk::chat::Chatlog, BsonCommandStatus};
+use crate::{talk::chat::Chatlog, Status};
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]
@@ -106,7 +106,7 @@ impl<T: AsyncRead> MediaSink<T> {
         };
 
         Poll::Ready(
-            match bson::from_slice::<BsonCommandStatus>(&res.data)?.status {
+            match bson::from_slice::<Status>(&res.data)?.status {
                 0 => Ok(bson::from_slice(&res.data)?),
 
                 status => Err(CompleteError::Status(status)),

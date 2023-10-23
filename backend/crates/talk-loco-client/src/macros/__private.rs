@@ -3,7 +3,7 @@ pub use futures_loco_protocol::loco_protocol;
 
 use futures_loco_protocol::{loco_protocol::command::Method, session::LocoSession};
 
-use crate::{BsonCommandStatus, RequestError, RequestResult};
+use crate::{RequestError, RequestResult, Status};
 
 pub async fn __request(
     session: &LocoSession,
@@ -18,5 +18,5 @@ pub async fn __request(
         .map_err(|_| RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
         .data;
 
-    Ok((bson::from_slice::<BsonCommandStatus>(&data)?.status, data))
+    Ok((bson::from_slice::<Status>(&data)?.status, data))
 }

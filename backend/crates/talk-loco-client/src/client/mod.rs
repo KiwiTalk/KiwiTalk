@@ -6,7 +6,7 @@ use futures_lite::{AsyncRead, AsyncWrite};
 use futures_loco_protocol::{loco_protocol::command::Method, LocoClient};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{BsonCommandStatus, RequestError, RequestResult};
+use crate::{RequestError, RequestResult, Status};
 
 async fn request_simple<Res: DeserializeOwned>(
     client: &mut LocoClient<impl AsyncRead + AsyncWrite + Unpin>,
@@ -20,7 +20,7 @@ async fn request_simple<Res: DeserializeOwned>(
         .await
         .map_err(RequestError::Read)?;
 
-    match bson::from_slice::<BsonCommandStatus>(&response.data)?.status {
+    match bson::from_slice::<Status>(&response.data)?.status {
         0 => Ok(bson::from_slice(&response.data)?),
 
         status => Err(RequestError::Status(status)),
