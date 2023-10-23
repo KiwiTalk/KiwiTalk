@@ -10,7 +10,7 @@ use std::io;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Deserialize)]
 struct Status {
     status: i32,
 }
