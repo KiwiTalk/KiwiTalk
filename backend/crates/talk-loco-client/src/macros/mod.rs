@@ -32,24 +32,14 @@ macro_rules! request {
         $session:expr, $method:literal, $req:expr $(, $($tt:tt)*)?
     ) => {
         async {
-            use $crate::macros::__private::{bson, loco_protocol};
+            let req = $crate::macros::__private::__request($session, $method, $req).await?;
 
-            let data = $session.request(
-                loco_protocol::command::Method::new($method).unwrap(),
-                $req,
-            )
-            .await.map_err(|_| $crate::RequestError::Write(::std::io::ErrorKind::UnexpectedEof.into()))?
-            .await.map_err(|_| $crate::RequestError::Read(::std::io::ErrorKind::UnexpectedEof.into()))?
-            .data;
-
-            let status = bson::from_slice::<$crate::BsonCommandStatus>(&data)?.status;
-
-            $crate::request!(@inner(data = data, status = status) $($($tt)*)?)
+            $crate::request!(@inner(data = req.1, status = req.0) $($($tt)*)?)
         }
     };
 
     (
-        @inner(data = $data:ident, status = $status:ident)
+        @inner(data = $data:expr, status = $status:expr)
         $ty:ty
     ) => {
         match $status {
@@ -60,7 +50,7 @@ macro_rules! request {
     };
 
     (
-        @inner(data = $data:ident, status = $status:ident)
+        @inner(data = $data:expr, status = $status:expr)
         {
             $($code:pat => $closure:expr),* $(,)?
         }
@@ -73,7 +63,7 @@ macro_rules! request {
     };
 
     (
-        @inner(data = $data:ident, status = $status:ident)
+        @inner(data = $data:expr, status = $status:expr)
     ) => {
         match $status {
             0 => Ok(()),
