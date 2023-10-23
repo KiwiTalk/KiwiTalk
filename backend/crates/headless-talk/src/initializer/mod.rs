@@ -1,3 +1,6 @@
+pub(crate) mod channel;
+pub(crate) mod list;
+
 use std::{io, pin::pin, sync::Arc};
 
 use futures::{AsyncRead, AsyncWrite, Future, TryStreamExt};
@@ -17,7 +20,6 @@ use thiserror::Error;
 use tokio::time;
 
 use crate::{
-    channel::list::ChannelListUpdater,
     config::ClientEnv,
     constants::PING_INTERVAL,
     database::{DatabasePool, MigrationError},
@@ -25,6 +27,8 @@ use crate::{
     handler::{error::HandlerError, SessionHandler},
     ClientError, ClientStatus, HeadlessTalk,
 };
+
+use self::list::ChannelListUpdater;
 
 pub struct TalkInitializer<S> {
     session: LocoSession,

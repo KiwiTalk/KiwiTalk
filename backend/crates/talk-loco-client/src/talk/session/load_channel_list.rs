@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::talk::{channel::ChannelType, chat::Chatlog, openlink::OpenLinkId};
+use crate::talk::{channel::ChannelType, chat::Chatlog};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -149,6 +149,9 @@ impl ChannelListType {
 
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct OpenChannelList {
-    #[serde(flatten)]
-    pub link: Option<OpenLinkId>,
+    #[serde(rename = "li")]
+    pub link_id: i64,
+
+    #[serde(rename = "otk")]
+    pub open_token: i32,
 }

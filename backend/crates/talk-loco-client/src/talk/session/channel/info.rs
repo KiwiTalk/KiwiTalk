@@ -3,7 +3,6 @@ use serde::Deserialize;
 use crate::talk::{
     channel::{ChannelMeta, ChannelType},
     chat::Chatlog,
-    openlink::OpenLinkId,
 };
 
 use super::{normal, open};
@@ -86,8 +85,11 @@ pub struct OpenChannelInfo {
     #[serde(rename = "displayMembers")]
     pub display_members: Vec<open::user::DisplayUser>,
 
-    #[serde(flatten)]
-    pub link: OpenLinkId,
+    #[serde(rename = "li")]
+    pub link_id: i64,
+
+    #[serde(rename = "otk")]
+    pub open_token: i32,
 
     #[serde(rename = "directChat")]
     pub direct_chat: Option<bool>,

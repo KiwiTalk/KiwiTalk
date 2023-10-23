@@ -2,19 +2,6 @@ use bitflags::bitflags;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-/// Openlink info
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct OpenLinkId {
-    /// Openlink identifier
-    #[serde(rename = "li")]
-    pub link_id: i64,
-
-    /// Openlink token.
-    /// Multiply by 1000 to convert to Unix time.
-    #[serde(rename = "otk")]
-    pub open_token: i32,
-}
-
 // Openlink types
 #[repr(i32)]
 pub enum OpenLinkType {

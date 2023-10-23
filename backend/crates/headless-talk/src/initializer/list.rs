@@ -9,7 +9,7 @@ use crate::{
     ClientResult,
 };
 
-use super::initializer::ChannelInitializer;
+use super::channel::ChannelInitializer;
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChannelListUpdater<'a> {
