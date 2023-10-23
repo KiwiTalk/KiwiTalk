@@ -3,7 +3,7 @@ import { StoryFn } from 'storybook-solidjs';
 import * as styles from './friend-list.stories.css';
 import { FriendList, FriendListProps, FriendListViewModelType } from './friend-list';
 
-import { FriendProfile } from '@/api';
+import { FriendProfile, LogonProfile } from '@/api';
 
 import IconSearch from '@/assets/icons/search.svg';
 import IconAddUser from '@/pages/main/friend/_assets/icons/add-user.svg';
@@ -14,6 +14,27 @@ export default {
 };
 
 const Template: StoryFn<FriendListProps> = () => {
+  const me: LogonProfile = {
+    nickname: 'User 1',
+
+    uuid: 'random-uuid',
+    uuidSearchable: false,
+
+    email: 'example1@kiwitalk.org',
+    emailVerified: true,
+
+    pstnNumber: '010-1234-5678',
+
+    profile: {
+      id: 'random-profile-id',
+
+      statusMessage: 'status message',
+
+      profileUrl: 'https://picsum.photos/200?s=1',
+      backgroundUrl: 'https://picsum.photos/200?s=2',
+    },
+  };
+
   const allFriends: FriendProfile[] = Array.from({ length: 20 }).map((_, index) => ({
     userId: `user-${index}`,
 
@@ -28,6 +49,7 @@ const Template: StoryFn<FriendListProps> = () => {
   }));
 
   const NoOpViewModel: FriendListViewModelType = () => ({
+    me: () => me,
     all: () => allFriends,
     pinned: () => allFriends.slice(0, 3),
     nearBirthday: () => allFriends.slice(3, 10),

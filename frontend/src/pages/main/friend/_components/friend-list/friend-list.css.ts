@@ -43,6 +43,14 @@ export const iconButton = style({
   color: vars.color.secondary.fillPrimary,
 });
 
+export const meFrame = style({
+  width: '100%',
+
+  padding: '8px',
+  borderRadius: vars.radius.regular,
+  border: `1px solid ${vars.color.overlay.background}`,
+});
+
 export const sectionContainer = styleVariants({
   vertical: {
     display: 'flex',

@@ -10,7 +10,7 @@ import IconAddUser from '@/pages/main/friend/_assets/icons/add-user.svg';
 import * as styles from './friend-list.css';
 
 import { ScrollArea } from '@/ui-common/scroll-area';
-import { FriendProfile, updateFriends } from '@/api';
+import { FriendProfile, LogonProfile, meProfile, updateFriends } from '@/api';
 
 export type FriendListIconProps = {
   icon: JSX.Element;
@@ -55,6 +55,8 @@ type CustomFriendListTopItem = {
 };
 type FriendListTopItem = ClickableFriendListTopItem | CustomFriendListTopItem;
 export type FriendListViewModelType = () => {
+  me: Accessor<LogonProfile | null>;
+
   all: Accessor<FriendProfile[]>;
   pinned: Accessor<FriendProfile[]>;
   nearBirthday: Accessor<FriendProfile[]>;
@@ -64,6 +66,12 @@ export type FriendListViewModelType = () => {
 
 export const FriendListViewModel: FriendListViewModelType = () => {
   const isReady = useReady();
+
+  const [me] = createResource(async () => {
+    if (!isReady) return null;
+
+    return meProfile();
+  });
 
   const [friends] = createResource([] as FriendProfile[], async (list) => {
     if (!isReady) return list;
@@ -83,6 +91,7 @@ export const FriendListViewModel: FriendListViewModelType = () => {
   });
 
   return {
+    me: () => me() ?? null,
     all: (() => friends() ?? []),
     pinned: () => [], // TODO: implement
     nearBirthday: () => [], // TODO: implement
@@ -126,6 +135,15 @@ export const FriendList = (props: FriendListProps) => {
       </header>
       <ScrollArea component={'div'} edgeSize={12}>
         <FriendSectionTitle title={t('main.friend.me')} />
+        <Show when={instance.me()}>
+          <div class={styles.meFrame}>
+            <FriendItem
+              name={instance.me()!.nickname}
+              profile={instance.me()!.profile.profileUrl}
+              description={instance.me()!.profile.statusMessage}
+            />
+          </div>
+        </Show>
         <FriendSectionTitle
           title={t('main.friend.near_birthday_friends')}
           count={instance.nearBirthday().length}
