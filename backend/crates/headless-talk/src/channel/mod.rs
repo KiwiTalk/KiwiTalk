@@ -18,28 +18,6 @@ use self::user::DisplayUser;
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ChannelKind {
-    Normal,
-    Open,
-    Unknown,
-}
-
-#[extend::ext]
-pub impl ChannelType {
-    fn kind(&self) -> ChannelKind {
-        match self {
-            ChannelType::DirectChat | ChannelType::MemoChat | ChannelType::MultiChat => {
-                ChannelKind::Normal
-            }
-
-            ChannelType::OpenDirectChat | ChannelType::OpenMultiChat => ChannelKind::Open,
-
-            _ => ChannelKind::Unknown,
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct ListChannelItem {
     pub channel_type: ChannelType,
@@ -126,10 +104,10 @@ impl ClientChannel<'_> {
             .spawn({
                 let logged = logged.clone();
 
-                move |mut conn| {
+                move |conn| {
                     diesel::replace_into(schema::chat::table)
                         .values(ChatRow::from_chatlog(&logged, None))
-                        .execute(&mut conn)?;
+                        .execute(conn)?;
 
                     Ok(())
                 }
