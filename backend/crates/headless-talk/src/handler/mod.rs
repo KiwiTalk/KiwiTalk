@@ -1,6 +1,7 @@
 pub mod error;
 
 use diesel::{BoolExpressionMethods, ExpressionMethods, RunQueryDsl};
+use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 use talk_loco_client::talk::stream::{
     command::{DecunRead, Kickout, Msg},
     StreamCommand,
@@ -16,7 +17,7 @@ use self::error::HandlerError;
 type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
 #[derive(Debug, Clone)]
-pub struct SessionHandler {
+pub(crate) struct SessionHandler {
     pool: DatabasePool,
 }
 
@@ -25,8 +26,8 @@ impl SessionHandler {
         Self { pool }
     }
 
-    pub async fn handle(&self, command: StreamCommand) -> HandlerResult {
-        match command {
+    pub async fn handle(&self, read: BoxedCommand) -> HandlerResult {
+        match StreamCommand::deserialize_from(read)? {
             StreamCommand::Kickout(kickout) => self.on_kickout(kickout).await,
             StreamCommand::SwitchServer => self.on_switch_server().await,
             StreamCommand::Chat(msg) => self.on_chat(msg).await,
@@ -49,10 +50,10 @@ impl SessionHandler {
             .spawn({
                 let chatlog = msg.chatlog.clone();
 
-                move |mut conn| {
+                move |conn| {
                     diesel::insert_into(schema::chat::table)
                         .values(ChatRow::from_chatlog(&chatlog, None))
-                        .execute(&mut conn)?;
+                        .execute(conn)?;
 
                     Ok(())
                 }
@@ -80,7 +81,7 @@ impl SessionHandler {
                     watermark,
                 } = read.clone();
 
-                move |mut conn| {
+                move |conn| {
                     use schema::user_profile;
 
                     diesel::update(user_profile::table)
@@ -90,7 +91,7 @@ impl SessionHandler {
                                 .and(user_profile::id.eq(user_id)),
                         )
                         .set(user_profile::watermark.eq(watermark))
-                        .execute(&mut conn)?;
+                        .execute(conn)?;
                     Ok(())
                 }
             })

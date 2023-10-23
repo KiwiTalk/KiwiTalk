@@ -105,13 +105,11 @@ impl<T: AsyncRead> MediaSink<T> {
             }
         };
 
-        Poll::Ready(
-            match bson::from_slice::<Status>(&res.data)?.status {
-                0 => Ok(bson::from_slice(&res.data)?),
+        Poll::Ready(match bson::from_slice::<Status>(&res.data)?.status {
+            0 => Ok(bson::from_slice(&res.data)?),
 
-                status => Err(CompleteError::Status(status)),
-            },
-        )
+            status => Err(CompleteError::Status(status)),
+        })
     }
 }
 

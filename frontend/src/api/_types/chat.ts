@@ -53,11 +53,8 @@ export type ChannelListItem = {
     chatType: number;
     timestamp: number;
     nickname?: string;
-    content: {
-      message?: string;
-      attachment?: string;
-      supplement?: string;
-    },
+    content?: string;
+    attachment?: string;
   },
 
   name?: string;

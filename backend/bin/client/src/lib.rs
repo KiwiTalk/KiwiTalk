@@ -4,8 +4,10 @@ mod constants;
 mod event;
 mod handler;
 
+use handler::handle_event;
 use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
+use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::{sync::Arc, task::Poll};
 use tauri::{
@@ -28,7 +30,7 @@ use kiwi_talk_result::TauriResult;
 use kiwi_talk_system::get_system_info;
 
 use conn::checkin;
-use constants::{TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_APP_VERSION};
+use constants::{TALK_APP_VERSION, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS};
 
 use self::{conn::create_secure_stream, event::MainEvent};
 
@@ -56,9 +58,24 @@ fn created(state: ClientState<'_>) -> bool {
     state.read().is_some()
 }
 
+#[derive(Clone, Deserialize, Copy)]
+enum Status {
+    Unlocked,
+    Locked,
+}
+
+impl Into<ClientStatus> for Status {
+    fn into(self) -> ClientStatus {
+        match self {
+            Status::Unlocked => ClientStatus::Unlocked,
+            Status::Locked => ClientStatus::Locked,
+        }
+    }
+}
+
 #[tauri::command(async)]
 async fn create(
-    status: ClientStatus,
+    status: Status,
     cred: CredentialState<'_>,
     state: ClientState<'_>,
 ) -> TauriResult<i32> {
@@ -71,7 +88,7 @@ async fn create(
     };
 
     let client = create_client(
-        status,
+        status.into(),
         Credential {
             access_token: &access_token,
             device_uuid: &get_system_info().device.device_uuid,
@@ -156,12 +173,28 @@ async fn create_client(
     .await
     .context("failed to login")?;
 
+    let (event_tx, event_rx) = mpsc::channel(100);
+
     let talk = initializer
-        .initialize(user_dir.join("client.db").to_string_lossy())
+        .initialize(user_dir.join("client.db").to_string_lossy(), move |res| {
+            let event_tx = event_tx.clone();
+
+            async move {
+                match res {
+                    Ok(event) => {
+                        if let Err(err) = handle_event(event, event_tx.clone()).await {
+                            event_tx.send(Err(err.into())).await;
+                        }
+                    }
+
+                    Err(err) => {
+                        event_tx.send(Err(err.into())).await;
+                    }
+                }
+            }
+        })
         .await
         .context("failed to initialize client")?;
-
-    let (event_tx, event_rx) = mpsc::channel(100);
 
     Ok(Client {
         talk: Arc::new(talk),

@@ -1,4 +1,6 @@
 pub mod user;
+pub(crate) mod initializer;
+pub mod list;
 
 use crate::{
     database::{model::chat::ChatRow, schema},
@@ -7,9 +9,8 @@ use crate::{
 use arrayvec::ArrayVec;
 use diesel::RunQueryDsl;
 use nohash_hasher::IntMap;
-use serde::{Deserialize, Serialize};
 use talk_loco_client::talk::{
-    channel::{ChannelMeta as LocoChannelMeta, ChannelType},
+    channel::{ChannelMeta, ChannelType},
     chat::{Chat, Chatlog},
     session::{channel::write, TalkSession},
 };
@@ -31,25 +32,17 @@ pub struct ListChannelItem {
     pub metas: ChannelMetaMap,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ChannelMeta {
-    pub author_id: i64,
-
-    pub updated_at: i64,
-    pub revision: i64,
-
-    pub content: String,
+#[derive(Debug, Clone, Copy)]
+pub struct NormalChannel<'a> {
+    id: i64,
+    client: &'a HeadlessTalk,
 }
 
-impl From<LocoChannelMeta> for ChannelMeta {
-    fn from(meta: LocoChannelMeta) -> Self {
-        Self {
-            author_id: meta.author_id,
-            updated_at: meta.updated_at,
-            revision: meta.revision,
-            content: meta.content,
-        }
-    }
+#[derive(Debug, Clone, Copy)]
+pub struct OpenChannel<'a> {
+    id: i64,
+    link_id: i64,
+    client: &'a HeadlessTalk,
 }
 
 #[derive(Debug, Clone, Copy)]

@@ -1,27 +1,27 @@
-use std::{io, pin::pin};
+use std::{io, pin::pin, sync::Arc};
 
-use futures::{AsyncRead, AsyncWrite, TryStreamExt};
-use talk_loco_client::{
-    futures_loco_protocol::{
-        session::{LocoSession, LocoSessionStream},
-        LocoClient,
-    },
+use futures::{AsyncRead, AsyncWrite, Future, TryStreamExt};
+use futures_loco_protocol::{
     loco_protocol::command::BoxedCommand,
-    talk::{
-        session::{
-            load_channel_list::{self, ChannelListData},
-            login, TalkSession,
-        },
-        stream::{StreamCommand, TalkStream},
+    session::{LocoSession, LocoSessionStream},
+    LocoClient,
+};
+use talk_loco_client::{
+    talk::session::{
+        load_channel_list::{self, ChannelListData},
+        login, TalkSession,
     },
     RequestError,
 };
 use thiserror::Error;
+use tokio::time;
 
 use crate::{
     config::ClientEnv,
+    constants::PING_INTERVAL,
     database::{DatabasePool, MigrationError, PoolTaskError},
-    handler::SessionHandler,
+    event::ClientEvent,
+    handler::{error::HandlerError, SessionHandler},
     ClientStatus, HeadlessTalk,
 };
 
@@ -114,28 +114,87 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
         self.user_id
     }
 
-    pub async fn initialize(
+    pub async fn initialize<F, Fut>(
         self,
         database_url: impl Into<String>,
+        command_handler: F,
     ) -> Result<HeadlessTalk, InitializeError>
     where
         S: Send + Sync + 'static,
+        F: Fn(Result<ClientEvent, HandlerError>) -> Fut + Send + Sync + 'static,
+        Fut: Future + Send + Sync + 'static,
     {
         let pool = DatabasePool::new(database_url).map_err(PoolTaskError::from)?;
         pool.migrate_to_latest().await?;
 
-        let handle = tokio::spawn({
+        let stream_task = tokio::spawn({
             let pool = pool.clone();
 
             async move {
-                let handler = SessionHandler::new(pool);
+                let command_handler = Arc::new(command_handler);
+                let handler = Arc::new(SessionHandler::new(pool));
 
                 for read in self.buffer {
-                    let command = StreamCommand::deserialize_from(read)?;
+                    tokio::spawn({
+                        let command_handler = command_handler.clone();
+                        let handler = handler.clone();
+
+                        async move {
+                            match handler.handle(read).await {
+                                Ok(Some(event)) => {
+                                    command_handler(Ok(event)).await;
+                                }
+
+                                Err(err) => {
+                                    command_handler(Err(err)).await;
+                                }
+
+                                _ => {}
+                            }
+                        }
+                    });
                 }
 
-                let mut stream = TalkStream::new(self.stream);
-                while let Some(command) = stream.try_next().await? {}
+                let res: Result<ClientEvent, HandlerError> = async {
+                    let mut stream = pin!(self.stream);
+                    while let Some(read) = stream.try_next().await? {
+                        tokio::spawn({
+                            let command_handler = command_handler.clone();
+                            let handler = handler.clone();
+
+                            async move {
+                                match handler.handle(read).await {
+                                    Ok(Some(event)) => {
+                                        command_handler(Ok(event)).await;
+                                    }
+
+                                    Err(err) => {
+                                        command_handler(Err(err)).await;
+                                    }
+
+                                    _ => {}
+                                }
+                            }
+                        });
+                    }
+
+                    unreachable!();
+                }
+                .await;
+
+                command_handler(res);
+            }
+        });
+
+        let ping_task = tokio::spawn({
+            let session = self.session.clone();
+
+            async move {
+                let mut interval = time::interval(PING_INTERVAL);
+
+                while TalkSession(&session).ping().await.is_ok() {
+                    interval.tick().await;
+                }
             }
         });
 
@@ -143,7 +202,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
             user_id: self.user_id,
             session: self.session,
             pool,
-            task_handle: handle,
+            ping_task,
+            stream_task,
         })
     }
 }

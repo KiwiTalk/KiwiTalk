@@ -1,9 +1,8 @@
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use arrayvec::ArrayVec;
 use serde::Serialize;
 
 use kiwi_talk_result::TauriResult;
-use talk_loco_client::talk::channel::ChannelMetaType;
 
 use super::ClientState;
 
@@ -17,61 +16,7 @@ pub(super) async fn channel_list(
         _ => return Err(anyhow!("client is not created").into()),
     };
 
-    let list_channels = talk
-        .channel_list()
-        .await
-        .context("cannot load channel list")?;
-
-    let mut items = Vec::with_capacity(list_channels.len());
-    for (id, mut channel_data) in list_channels {
-        let last_chat = if let Some(last_chat) = channel_data.last_chat {
-            Some(PreviewChat {
-                // TODO
-                nickname: None,
-                chat_type: last_chat.chat.chat_type,
-                content: last_chat.chat.content,
-                timestamp: last_chat.send_at as f64 * 1000.0,
-            })
-        } else {
-            None
-        };
-
-        let name = channel_data
-            .metas
-            .remove(&(ChannelMetaType::Title as _))
-            .map(|meta| meta.content);
-
-        let profile = channel_data
-            .metas
-            .remove(&(ChannelMetaType::Profile as _))
-            .map(|meta| meta.content);
-
-        let display_users = channel_data
-            .display_users
-            .into_iter()
-            .map(|user| DisplayUser {
-                nickname: user.profile.nickname,
-                profile_url: user.profile.image_url,
-            })
-            .collect();
-
-        items.push((
-            id.to_string(),
-            ChannelListItem {
-                channel_type: channel_data.channel_type,
-                display_users,
-                last_chat,
-                name,
-                profile,
-                user_count: channel_data.user_count,
-
-                // TODO
-                unread_count: 0,
-            },
-        ));
-    }
-
-    Ok(items)
+    Ok(vec![])
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -94,8 +39,9 @@ pub(super) struct ChannelListItem {
 #[serde(rename_all = "camelCase")]
 pub(super) struct PreviewChat {
     pub nickname: Option<String>,
-    pub chat_type: ChatType,
-    pub content: ChatContent,
+    pub chat_type: i32,
+    pub content: Option<String>,
+    pub attachment: Option<String>,
     pub timestamp: f64,
 }
 

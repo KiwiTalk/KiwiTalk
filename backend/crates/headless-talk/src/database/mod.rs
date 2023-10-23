@@ -21,7 +21,7 @@ impl DatabasePool {
         self.0.get().map_err(PoolError)
     }
 
-    pub fn spawn<R: Send + 'static, F: FnOnce(PooledConnection) -> PoolTaskResult<R>>(
+    pub fn spawn<R: Send + 'static, F: FnOnce(&mut PooledConnection) -> PoolTaskResult<R>>(
         &self,
         closure: F,
     ) -> impl Future<Output = PoolTaskResult<R>>
@@ -30,7 +30,7 @@ impl DatabasePool {
     {
         let this = self.clone();
 
-        tokio::task::spawn_blocking(move || closure(this.get()?)).map(|res| res.unwrap())
+        tokio::task::spawn_blocking(move || closure(&mut this.get()?)).map(|res| res.unwrap())
     }
 
     pub async fn migrate_to_latest(&self) -> Result<(), MigrationError> {

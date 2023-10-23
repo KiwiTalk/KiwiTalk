@@ -60,7 +60,7 @@ pub struct OpenChatOnChannel {
 
     #[serde(rename = "olu")]
     pub open_link_user: Option<OpenLinkUser>,
-    
+
     #[serde(rename = "m")]
     pub users: Option<Vec<open::user::User>>,
 }

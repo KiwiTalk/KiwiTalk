@@ -1,17 +1,20 @@
 pub mod channel;
 pub mod config;
-pub mod constants;
-pub(crate) mod database;
+mod constants;
+mod database;
 pub mod event;
-mod handler;
+pub mod handler;
 pub mod initializer;
 
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{DatabasePool, PoolTaskError};
 use futures_loco_protocol::session::LocoSession;
-use talk_loco_client::{RequestError, talk::session::TalkSession};
+use talk_loco_client::{
+    talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
+    RequestError,
+};
 use thiserror::Error;
 use tokio::task::JoinHandle;
 
@@ -23,7 +26,8 @@ pub struct HeadlessTalk {
     session: LocoSession,
     pool: DatabasePool,
 
-    task_handle: JoinHandle<()>,
+    ping_task: JoinHandle<()>,
+    stream_task: JoinHandle<()>,
 }
 
 impl HeadlessTalk {
@@ -32,19 +36,34 @@ impl HeadlessTalk {
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<()> {
-        let channel_type = self
+        let last_log_id = self
             .pool
-            .spawn(move |mut conn| {
-                use schema::channel_list::dsl::*;
+            .spawn(move |conn| {
+                use schema::chat;
 
-                let channel_type: String = channel_list
-                    .filter(id.eq(id))
-                    .select(type_)
-                    .first(&mut conn)?;
-
-                Ok(channel_type)
+                Ok(chat::table
+                    .filter(chat::channel_id.eq(id))
+                    .select(chat::log_id)
+                    .order_by(chat::log_id.desc())
+                    .first::<i64>(conn)
+                    .optional()?)
             })
             .await?;
+
+        let res = TalkSession(&self.session)
+            .channel(id)
+            .chat_on(last_log_id)
+            .await?;
+
+        match res.channel_type {
+            ChatOnChannelType::DirectChat(normal)
+            | ChatOnChannelType::MultiChat(normal)
+            | ChatOnChannelType::MemoChat(normal) => {}
+
+            ChatOnChannelType::OpenDirect(open) | ChatOnChannelType::OpenMulti(open) => {}
+
+            _ => {}
+        }
 
         todo!()
     }
@@ -60,7 +79,8 @@ impl HeadlessTalk {
 
 impl Drop for HeadlessTalk {
     fn drop(&mut self) {
-        self.task_handle.abort();
+        self.ping_task.abort();
+        self.stream_task.abort();
     }
 }
 
