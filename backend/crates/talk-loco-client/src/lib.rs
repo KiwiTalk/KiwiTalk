@@ -6,14 +6,7 @@ pub use futures_loco_protocol;
 pub use futures_loco_protocol::loco_protocol;
 
 use std::io;
-
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BsonCommandStatus {
-    pub status: i32,
-}
 
 pub type RequestResult<T> = Result<T, RequestError>;
 
