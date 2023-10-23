@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::talk::openlink::OpenLinkUser;
+use crate::talk::{openlink::OpenLinkUser, channel::ChannelType};
 
 use super::{normal, open};
 
@@ -45,6 +45,19 @@ pub enum ChatOnChannelType {
 
     #[serde(other)]
     Other,
+}
+
+impl ChatOnChannelType {
+    pub fn ty(&self) -> Option<ChannelType> {
+        Some(match self {
+            ChatOnChannelType::DirectChat(_) => ChannelType::DirectChat,
+            ChatOnChannelType::MultiChat(_) => ChannelType::MultiChat,
+            ChatOnChannelType::MemoChat(_) => ChannelType::MemoChat,
+            ChatOnChannelType::OpenDirect(_) => ChannelType::OpenDirect,
+            ChatOnChannelType::OpenMulti(_) => ChannelType::OpenMulti,
+            ChatOnChannelType::Other => return None,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]

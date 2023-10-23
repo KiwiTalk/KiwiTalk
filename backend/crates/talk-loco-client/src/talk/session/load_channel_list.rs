@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::talk::{chat::Chatlog, openlink::OpenLinkId};
+use crate::talk::{channel::ChannelType, chat::Chatlog, openlink::OpenLinkId};
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -68,16 +68,8 @@ pub struct ChannelListData {
     #[serde(rename = "c")]
     pub id: i64,
 
-    /// Chatroom type
-    ///
-    /// * group = "MultiChat"
-    /// * direct = "DirectChat"
-    /// * pluschat = "PlusChat"
-    /// * self = "MemoChat"
-    /// * openchat group = "OM"
-    /// * openchat direct = "OD"
-    #[serde(rename = "t")]
-    pub channel_type: String,
+    #[serde(flatten)]
+    pub channel_type: ChannelListType,
 
     /// Last chat log id
     #[serde(rename = "ll")]
@@ -109,10 +101,6 @@ pub struct ChannelListData {
     #[serde(rename = "p")]
     pub push_alert: bool,
 
-    /// Only present if chatroom is Openchat
-    #[serde(flatten)]
-    pub link: Option<OpenLinkId>,
-
     /// Chatroom preview icon target user id list
     #[serde(rename = "i")]
     pub icon_user_ids: Option<Vec<i64>>,
@@ -126,4 +114,41 @@ pub struct ChannelListData {
 
     /// Unknown. Only appears on non openchat rooms.
     pub jn: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+#[serde(tag = "t")]
+pub enum ChannelListType {
+    DirectChat,
+    MultiChat,
+
+    MemoChat,
+
+    #[serde(rename = "OD")]
+    OpenDirect(OpenChannelList),
+
+    #[serde(rename = "OM")]
+    OpenMulti(OpenChannelList),
+
+    #[serde(other)]
+    Other,
+}
+
+impl ChannelListType {
+    pub fn ty(&self) -> Option<ChannelType> {
+        Some(match self {
+            ChannelListType::DirectChat => ChannelType::DirectChat,
+            ChannelListType::MultiChat => ChannelType::MultiChat,
+            ChannelListType::MemoChat => ChannelType::MemoChat,
+            ChannelListType::OpenDirect(_) => ChannelType::OpenDirect,
+            ChannelListType::OpenMulti(_) => ChannelType::OpenMulti,
+            ChannelListType::Other => return None,
+        })
+    }
+}
+
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+pub struct OpenChannelList {
+    #[serde(flatten)]
+    pub link: Option<OpenLinkId>,
 }
