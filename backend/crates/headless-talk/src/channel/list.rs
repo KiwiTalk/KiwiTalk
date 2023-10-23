@@ -76,8 +76,6 @@ impl<'a> ChannelListUpdater<'a> {
                 last_update: list_data.last_update,
             };
 
-            dbg!(&row);
-
             update_list.push(row);
         }
 

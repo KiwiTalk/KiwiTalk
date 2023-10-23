@@ -74,6 +74,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
                 })
                 .await?;
 
+            channel_list.push(res.chat_list.chat_datas);
+
             if let Some(stream) = stream {
                 let mut stream = pin!(stream);
 

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::talk::{openlink::OpenLinkUser, channel::ChannelType};
+use crate::talk::{channel::ChannelType, openlink::OpenLinkUser};
 
 use super::{normal, open};
 

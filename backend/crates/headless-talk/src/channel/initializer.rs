@@ -1,5 +1,5 @@
 use futures_loco_protocol::session::LocoSession;
-use talk_loco_client::talk::session::{TalkSession, channel::info::ChannelInfoType};
+use talk_loco_client::talk::session::{channel::info::ChannelInfoType, TalkSession};
 
 use crate::{database::DatabasePool, ClientResult};
 
@@ -20,12 +20,12 @@ impl<'a> ChannelInitializer<'a> {
         let res = TalkSession(self.session).channel(self.id).info().await?;
 
         match res.channel_type {
-            ChannelInfoType::DirectChat(_) => {},
-            ChannelInfoType::MultiChat(_) => {},
-            ChannelInfoType::MemoChat(_) => {},
-            ChannelInfoType::OpenDirect(_) => {},
-            ChannelInfoType::OpenMulti(_) => {},
-            ChannelInfoType::Other => {},
+            ChannelInfoType::DirectChat(_) => {}
+            ChannelInfoType::MultiChat(_) => {}
+            ChannelInfoType::MemoChat(_) => {}
+            ChannelInfoType::OpenDirect(_) => {}
+            ChannelInfoType::OpenMulti(_) => {}
+            ChannelInfoType::Other => {}
         }
 
         Ok(())
