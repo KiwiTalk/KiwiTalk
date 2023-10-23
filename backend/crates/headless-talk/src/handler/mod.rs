@@ -1,16 +1,13 @@
 pub mod error;
 
-use diesel::{ExpressionMethods, RunQueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, RunQueryDsl};
 use talk_loco_client::talk::stream::{
     command::{DecunRead, Kickout, Msg},
     StreamCommand,
 };
 
 use crate::{
-    database::{
-        model::{chat::ChatRow, watermark::WatermarkRow},
-        schema, DatabasePool,
-    },
+    database::{model::chat::ChatRow, schema, DatabasePool},
     event::{channel::ChannelEvent, ClientEvent},
 };
 
@@ -84,17 +81,16 @@ impl SessionHandler {
                 } = read.clone();
 
                 move |mut conn| {
-                    diesel::insert_into(schema::watermark::table)
-                        .values(WatermarkRow {
-                            user_id,
-                            channel_id,
-                            log_id: watermark,
-                        })
-                        .on_conflict(schema::watermark::user_id)
-                        .do_update()
-                        .set(schema::watermark::log_id.eq(watermark))
-                        .execute(&mut conn)?;
+                    use schema::user_profile;
 
+                    diesel::update(user_profile::table)
+                        .filter(
+                            user_profile::channel_id
+                                .eq(channel_id)
+                                .and(user_profile::id.eq(user_id)),
+                        )
+                        .set(user_profile::watermark.eq(watermark))
+                        .execute(&mut conn)?;
                     Ok(())
                 }
             })

@@ -13,4 +13,6 @@ pub struct UserProfileRow<'a> {
     pub profile_url: Option<&'a str>,
     pub full_profile_url: Option<&'a str>,
     pub original_profile_url: Option<&'a str>,
+
+    pub watermark: Option<i64>,
 }

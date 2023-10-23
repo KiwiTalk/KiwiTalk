@@ -69,14 +69,7 @@ diesel::table! {
         profile_url -> Nullable<Text>,
         full_profile_url -> Nullable<Text>,
         original_profile_url -> Nullable<Text>,
-    }
-}
-
-diesel::table! {
-    watermark (channel_id, user_id) {
-        channel_id -> BigInt,
-        user_id -> BigInt,
-        log_id -> BigInt,
+        watermark -> Nullable<BigInt>,
     }
 }
 
@@ -87,5 +80,4 @@ diesel::allow_tables_to_appear_in_same_query!(
     normal_channel,
     normal_channel_user,
     user_profile,
-    watermark,
 );
