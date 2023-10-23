@@ -16,7 +16,7 @@ export const FriendItem = (props: FriendItemProps) => {
       <Profile src={props.profile} size={44} />
       <div class={styles.textContainer[variant()]}>
         <span class={styles.title[variant()]}>{props.name}</span>
-        <span class={styles.description[variant()]}>{props.description}</span>
+        <span class={styles.description[variant()]}>{props.description || '\u{3000}'}</span>
       </div>
     </li>
   );

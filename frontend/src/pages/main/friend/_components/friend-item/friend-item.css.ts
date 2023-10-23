@@ -53,6 +53,7 @@ export const textContainer = styleVariants({
   }],
   collapsed: [baseTextContainer, {
     justifyContent: 'center',
+    textAlign: 'center',
   }],
 });
 
