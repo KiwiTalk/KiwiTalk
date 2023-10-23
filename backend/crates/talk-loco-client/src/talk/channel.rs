@@ -29,6 +29,21 @@ impl ChannelType {
     }
 }
 
+impl From<&str> for ChannelType {
+    fn from(value: &str) -> Self {
+        match value {
+            "DirectChat" => Self::DirectChat,
+            "MultiChat" => Self::MultiChat,
+            "OpenDirect" => Self::OpenDirect,
+            "OpenMulti" => Self::OpenMulti,
+            "MemoChat" => Self::MemoChat,
+            "PlusChat" => Self::PlusChat,
+
+            other => Self::Other(other.to_owned()),
+        }
+    }
+}
+
 /// Chatroom meta. Like chatroom profile, notice, etc.
 ///
 /// serde does not support integer tag yet. We will switch to enum as fast as the support added.
