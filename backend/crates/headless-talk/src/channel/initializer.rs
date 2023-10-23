@@ -20,12 +20,12 @@ impl<'a> ChannelInitializer<'a> {
         let res = TalkSession(self.session).channel(self.id).info().await?;
 
         match res.channel_type {
-            ChannelInfoType::DirectChat(_) => todo!(),
-            ChannelInfoType::MultiChat(_) => todo!(),
-            ChannelInfoType::MemoChat(_) => todo!(),
-            ChannelInfoType::OpenDirect(_) => todo!(),
-            ChannelInfoType::OpenMulti(_) => todo!(),
-            ChannelInfoType::Other => todo!(),
+            ChannelInfoType::DirectChat(_) => {},
+            ChannelInfoType::MultiChat(_) => {},
+            ChannelInfoType::MemoChat(_) => {},
+            ChannelInfoType::OpenDirect(_) => {},
+            ChannelInfoType::OpenMulti(_) => {},
+            ChannelInfoType::Other => {},
         }
 
         Ok(())

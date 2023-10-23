@@ -77,7 +77,7 @@ pub struct ChannelListData {
 
     /// Last seen chat log id
     #[serde(rename = "s")]
-    pub last_seen_log_id: i64,
+    pub last_seen_log_id: Option<i64>,
 
     /// Last Chatlog
     #[serde(rename = "l")]

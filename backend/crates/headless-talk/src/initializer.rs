@@ -17,12 +17,13 @@ use thiserror::Error;
 use tokio::time;
 
 use crate::{
+    channel::list::ChannelListUpdater,
     config::ClientEnv,
     constants::PING_INTERVAL,
-    database::{DatabasePool, MigrationError, PoolTaskError},
+    database::{DatabasePool, MigrationError},
     event::ClientEvent,
     handler::{error::HandlerError, SessionHandler},
-    ClientStatus, HeadlessTalk,
+    ClientError, ClientStatus, HeadlessTalk,
 };
 
 pub struct TalkInitializer<S> {
@@ -124,16 +125,14 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
         F: Fn(Result<ClientEvent, HandlerError>) -> Fut + Send + Sync + 'static,
         Fut: Future + Send + Sync + 'static,
     {
-        let pool = DatabasePool::new(database_url).map_err(PoolTaskError::from)?;
+        let pool = DatabasePool::new(database_url)?;
         pool.migrate_to_latest().await?;
 
         let stream_task = tokio::spawn({
-            let pool = pool.clone();
+            let command_handler = Arc::new(command_handler);
+            let handler = Arc::new(SessionHandler::new(pool.clone()));
 
             async move {
-                let command_handler = Arc::new(command_handler);
-                let handler = Arc::new(SessionHandler::new(pool));
-
                 for read in self.buffer {
                     tokio::spawn({
                         let command_handler = command_handler.clone();
@@ -198,6 +197,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
             }
         });
 
+        ChannelListUpdater::new(&self.session, &pool)
+            .update(self.channel_list.into_iter().flatten())
+            .await?;
+
         Ok(HeadlessTalk {
             user_id: self.user_id,
             session: self.session,
@@ -218,9 +221,9 @@ pub enum LoginError {
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum InitializeError {
+    DatabaseInit(#[from] r2d2::Error),
     Migration(#[from] MigrationError),
-    Database(#[from] PoolTaskError),
-    Request(#[from] RequestError),
+    Client(#[from] ClientError),
 }
 
 #[derive(Debug, Clone, Copy)]

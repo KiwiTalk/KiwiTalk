@@ -13,12 +13,12 @@ type ConnectionManager = diesel::r2d2::ConnectionManager<SqliteConnection>;
 pub struct DatabasePool(Pool<ConnectionManager>);
 
 impl DatabasePool {
-    pub fn new(url: impl Into<String>) -> Result<Self, PoolError> {
+    pub fn new(url: impl Into<String>) -> Result<Self, r2d2::Error> {
         Ok(Self(Pool::new(ConnectionManager::new(url))?))
     }
 
-    pub fn get(&self) -> Result<PooledConnection, PoolError> {
-        self.0.get().map_err(PoolError)
+    pub fn get(&self) -> Result<PooledConnection, r2d2::Error> {
+        self.0.get()
     }
 
     pub fn spawn<R: Send + 'static, F: FnOnce(&mut PooledConnection) -> PoolTaskResult<R>>(
@@ -52,14 +52,10 @@ pub type PooledConnection = r2d2::PooledConnection<ConnectionManager>;
 
 #[derive(Debug, Error)]
 #[error(transparent)]
-pub struct PoolError(#[from] r2d2::Error);
-
-#[derive(Debug, Error)]
-#[error(transparent)]
 pub enum PoolTaskError {
     Database(#[from] diesel::result::Error),
 
-    Pool(#[from] PoolError),
+    Pool(#[from] r2d2::Error),
 }
 
 #[derive(Debug, Error)]
@@ -67,7 +63,7 @@ pub enum PoolTaskError {
 pub enum MigrationError {
     Migration(#[from] Box<dyn std::error::Error + Send + Sync>),
 
-    Pool(#[from] PoolError),
+    Pool(#[from] r2d2::Error),
 }
 
 pub type PoolTaskResult<T> = Result<T, PoolTaskError>;
