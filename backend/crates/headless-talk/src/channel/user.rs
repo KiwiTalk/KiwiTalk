@@ -67,7 +67,7 @@ impl From<open::user::User> for UserProfile {
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 pub struct DisplayUserProfile {
     pub nickname: String,
-    pub image_url: String,
+    pub image_url: Option<String>,
     pub country_iso: Option<String>,
 }
 
@@ -75,7 +75,7 @@ impl From<UserProfile> for DisplayUserProfile {
     fn from(profile: UserProfile) -> Self {
         Self {
             nickname: profile.nickname,
-            image_url: profile.image_url,
+            image_url: Some(profile.image_url),
             country_iso: None,
         }
     }

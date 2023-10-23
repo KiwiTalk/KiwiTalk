@@ -11,7 +11,7 @@ pub struct DisplayUser {
     pub nickname: String,
 
     #[serde(rename = "profileImageUrl")]
-    pub profile_image_url: String,
+    pub profile_image_url: Option<String>,
 
     #[serde(rename = "countryIso")]
     pub country_iso: String,

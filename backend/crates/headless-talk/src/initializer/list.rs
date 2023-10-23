@@ -5,7 +5,7 @@ use nohash_hasher::IntMap;
 use talk_loco_client::talk::session::load_channel_list::ChannelListData;
 
 use crate::{
-    database::{model::channel::ChannelListRow, schema, DatabasePool},
+    database::{model::channel::ChannelListRow, schema::{self, channel_list}, DatabasePool},
     ClientResult,
 };
 
@@ -26,8 +26,6 @@ impl<'a> ChannelListUpdater<'a> {
         let update_map = self
             .pool
             .spawn(|conn| {
-                use schema::channel_list;
-
                 Ok(IntMap::from_iter(
                     channel_list::table
                         .select((channel_list::id, channel_list::last_update))
@@ -81,8 +79,6 @@ impl<'a> ChannelListUpdater<'a> {
 
         self.pool
             .spawn(move |conn| {
-                use schema::channel_list;
-
                 diesel::replace_into(channel_list::table)
                     .values(update_list)
                     .execute(conn)?;
