@@ -55,8 +55,8 @@ diesel::table! {
         channel_id -> BigInt,
         country_iso -> Text,
         account_id -> BigInt,
-        status_message -> Nullable<Text>,
-        linked_services -> Nullable<Text>,
+        status_message -> Text,
+        linked_services -> Text,
         suspended -> Bool,
     }
 }

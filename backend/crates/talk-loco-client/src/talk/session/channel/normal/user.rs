@@ -26,7 +26,7 @@ pub struct User {
     pub nickname: String,
 
     #[serde(rename = "countryIso")]
-    pub country_iso: Option<String>,
+    pub country_iso: String,
 
     #[serde(rename = "profileImageUrl")]
     pub profile_image_url: Option<String>,
@@ -50,5 +50,5 @@ pub struct User {
     #[serde(rename = "statusMessage")]
     pub status_message: String,
 
-    pub suspended: Option<bool>,
+    pub suspended: bool,
 }

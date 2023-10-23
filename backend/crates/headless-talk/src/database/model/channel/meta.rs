@@ -4,7 +4,7 @@ use crate::database::schema::channel_meta;
 
 #[derive(Debug, Insertable, Clone, PartialEq, Eq)]
 #[diesel(table_name = channel_meta)]
-pub struct ChannelMetaRow<'a> {
+pub struct ChannelMetaRow {
     pub channel_id: i64,
 
     #[diesel(column_name = "type_")]
@@ -14,5 +14,7 @@ pub struct ChannelMetaRow<'a> {
 
     pub revision: i64,
 
-    pub content: &'a str,
+    pub content: String,
+
+    pub updated_at: i64,
 }

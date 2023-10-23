@@ -13,17 +13,15 @@ use talk_loco_client::talk::{
     session::{channel::write, TalkSession},
 };
 
-use self::user::DisplayUser;
-
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
 #[derive(Debug, Clone)]
-pub struct ListChannelItem {
+pub struct ChannelListItem {
     pub channel_type: ChannelType,
 
     pub last_chat: Option<Chatlog>,
 
-    pub display_users: ArrayVec<DisplayUser, 4>,
+    pub display_user_ids: ArrayVec<i64, 4>,
 
     pub user_count: usize,
 

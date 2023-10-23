@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS normal_channel_user (
 
     country_iso VARCHAR(4) NOT NULL,
     account_id BIGINT NOT NULL,
-    status_message TEXT,
-    linked_services TEXT,
+    status_message TEXT NOT NULL,
+    linked_services TEXT NOT NULL,
     suspended BOOLEAN NOT NULL,
 
     PRIMARY KEY(id, channel_id)

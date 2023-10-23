@@ -9,7 +9,7 @@ pub mod initializer;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
-use database::{DatabasePool, PoolTaskError};
+use database::{model::channel::ChannelListRow, schema::channel_list, DatabasePool, PoolTaskError};
 use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::{
     talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
@@ -33,6 +33,19 @@ pub struct HeadlessTalk {
 impl HeadlessTalk {
     pub const fn user_id(&self) -> i64 {
         self.user_id
+    }
+
+    pub async fn channel_list(&self) -> Result<Vec<ChannelListRow>, PoolTaskError> {
+        Ok(self
+            .pool
+            .spawn(|conn| {
+                let list = channel_list::table
+                    .select(channel_list::all_columns)
+                    .load::<ChannelListRow>(conn)?;
+
+                Ok(list)
+            })
+            .await?)
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<()> {

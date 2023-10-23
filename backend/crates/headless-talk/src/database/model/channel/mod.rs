@@ -1,10 +1,11 @@
 pub mod meta;
+pub mod normal;
 
-use diesel::Insertable;
+use diesel::{Insertable, prelude::Queryable};
 
 use crate::database::schema::channel_list;
 
-#[derive(Debug, Insertable, Clone, PartialEq, Eq)]
+#[derive(Debug, Insertable, Queryable, Clone, PartialEq, Eq)]
 #[diesel(table_name = channel_list)]
 pub struct ChannelListRow {
     pub id: i64,
