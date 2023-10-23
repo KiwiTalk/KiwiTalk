@@ -33,7 +33,7 @@ pub struct ChatRow<'a> {
 }
 
 impl<'a> ChatRow<'a> {
-    pub const fn from_chatlog(log: &'a Chatlog, deleted_time: Option<i64>) -> Self {
+    pub fn from_chatlog(log: &'a Chatlog, deleted_time: Option<i64>) -> Self {
         Self {
             log_id: log.log_id,
             channel_id: log.channel_id,

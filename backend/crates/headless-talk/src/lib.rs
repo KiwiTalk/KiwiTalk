@@ -1,11 +1,12 @@
 pub mod channel;
 pub mod config;
-mod constants;
-pub mod database;
+pub mod constants;
+pub(crate) mod database;
 pub mod event;
 mod handler;
 pub mod initializer;
 
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{DatabasePool, PoolTaskError};
@@ -14,6 +15,8 @@ use talk_loco_client::{
 };
 use thiserror::Error;
 use tokio::task::JoinHandle;
+
+use crate::database::schema;
 
 #[derive(Debug)]
 pub struct HeadlessTalk {
@@ -30,7 +33,19 @@ impl HeadlessTalk {
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<()> {
-        
+        let channel_type = self
+            .pool
+            .spawn(move |mut conn| {
+                use schema::channel_list::dsl::*;
+
+                let channel_type: String = channel_list
+                    .filter(id.eq(id))
+                    .select(type_)
+                    .first(&mut conn)?;
+
+                Ok(channel_type)
+            })
+            .await?;
 
         todo!()
     }

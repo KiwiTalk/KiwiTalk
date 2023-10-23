@@ -1,4 +1,3 @@
-pub mod chat;
 pub mod channel;
+pub mod chat;
 pub mod user;
-pub mod watermark;

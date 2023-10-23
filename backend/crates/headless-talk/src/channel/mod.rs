@@ -1,8 +1,3 @@
-/*
-pub mod normal;
-pub mod open;
-*/
-pub(crate) mod updater;
 pub mod user;
 
 use crate::{
@@ -45,7 +40,7 @@ pub impl ChannelType {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ListChannelItem {
     pub channel_type: ChannelType,
 
@@ -132,7 +127,7 @@ impl ClientChannel<'_> {
                 let logged = logged.clone();
 
                 move |mut conn| {
-                    diesel::insert_into(schema::chat::table)
+                    diesel::replace_into(schema::chat::table)
                         .values(ChatRow::from_chatlog(&logged, None))
                         .execute(&mut conn)?;
 

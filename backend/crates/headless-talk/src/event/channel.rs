@@ -1,6 +1,5 @@
 use talk_loco_client::talk::chat::Chatlog;
 
-
 #[derive(Debug, Clone)]
 pub enum ChannelEvent {
     Chat {

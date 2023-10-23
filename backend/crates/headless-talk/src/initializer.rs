@@ -9,7 +9,8 @@ use talk_loco_client::{
     loco_protocol::command::BoxedCommand,
     talk::{
         session::{
-            load_channel_list::response::ChannelListData, LChatListReq, LoginListReq, TalkSession,
+            load_channel_list::{self, ChannelListData},
+            login, TalkSession,
         },
         stream::{StreamCommand, TalkStream},
     },
@@ -18,13 +19,8 @@ use talk_loco_client::{
 use thiserror::Error;
 
 use crate::{
-    channel::{
-        updater::{ChannelUpdater, UpdateError},
-        user::UserId,
-    },
     config::ClientEnv,
-    constants::APP_VERSION,
-    database::pool::{DatabasePool, PoolTaskError},
+    database::{DatabasePool, MigrationError, PoolTaskError},
     handler::SessionHandler,
     ClientStatus, HeadlessTalk,
 };
@@ -33,7 +29,7 @@ pub struct TalkInitializer<S> {
     session: LocoSession,
     stream: LocoSessionStream<S>,
 
-    user_id: UserId,
+    user_id: i64,
     channel_list: Vec<Vec<ChannelListData>>,
 
     buffer: Vec<BoxedCommand>,
@@ -52,14 +48,11 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
         let mut channel_list = Vec::new();
 
         let login_task = async {
-            let chat_ids = &[];
-            let max_ids = &[];
-
-            let res = TalkSession(&session)
-                .login(&LoginListReq {
+            let (res, stream) = TalkSession(&session)
+                .login(login::Request {
                     os: env.os,
                     net_type: env.net_type as _,
-                    app_version: APP_VERSION,
+                    app_version: env.app_version,
                     mccmnc: env.mccmnc,
                     protocol_version: "1.0",
                     device_uuid: credential.device_uuid,
@@ -69,9 +62,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
                     pc_status: Some(status as _),
                     revision: None,
                     rp: [0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
-                    chat_list: LChatListReq {
-                        chat_ids,
-                        max_ids,
+                    chat_list: load_channel_list::Request {
+                        chat_ids: &[],
+                        max_ids: &[],
                         last_token_id: 0,
                         last_chat_id: None,
                     },
@@ -80,13 +73,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
                 })
                 .await?;
 
-            if !res.chat_list.eof {
-                let mut stream = pin!(TalkSession(&session).channel_list_stream(
-                    chat_ids,
-                    max_ids,
-                    res.chat_list.last_token_id.unwrap_or(0),
-                    res.chat_list.last_chat_id
-                ));
+            if let Some(stream) = stream {
+                let mut stream = pin!(stream);
 
                 while let Some(res) = stream.try_next().await? {
                     channel_list.push(res.chat_datas);
@@ -122,19 +110,19 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
         })
     }
 
-    pub const fn user_id(&self) -> UserId {
+    pub const fn user_id(&self) -> i64 {
         self.user_id
     }
 
-    pub async fn initialize(self, pool: DatabasePool) -> Result<HeadlessTalk, InitializeError>
+    pub async fn initialize(
+        self,
+        database_url: impl Into<String>,
+    ) -> Result<HeadlessTalk, InitializeError>
     where
         S: Send + Sync + 'static,
     {
+        let pool = DatabasePool::new(database_url).map_err(PoolTaskError::from)?;
         pool.migrate_to_latest().await?;
-
-        ChannelUpdater::new(&self.session, &pool)
-            .update(self.channel_list.into_iter().flatten())
-            .await?;
 
         let handle = tokio::spawn({
             let pool = pool.clone();
@@ -170,9 +158,9 @@ pub enum LoginError {
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum InitializeError {
+    Migration(#[from] MigrationError),
     Database(#[from] PoolTaskError),
     Request(#[from] RequestError),
-    Updater(#[from] UpdateError),
 }
 
 #[derive(Debug, Clone, Copy)]

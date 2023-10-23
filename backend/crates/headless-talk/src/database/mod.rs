@@ -13,7 +13,7 @@ type ConnectionManager = diesel::r2d2::ConnectionManager<SqliteConnection>;
 pub struct DatabasePool(Pool<ConnectionManager>);
 
 impl DatabasePool {
-    pub fn file(url: impl Into<String>) -> Result<Self, PoolError> {
+    pub fn new(url: impl Into<String>) -> Result<Self, PoolError> {
         Ok(Self(Pool::new(ConnectionManager::new(url))?))
     }
 
@@ -42,7 +42,9 @@ impl DatabasePool {
             this.get()?.run_pending_migrations(MIGRATIONS)?;
 
             Ok(())
-        }).map(|res| res.unwrap()).await
+        })
+        .map(|res| res.unwrap())
+        .await
     }
 }
 
