@@ -11,8 +11,8 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BsonCommandStatus {
-    pub status: i32,
+struct Status {
+    status: i32,
 }
 
 pub type RequestResult<T> = Result<T, RequestError>;
