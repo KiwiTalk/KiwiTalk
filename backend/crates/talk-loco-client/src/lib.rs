@@ -7,7 +7,7 @@ pub use futures_loco_protocol::loco_protocol;
 
 use std::io;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use thiserror::Error;
 
 #[derive(Deserialize)]
