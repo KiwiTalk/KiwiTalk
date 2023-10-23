@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -17,16 +15,16 @@ pub enum ChannelType {
     Other(String),
 }
 
-impl Display for ChannelType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl ChannelType {
+    pub fn as_str(&self) -> &str {
         match self {
-            ChannelType::DirectChat => write!(f, "DirectChat"),
-            ChannelType::MultiChat => write!(f, "MultiChat"),
-            ChannelType::OpenDirect => write!(f, "OpenDirect"),
-            ChannelType::OpenMulti => write!(f, "OpenMulti"),
-            ChannelType::MemoChat => write!(f, "MemoChat"),
-            ChannelType::PlusChat => write!(f, "PlusChat"),
-            ChannelType::Other(other) => other.fmt(f),
+            ChannelType::DirectChat => "DirectChat",
+            ChannelType::MultiChat => "MultiChat",
+            ChannelType::OpenDirect => "OpenDirect",
+            ChannelType::OpenMulti => "OpenMulti",
+            ChannelType::MemoChat => "MemoChat",
+            ChannelType::PlusChat => "PlusChat",
+            ChannelType::Other(other) => &other,
         }
     }
 }
