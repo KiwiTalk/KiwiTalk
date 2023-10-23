@@ -51,7 +51,7 @@ impl SessionHandler {
                 let chatlog = msg.chatlog.clone();
 
                 move |conn| {
-                    diesel::insert_into(schema::chat::table)
+                    diesel::replace_into(schema::chat::table)
                         .values(ChatRow::from_chatlog(&chatlog, None))
                         .execute(conn)?;
 
