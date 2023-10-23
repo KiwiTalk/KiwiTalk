@@ -1,5 +1,5 @@
 /* users / friends */
-export type Profile = {
+export type UserProfile = {
   id: string;
 
   statusMessage: string;
@@ -19,10 +19,10 @@ export type LogonProfile = {
 
   pstnNumber: string;
 
-  profile: Profile;
+  profile: UserProfile;
 }
 
-export type ListFriend = {
+export type FriendProfile = {
   userId: string;
 
   nickname: string;
@@ -35,8 +35,8 @@ export type ListFriend = {
   profileImageUrl: string;
 }
 
-export type FriendsUpdate = {
-  added: ListFriend[];
+export type FriendsUpdateResult = {
+  added: FriendProfile[];
   removedIds: string[];
 };
 
