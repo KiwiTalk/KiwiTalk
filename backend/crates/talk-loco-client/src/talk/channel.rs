@@ -1,16 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(untagged)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChannelType {
     DirectChat,
     MultiChat,
 
-    #[serde(rename = "OM")]
-    OpenMultiChat,
-
-    #[serde(rename = "OD")]
-    OpenDirectChat,
+    OpenDirect,
+    OpenMulti,
 
     MemoChat,
 
