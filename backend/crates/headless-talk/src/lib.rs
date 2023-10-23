@@ -10,9 +10,8 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{DatabasePool, PoolTaskError};
-use talk_loco_client::{
-    futures_loco_protocol::session::LocoSession, RequestError,
-};
+use futures_loco_protocol::session::LocoSession;
+use talk_loco_client::{RequestError, talk::session::TalkSession};
 use thiserror::Error;
 use tokio::task::JoinHandle;
 

@@ -1729,6 +1729,7 @@ dependencies = [
  "diesel_migrations",
  "extend",
  "futures",
+ "futures-loco-protocol",
  "libsqlite3-sys",
  "log",
  "nohash-hasher",

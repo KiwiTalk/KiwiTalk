@@ -1,12 +1,10 @@
-pub mod chat_on;
-pub mod info;
 pub mod user;
 
 use serde::{Deserialize, Serialize};
 
 use crate::{request, RequestResult};
 
-use self::{info::ChannelInfo, user::User};
+use self::user::User;
 
 use super::TalkChannel;
 
@@ -28,28 +26,6 @@ impl<'a> TalkOpenChannel<'a> {
             "linkId": self.link_id,
         })
         .await
-    }
-
-    pub async fn chat_on(self, last_log_id: Option<i64>) -> RequestResult<chat_on::Response> {
-        request!(self.inner.session, "CHATONROOM", bson {
-            "chatId": self.inner.id,
-            "token": last_log_id.unwrap_or(0),
-        }, _)
-        .await
-    }
-
-    pub async fn info(self) -> RequestResult<ChannelInfo> {
-        #[derive(Deserialize)]
-        struct Response {
-            #[serde(rename = "chatInfo")]
-            pub chat_info: ChannelInfo,
-        }
-
-        Ok(request!(self.inner.session, "CHATINFO", bson {
-            "chatId": self.inner.id,
-        }, Response)
-        .await?
-        .chat_info)
     }
 
     pub async fn list_users(self) -> RequestResult<Vec<User>> {

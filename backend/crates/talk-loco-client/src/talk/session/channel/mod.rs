@@ -1,3 +1,5 @@
+pub mod chat_on;
+pub mod info;
 pub mod normal;
 pub mod open;
 pub mod write;
@@ -13,6 +15,8 @@ use crate::{
     RequestResult,
 };
 
+use self::{chat_on::ChatOnChannel, info::ChannelInfo};
+
 #[derive(Debug, Clone, Copy)]
 pub struct TalkChannel<'a> {
     pub session: &'a LocoSession,
@@ -22,6 +26,28 @@ pub struct TalkChannel<'a> {
 impl<'a> TalkChannel<'a> {
     pub const fn new(session: &'a LocoSession, id: i64) -> Self {
         Self { session, id }
+    }
+
+    pub async fn info(self) -> RequestResult<ChannelInfo> {
+        #[derive(Deserialize)]
+        struct Response {
+            #[serde(rename = "chatInfo")]
+            pub chat_info: ChannelInfo,
+        }
+
+        Ok(request!(self.session, "CHATINFO", bson {
+            "chatId": self.id,
+        }, Response)
+        .await?
+        .chat_info)
+    }
+
+    pub async fn chat_on(self, last_log_id: Option<i64>) -> RequestResult<ChatOnChannel> {
+        request!(self.session, "CHATONROOM", bson {
+            "chatId": self.id,
+            "token": last_log_id.unwrap_or(0),
+        }, _)
+        .await
     }
 
     pub async fn write_chat(self, req: &write::Request<'_>) -> RequestResult<write::Response> {
