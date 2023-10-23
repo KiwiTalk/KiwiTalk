@@ -1,6 +1,6 @@
 pub mod user;
 pub(crate) mod initializer;
-pub mod list;
+pub(crate) mod list;
 
 use crate::{
     database::{model::chat::ChatRow, schema},

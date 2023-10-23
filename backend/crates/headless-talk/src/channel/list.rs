@@ -12,7 +12,7 @@ use crate::{
 use super::initializer::ChannelInitializer;
 
 #[derive(Debug, Clone, Copy)]
-pub(crate) struct ChannelListUpdater<'a> {
+pub struct ChannelListUpdater<'a> {
     session: &'a LocoSession,
     pool: &'a DatabasePool,
 }
