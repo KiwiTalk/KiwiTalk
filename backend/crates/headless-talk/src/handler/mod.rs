@@ -8,7 +8,10 @@ use talk_loco_client::talk::stream::{
 };
 
 use crate::{
-    database::{schema, DatabasePool},
+    database::{
+        schema::{self, channel_list},
+        DatabasePool,
+    },
     event::{channel::ChannelEvent, ClientEvent},
 };
 
@@ -30,7 +33,7 @@ impl SessionHandler {
         match StreamCommand::deserialize_from(read)? {
             StreamCommand::Kickout(kickout) => self.on_kickout(kickout).await,
             StreamCommand::SwitchServer => self.on_switch_server().await,
-            StreamCommand::Chat(msg) => self.on_chat(msg),
+            StreamCommand::Chat(msg) => self.on_chat(msg).await,
             StreamCommand::ChatRead(read) => self.on_chat_read(read).await,
 
             _ => Ok(None),
@@ -45,7 +48,23 @@ impl SessionHandler {
         Ok(Some(ClientEvent::SwitchServer))
     }
 
-    fn on_chat(&self, msg: Msg) -> HandlerResult {
+    async fn on_chat(&self, msg: Msg) -> HandlerResult {
+        self.pool
+            .spawn({
+                let log_id = msg.chatlog.log_id;
+                let channel_id = msg.chat_id;
+
+                move |conn| {
+                    diesel::update(channel_list::table)
+                        .filter(channel_list::id.eq(channel_id))
+                        .set(channel_list::last_log_id.eq(log_id))
+                        .execute(conn)?;
+
+                    Ok(())
+                }
+            })
+            .await?;
+
         Ok(Some(ClientEvent::Channel {
             id: msg.chat_id,
 

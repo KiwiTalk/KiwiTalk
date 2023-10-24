@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS channel_list (
     active_user_count INTEGER NOT NULL,
     unread_count INTEGER NOT NULL,
 
+    last_log_id BIGINT NOT NULL,
     last_seen_log_id BIGINT,
     last_update BIGINT NOT NULL
 );

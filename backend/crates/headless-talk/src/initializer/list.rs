@@ -82,6 +82,7 @@ impl<'a> ChannelListUpdater<'a> {
                 unread_count: list_data.unread_count,
                 active_user_count: list_data.active_member_count,
 
+                last_log_id: list_data.last_log_id,
                 last_seen_log_id: list_data.last_seen_log_id,
                 last_update: list_data.last_update,
             };

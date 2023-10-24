@@ -8,6 +8,7 @@ diesel::table! {
         display_users -> Text,
         active_user_count -> Integer,
         unread_count -> Integer,
+        last_log_id -> BigInt,
         last_seen_log_id -> Nullable<BigInt>,
         last_update -> BigInt,
     }
