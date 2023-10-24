@@ -48,7 +48,7 @@ export const meFrame = style({
 
   padding: '8px',
   borderRadius: vars.radius.regular,
-  border: `1px solid ${vars.color.overlay.background}`,
+  border: `1px solid ${vars.color.glassPrimary.fillTertiary}`,
 });
 
 export const sectionContainer = styleVariants({
@@ -92,9 +92,9 @@ export const sectionTitleContainer = style({
 
 export const sectionTitle = styleVariants({
   title: [classes.typography.body, {
-    color: vars.color.overlay.fillSecondary,
+    color: vars.color.glassPrimary.fillSecondary,
   }],
   number: [classes.typography.number2, {
-    color: vars.color.overlay.fillSecondary,
+    color: vars.color.glassPrimary.fillSecondary,
   }],
 });

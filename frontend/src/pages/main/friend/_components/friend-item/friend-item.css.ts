@@ -59,13 +59,13 @@ export const textContainer = styleVariants({
 
 export const title = styleVariants({
   default: [classes.typography.head3, {
-    color: vars.color.overlay.fillPrimary,
+    color: vars.color.glassPrimary.fillPrimary,
   }],
   collapsed: [classes.typography.fineprint, {
     width: '100%',
 
     fontWeight: 600,
-    color: vars.color.overlay.fillPrimary,
+    color: vars.color.glassPrimary.fillPrimary,
 
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -75,9 +75,9 @@ export const title = styleVariants({
 
 export const description = styleVariants({
   default: [classes.typography.body, {
-    color: vars.color.overlay.fillSecondary,
+    color: vars.color.glassPrimary.fillSecondary,
   }],
   collapsed: [classes.typography.fineprint, {
-    color: vars.color.overlay.fillSecondary,
+    color: vars.color.glassPrimary.fillSecondary,
   }],
 });
