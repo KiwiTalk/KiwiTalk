@@ -47,24 +47,24 @@ impl ChatRow {
     }
 }
 
-impl Into<Chatlog> for ChatRow {
-    fn into(self) -> Chatlog {
+impl From<ChatRow> for Chatlog {
+    fn from(val: ChatRow) -> Self {
         Chatlog {
-            log_id: self.log_id,
-            prev_log_id: self.prev_log_id,
-            channel_id: self.channel_id,
-            author_id: self.author_id,
-            send_at: self.send_at,
+            log_id: val.log_id,
+            prev_log_id: val.prev_log_id,
+            channel_id: val.channel_id,
+            author_id: val.author_id,
+            send_at: val.send_at,
             chat: Chat {
-                chat_type: ChatType(self.chat_type),
+                chat_type: ChatType(val.chat_type),
                 content: ChatContent {
-                    message: self.message,
-                    attachment: self.attachment,
-                    supplement: self.supplement,
+                    message: val.message,
+                    attachment: val.attachment,
+                    supplement: val.supplement,
                 },
-                message_id: self.message_id,
+                message_id: val.message_id,
             },
-            referer: self.referer,
+            referer: val.referer,
         }
     }
 }
