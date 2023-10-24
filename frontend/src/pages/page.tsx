@@ -56,17 +56,21 @@ export const App = () => {
     }
   });
 
+  const chatPage = <ChatPage />;
+
   return (
     <>
       <Route path={'/main'} component={MainPage}>
         <Route path={'/'} element={<Navigate href={'/main/chat'} />} />
         <Route path={'/chat'}>
           <Route path={'/'} component={ChannelListPage}>
-            <Route path={'/:channelId?'} component={ChatPage} />
+            <Route path={'/:channelId?'} element={chatPage} />
           </Route>
         </Route>
         <Route path={'/friends'}>
-          <Route path={'/'} component={FriendListPage} />
+          <Route path={'/'} component={FriendListPage}>
+            <Route path={'/'} element={chatPage} />
+          </Route>
         </Route>
         <Route path={'/*'} element={<div>TODO</div>} />
       </Route>
