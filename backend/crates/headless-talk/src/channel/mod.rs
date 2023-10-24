@@ -1,6 +1,5 @@
 pub mod normal;
 pub mod open;
-pub mod user;
 
 use crate::{
     database::{
@@ -8,6 +7,7 @@ use crate::{
         schema::{self, channel_list, chat, user_profile},
         DatabasePool, PoolTaskError,
     },
+    user::{DisplayUser, DisplayUserProfile},
     ClientResult, HeadlessTalk,
 };
 use arrayvec::ArrayVec;
@@ -19,11 +19,7 @@ use talk_loco_client::talk::{
     session::{channel::write, TalkSession},
 };
 
-use self::{
-    normal::NormalChannel,
-    open::OpenChannel,
-    user::{DisplayUser, DisplayUserProfile},
-};
+use self::{normal::NormalChannel, open::OpenChannel};
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
@@ -170,8 +166,7 @@ impl<'a> ClientChannel<'a> {
     ) -> Result<Vec<Chatlog>, PoolTaskError> {
         let id = self.id();
 
-        self
-            .client()
+        self.client()
             .pool
             .spawn(move |conn| {
                 let rows: Vec<ChatRow> = chat::table

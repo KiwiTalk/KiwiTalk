@@ -5,6 +5,7 @@ mod database;
 pub mod event;
 pub mod handler;
 pub mod updater;
+pub mod user;
 
 use channel::{load_list_item, normal::NormalChannel, ChannelListItem, ClientChannel};
 use diesel::{

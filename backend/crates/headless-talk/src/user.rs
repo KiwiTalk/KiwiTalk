@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use talk_loco_client::talk::session::channel::{normal, open};
 
+use crate::database::model::user::UserProfileModel;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DisplayUser {
     pub id: i64,
@@ -58,6 +60,17 @@ impl From<open::user::User> for UserProfile {
             image_url: value.profile_image_url,
             full_image_url: value.full_profile_image_url,
             original_image_url: value.original_profile_image_url,
+        }
+    }
+}
+
+impl From<UserProfileModel> for UserProfile {
+    fn from(value: UserProfileModel) -> Self {
+        Self {
+            nickname: value.nickname,
+            image_url: value.profile_url,
+            full_image_url: value.full_profile_url,
+            original_image_url: value.original_profile_url,
         }
     }
 }
