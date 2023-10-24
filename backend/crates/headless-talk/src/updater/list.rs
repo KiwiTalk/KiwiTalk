@@ -59,7 +59,7 @@ impl<'a> ChannelListUpdater<'a> {
                 .unwrap_or(0);
 
             if last_log_id < list_data.last_log_id {
-                ChatUpdater::new(&self.session, &self.pool, list_data.id)
+                ChatUpdater::new(self.session, self.pool, list_data.id)
                     .update(last_log_id, list_data.last_log_id)
                     .await?;
             }

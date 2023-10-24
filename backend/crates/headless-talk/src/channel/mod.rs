@@ -170,7 +170,7 @@ impl<'a> ClientChannel<'a> {
     ) -> Result<Vec<Chatlog>, PoolTaskError> {
         let id = self.id();
 
-        Ok(self
+        self
             .client()
             .pool
             .spawn(move |conn| {
@@ -186,7 +186,7 @@ impl<'a> ClientChannel<'a> {
 
                 Ok(rows.into_iter().map(|row| row.into()).collect())
             })
-            .await?)
+            .await
     }
 }
 

@@ -29,7 +29,7 @@ impl<'a> ChatUpdater<'a> {
 
     pub async fn update(self, client_last_log_id: i64, last_log_id: i64) -> ClientResult<()> {
         if client_last_log_id < last_log_id {
-            let mut stream = pin!(TalkSession(&self.session)
+            let mut stream = pin!(TalkSession(self.session)
                 .channel(self.channel_id)
                 .sync_chat_stream(client_last_log_id, last_log_id, 0,));
 
