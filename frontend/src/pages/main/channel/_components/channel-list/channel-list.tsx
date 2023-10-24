@@ -54,7 +54,7 @@ export const ChannelListViewModel: ChannelListViewModelType = () => {
     for (const [id, item] of await getChannelList()) {
       result.push({
         id,
-        name: item.name ?? item.displayUsers.map((user) => user.nickname).join(', '),
+        name: item.name ?? item.displayUsers.map(([, user]) => user.nickname).join(', '),
         displayUsers: item.displayUsers,
         lastChat: item.lastChat ? {
           ...item.lastChat,
@@ -120,7 +120,7 @@ export const ChannelList = (props: ChannelListProps) => {
             <ChannelItem
               name={channel.name}
               members={channel.userCount}
-              lastMessage={channel.lastChat?.content.message}
+              lastMessage={channel.lastChat?.content}
               lastMessageTime={channel.lastChat?.timestamp}
               profileSrc={channel.profile}
               unreadBadge={channel.unreadCount}

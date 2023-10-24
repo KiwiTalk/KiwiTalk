@@ -1,11 +1,15 @@
 use arrayvec::ArrayVec;
-use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
-use talk_loco_client::talk::{channel::ChannelType, chat::Chatlog, session::TalkSession};
+use diesel::{BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use talk_loco_client::talk::{
+    channel::{ChannelMetaType, ChannelType},
+    chat::Chatlog,
+    session::TalkSession,
+};
 
 use crate::{
     database::{
         model::{channel::ChannelListRow, chat::ChatRow},
-        schema::{chat, user_profile},
+        schema::{channel_meta, chat, user_profile},
         DatabasePool, PoolTaskError,
     },
     ClientResult, HeadlessTalk,
@@ -13,7 +17,7 @@ use crate::{
 
 use super::{
     user::{DisplayUser, DisplayUserProfile},
-    ChannelListItem,
+    ChannelListItem, ListPreviewChat,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -53,22 +57,57 @@ pub(crate) async fn load_list_item(
     let display_user_id_list =
         serde_json::from_str::<ArrayVec<i64, 4>>(&row.display_users).unwrap_or_default();
 
-    let (last_chat, display_users) = pool
-        .spawn(|conn| {
+    let (last_chat, display_users, name) = pool
+        .spawn(move |conn| {
             let last_chat: Option<Chatlog> = chat::table
+                .filter(
+                    chat::channel_id
+                        .eq(row.id)
+                        .and(chat::deleted_time.is_null()),
+                )
                 .order(chat::log_id.desc())
-                .filter(chat::deleted_time.is_null())
                 .select(chat::all_columns)
                 .first::<ChatRow>(conn)
                 .optional()?
                 .map(Into::into);
+
+            let last_chat: Option<ListPreviewChat> = if let Some(chat) = last_chat {
+                let profile = if let Some((nickname, image_url)) = user_profile::table
+                    .select((user_profile::nickname, user_profile::profile_url))
+                    .filter(
+                        user_profile::channel_id
+                            .eq(row.id)
+                            .and(user_profile::id.eq(chat.author_id)),
+                    )
+                    .first::<(String, String)>(conn)
+                    .optional()?
+                {
+                    Some(DisplayUserProfile {
+                        nickname,
+                        image_url: Some(image_url),
+                    })
+                } else {
+                    None
+                };
+
+                Some(ListPreviewChat {
+                    profile,
+                    chatlog: chat,
+                })
+            } else {
+                None
+            };
 
             let mut display_users = ArrayVec::<DisplayUser, 4>::new();
 
             for id in display_user_id_list {
                 if let Some((nickname, profile_url)) = user_profile::table
                     .select((user_profile::nickname, user_profile::profile_url))
-                    .filter(user_profile::id.eq(id))
+                    .filter(
+                        user_profile::channel_id
+                            .eq(row.id)
+                            .and(user_profile::id.eq(id)),
+                    )
                     .first::<(String, String)>(conn)
                     .optional()?
                 {
@@ -82,15 +121,27 @@ pub(crate) async fn load_list_item(
                 }
             }
 
-            Ok((last_chat, display_users))
+            let name: Option<String> = channel_meta::table
+                .filter(
+                    channel_meta::channel_id
+                        .eq(row.id)
+                        .and(channel_meta::type_.eq(ChannelMetaType::Title as i32)),
+                )
+                .select(channel_meta::content)
+                .first(conn)
+                .optional()?;
+
+            Ok((last_chat, display_users, name))
         })
         .await?;
 
-    let name = display_users
-        .iter()
-        .map(|user| user.profile.nickname.as_str())
-        .collect::<Vec<&str>>()
-        .join(", ");
+    let name = name.unwrap_or_else(|| {
+        display_users
+            .iter()
+            .map(|user| user.profile.nickname.as_str())
+            .collect::<Vec<&str>>()
+            .join(", ")
+    });
 
     Ok(ChannelListItem {
         channel_type,

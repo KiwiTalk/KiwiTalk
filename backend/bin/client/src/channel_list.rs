@@ -28,13 +28,26 @@ pub(super) async fn channel_list(
                     display_users: item
                         .display_users
                         .into_iter()
-                        .map(|user| DisplayProfile {
-                            id: user.id.to_string(),
-                            nickname: user.profile.nickname,
-                            profile_url: user.profile.image_url,
+                        .map(|user| {
+                            (
+                                user.id.to_string(),
+                                DisplayProfile {
+                                    nickname: user.profile.nickname,
+                                    profile_url: user.profile.image_url,
+                                },
+                            )
                         })
                         .collect::<ArrayVec<_, 4>>(),
-                    last_chat: None,
+                    last_chat: item.last_chat.map(|list_chat| PreviewChat {
+                        profile: list_chat.profile.map(|profile| DisplayProfile {
+                            nickname: profile.nickname,
+                            profile_url: profile.image_url,
+                        }),
+                        chat_type: list_chat.chatlog.chat.chat_type.0,
+                        content: list_chat.chatlog.chat.content.message,
+                        attachment: list_chat.chatlog.chat.content.attachment,
+                        timestamp: list_chat.chatlog.send_at as f64 * 1000.0,
+                    }),
                     name: item.name,
                     profile: item.profile_image,
                     user_count: item.active_user_count,
@@ -49,7 +62,6 @@ pub(super) async fn channel_list(
 #[serde(rename_all = "camelCase")]
 
 pub(super) struct DisplayProfile {
-    id: String,
     nickname: String,
     profile_url: Option<String>,
 }
@@ -59,7 +71,7 @@ pub(super) struct DisplayProfile {
 pub(super) struct ChannelListItem {
     channel_type: String,
 
-    display_users: ArrayVec<DisplayProfile, 4>,
+    display_users: ArrayVec<(String, DisplayProfile), 4>,
 
     last_chat: Option<PreviewChat>,
 
@@ -73,7 +85,7 @@ pub(super) struct ChannelListItem {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct PreviewChat {
-    pub profile: DisplayProfile,
+    pub profile: Option<DisplayProfile>,
 
     pub chat_type: i32,
     pub content: Option<String>,

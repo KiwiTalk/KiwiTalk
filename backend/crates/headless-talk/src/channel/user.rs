@@ -76,11 +76,3 @@ impl From<UserProfile> for DisplayUserProfile {
         }
     }
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct UserData<Info> {
-    pub id: i64,
-    pub user_type: i32,
-    pub profile: UserProfile,
-    pub info: Info,
-}

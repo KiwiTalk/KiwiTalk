@@ -1,17 +1,19 @@
+export type ListProfile = {
+  nickname: string;
+  profileUrl?: string;
+}
+
 export type ChannelListItem = {
   id: string;
   name: string;
 
-  displayUsers: { nickname: string; profileUrl?: string }[];
+  displayUsers: [string, ListProfile][];
 
   lastChat?: {
+    profile?: ListProfile,
     chatType: number;
-    nickname?: string;
-    content: {
-      message?: string;
-      attachment?: string;
-      supplement?: string;
-    };
+    content?: string;
+    attachment?: string;
     timestamp?: Date;
   };
 

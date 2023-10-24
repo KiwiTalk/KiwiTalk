@@ -15,15 +15,25 @@ use talk_loco_client::talk::{
     session::{channel::write, TalkSession},
 };
 
-use self::{normal::NormalChannel, open::OpenChannel, user::DisplayUser};
+use self::{
+    normal::NormalChannel,
+    open::OpenChannel,
+    user::{DisplayUser, DisplayUserProfile},
+};
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
+
+#[derive(Debug, Clone)]
+pub struct ListPreviewChat {
+    pub profile: Option<DisplayUserProfile>,
+    pub chatlog: Chatlog,
+}
 
 #[derive(Debug, Clone)]
 pub struct ChannelListItem {
     pub channel_type: ChannelType,
 
-    pub last_chat: Option<Chatlog>,
+    pub last_chat: Option<ListPreviewChat>,
 
     pub display_users: ArrayVec<DisplayUser, 4>,
 

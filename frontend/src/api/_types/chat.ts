@@ -41,7 +41,6 @@ export type FriendsUpdate = {
 };
 
 export type ListUserProfile = {
-  id: string;
   nickname: string;
   profileUrl?: string;
 }
@@ -50,7 +49,7 @@ export type ListUserProfile = {
 export type ChannelListItem = {
   channelType: string;
 
-  displayUsers: ListUserProfile[],
+  displayUsers: [string, ListUserProfile][],
 
   lastChat?: {
     profile: ListUserProfile,
