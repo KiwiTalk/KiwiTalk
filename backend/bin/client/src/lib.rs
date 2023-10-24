@@ -183,12 +183,12 @@ async fn create_client(
                 match res {
                     Ok(event) => {
                         if let Err(err) = handle_event(event, event_tx.clone()).await {
-                            event_tx.send(Err(err)).await;
+                            let _ = event_tx.send(Err(err)).await;
                         }
                     }
 
                     Err(err) => {
-                        event_tx.send(Err(err.into())).await;
+                        let _ = event_tx.send(Err(err.into())).await;
                     }
                 }
             }

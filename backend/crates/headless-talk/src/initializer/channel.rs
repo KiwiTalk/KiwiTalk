@@ -27,7 +27,7 @@ impl<'a> ChannelInitializer<'a> {
         Self { session, pool, id }
     }
 
-    pub async fn initialize(self) -> ClientResult<()> {
+    pub async fn initialize(self) -> ClientResult<Option<()>> {
         let res = TalkSession(self.session).channel(self.id).info().await?;
 
         let meta_rows = res
@@ -70,7 +70,6 @@ impl<'a> ChannelInitializer<'a> {
                             .iter()
                             .map(|user| NormalChannelUserRow {
                                 id: user.user_id,
-                                channel_id: self.id,
                                 country_iso: &user.country_iso,
                                 account_id: user.account_id,
                                 status_message: &user.status_message,
@@ -102,44 +101,13 @@ impl<'a> ChannelInitializer<'a> {
                         Ok(())
                     })
                     .await?;
+
+                return Ok(Some(()));
             }
 
-            ChannelInfoType::OpenMulti(open) | ChannelInfoType::OpenDirect(open) => {
-                let list = TalkSession(self.session)
-                    .open_channel(self.id, open.link_id)
-                    .list_users()
-                    .await?;
-
-                self.pool
-                    .spawn(move |conn| {
-                        let profiles = list
-                            .iter()
-                            .map(|user| UserProfileRow {
-                                id: user.user_id,
-                                channel_id: self.id,
-                                nickname: &user.nickname,
-                                profile_url: &user.profile_image_url,
-                                full_profile_url: &user.full_profile_image_url,
-                                original_profile_url: &user.original_profile_image_url,
-                            })
-                            .collect::<Vec<_>>();
-
-                        diesel::replace_into(channel_meta::table)
-                            .values(meta_rows)
-                            .execute(conn)?;
-
-                        diesel::replace_into(user_profile::table)
-                            .values(profiles)
-                            .execute(conn)?;
-
-                        Ok(())
-                    })
-                    .await?;
-            }
-
-            ChannelInfoType::Other => return Ok(()),
+            _ => {}
         }
 
-        Ok(())
+        Ok(Some(()))
     }
 }

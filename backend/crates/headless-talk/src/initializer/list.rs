@@ -5,7 +5,11 @@ use nohash_hasher::IntMap;
 use talk_loco_client::talk::session::load_channel_list::ChannelListData;
 
 use crate::{
-    database::{model::channel::ChannelListRow, schema::channel_list, DatabasePool},
+    database::{
+        model::{channel::ChannelListRow, chat::ChatRow},
+        schema::{channel_list, chat},
+        DatabasePool,
+    },
     ClientResult,
 };
 
@@ -36,6 +40,7 @@ impl<'a> ChannelListUpdater<'a> {
             .await?;
 
         let mut update_list = Vec::<ChannelListRow>::new();
+        let mut chat_list = Vec::<ChatRow>::new();
 
         for list_data in iter {
             if update_map
@@ -52,11 +57,15 @@ impl<'a> ChannelListUpdater<'a> {
                 continue;
             };
 
-            ChannelInitializer::new(self.session, self.pool, list_data.id)
+            if ChannelInitializer::new(self.session, self.pool, list_data.id)
                 .initialize()
-                .await?;
+                .await?
+                .is_none()
+            {
+                continue;
+            }
 
-            let row = ChannelListRow {
+            let list_row = ChannelListRow {
                 id: list_data.id,
                 channel_type: channel_type.as_str().to_string(),
 
@@ -70,17 +79,28 @@ impl<'a> ChannelListUpdater<'a> {
                     serde_json::to_string(&vec).unwrap()
                 },
 
+                unread_count: list_data.unread_count,
+                active_user_count: list_data.active_member_count,
+
                 last_seen_log_id: list_data.last_seen_log_id,
                 last_update: list_data.last_update,
             };
 
-            update_list.push(row);
+            if let Some(chatlog) = list_data.chatlog {
+                chat_list.push(ChatRow::from_chatlog(chatlog, None));
+            }
+
+            update_list.push(list_row);
         }
 
         self.pool
             .spawn(move |conn| {
                 diesel::replace_into(channel_list::table)
                     .values(update_list)
+                    .execute(conn)?;
+
+                diesel::insert_or_ignore_into(chat::table)
+                    .values(chat_list)
                     .execute(conn)?;
 
                 Ok(())

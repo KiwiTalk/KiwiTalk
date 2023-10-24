@@ -40,19 +40,22 @@ export type FriendsUpdate = {
   removedIds: string[];
 };
 
+export type ListUserProfile = {
+  id: string;
+  nickname: string;
+  profileUrl?: string;
+}
+
 /* channel / chat */
 export type ChannelListItem = {
   channelType: string;
 
-  displayUsers: {
-    nickname: string;
-    profileUrl?: string;
-  }[],
+  displayUsers: ListUserProfile[],
 
   lastChat?: {
+    profile: ListUserProfile,
     chatType: number;
     timestamp: number;
-    nickname?: string;
     content?: string;
     attachment?: string;
   },

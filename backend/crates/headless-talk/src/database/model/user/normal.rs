@@ -6,7 +6,6 @@ use crate::database::schema::normal_channel_user;
 #[diesel(table_name = normal_channel_user)]
 pub struct NormalChannelUserRow<'a> {
     pub id: i64,
-    pub channel_id: i64,
 
     pub country_iso: &'a str,
 

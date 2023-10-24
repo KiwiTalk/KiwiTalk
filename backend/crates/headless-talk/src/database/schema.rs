@@ -6,6 +6,8 @@ diesel::table! {
         #[sql_name = "type"]
         type_ -> Text,
         display_users -> Text,
+        active_user_count -> Integer,
+        unread_count -> Integer,
         last_seen_log_id -> Nullable<BigInt>,
         last_update -> BigInt,
     }
@@ -50,9 +52,8 @@ diesel::table! {
 }
 
 diesel::table! {
-    normal_channel_user (id, channel_id) {
+    normal_channel_user (id) {
         id -> BigInt,
-        channel_id -> BigInt,
         country_iso -> Text,
         account_id -> BigInt,
         status_message -> Text,

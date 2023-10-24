@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS channel_list (
     
     display_users VARCHAR(255) NOT NULL,
 
+    active_user_count INTEGER NOT NULL,
+    unread_count INTEGER NOT NULL,
+
     last_seen_log_id BIGINT,
     last_update BIGINT NOT NULL
 );
@@ -59,14 +62,11 @@ CREATE TABLE IF NOT EXISTS normal_channel (
 );
 
 CREATE TABLE IF NOT EXISTS normal_channel_user (
-    id BIGINT NOT NULL,
-    channel_id BIGINT NOT NULL,
+    id BIGINT PRIMARY KEY NOT NULL,
 
     country_iso VARCHAR(4) NOT NULL,
     account_id BIGINT NOT NULL,
     status_message TEXT NOT NULL,
     linked_services TEXT NOT NULL,
-    suspended BOOLEAN NOT NULL,
-
-    PRIMARY KEY(id, channel_id)
+    suspended BOOLEAN NOT NULL
 );

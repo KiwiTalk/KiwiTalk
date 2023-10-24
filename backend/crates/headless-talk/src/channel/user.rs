@@ -14,7 +14,6 @@ impl From<open::user::DisplayUser> for DisplayUser {
             profile: DisplayUserProfile {
                 nickname: info.nickname,
                 image_url: info.profile_image_url,
-                country_iso: None,
             },
         }
     }
@@ -27,7 +26,6 @@ impl From<normal::user::DisplayUser> for DisplayUser {
             profile: DisplayUserProfile {
                 nickname: info.nickname,
                 image_url: info.profile_image_url,
-                country_iso: Some(info.country_iso),
             },
         }
     }
@@ -68,7 +66,6 @@ impl From<open::user::User> for UserProfile {
 pub struct DisplayUserProfile {
     pub nickname: String,
     pub image_url: Option<String>,
-    pub country_iso: Option<String>,
 }
 
 impl From<UserProfile> for DisplayUserProfile {
@@ -76,7 +73,6 @@ impl From<UserProfile> for DisplayUserProfile {
         Self {
             nickname: profile.nickname,
             image_url: Some(profile.image_url),
-            country_iso: None,
         }
     }
 }

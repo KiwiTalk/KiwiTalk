@@ -52,7 +52,7 @@ impl SessionHandler {
 
                 move |conn| {
                     diesel::replace_into(schema::chat::table)
-                        .values(ChatRow::from_chatlog(&chatlog, None))
+                        .values(ChatRow::from_chatlog(chatlog, None))
                         .execute(conn)?;
 
                     Ok(())

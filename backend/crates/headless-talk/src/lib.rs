@@ -6,19 +6,26 @@ pub mod event;
 pub mod handler;
 pub mod initializer;
 
+use channel::{
+    normal::{self, NormalChannel},
+    ChannelListItem, ClientChannel,
+};
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{model::channel::ChannelListRow, schema::channel_list, DatabasePool, PoolTaskError};
 use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::{
-    talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
+    talk::{
+        channel::ChannelType,
+        session::{channel::chat_on::ChatOnChannelType, TalkSession},
+    },
     RequestError,
 };
 use thiserror::Error;
 use tokio::task::JoinHandle;
 
-use crate::database::schema::{chat};
+use crate::database::schema::chat;
 
 #[derive(Debug)]
 pub struct HeadlessTalk {
@@ -35,20 +42,36 @@ impl HeadlessTalk {
         self.user_id
     }
 
-    pub async fn channel_list(&self) -> Result<Vec<ChannelListRow>, PoolTaskError> {
-        self
+    pub async fn channel_list(&self) -> Result<Vec<(i64, ChannelListItem)>, PoolTaskError> {
+        let rows = self
             .pool
             .spawn(|conn| {
-                let list = channel_list::table
+                let rows = channel_list::table
                     .select(channel_list::all_columns)
                     .load::<ChannelListRow>(conn)?;
 
-                Ok(list)
+                Ok(rows)
             })
-            .await
+            .await?;
+
+        let mut list = Vec::with_capacity(rows.capacity());
+
+        for row in rows {
+            let ty = ChannelType::from(row.channel_type.as_str());
+
+            match ty {
+                ChannelType::DirectChat | ChannelType::MultiChat | ChannelType::MemoChat => {
+                    list.push((row.id, normal::load_list_item(&self.pool, ty, row).await?));
+                }
+
+                _ => {}
+            }
+        }
+
+        Ok(list)
     }
 
-    pub async fn open_channel(&self, id: i64) -> ClientResult<()> {
+    pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
         let last_log_id = self
             .pool
             .spawn(move |conn| {
@@ -66,17 +89,15 @@ impl HeadlessTalk {
             .chat_on(last_log_id)
             .await?;
 
-        match res.channel_type {
+        Ok(match res.channel_type {
             ChatOnChannelType::DirectChat(_normal)
             | ChatOnChannelType::MultiChat(_normal)
-            | ChatOnChannelType::MemoChat(_normal) => {}
+            | ChatOnChannelType::MemoChat(_normal) => {
+                Some(ClientChannel::Normal(NormalChannel::new(id, self)))
+            }
 
-            ChatOnChannelType::OpenDirect(_open) | ChatOnChannelType::OpenMulti(_open) => {}
-
-            _ => {}
-        }
-
-        todo!()
+            _ => None,
+        })
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
