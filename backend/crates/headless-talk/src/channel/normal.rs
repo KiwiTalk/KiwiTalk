@@ -26,15 +26,6 @@ impl<'a> NormalChannel<'a> {
     pub const fn client(&self) -> &'_ HeadlessTalk {
         self.client
     }
-
-    pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
-        TalkSession(&self.client.session)
-            .normal_channel(self.id)
-            .noti_read(watermark)
-            .await?;
-
-        Ok(())
-    }
 }
 
 pub(super) async fn load_list_profile(

@@ -5,7 +5,7 @@ pub mod user;
 use crate::{
     database::{
         model::{channel::ChannelListRow, chat::ChatRow},
-        schema::{self, chat, user_profile},
+        schema::{self, channel_list, chat, user_profile},
         DatabasePool, PoolTaskError,
     },
     ClientResult, HeadlessTalk,
@@ -125,10 +125,40 @@ impl ClientChannel<'_> {
     }
 
     pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
-        match self {
-            ClientChannel::Normal(normal) => normal.read_chat(watermark).await?,
-            ClientChannel::Open(open) => open.read_chat(watermark).await?,
-        }
+        let (id, pool) = match self {
+            ClientChannel::Normal(normal) => {
+                let id = normal.id();
+                let client = normal.client();
+
+                TalkSession(&client.session)
+                    .normal_channel(id)
+                    .noti_read(watermark)
+                    .await?;
+
+                (id, &client.pool)
+            }
+            ClientChannel::Open(open) => {
+                let id = open.id();
+                let client = open.client();
+
+                TalkSession(&client.session)
+                    .open_channel(open.id(), open.link_id())
+                    .noti_read(watermark)
+                    .await?;
+
+                (id, &client.pool)
+            }
+        };
+
+        pool.spawn(move |conn| {
+            diesel::update(channel_list::table)
+                .filter(channel_list::id.eq(id))
+                .set(channel_list::last_seen_log_id.eq(watermark))
+                .execute(conn)?;
+
+            Ok(())
+        })
+        .await?;
 
         Ok(())
     }

@@ -14,16 +14,11 @@ impl OpenChannel<'_> {
         self.id
     }
 
-    pub const fn client(&self) -> &'_ HeadlessTalk {
-        self.client
+    pub const fn link_id(&self) -> i64 {
+        self.link_id
     }
 
-    pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
-        TalkSession(&self.client.session)
-            .open_channel(self.id, self.link_id)
-            .noti_read(watermark)
-            .await?;
-
-        Ok(())
+    pub const fn client(&self) -> &'_ HeadlessTalk {
+        self.client
     }
 }
