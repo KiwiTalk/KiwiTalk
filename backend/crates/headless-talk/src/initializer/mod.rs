@@ -22,7 +22,7 @@ use tokio::time;
 use crate::{
     config::ClientEnv,
     constants::PING_INTERVAL,
-    database::{DatabasePool, MigrationError},
+    database::{DatabasePool, MigrationError, PoolTaskError},
     event::ClientEvent,
     handler::{error::HandlerError, SessionHandler},
     ClientError, ClientStatus, HeadlessTalk,
@@ -131,7 +131,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
         F: Fn(Result<ClientEvent, HandlerError>) -> Fut + Send + Sync + 'static,
         Fut: Future + Send + Sync + 'static,
     {
-        let pool = DatabasePool::new(database_url)?;
+        let pool = DatabasePool::initialize(database_url).await?;
         pool.migrate_to_latest().await?;
 
         let stream_task = tokio::spawn({
@@ -227,7 +227,7 @@ pub enum LoginError {
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum InitializeError {
-    DatabaseInit(#[from] r2d2::Error),
+    DatabaseInit(#[from] PoolTaskError),
     Migration(#[from] MigrationError),
     Client(#[from] ClientError),
 }

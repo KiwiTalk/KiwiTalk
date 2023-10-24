@@ -1,11 +1,14 @@
 pub mod model;
 pub mod schema;
+mod constants;
 
-use diesel::SqliteConnection;
+use diesel::{SqliteConnection, connection::SimpleConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use futures::{Future, FutureExt};
 use r2d2::Pool;
 use thiserror::Error;
+
+use self::constants::INIT_SQL;
 
 type ConnectionManager = diesel::r2d2::ConnectionManager<SqliteConnection>;
 
@@ -13,8 +16,15 @@ type ConnectionManager = diesel::r2d2::ConnectionManager<SqliteConnection>;
 pub struct DatabasePool(Pool<ConnectionManager>);
 
 impl DatabasePool {
-    pub fn new(url: impl Into<String>) -> Result<Self, r2d2::Error> {
-        Ok(Self(Pool::new(ConnectionManager::new(url))?))
+    pub async fn initialize(url: impl Into<String>) -> PoolTaskResult<Self> {
+        let this = Self(Pool::new(ConnectionManager::new(url))?);
+        this.spawn(|conn| {
+            conn.batch_execute(INIT_SQL)?;
+
+            Ok(())
+        }).await?;
+
+        Ok(this)
     }
 
     pub fn get(&self) -> Result<PooledConnection, r2d2::Error> {
