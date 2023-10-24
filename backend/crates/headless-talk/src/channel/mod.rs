@@ -60,22 +60,22 @@ pub enum ClientChannel<'a> {
     Open(OpenChannel<'a>),
 }
 
-impl ClientChannel<'_> {
-    pub const fn id(&self) -> i64 {
+impl<'a> ClientChannel<'a> {
+    pub const fn id(self) -> i64 {
         match self {
             ClientChannel::Normal(normal) => normal.id(),
             ClientChannel::Open(open) => open.id(),
         }
     }
 
-    pub const fn client(&self) -> &'_ HeadlessTalk {
+    pub const fn client(self) -> &'a HeadlessTalk {
         match self {
             ClientChannel::Normal(normal) => normal.client(),
             ClientChannel::Open(open) => open.client(),
         }
     }
 
-    pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
+    pub async fn send_chat(self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
         let client = self.client();
         let id = self.id();
 
@@ -124,7 +124,7 @@ impl ClientChannel<'_> {
         Ok(logged)
     }
 
-    pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
+    pub async fn read_chat(self, watermark: i64) -> ClientResult<()> {
         let (id, pool) = match self {
             ClientChannel::Normal(normal) => {
                 let id = normal.id();
@@ -161,6 +161,32 @@ impl ClientChannel<'_> {
         .await?;
 
         Ok(())
+    }
+
+    pub async fn load_chat_from(
+        self,
+        log_id: i64,
+        count: i64,
+    ) -> Result<Vec<Chatlog>, PoolTaskError> {
+        let id = self.id();
+
+        Ok(self
+            .client()
+            .pool
+            .spawn(move |conn| {
+                let rows: Vec<ChatRow> = chat::table
+                    .filter(
+                        chat::channel_id
+                            .eq(id)
+                            .and(chat::deleted_time.is_null())
+                            .and(chat::log_id.le(log_id)),
+                    )
+                    .limit(count)
+                    .load::<ChatRow>(conn)?;
+
+                Ok(rows.into_iter().map(|row| row.into()).collect())
+            })
+            .await?)
     }
 }
 

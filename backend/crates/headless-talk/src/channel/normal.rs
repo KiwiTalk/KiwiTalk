@@ -1,9 +1,9 @@
 use diesel::{BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
-use talk_loco_client::talk::{channel::ChannelMetaType, session::TalkSession};
+use talk_loco_client::talk::channel::ChannelMetaType;
 
 use crate::{
     database::{model::channel::ChannelListRow, schema::channel_meta, DatabasePool, PoolTaskError},
-    ClientResult, HeadlessTalk,
+    HeadlessTalk,
 };
 
 use super::{user::DisplayUser, ListChannelProfile};
@@ -19,11 +19,11 @@ impl<'a> NormalChannel<'a> {
         Self { id, client }
     }
 
-    pub const fn id(&self) -> i64 {
+    pub const fn id(self) -> i64 {
         self.id
     }
 
-    pub const fn client(&self) -> &'_ HeadlessTalk {
+    pub const fn client(self) -> &'a HeadlessTalk {
         self.client
     }
 }

@@ -7,10 +7,16 @@ pub mod handler;
 pub mod updater;
 
 use channel::{load_list_item, normal::NormalChannel, ChannelListItem, ClientChannel};
-use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use diesel::{
+    BoolExpressionMethods, Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl,
+};
 pub use talk_loco_client;
 
-use database::{model::channel::ChannelListRow, schema::channel_list, DatabasePool, PoolTaskError};
+use database::{
+    model::channel::ChannelListRow,
+    schema::{channel_list, user_profile},
+    DatabasePool, PoolTaskError,
+};
 use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::{
     talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
@@ -77,6 +83,32 @@ impl HeadlessTalk {
         let res = TalkSession(&self.session)
             .channel(id)
             .chat_on(last_log_id)
+            .await?;
+
+        let watermark_iter = res
+            .watermark_user_ids
+            .into_iter()
+            .zip(res.watermarks.into_iter());
+
+        self.pool
+            .spawn(move |conn| {
+                conn.transaction(|conn| {
+                    for (user_id, watermark) in watermark_iter {
+                        diesel::update(user_profile::table)
+                            .filter(
+                                user_profile::channel_id
+                                    .eq(id)
+                                    .and(user_profile::id.eq(user_id)),
+                            )
+                            .set(user_profile::watermark.eq(watermark))
+                            .execute(conn)?;
+                    }
+
+                    Ok::<_, PoolTaskError>(())
+                })?;
+
+                Ok(())
+            })
             .await?;
 
         let channel = match res.channel_type {
