@@ -15,19 +15,19 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct ChannelInitializer<'a> {
+pub struct ChannelUpdater<'a> {
     session: &'a LocoSession,
     pool: &'a DatabasePool,
 
     id: i64,
 }
 
-impl<'a> ChannelInitializer<'a> {
+impl<'a> ChannelUpdater<'a> {
     pub fn new(session: &'a LocoSession, pool: &'a DatabasePool, id: i64) -> Self {
         Self { session, pool, id }
     }
 
-    pub async fn initialize(self) -> ClientResult<Option<()>> {
+    pub async fn update(self) -> ClientResult<Option<()>> {
         let res = TalkSession(self.session).channel(self.id).info().await?;
 
         let meta_rows = res

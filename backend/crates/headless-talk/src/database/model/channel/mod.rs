@@ -18,7 +18,6 @@ pub struct ChannelListRow {
     pub unread_count: i32,
     pub active_user_count: i32,
 
-    pub last_log_id: i64,
     pub last_seen_log_id: Option<i64>,
 
     pub last_update: i64,

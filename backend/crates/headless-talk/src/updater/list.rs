@@ -1,5 +1,5 @@
 use arrayvec::ArrayVec;
-use diesel::{QueryDsl, RunQueryDsl};
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use futures_loco_protocol::session::LocoSession;
 use nohash_hasher::IntMap;
 use talk_loco_client::talk::session::load_channel_list::ChannelListData;
@@ -13,7 +13,7 @@ use crate::{
     ClientResult,
 };
 
-use super::channel::ChannelInitializer;
+use super::{channel::ChannelUpdater, chat::ChatUpdater};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ChannelListUpdater<'a> {
@@ -43,6 +43,27 @@ impl<'a> ChannelListUpdater<'a> {
         let mut chat_list = Vec::<ChatRow>::new();
 
         for list_data in iter {
+            let last_log_id = self
+                .pool
+                .spawn(move |conn| {
+                    let last_log_id: Option<i64> = chat::table
+                        .filter(chat::channel_id.eq(list_data.id))
+                        .select(chat::log_id)
+                        .order_by(chat::log_id.desc())
+                        .first::<i64>(conn)
+                        .optional()?;
+
+                    Ok(last_log_id)
+                })
+                .await?
+                .unwrap_or(0);
+
+            if last_log_id < list_data.last_log_id {
+                ChatUpdater::new(&self.session, &self.pool, list_data.id)
+                    .update(last_log_id, list_data.last_log_id)
+                    .await?;
+            }
+
             if update_map
                 .get(&list_data.id)
                 .map(|&last_update| last_update >= list_data.last_update)
@@ -57,8 +78,8 @@ impl<'a> ChannelListUpdater<'a> {
                 continue;
             };
 
-            if ChannelInitializer::new(self.session, self.pool, list_data.id)
-                .initialize()
+            if ChannelUpdater::new(self.session, self.pool, list_data.id)
+                .update()
                 .await?
                 .is_none()
             {
@@ -82,7 +103,6 @@ impl<'a> ChannelListUpdater<'a> {
                 unread_count: list_data.unread_count,
                 active_user_count: list_data.active_member_count,
 
-                last_log_id: list_data.last_log_id,
                 last_seen_log_id: list_data.last_seen_log_id,
                 last_update: list_data.last_update,
             };

@@ -1,5 +1,6 @@
 pub(crate) mod channel;
 pub(crate) mod list;
+pub(crate) mod chat;
 
 use std::{io, pin::pin, sync::Arc};
 

@@ -20,7 +20,7 @@ use anyhow::{anyhow, Context};
 use futures::{future::poll_fn, ready};
 use headless_talk::{
     config::ClientEnv,
-    initializer::{Credential, TalkInitializer},
+    updater::{Credential, TalkInitializer},
     ClientStatus, HeadlessTalk,
 };
 use talk_loco_client::futures_loco_protocol::LocoClient;

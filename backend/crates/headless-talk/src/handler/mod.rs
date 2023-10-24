@@ -9,7 +9,8 @@ use talk_loco_client::talk::stream::{
 
 use crate::{
     database::{
-        schema::{self, channel_list},
+        model::chat::ChatRow,
+        schema::{self, chat},
         DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
@@ -51,13 +52,11 @@ impl SessionHandler {
     async fn on_chat(&self, msg: Msg) -> HandlerResult {
         self.pool
             .spawn({
-                let log_id = msg.chatlog.log_id;
-                let channel_id = msg.chat_id;
+                let row = ChatRow::from_chatlog(msg.chatlog.clone(), None);
 
                 move |conn| {
-                    diesel::update(channel_list::table)
-                        .filter(channel_list::id.eq(channel_id))
-                        .set(channel_list::last_log_id.eq(log_id))
+                    diesel::replace_into(chat::table)
+                        .values(row)
                         .execute(conn)?;
 
                     Ok(())
