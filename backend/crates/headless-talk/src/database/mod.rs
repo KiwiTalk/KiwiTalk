@@ -1,8 +1,8 @@
+mod constants;
 pub mod model;
 pub mod schema;
-mod constants;
 
-use diesel::{SqliteConnection, connection::SimpleConnection};
+use diesel::{connection::SimpleConnection, SqliteConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use futures::{Future, FutureExt};
 use r2d2::Pool;
@@ -22,7 +22,8 @@ impl DatabasePool {
             conn.batch_execute(INIT_SQL)?;
 
             Ok(())
-        }).await?;
+        })
+        .await?;
 
         Ok(this)
     }

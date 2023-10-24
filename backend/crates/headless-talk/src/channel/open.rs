@@ -1,6 +1,6 @@
 use talk_loco_client::talk::session::TalkSession;
 
-use crate::{HeadlessTalk, ClientResult};
+use crate::{ClientResult, HeadlessTalk};
 
 #[derive(Debug, Clone, Copy)]
 pub struct OpenChannel<'a> {
