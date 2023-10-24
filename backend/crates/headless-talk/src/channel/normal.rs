@@ -1,6 +1,5 @@
 use arrayvec::ArrayVec;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
-use itertools::Itertools;
 use talk_loco_client::talk::{channel::ChannelType, chat::Chatlog, session::TalkSession};
 
 use crate::{
@@ -89,7 +88,8 @@ pub(crate) async fn load_list_item(
 
     let name = display_users
         .iter()
-        .map(|user| &user.profile.nickname)
+        .map(|user| user.profile.nickname.as_str())
+        .collect::<Vec<&str>>()
         .join(", ");
 
     Ok(ChannelListItem {
