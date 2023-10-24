@@ -9,6 +9,8 @@ import {
   createSignal,
   createEffect,
   on,
+  Show,
+  createMemo,
 } from 'solid-js';
 
 import { Dynamic, DynamicProps } from 'solid-js/web';
@@ -69,6 +71,10 @@ export const ScrollArea = <
 
   const scrollWidth = () => rect().scrollWidth - rect().clientWidth;
   const scrollHeight = () => rect().scrollHeight - rect().clientHeight;
+  const isScroll = createMemo(on(rect, (rect) => (
+    rect.scrollWidth > rect.clientWidth ||
+    rect.scrollHeight > rect.clientHeight
+  )));
 
   /* lifecycle */
   const handleScroll = () => {
@@ -114,21 +120,23 @@ export const ScrollArea = <
       }), fallbackStyle())}
     >
       {local.children}
-      <ScrollThumb
-        parent={container()}
-        position={scrollPosition()}
-        direction={direction()}
-        edgeSize={local.edgeSize}
-        onScroll={(offset) => {
-          let top: number | undefined;
-          let left: number | undefined;
+      <Show when={isScroll()}>
+        <ScrollThumb
+          parent={container()}
+          position={scrollPosition()}
+          direction={direction()}
+          edgeSize={local.edgeSize}
+          onScroll={(offset) => {
+            let top: number | undefined;
+            let left: number | undefined;
 
-          if (direction() === 'vertical') top = offset * scrollHeight();
-          if (direction() === 'horizontal') left = offset * scrollWidth();
+            if (direction() === 'vertical') top = offset * scrollHeight();
+            if (direction() === 'horizontal') left = offset * scrollWidth();
 
-          container()?.scrollTo({ top, left });
-        }}
-      />
+            container()?.scrollTo({ top, left });
+          }}
+        />
+      </Show>
     </Dynamic>
   );
 };

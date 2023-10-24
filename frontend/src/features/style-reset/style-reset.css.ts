@@ -6,6 +6,8 @@ globalStyle('html, body, #root', {
 
   padding: 0,
   margin: 0,
+
+  overflow: 'hidden',
 });
 
 globalStyle(`*:where(:not(canvas, iframe, img, svg, svg *, symbol *, video))`, {
