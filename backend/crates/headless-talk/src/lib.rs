@@ -6,14 +6,21 @@ pub mod event;
 pub mod handler;
 pub mod initializer;
 
+use std::pin::pin;
+
 use channel::{
     normal::{self, NormalChannel},
     ChannelListItem, ClientChannel,
 };
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use futures::TryStreamExt;
 pub use talk_loco_client;
 
-use database::{model::channel::ChannelListRow, schema::channel_list, DatabasePool, PoolTaskError};
+use database::{
+    model::{channel::ChannelListRow, chat::ChatRow},
+    schema::channel_list,
+    DatabasePool, PoolTaskError,
+};
 use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::{
     talk::{
@@ -72,15 +79,23 @@ impl HeadlessTalk {
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
-        let last_log_id = self
+        let (last_log_id, actual_last_log_id) = self
             .pool
             .spawn(move |conn| {
-                Ok(chat::table
+                let last_log_id = chat::table
                     .filter(chat::channel_id.eq(id))
                     .select(chat::log_id)
                     .order_by(chat::log_id.desc())
                     .first::<i64>(conn)
-                    .optional()?)
+                    .optional()?;
+
+                let actual_last_log_id = channel_list::table
+                    .filter(channel_list::id.eq(id))
+                    .select(channel_list::last_log_id)
+                    .first::<i64>(conn)
+                    .optional()?;
+
+                Ok((last_log_id, actual_last_log_id))
             })
             .await?;
 
@@ -89,15 +104,40 @@ impl HeadlessTalk {
             .chat_on(last_log_id)
             .await?;
 
-        Ok(match res.channel_type {
+        let channel = match res.channel_type {
             ChatOnChannelType::DirectChat(_normal)
             | ChatOnChannelType::MultiChat(_normal)
             | ChatOnChannelType::MemoChat(_normal) => {
-                Some(ClientChannel::Normal(NormalChannel::new(id, self)))
+                ClientChannel::Normal(NormalChannel::new(id, self))
             }
 
-            _ => None,
-        })
+            _ => return Ok(None),
+        };
+
+        let mut stream = pin!(TalkSession(&self.session).channel(id).sync_chat_stream(
+            last_log_id.unwrap_or(0),
+            actual_last_log_id.unwrap_or(0),
+            0,
+        ));
+
+        let mut chat_row_list = Vec::new();
+        while let Some(logs) = stream.try_next().await? {
+            for log in logs {
+                chat_row_list.push(ChatRow::from_chatlog(log, None));
+            }
+        }
+
+        self.pool
+            .spawn(move |conn| {
+                diesel::insert_into(chat::table)
+                    .values(chat_row_list)
+                    .execute(conn)?;
+
+                Ok(())
+            })
+            .await?;
+
+        Ok(Some(channel))
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
