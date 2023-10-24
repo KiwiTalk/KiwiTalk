@@ -1,11 +1,16 @@
 import { classes, vars } from '@/features/theme';
-import { style, styleVariants } from '@vanilla-extract/css';
+import { createVar, style, styleVariants } from '@vanilla-extract/css';
 
+export const size = createVar();
 export const profileContainer = style({
+  vars: {
+    size: '48px',
+  },
+
   position: 'relative',
 
-  width: '48px',
-  height: '48px',
+  width: size,
+  height: size,
 
   background: vars.color.secondary.background,
   borderRadius: vars.radius.full,
