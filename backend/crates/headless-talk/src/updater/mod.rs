@@ -96,45 +96,46 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
 
         let mut stream_buffer = Vec::new();
 
-        let user_id = run_session(&mut self.stream, &mut stream_buffer, async {
-            let (res, stream) = TalkSession(&self.session)
-                .login(login::Request {
-                    os: self.env.os,
-                    net_type: self.env.net_type as _,
-                    app_version: self.env.app_version,
-                    mccmnc: self.env.mccmnc,
-                    protocol_version: "1.0",
-                    device_uuid: credential.device_uuid,
-                    oauth_token: credential.access_token,
-                    language: self.env.language,
-                    device_type: Some(2),
-                    pc_status: Some(status as _),
-                    revision: None,
-                    rp: [0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
-                    chat_list: load_channel_list::Request {
-                        chat_ids: &chat_ids,
-                        max_ids: &max_ids,
-                        last_token_id: 0,
-                        last_chat_id: None,
-                    },
-                    last_block_token: 0,
-                    background: None,
-                })
-                .await?;
+        let (user_id, deleted_channels) =
+            run_session(&mut self.stream, &mut stream_buffer, async {
+                let (res, stream) = TalkSession(&self.session)
+                    .login(login::Request {
+                        os: self.env.os,
+                        net_type: self.env.net_type as _,
+                        app_version: self.env.app_version,
+                        mccmnc: self.env.mccmnc,
+                        protocol_version: "1.0",
+                        device_uuid: credential.device_uuid,
+                        oauth_token: credential.access_token,
+                        language: self.env.language,
+                        device_type: Some(2),
+                        pc_status: Some(status as _),
+                        revision: None,
+                        rp: [0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
+                        chat_list: load_channel_list::Request {
+                            chat_ids: &chat_ids,
+                            max_ids: &max_ids,
+                            last_token_id: 0,
+                            last_chat_id: None,
+                        },
+                        last_block_token: 0,
+                        background: None,
+                    })
+                    .await?;
 
-            channel_list.push(res.chat_list.chat_datas);
+                channel_list.push(res.chat_list.chat_datas);
 
-            if let Some(stream) = stream {
-                let mut stream = pin!(stream);
+                if let Some(stream) = stream {
+                    let mut stream = pin!(stream);
 
-                while let Some(res) = stream.try_next().await? {
-                    channel_list.push(res.chat_datas);
+                    while let Some(res) = stream.try_next().await? {
+                        channel_list.push(res.chat_datas);
+                    }
                 }
-            }
 
-            Ok::<_, ClientError>(res.user_id)
-        })
-        .await??;
+                Ok::<_, ClientError>((res.user_id, res.chat_list.deleted_chat_ids))
+            })
+            .await??;
 
         let stream_task = tokio::spawn({
             let command_handler = Arc::new(command_handler);
@@ -206,7 +207,7 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
         });
 
         ChannelListUpdater::new(&self.session, &self.pool)
-            .update(channel_list.into_iter().flatten())
+            .update(channel_list.into_iter().flatten(), deleted_channels)
             .await?;
 
         Ok(HeadlessTalk {

@@ -26,7 +26,11 @@ impl<'a> ChannelListUpdater<'a> {
         Self { session, pool }
     }
 
-    pub async fn update(self, iter: impl IntoIterator<Item = ChannelListData>) -> ClientResult<()> {
+    pub async fn update(
+        self,
+        iter: impl IntoIterator<Item = ChannelListData>,
+        deleted_ids: impl IntoIterator<Item = i64>,
+    ) -> ClientResult<()> {
         let update_map = self
             .pool
             .spawn(|conn| {
