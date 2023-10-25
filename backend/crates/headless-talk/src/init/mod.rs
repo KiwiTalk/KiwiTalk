@@ -1,3 +1,5 @@
+pub mod config;
+
 use std::{io, pin::pin, sync::Arc};
 
 use diesel::{QueryDsl, RunQueryDsl};
@@ -15,7 +17,6 @@ use thiserror::Error;
 use tokio::time;
 
 use crate::{
-    config::ClientEnv,
     conn::Conn,
     constants::PING_INTERVAL,
     database::{schema::channel_list, DatabasePool, MigrationError, PoolTaskError},
@@ -24,6 +25,8 @@ use crate::{
     updater::list::ChannelListUpdater,
     ClientError, ClientStatus, HeadlessTalk,
 };
+
+use self::config::ClientEnv;
 
 pub struct TalkInitializer<'a, S> {
     session: LocoSession,

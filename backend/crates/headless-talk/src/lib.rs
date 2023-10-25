@@ -1,5 +1,4 @@
 pub mod channel;
-pub mod config;
 mod conn;
 mod constants;
 mod database;
@@ -7,7 +6,7 @@ pub mod event;
 pub mod handler;
 mod updater;
 pub mod user;
-pub mod initializer;
+pub mod init;
 
 use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
 use conn::Conn;
