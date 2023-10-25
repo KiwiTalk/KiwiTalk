@@ -50,10 +50,6 @@ impl<'a> TalkChannel<'a> {
         .await
     }
 
-    pub async fn chat_off(self) -> RequestResult<()> {
-        request!(self.session, "CHATOFF", bson {}).await
-    }
-
     pub async fn write_chat(self, req: &write::Request<'_>) -> RequestResult<write::Response> {
         #[derive(Serialize)]
         struct Request<'a> {

@@ -1,18 +1,18 @@
 pub mod channel;
 pub mod config;
+mod conn;
 mod constants;
 mod database;
 pub mod event;
 pub mod handler;
-mod conn;
 pub mod updater;
 pub mod user;
 
 use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
+use conn::Conn;
 use diesel::{
     BoolExpressionMethods, Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl,
 };
-use conn::Conn;
 pub use talk_loco_client;
 
 use database::{
@@ -87,32 +87,33 @@ impl HeadlessTalk {
             .chat_on(last_log_id)
             .await?;
 
-        let watermark_iter = res
-            .watermark_user_ids
-            .into_iter()
-            .zip(res.watermarks.into_iter());
+        if let (Some(watermark_user_ids), Some(watermarks)) =
+            (res.watermark_user_ids, res.watermarks)
+        {
+            let watermark_iter = watermark_user_ids.into_iter().zip(watermarks.into_iter());
 
-        self.conn
-            .pool
-            .spawn(move |conn| {
-                conn.transaction(|conn| {
-                    for (user_id, watermark) in watermark_iter {
-                        diesel::update(user_profile::table)
-                            .filter(
-                                user_profile::channel_id
-                                    .eq(id)
-                                    .and(user_profile::id.eq(user_id)),
-                            )
-                            .set(user_profile::watermark.eq(watermark))
-                            .execute(conn)?;
-                    }
+            self.conn
+                .pool
+                .spawn(move |conn| {
+                    conn.transaction(|conn| {
+                        for (user_id, watermark) in watermark_iter {
+                            diesel::update(user_profile::table)
+                                .filter(
+                                    user_profile::channel_id
+                                        .eq(id)
+                                        .and(user_profile::id.eq(user_id)),
+                                )
+                                .set(user_profile::watermark.eq(watermark))
+                                .execute(conn)?;
+                        }
 
-                    Ok::<_, PoolTaskError>(())
-                })?;
+                        Ok::<_, PoolTaskError>(())
+                    })?;
 
-                Ok(())
-            })
-            .await?;
+                    Ok(())
+                })
+                .await?;
+        }
 
         let channel = match res.channel_type {
             ChatOnChannelType::DirectChat(normal)

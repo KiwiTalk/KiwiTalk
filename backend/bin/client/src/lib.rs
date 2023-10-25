@@ -1,9 +1,11 @@
+mod channel;
 mod channel_list;
 mod conn;
 mod constants;
 mod event;
 mod handler;
 
+use channel::ChannelMap;
 use handler::handle_event;
 use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
@@ -38,6 +40,7 @@ pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<Tauri
     Ok(Builder::new(name)
         .setup(move |handle| {
             handle.manage::<RwLock<Option<Client>>>(RwLock::new(None));
+            handle.manage(ChannelMap::new());
 
             Ok(())
         })
@@ -47,6 +50,11 @@ pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<Tauri
             destroy,
             next_main_event,
             channel_list::channel_list,
+            channel::open_channel,
+            channel::channel_send_text,
+            channel::channel_read_chat,
+            channel::close_channel,
+            channel::channel_load_chat,
         ])
         .build())
 }

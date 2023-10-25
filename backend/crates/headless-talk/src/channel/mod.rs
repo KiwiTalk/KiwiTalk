@@ -213,7 +213,7 @@ impl ClientChannel {
     }
 
     pub async fn load_chat_from(
-        self,
+        &self,
         log_id: Bound<i64>,
         count: i64,
     ) -> Result<Vec<Chatlog>, PoolTaskError> {
@@ -225,14 +225,17 @@ impl ClientChannel {
                 let iter = match log_id {
                     Bound::Included(log_id) => chat::table
                         .filter(chat::channel_id.eq(id).and(chat::log_id.le(log_id)))
+                        .order_by(chat::log_id.desc())
                         .limit(count)
                         .load_iter::<ChatRow, _>(conn),
                     Bound::Excluded(log_id) => chat::table
                         .filter(chat::channel_id.eq(id).and(chat::log_id.lt(log_id)))
+                        .order_by(chat::log_id.desc())
                         .limit(count)
                         .load_iter::<ChatRow, _>(conn),
                     Bound::Unbounded => chat::table
                         .filter(chat::channel_id.eq(id))
+                        .order_by(chat::log_id.desc())
                         .limit(count)
                         .load_iter::<ChatRow, _>(conn),
                 }?;
@@ -242,15 +245,6 @@ impl ClientChannel {
                     .collect::<Result<_, _>>()?)
             })
             .await
-    }
-
-    pub async fn close(self) -> ClientResult<()> {
-        TalkSession(&self.conn().session)
-            .channel(self.id())
-            .chat_off()
-            .await?;
-
-        Ok(())
     }
 }
 
