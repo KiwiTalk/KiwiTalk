@@ -26,7 +26,7 @@ export const Message = (props: MessageProps) => {
         <Profile src={merged.profile} size={'48px'} />
       </Show>
       <div class={styles.contentContainer}>
-        <Show when={merged.sender}>
+        <Show when={!merged.isMine && merged.sender}>
           <span class={styles.sender[variant()]}>{merged.sender}</span>
         </Show>
         <Show when={merged.isBubble} fallback={merged.children}>

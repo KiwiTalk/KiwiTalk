@@ -14,7 +14,14 @@ export const container = style({
   alignItems: 'flex-end',
   gap: '8px',
 
-  padding: '32px',
+  padding: '24px 32px',
+
+  background: `linear-gradient(
+    0deg,
+    ${vars.color.neutral.darkAlpha500} 0%,
+    ${vars.color.neutral.darkAlpha200} 50%,
+    transparent 100%
+  )`,
 });
 
 export const input = style([classes.typography.title, {
