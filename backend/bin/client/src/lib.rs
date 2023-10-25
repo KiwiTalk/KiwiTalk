@@ -158,7 +158,7 @@ async fn create_client(
             .context("failed to create secure stream")?,
     );
 
-    let initializer = TalkInitializer::login(
+    let initializer = TalkInitializer::new(
         client,
         ClientEnv {
             os: TALK_OS,
@@ -167,8 +167,7 @@ async fn create_client(
             mccmnc: TALK_MCCMNC,
             language: info.device.language(),
         },
-        credential,
-        status,
+        user_dir.join("client.db").to_string_lossy(),
     )
     .await
     .context("failed to login")?;
@@ -176,7 +175,7 @@ async fn create_client(
     let (event_tx, event_rx) = mpsc::channel(100);
 
     let talk = initializer
-        .initialize(user_dir.join("client.db").to_string_lossy(), move |res| {
+        .login(credential, status, move |res| {
             let event_tx = event_tx.clone();
 
             async move {

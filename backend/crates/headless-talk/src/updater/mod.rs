@@ -4,18 +4,16 @@ pub(crate) mod list;
 
 use std::{io, pin::pin, sync::Arc};
 
+use diesel::{QueryDsl, RunQueryDsl};
 use futures::{AsyncRead, AsyncWrite, Future, TryStreamExt};
 use futures_loco_protocol::{
     loco_protocol::command::BoxedCommand,
     session::{LocoSession, LocoSessionStream},
     LocoClient,
 };
-use talk_loco_client::{
-    talk::session::{
-        load_channel_list::{self, ChannelListData},
-        login, TalkSession,
-    },
-    RequestError,
+use talk_loco_client::talk::session::{
+    load_channel_list::{self},
+    login, TalkSession,
 };
 use thiserror::Error;
 use tokio::time;
@@ -23,7 +21,7 @@ use tokio::time;
 use crate::{
     config::ClientEnv,
     constants::PING_INTERVAL,
-    database::{DatabasePool, MigrationError, PoolTaskError},
+    database::{schema::channel_list, DatabasePool, MigrationError, PoolTaskError},
     event::ClientEvent,
     handler::{error::HandlerError, SessionHandler},
     ClientError, ClientStatus, HeadlessTalk,
@@ -31,46 +29,91 @@ use crate::{
 
 use self::list::ChannelListUpdater;
 
-pub struct TalkInitializer<S> {
+pub struct TalkInitializer<'a, S> {
     session: LocoSession,
     stream: LocoSessionStream<S>,
 
-    user_id: i64,
-    channel_list: Vec<Vec<ChannelListData>>,
+    pool: DatabasePool,
 
-    buffer: Vec<BoxedCommand>,
+    env: ClientEnv<'a>,
 }
 
-impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
-    pub async fn login(
+impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
+    pub async fn new(
         client: LocoClient<S>,
-        env: ClientEnv<'_>,
+        env: ClientEnv<'a>,
+        database_url: impl Into<String>,
+    ) -> Result<TalkInitializer<'a, S>, InitError> {
+        let (session, stream) = LocoSession::new(client);
+
+        let pool = DatabasePool::initialize(database_url).await?;
+        pool.migrate_to_latest().await?;
+
+        Ok(Self {
+            session,
+            stream,
+
+            pool,
+
+            env,
+        })
+    }
+
+    pub async fn login<F, Fut>(
+        mut self,
         credential: Credential<'_>,
         status: ClientStatus,
-    ) -> Result<Self, LoginError> {
-        let (session, mut stream) = LocoSession::new(client);
-
-        let mut stream_buffer = Vec::new();
+        command_handler: F,
+    ) -> Result<HeadlessTalk, LoginError>
+    where
+        S: Send + 'static,
+        F: Fn(Result<ClientEvent, HandlerError>) -> Fut + Send + Sync + 'static,
+        Fut: Future + Send + Sync + 'static,
+    {
         let mut channel_list = Vec::new();
 
-        let login_task = async {
-            let (res, stream) = TalkSession(&session)
+        let (chat_ids, max_ids) = self
+            .pool
+            .spawn(|conn| {
+                let iter = channel_list::table
+                    .select((channel_list::id, channel_list::last_seen_log_id))
+                    .load_iter::<(i64, Option<i64>), _>(conn)?;
+
+                let mut chat_ids = Vec::with_capacity(iter.size_hint().0);
+                let mut max_ids = Vec::with_capacity(iter.size_hint().0);
+
+                for res in iter {
+                    let (channel_id, max_id) = res?;
+
+                    chat_ids.push(channel_id);
+                    max_ids.push(max_id.unwrap_or(0));
+                }
+
+                Ok((chat_ids, max_ids))
+            })
+            .await
+            .map_err(ClientError::from)?;
+
+        let mut stream_buffer = Vec::new();
+
+        let user_id = run_session(&mut self.stream, &mut stream_buffer, async {
+            let (res, stream) = TalkSession(&self.session)
                 .login(login::Request {
-                    os: env.os,
-                    net_type: env.net_type as _,
-                    app_version: env.app_version,
-                    mccmnc: env.mccmnc,
+                    os: self.env.os,
+                    net_type: self.env.net_type as _,
+                    app_version: self.env.app_version,
+                    mccmnc: self.env.mccmnc,
                     protocol_version: "1.0",
                     device_uuid: credential.device_uuid,
                     oauth_token: credential.access_token,
-                    language: env.language,
+                    language: self.env.language,
                     device_type: Some(2),
                     pc_status: Some(status as _),
                     revision: None,
                     rp: [0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
                     chat_list: load_channel_list::Request {
-                        chat_ids: &[],
-                        max_ids: &[],
+                        chat_ids: &chat_ids,
+                        max_ids: &max_ids,
                         last_token_id: 0,
                         last_chat_id: None,
                     },
@@ -89,58 +132,16 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
                 }
             }
 
-            Ok::<_, RequestError>(res.user_id)
-        };
-
-        let stream_task = async {
-            while let Some(read) = stream.try_next().await? {
-                stream_buffer.push(read);
-            }
-
-            Ok::<_, io::Error>(())
-        };
-
-        let user_id = tokio::select! {
-            res = login_task => res?,
-            res = stream_task => {
-                res?;
-                unreachable!();
-            },
-        };
-
-        Ok(Self {
-            session,
-            stream,
-
-            user_id,
-            channel_list,
-            buffer: stream_buffer,
+            Ok::<_, ClientError>(res.user_id)
         })
-    }
-
-    pub const fn user_id(&self) -> i64 {
-        self.user_id
-    }
-
-    pub async fn initialize<F, Fut>(
-        self,
-        database_url: impl Into<String>,
-        command_handler: F,
-    ) -> Result<HeadlessTalk, InitializeError>
-    where
-        S: Send + Sync + 'static,
-        F: Fn(Result<ClientEvent, HandlerError>) -> Fut + Send + Sync + 'static,
-        Fut: Future + Send + Sync + 'static,
-    {
-        let pool = DatabasePool::initialize(database_url).await?;
-        pool.migrate_to_latest().await?;
+        .await??;
 
         let stream_task = tokio::spawn({
             let command_handler = Arc::new(command_handler);
-            let handler = Arc::new(SessionHandler::new(pool.clone()));
+            let handler = Arc::new(SessionHandler::new(self.pool.clone()));
 
             async move {
-                for read in self.buffer {
+                for read in stream_buffer {
                     tokio::spawn({
                         let command_handler = command_handler.clone();
                         let handler = handler.clone();
@@ -204,14 +205,14 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
             }
         });
 
-        ChannelListUpdater::new(&self.session, &pool)
-            .update(self.channel_list.into_iter().flatten())
+        ChannelListUpdater::new(&self.session, &self.pool)
+            .update(channel_list.into_iter().flatten())
             .await?;
 
         Ok(HeadlessTalk {
-            user_id: self.user_id,
+            user_id,
             session: self.session,
-            pool,
+            pool: self.pool,
             ping_task,
             stream_task,
         })
@@ -221,20 +222,41 @@ impl<S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<S> {
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub enum LoginError {
-    Request(#[from] RequestError),
+    Client(#[from] ClientError),
     Io(#[from] io::Error),
 }
 
 #[derive(Debug, Error)]
 #[error(transparent)]
-pub enum InitializeError {
+pub enum InitError {
     DatabaseInit(#[from] PoolTaskError),
     Migration(#[from] MigrationError),
-    Client(#[from] ClientError),
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct Credential<'a> {
     pub access_token: &'a str,
     pub device_uuid: &'a str,
+}
+
+async fn run_session<F: Future>(
+    stream: &mut LocoSessionStream<impl AsyncRead + AsyncWrite + Unpin>,
+    buffer: &mut Vec<BoxedCommand>,
+    task: F,
+) -> Result<F::Output, io::Error> {
+    let stream_task = async {
+        while let Some(read) = stream.try_next().await? {
+            buffer.push(read);
+        }
+
+        Ok::<_, io::Error>(())
+    };
+
+    Ok(tokio::select! {
+        res = task => res,
+        res = stream_task => {
+            res?;
+            unreachable!();
+        },
+    })
 }
