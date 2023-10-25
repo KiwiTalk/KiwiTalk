@@ -11,6 +11,7 @@ export type MessageProps = {
   time?: Date;
   isMine?: boolean;
   isBubble?: boolean;
+  isConnected?: boolean;
 
   children?: JSX.Element;
 };
@@ -21,15 +22,21 @@ export const Message = (props: MessageProps) => {
 
   return (
     <li class={styles.container[variant()]}>
-      <Show when={merged.profile} fallback={<div class={styles.profile} />}>
+      <Show when={merged.profile && !merged.isConnected} fallback={<div class={styles.profile} />}>
         <Profile src={merged.profile} size={'48px'} />
       </Show>
       <div class={styles.contentContainer}>
-        <Show when={variant() === 'other' && merged.sender}>
-          <span class={styles.sender}>{merged.sender}</span>
+        <Show when={merged.sender}>
+          <span class={styles.sender[variant()]}>{merged.sender}</span>
         </Show>
         <Show when={merged.isBubble} fallback={merged.children}>
-          <div class={styles.bubble[variant()]}>
+          <div
+            class={
+              merged.isConnected ?
+                styles.bubble[`${variant()}Connected`] :
+                styles.bubble[variant()]
+            }
+          >
             {merged.children}
           </div>
         </Show>

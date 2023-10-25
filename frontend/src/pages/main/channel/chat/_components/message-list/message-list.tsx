@@ -51,13 +51,18 @@ export const MessageList = (props: MessageListProps) => {
       class={styles.virtualList.outer}
       innerClass={styles.virtualList.inner}
     >
-      {(item) => (
+      {(item, index) => (
         <Message
           profile={users()[item.senderId]?.profileUrl}
-          sender={users()[item.senderId]?.nickname}
+          sender={
+            messages()[index() - 1]?.senderId !== item.senderId ?
+              users()[item.senderId]?.nickname :
+              undefined
+          }
           unread={item.referer}
           time={new Date(item.sendAt)}
           isMine={item.senderId === props.logonId}
+          isConnected={messages()[index() + 1]?.senderId === item.senderId}
         >
           {item.content}
         </Message>

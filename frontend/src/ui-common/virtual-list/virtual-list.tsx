@@ -8,7 +8,6 @@ import {
   mergeProps,
   on,
   onMount,
-  ParentProps,
   splitProps,
   useTransition,
   ValidComponent,
@@ -39,7 +38,7 @@ export type VirtualListProps<T> = {
 }
 
 export const VirtualList = <
-  Item extends unknown,
+  Item,
   T extends ValidComponent,
   P = ComponentProps<T>
 >(props: Partial<DynamicProps<T, P>> & VirtualListProps<Item>): JSX.Element => {
@@ -47,7 +46,10 @@ export const VirtualList = <
     mergeProps(
       { component: 'div', class: '', classList: {} },
       props,
-    ) as DynamicProps<T, P> & VirtualListProps<Item> & { class: string; classList: Record<string, boolean> },
+    ) as DynamicProps<T, P> & VirtualListProps<Item> & {
+      class: string;
+      classList: Record<string, boolean>;
+    },
     [
       'component',
       'items',
