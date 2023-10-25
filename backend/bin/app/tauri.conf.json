@@ -54,7 +54,7 @@
       "endpoints": [
         "https://github.com/KiwiTalk/KiwiTalk/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDlFRDYzNjlDNkI4NDcxQjMKUldTemNZUnJuRGJXbml1bXdFOC9zNTFxQjJzQ0tRaUtObU5yTzlqd3luMnBhRi8xQ1pVUVdWY0MK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUzRDIwMUY1NDA1RkY0M0QKUldROTlGOUE5UUhTVS9HMERnby9JbmQzL0ZObGlXTU5nS0ZvV1hSK3E3b3dneFRDb1Vwd09LVFEK"
     },
     "macOSPrivateApi": true,
     "systemTray": {
