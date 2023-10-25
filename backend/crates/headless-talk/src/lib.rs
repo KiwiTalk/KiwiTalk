@@ -27,8 +27,6 @@ use talk_loco_client::{
 use thiserror::Error;
 use tokio::task::JoinHandle;
 
-use crate::database::schema::chat;
-
 #[derive(Debug)]
 pub struct HeadlessTalk {
     pub(crate) conn: Conn,
@@ -67,24 +65,22 @@ impl HeadlessTalk {
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
-        let last_log_id = self
+        let last_seen_log_id = self
             .conn
             .pool
             .spawn(move |conn| {
-                let last_log_id: Option<i64> = chat::table
-                    .filter(chat::channel_id.eq(id))
-                    .select(chat::log_id)
-                    .order_by(chat::log_id.desc())
-                    .first::<i64>(conn)
-                    .optional()?;
+                let last_seen_log_id: Option<i64> = channel_list::table
+                    .filter(channel_list::id.eq(id))
+                    .select(channel_list::last_seen_log_id)
+                    .first::<Option<i64>>(conn)?;
 
-                Ok(last_log_id)
+                Ok(last_seen_log_id)
             })
             .await?;
 
         let res = TalkSession(&self.conn.session)
             .channel(id)
-            .chat_on(last_log_id)
+            .chat_on(last_seen_log_id)
             .await?;
 
         if let (Some(watermark_user_ids), Some(watermarks)) =
