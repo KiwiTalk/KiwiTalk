@@ -10,13 +10,14 @@ use crate::{
         schema::{self, channel_list, chat, user_profile},
         DatabasePool, PoolTaskError,
     },
+    updater::channel::ChannelUpdater,
     user::{DisplayUser, DisplayUserProfile},
     ClientResult,
 };
 use arrayvec::ArrayVec;
 use diesel::{
-    dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods, OptionalExtension,
-    QueryDsl, RunQueryDsl,
+    dsl::sql, sql_types::Integer, BoolExpressionMethods, Connection, ExpressionMethods,
+    OptionalExtension, QueryDsl, RunQueryDsl,
 };
 use nohash_hasher::IntMap;
 use talk_loco_client::talk::{
@@ -245,6 +246,33 @@ impl ClientChannel {
                     .collect::<Result<_, _>>()?)
             })
             .await
+    }
+
+    pub async fn leave(&self, block: bool) -> ClientResult<()> {
+        let id = self.id();
+        let conn = self.conn();
+
+        match self {
+            ClientChannel::Normal(_) => {
+                TalkSession(&conn.session)
+                    .normal_channel(id)
+                    .leave(block)
+                    .await?;
+            }
+
+            ClientChannel::Open(open) => {
+                TalkSession(&conn.session)
+                    .open_channel(id, open.link_id())
+                    .leave(block)
+                    .await?;
+            }
+        }
+
+        conn.pool
+            .spawn(move |conn| conn.transaction(move |conn| ChannelUpdater::new(id).remove(conn)))
+            .await?;
+
+        Ok(())
     }
 }
 

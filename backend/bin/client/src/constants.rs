@@ -1,4 +1,4 @@
-use headless_talk::config::NetworkType;
+use headless_talk::init::config::NetworkType;
 
 pub const TALK_OS: &str = "win32";
 pub const TALK_MCCMNC: &str = "999";

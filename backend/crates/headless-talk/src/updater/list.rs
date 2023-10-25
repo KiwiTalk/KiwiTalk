@@ -1,5 +1,5 @@
 use arrayvec::ArrayVec;
-use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use diesel::{Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use futures_loco_protocol::session::LocoSession;
 use nohash_hasher::IntMap;
 use talk_loco_client::talk::session::load_channel_list::ChannelListData;
@@ -29,7 +29,7 @@ impl<'a> ChannelListUpdater<'a> {
     pub async fn update(
         self,
         iter: impl IntoIterator<Item = ChannelListData>,
-        _deleted_ids: impl IntoIterator<Item = i64>,
+        deleted_ids: impl IntoIterator<Item = i64> + Send + 'static,
     ) -> ClientResult<()> {
         let update_map = self
             .pool
@@ -82,8 +82,8 @@ impl<'a> ChannelListUpdater<'a> {
                 continue;
             };
 
-            if ChannelUpdater::new(self.session, self.pool, list_data.id)
-                .update()
+            if ChannelUpdater::new(list_data.id)
+                .update(self.session, self.pool)
                 .await?
                 .is_none()
             {
@@ -120,15 +120,21 @@ impl<'a> ChannelListUpdater<'a> {
 
         self.pool
             .spawn(move |conn| {
-                diesel::replace_into(channel_list::table)
-                    .values(update_list)
-                    .execute(conn)?;
+                conn.transaction(move |conn| {
+                    diesel::replace_into(channel_list::table)
+                        .values(update_list)
+                        .execute(conn)?;
 
-                diesel::insert_or_ignore_into(chat::table)
-                    .values(chat_list)
-                    .execute(conn)?;
+                    diesel::insert_or_ignore_into(chat::table)
+                        .values(chat_list)
+                        .execute(conn)?;
 
-                Ok(())
+                    for channel_id in deleted_ids {
+                        ChannelUpdater::new(channel_id).remove(conn)?;
+                    }
+
+                    Ok(())
+                })
             })
             .await?;
 
