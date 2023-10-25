@@ -10,9 +10,7 @@ pub mod user;
 
 use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
 use conn::Conn;
-use diesel::{
-    BoolExpressionMethods, Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl,
-};
+use diesel::{BoolExpressionMethods, Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{
@@ -83,6 +81,16 @@ impl HeadlessTalk {
             .chat_on(last_seen_log_id)
             .await?;
 
+        let channel = match res.channel_type {
+            ChatOnChannelType::DirectChat(normal)
+            | ChatOnChannelType::MultiChat(normal)
+            | ChatOnChannelType::MemoChat(normal) => {
+                ClientChannel::Normal(normal::open_channel(id, self, normal).await?)
+            }
+
+            _ => return Ok(None),
+        };
+
         if let (Some(watermark_user_ids), Some(watermarks)) =
             (res.watermark_user_ids, res.watermarks)
         {
@@ -110,16 +118,6 @@ impl HeadlessTalk {
                 })
                 .await?;
         }
-
-        let channel = match res.channel_type {
-            ChatOnChannelType::DirectChat(normal)
-            | ChatOnChannelType::MultiChat(normal)
-            | ChatOnChannelType::MemoChat(normal) => {
-                ClientChannel::Normal(normal::open_channel(id, self, normal).await?)
-            }
-
-            _ => return Ok(None),
-        };
 
         Ok(Some(channel))
     }
