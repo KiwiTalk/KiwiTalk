@@ -28,7 +28,7 @@ use self::user::NormalChannelUser;
 
 use super::ListChannelProfile;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct NormalChannel<'a> {
     id: i64,
     client: &'a HeadlessTalk,

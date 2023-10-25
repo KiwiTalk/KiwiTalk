@@ -55,7 +55,7 @@ pub struct ChannelListItem {
     pub profile: ListChannelProfile,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum ClientChannel<'a> {
     Normal(NormalChannel<'a>),
     Open(OpenChannel<'a>),
@@ -243,6 +243,12 @@ impl<'a> ClientChannel<'a> {
                     .collect::<Result<_, _>>()?)
             })
             .await
+    }
+
+    pub async fn close(self) -> ClientResult<()> {
+        TalkSession(&self.client().session).channel(self.id()).chat_off().await?;
+
+        Ok(())
     }
 }
 
