@@ -178,7 +178,11 @@ impl<'a> ClientChannel<'a> {
             .spawn(move |conn| {
                 diesel::update(chat::table)
                     .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
-                    .set(chat::type_.eq(sql("type | ").bind::<Integer, _>(ChatType::DELETED_MASK)))
+                    .set(
+                        chat::type_.eq(sql("(type | ")
+                            .bind::<Integer, _>(ChatType::DELETED_MASK)
+                            .sql(")")),
+                    )
                     .execute(conn)?;
 
                 Ok(())
