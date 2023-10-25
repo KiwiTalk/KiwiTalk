@@ -4,9 +4,9 @@ mod constants;
 mod database;
 pub mod event;
 pub mod handler;
+pub mod init;
 mod updater;
 pub mod user;
-pub mod init;
 
 use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
 use conn::Conn;

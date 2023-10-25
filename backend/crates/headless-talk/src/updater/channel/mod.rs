@@ -63,7 +63,7 @@ impl ChannelUpdater {
                     .await?;
             }
 
-            _ => return Ok(None)
+            _ => return Ok(None),
         }
 
         Ok(Some(()))
