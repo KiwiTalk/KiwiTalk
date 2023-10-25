@@ -9,6 +9,7 @@ use talk_loco_client::talk::{
 };
 
 use crate::{
+    conn::Conn,
     database::{
         model::{
             channel::ChannelListRow,
@@ -20,7 +21,6 @@ use crate::{
         schema::{channel_meta, normal_channel_user, user_profile},
         DatabasePool, PoolTaskError,
     },
-    conn::Conn,
     user::DisplayUser,
     ClientResult, HeadlessTalk,
 };
@@ -40,7 +40,7 @@ impl NormalChannel {
         self.id
     }
 
-    pub async fn users(&self) -> Result<Vec<NormalChannelUser>, PoolTaskError> {
+    pub async fn users(&self) -> Result<Vec<(i64, NormalChannelUser)>, PoolTaskError> {
         let users = self
             .conn
             .pool
@@ -48,7 +48,7 @@ impl NormalChannel {
                 let id = self.id;
 
                 move |conn| {
-                    let users: Vec<NormalChannelUser> = user_profile::table
+                    let users: Vec<(i64, NormalChannelUser)> = user_profile::table
                         .inner_join(
                             normal_channel_user::table.on(normal_channel_user::channel_id
                                 .eq(user_profile::channel_id)
@@ -56,13 +56,14 @@ impl NormalChannel {
                         )
                         .filter(user_profile::channel_id.eq(id))
                         .select((
+                            user_profile::id,
                             UserProfileModel::as_select(),
                             NormalChannelUserModel::as_select(),
                         ))
-                        .load_iter::<(UserProfileModel, NormalChannelUserModel), _>(conn)?
+                        .load_iter::<(i64, UserProfileModel, NormalChannelUserModel), _>(conn)?
                         .map(|res| {
-                            res.map(|(profile, normal)| {
-                                NormalChannelUser::from_models(profile, normal)
+                            res.map(|(user_id, profile, normal)| {
+                                (user_id, NormalChannelUser::from_models(profile, normal))
                             })
                         })
                         .collect::<Result<_, _>>()?;

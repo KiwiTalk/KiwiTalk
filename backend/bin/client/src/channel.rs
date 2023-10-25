@@ -1,5 +1,5 @@
 use std::{
-    ops::{Bound, DerefMut},
+    ops::{Bound, Deref},
     sync::atomic::{AtomicU32, Ordering},
 };
 
@@ -38,7 +38,7 @@ impl ChannelMap {
         self.map.remove(&rid).map(|(_, value)| value)
     }
 
-    fn get_mut(&self, rid: u32) -> anyhow::Result<impl DerefMut<Target = ClientChannel> + '_> {
+    fn get(&self, rid: u32) -> anyhow::Result<impl Deref<Target = ClientChannel> + '_> {
         match self.map.get_mut(&rid) {
             Some(channel) => Ok(channel),
 
@@ -107,7 +107,7 @@ pub(super) async fn channel_send_text(
     text: String,
     map: State<'_, ChannelMap>,
 ) -> TauriResult<Chatlog> {
-    let channel = map.get_mut(rid)?;
+    let channel = map.get(rid)?;
 
     let log = channel
         .send_chat(
@@ -135,7 +135,7 @@ pub(super) async fn channel_load_chat(
     exclusive: bool,
     map: State<'_, ChannelMap>,
 ) -> TauriResult<Vec<Chatlog>> {
-    let channel = map.get_mut(rid)?;
+    let channel = map.get(rid)?;
 
     let chats = channel
         .load_chat_from(
@@ -166,7 +166,7 @@ pub(super) async fn channel_read_chat(
     log_id: String,
     map: State<'_, ChannelMap>,
 ) -> TauriResult<()> {
-    let channel = map.get_mut(rid)?;
+    let channel = map.get(rid)?;
 
     channel
         .read_chat(log_id.parse().context("invalid logId")?)
@@ -174,6 +174,62 @@ pub(super) async fn channel_read_chat(
         .context("cannot read chat")?;
 
     Ok(())
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct NormalChannelUser {
+    nickname: String,
+
+    profile_url: String,
+    full_profile_url: String,
+    original_profile_url: String,
+
+    country_iso: String,
+    status_message: String,
+    account_id: String,
+    linked_services: String,
+    suspended: bool,
+
+    watermark: String,
+}
+
+impl From<headless_talk::channel::normal::user::NormalChannelUser> for NormalChannelUser {
+    fn from(user: headless_talk::channel::normal::user::NormalChannelUser) -> Self {
+        Self {
+            nickname: user.profile.nickname,
+            profile_url: user.profile.image_url,
+            full_profile_url: user.profile.full_image_url,
+            original_profile_url: user.profile.original_image_url,
+            country_iso: user.country_iso,
+            status_message: user.status_message,
+            account_id: user.account_id.to_string(),
+            linked_services: user.linked_services,
+            suspended: user.suspended,
+            watermark: user.watermark.to_string(),
+        }
+    }
+}
+
+#[tauri::command(async)]
+pub(super) async fn channel_users(
+    rid: u32,
+    map: State<'_, ChannelMap>,
+) -> TauriResult<Vec<(String, NormalChannelUser)>> {
+    let channel = map.get(rid)?;
+
+    match &*channel {
+        ClientChannel::Normal(normal) => {
+            let users = normal.users().await.context("cannot load users")?;
+
+            Ok(users
+                .into_iter()
+                .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
+                .collect())
+        }
+
+        _ => Err(anyhow!("unsupported channel types").into()),
+    }
 }
 
 #[tauri::command]

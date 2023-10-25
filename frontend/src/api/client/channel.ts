@@ -1,6 +1,6 @@
 import { tauri } from '@tauri-apps/api';
 
-class TempImpl implements ClientChannel {
+class NormalChannel implements ClientChannel {
   #rid: number;
 
   constructor(rid: number) {
@@ -29,6 +29,13 @@ class TempImpl implements ClientChannel {
       { rid: this.#rid, count, exclusive, fromLogId },
     );
   }
+
+  async getUsers(): Promise<[string, NormalChannelUser][]> {
+    return await tauri.invoke(
+      'plugin:client|channel_users',
+      { rid: this.#rid },
+    );
+  }
 }
 
 export type Chatlog = {
@@ -47,6 +54,26 @@ export type Chatlog = {
   referer?: number,
 }
 
+export type ChannelUser = {
+  id: string,
+
+  nickname: string,
+
+  profileUrl: string,
+  fullProfileUrl: string,
+  originalProfileUrl: string,
+
+  watermark: string,
+}
+
+export type NormalChannelUser = {
+  countryIso: string,
+  statusMessage: string,
+  accountId: string,
+  linkedServices: string,
+  suspended: boolean,
+} & ChannelUser;
+
 export interface ClientChannel {
   sendText(text: string): Promise<Chatlog>;
 
@@ -54,11 +81,13 @@ export interface ClientChannel {
 
   loadChat(count: number, fromLogId?: string, exclusive?: boolean): Promise<Chatlog[]>;
 
+  getUsers(): Promise<[string, ChannelUser][]>;
+
   close(): Promise<void>;
 }
 
-export async function openChannel(id: string): Promise<ClientChannel> {
+export async function openChannel(id: string): Promise<NormalChannel> {
   const rid = await tauri.invoke<number>('plugin:client|open_channel', { id });
 
-  return new TempImpl(rid);
+  return new NormalChannel(rid);
 }

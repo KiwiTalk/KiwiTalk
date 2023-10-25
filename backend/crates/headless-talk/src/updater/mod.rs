@@ -20,11 +20,12 @@ use tokio::time;
 
 use crate::{
     config::ClientEnv,
+    conn::Conn,
     constants::PING_INTERVAL,
     database::{schema::channel_list, DatabasePool, MigrationError, PoolTaskError},
     event::ClientEvent,
     handler::{error::HandlerError, SessionHandler},
-    ClientError, ClientStatus, HeadlessTalk, conn::Conn,
+    ClientError, ClientStatus, HeadlessTalk,
 };
 
 use self::list::ChannelListUpdater;

@@ -55,6 +55,7 @@ pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<Tauri
             channel::channel_read_chat,
             channel::close_channel,
             channel::channel_load_chat,
+            channel::channel_users,
         ])
         .build())
 }
