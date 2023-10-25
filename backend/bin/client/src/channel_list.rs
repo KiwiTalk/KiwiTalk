@@ -1,8 +1,6 @@
-use anyhow::{anyhow, Context};
+use anyhow::anyhow;
 use arrayvec::ArrayVec;
-use headless_talk::chat::{ChatContent, ChatType};
 use serde::Serialize;
-use talk_loco_client::structs::channel::ChannelMetaType;
 
 use kiwi_talk_result::TauriResult;
 
@@ -12,67 +10,60 @@ use super::ClientState;
 pub(super) async fn channel_list(
     client: ClientState<'_>,
 ) -> TauriResult<Vec<(String, ChannelListItem)>> {
-    let session = match &*client.read() {
-        Some(client) => client.session.clone(),
+    let talk = match &*client.read() {
+        Some(client) => client.talk.clone(),
 
         _ => return Err(anyhow!("client is not created").into()),
     };
 
-    let list_channels = session
+    Ok(talk
         .channel_list()
-        .await
-        .context("cannot load channel list")?;
+        .await?
+        .into_iter()
+        .map(|(id, item)| {
+            (
+                id.to_string(),
+                ChannelListItem {
+                    channel_type: item.channel_type.as_str().to_owned(),
+                    display_users: item
+                        .display_users
+                        .into_iter()
+                        .map(|user| {
+                            (
+                                user.id.to_string(),
+                                DisplayProfile {
+                                    nickname: user.profile.nickname,
+                                    profile_url: user.profile.image_url,
+                                },
+                            )
+                        })
+                        .collect::<ArrayVec<_, 4>>(),
+                    last_chat: item.last_chat.map(|list_chat| PreviewChat {
+                        profile: list_chat.profile.map(|profile| DisplayProfile {
+                            nickname: profile.nickname,
+                            profile_url: profile.image_url,
+                        }),
+                        chat_type: list_chat.chatlog.chat.chat_type.0,
+                        content: list_chat.chatlog.chat.content.message,
+                        attachment: list_chat.chatlog.chat.content.attachment,
+                        timestamp: list_chat.chatlog.send_at as f64 * 1000.0,
+                    }),
+                    name: item.profile.name,
+                    profile: item.profile.image_url,
+                    user_count: item.active_user_count,
+                    unread_count: item.unread_count,
+                },
+            )
+        })
+        .collect())
+}
 
-    let mut items = Vec::with_capacity(list_channels.len());
-    for (id, mut channel_data) in list_channels {
-        let last_chat = if let Some(last_chat) = channel_data.last_chat {
-            Some(PreviewChat {
-                // TODO
-                nickname: None,
-                chat_type: last_chat.chat.chat_type,
-                content: last_chat.chat.content,
-                timestamp: last_chat.send_at as f64 * 1000.0,
-            })
-        } else {
-            None
-        };
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 
-        let name = channel_data
-            .metas
-            .remove(&(ChannelMetaType::Title as _))
-            .map(|meta| meta.content);
-
-        let profile = channel_data
-            .metas
-            .remove(&(ChannelMetaType::Profile as _))
-            .map(|meta| meta.content);
-
-        let display_users = channel_data
-            .display_users
-            .into_iter()
-            .map(|user| DisplayUser {
-                nickname: user.profile.nickname,
-                profile_url: user.profile.image_url,
-            })
-            .collect();
-
-        items.push((
-            id.to_string(),
-            ChannelListItem {
-                channel_type: channel_data.channel_type,
-                display_users,
-                last_chat,
-                name,
-                profile,
-                user_count: channel_data.user_count,
-
-                // TODO
-                unread_count: 0,
-            },
-        ));
-    }
-
-    Ok(items)
+pub(super) struct DisplayProfile {
+    nickname: String,
+    profile_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -80,29 +71,24 @@ pub(super) async fn channel_list(
 pub(super) struct ChannelListItem {
     channel_type: String,
 
-    display_users: ArrayVec<DisplayUser, 4>,
+    display_users: ArrayVec<(String, DisplayProfile), 4>,
 
     last_chat: Option<PreviewChat>,
 
-    name: Option<String>,
+    name: String,
     profile: Option<String>,
 
-    user_count: usize,
+    user_count: i32,
     unread_count: i32,
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct PreviewChat {
-    pub nickname: Option<String>,
-    pub chat_type: ChatType,
-    pub content: ChatContent,
-    pub timestamp: f64,
-}
+    pub profile: Option<DisplayProfile>,
 
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct DisplayUser {
-    nickname: String,
-    profile_url: Option<String>,
+    pub chat_type: i32,
+    pub content: Option<String>,
+    pub attachment: Option<String>,
+    pub timestamp: f64,
 }

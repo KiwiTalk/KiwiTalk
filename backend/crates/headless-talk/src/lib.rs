@@ -1,209 +1,158 @@
 pub mod channel;
-pub mod chat;
 pub mod config;
-pub mod database;
-pub mod error;
+mod constants;
+mod database;
 pub mod event;
 pub mod handler;
+pub mod updater;
+pub mod user;
 
-use std::{io, pin::pin};
-
-use arrayvec::ArrayVec;
-use channel::{
-    updater::{ChannelUpdater, UpdateError},
-    user::{DisplayUser, DisplayUserProfile, UserId},
-    ChannelId, ChannelListData, ClientChannel,
+use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
+use diesel::{
+    BoolExpressionMethods, Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl,
 };
-use config::ClientConfig;
+pub use talk_loco_client;
+
 use database::{
-    channel::{user::UserDatabaseExt, ChannelDatabaseExt},
-    chat::ChatDatabaseExt,
-    pool::{DatabasePool, PoolTaskError},
+    model::channel::ChannelListRow,
+    schema::{channel_list, user_profile},
+    DatabasePool, PoolTaskError,
 };
-use error::ClientError;
-use futures::TryStreamExt;
-use serde::{Deserialize, Serialize};
+use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::{
-    futures_loco_protocol::session::LocoSession,
-    talk::session::{LChatListReq, LoginListReq, PingReq, SetStReq, TalkSession},
-    RequestError, RequestResult,
+    talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
+    RequestError,
 };
 use thiserror::Error;
+use tokio::task::JoinHandle;
 
-#[derive(Debug, Clone)]
-pub struct KiwiTalkSession {
-    user_id: UserId,
+use crate::database::schema::chat;
+
+#[derive(Debug)]
+pub struct HeadlessTalk {
+    user_id: i64,
     session: LocoSession,
     pool: DatabasePool,
+
+    ping_task: JoinHandle<()>,
+    stream_task: JoinHandle<()>,
 }
 
-impl KiwiTalkSession {
-    pub const fn user_id(&self) -> UserId {
+impl HeadlessTalk {
+    pub const fn user_id(&self) -> i64 {
         self.user_id
     }
 
-    pub const fn channel(&self, id: ChannelId) -> ClientChannel {
-        ClientChannel::new(id, self)
+    pub async fn channel_list(&self) -> Result<Vec<(i64, ChannelListItem)>, PoolTaskError> {
+        let rows = self
+            .pool
+            .spawn(|conn| {
+                let rows = channel_list::table
+                    .select(channel_list::all_columns)
+                    .load::<ChannelListRow>(conn)?;
+
+                Ok(rows)
+            })
+            .await?;
+
+        let mut list = Vec::with_capacity(rows.capacity());
+
+        for row in rows {
+            if let Some(list_item) = load_list_item(&self.pool, &row).await? {
+                list.push((row.id, list_item))
+            }
+        }
+
+        Ok(list)
     }
 
-    pub async fn send_ping(&self) -> RequestResult<()> {
-        TalkSession(&self.session).ping(&PingReq {}).await
-    }
+    pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
+        let last_log_id = self
+            .pool
+            .spawn(move |conn| {
+                let last_log_id: Option<i64> = chat::table
+                    .filter(chat::channel_id.eq(id))
+                    .select(chat::log_id)
+                    .order_by(chat::log_id.desc())
+                    .first::<i64>(conn)
+                    .optional()?;
 
-    pub async fn channel_list(&self) -> Result<Vec<(ChannelId, ChannelListData)>, PoolTaskError> {
+                Ok(last_log_id)
+            })
+            .await?;
+
+        let res = TalkSession(&self.session)
+            .channel(id)
+            .chat_on(last_log_id)
+            .await?;
+
+        let watermark_iter = res
+            .watermark_user_ids
+            .into_iter()
+            .zip(res.watermarks.into_iter());
+
         self.pool
-            .spawn_task(|mut conn| {
-                let update_rows = conn.channel().get_all::<Vec<_>>()?;
-
-                let transaction = conn.transaction()?;
-
-                let mut list_data_vec = Vec::with_capacity(update_rows.capacity());
-                for row in update_rows {
-                    let last_chat = transaction.chat().get_latest_in(row.id)?.map(|row| row.log);
-                    let last_log_id = last_chat
-                        .as_ref()
-                        .map(|log| log.log_id)
-                        .unwrap_or(row.last_seen_log_id);
-
-                    let metas = transaction.channel().get_all_meta_in(row.id)?;
-
-                    let mut display_users = ArrayVec::new();
-                    for id in row.display_users {
-                        if let Some(user) = transaction.user().get(id, row.id)? {
-                            display_users.push(DisplayUser {
-                                id,
-                                profile: DisplayUserProfile::from(user.profile),
-                            });
-                        }
+            .spawn(move |conn| {
+                conn.transaction(|conn| {
+                    for (user_id, watermark) in watermark_iter {
+                        diesel::update(user_profile::table)
+                            .filter(
+                                user_profile::channel_id
+                                    .eq(id)
+                                    .and(user_profile::id.eq(user_id)),
+                            )
+                            .set(user_profile::watermark.eq(watermark))
+                            .execute(conn)?;
                     }
 
-                    let user_count = transaction.user().user_count(row.id)?;
+                    Ok::<_, PoolTaskError>(())
+                })?;
 
-                    list_data_vec.push((
-                        row.id,
-                        ChannelListData {
-                            channel_type: row.channel_type,
-
-                            last_chat,
-                            last_log_id,
-                            last_seen_log_id: row.last_seen_log_id,
-
-                            display_users,
-
-                            user_count,
-
-                            metas,
-                        },
-                    ));
-                }
-
-                transaction.commit()?;
-
-                Ok(list_data_vec)
+                Ok(())
             })
-            .await
+            .await?;
+
+        let channel = match res.channel_type {
+            ChatOnChannelType::DirectChat(normal)
+            | ChatOnChannelType::MultiChat(normal)
+            | ChatOnChannelType::MemoChat(normal) => {
+                ClientChannel::Normal(normal::open_channel(id, self, normal).await?)
+            }
+
+            _ => return Ok(None),
+        };
+
+        Ok(Some(channel))
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
         TalkSession(&self.session)
-            .set_status(&SetStReq {
-                status: client_status as _,
-            })
+            .set_status(client_status as _)
             .await?;
 
         Ok(())
     }
+}
 
-    pub async fn login(
-        session: LocoSession,
-        pool: DatabasePool,
-        config: ClientConfig<'_>,
-        credential: ClientCredential<'_>,
-        status: ClientStatus,
-    ) -> Result<Self, LoginError> {
-        let chat_ids = &[];
-        let max_ids = &[];
-
-        let login_res = TalkSession(&session)
-            .login(&LoginListReq {
-                os: config.os,
-                net_type: config.net_type,
-                app_version: config.app_version,
-                mccmnc: config.mccmnc,
-                protocol_version: "1.0",
-                device_uuid: credential.device_uuid,
-                oauth_token: credential.access_token,
-                language: config.language,
-                device_type: Some(config.device_type),
-                pc_status: Some(status as _),
-                revision: None,
-                rp: [0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
-                chat_list: LChatListReq {
-                    chat_ids,
-                    max_ids,
-                    last_token_id: 0,
-                    last_chat_id: None,
-                },
-                last_block_token: 0,
-                background: None,
-            })
-            .await?;
-
-        let mut channel_list_vec = vec![login_res.chat_list.chat_datas];
-
-        if !login_res.chat_list.eof {
-            let mut stream = pin!(TalkSession(&session).channel_list_stream(
-                chat_ids,
-                max_ids,
-                login_res.chat_list.last_token_id.unwrap_or(0),
-                login_res.chat_list.last_chat_id
-            ));
-
-            while let Some(res) = stream.try_next().await? {
-                channel_list_vec.push(res.chat_datas);
-            }
-        }
-
-        let session = Self {
-            user_id: login_res.user_id,
-            session,
-            pool,
-        };
-
-        ChannelUpdater::new(&session)
-            .update(channel_list_vec.into_iter().flatten())
-            .await?;
-
-        Ok(session)
+impl Drop for HeadlessTalk {
+    fn drop(&mut self) {
+        self.ping_task.abort();
+        self.stream_task.abort();
     }
 }
 
-#[derive(Debug, Error)]
-pub enum LoginError {
-    #[error(transparent)]
-    Request(#[from] RequestError),
-
-    #[error(transparent)]
-    Io(#[from] io::Error),
-
-    #[error(transparent)]
-    Update(#[from] UpdateError),
-
-    #[error("session closed")]
-    SessionClosed,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct ClientCredential<'a> {
-    pub access_token: &'a str,
-    pub device_uuid: &'a str,
-}
-
 #[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClientStatus {
     Unlocked = 1,
     Locked = 2,
 }
 
 pub type ClientResult<T> = Result<T, ClientError>;
+
+#[derive(Debug, Error)]
+#[error(transparent)]
+pub enum ClientError {
+    Request(#[from] RequestError),
+    Database(#[from] PoolTaskError),
+}

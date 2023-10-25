@@ -6,10 +6,10 @@ use std::{
 
 use futures_lite::{future::poll_fn, ready, AsyncRead, AsyncWrite};
 use futures_loco_protocol::LocoClient;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use thiserror::Error;
 
-use crate::{structs::chat::Chatlog, BsonCommandStatus};
+use crate::{talk::chat::Chatlog, Status};
 
 pin_project_lite::pin_project!(
     #[derive(Debug)]
@@ -105,13 +105,11 @@ impl<T: AsyncRead> MediaSink<T> {
             }
         };
 
-        Poll::Ready(
-            match bson::from_slice::<BsonCommandStatus>(&res.data)?.status {
-                0 => Ok(bson::from_slice(&res.data)?),
+        Poll::Ready(match bson::from_slice::<Status>(&res.data)?.status {
+            0 => Ok(bson::from_slice(&res.data)?),
 
-                status => Err(CompleteError::Status(status)),
-            },
-        )
+            status => Err(CompleteError::Status(status)),
+        })
     }
 }
 
@@ -148,10 +146,10 @@ impl<T: AsyncWrite> AsyncWrite for MediaSink<T> {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct CompleteRes {
     #[serde(rename = "chatLog")]
-    chat_log: Option<Chatlog>,
+    pub chat_log: Option<Chatlog>,
 }
 
 #[derive(Debug, Error)]

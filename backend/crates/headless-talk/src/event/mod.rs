@@ -1,20 +1,22 @@
 pub mod channel;
 
-use serde::{Deserialize, Serialize};
-
-use crate::channel::ChannelId;
+use std::error::Error;
 
 use self::channel::ChannelEvent;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type", content = "data")]
+#[derive(Debug)]
 pub enum ClientEvent {
     /// Channel event
-    Channel { id: ChannelId, event: ChannelEvent },
+    Channel {
+        id: i64,
+        event: ChannelEvent,
+    },
 
     /// Server switch request
     SwitchServer,
 
     /// Kickout reason
     Kickout(i16),
+
+    Error(Box<dyn Error + Send + Sync>),
 }

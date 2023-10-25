@@ -1,2 +1,2 @@
 # Talk Loco Client
-Loco client and command abstraction
+Loco request macro and booking, checkin, media client implementation

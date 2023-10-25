@@ -1,113 +1,88 @@
-/*
 pub mod normal;
 pub mod open;
-*/
-pub mod updater;
-pub mod user;
+
+use std::{ops::Bound, time::SystemTime};
 
 use crate::{
-    chat::{Chat, Chatlog, LogId},
-    database::chat::{ChatDatabaseExt, ChatRow},
-    ClientResult, KiwiTalkSession,
+    database::{
+        model::{channel::ChannelListRow, chat::ChatRow},
+        schema::{self, channel_list, chat, user_profile},
+        DatabasePool, PoolTaskError,
+    },
+    user::{DisplayUser, DisplayUserProfile},
+    ClientResult, HeadlessTalk,
 };
 use arrayvec::ArrayVec;
-use futures::{pin_mut, StreamExt};
-use nohash_hasher::IntMap;
-use serde::{Deserialize, Serialize};
-use talk_loco_client::{
-    structs::channel::ChannelMeta as LocoChannelMeta,
-    talk::session::{SyncChatReq, TalkSession, WriteChatReq},
+use diesel::{
+    dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods, OptionalExtension,
+    QueryDsl, RunQueryDsl,
 };
-use tokio::sync::mpsc::channel;
+use nohash_hasher::IntMap;
+use talk_loco_client::talk::{
+    channel::{ChannelMeta, ChannelType},
+    chat::{Chat, ChatType, Chatlog},
+    session::{channel::write, TalkSession},
+};
 
-use self::user::DisplayUser;
-
-pub type ChannelId = i64;
+use self::{normal::NormalChannel, open::OpenChannel};
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ChannelListData {
-    pub channel_type: String,
+#[derive(Debug, Clone)]
+pub struct ListPreviewChat {
+    pub profile: Option<DisplayUserProfile>,
+    pub chatlog: Chatlog,
+}
 
-    pub last_chat: Option<Chatlog>,
-    pub last_log_id: LogId,
-    pub last_seen_log_id: LogId,
+#[derive(Debug, Clone)]
+pub struct ListChannelProfile {
+    pub name: String,
+    pub image_url: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ChannelListItem {
+    pub channel_type: ChannelType,
+
+    pub last_chat: Option<ListPreviewChat>,
 
     pub display_users: ArrayVec<DisplayUser, 4>,
 
-    pub user_count: usize,
+    pub unread_count: i32,
 
-    pub metas: ChannelMetaMap,
+    pub active_user_count: i32,
+
+    pub profile: ListChannelProfile,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ChannelMeta {
-    pub author_id: i64,
-
-    pub updated_at: i64,
-    pub revision: i64,
-
-    pub content: String,
-}
-
-impl From<LocoChannelMeta> for ChannelMeta {
-    fn from(meta: LocoChannelMeta) -> Self {
-        Self {
-            author_id: meta.author_id,
-            updated_at: meta.updated_at,
-            revision: meta.revision,
-            content: meta.content,
-        }
-    }
-}
-
-/*
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(tag = "type", content = "data")]
-pub enum ChannelDataVariant {
-    Normal(NormalChannelData),
-    Open(()),
-}
-
-impl From<NormalChannelData> for ChannelDataVariant {
-    fn from(data: NormalChannelData) -> Self {
-        Self::Normal(data)
-    }
-}
-
-// TODO
-impl From<()> for ChannelDataVariant {
-    fn from(data: ()) -> Self {
-        Self::Open(data)
-    }
-}
-*/
-
-#[derive(Debug, Clone, Copy)]
-pub struct ClientChannel<'a> {
-    id: ChannelId,
-
-    client: &'a KiwiTalkSession,
+#[derive(Debug, Clone)]
+pub enum ClientChannel<'a> {
+    Normal(NormalChannel<'a>),
+    Open(OpenChannel<'a>),
 }
 
 impl<'a> ClientChannel<'a> {
-    #[inline(always)]
-    pub const fn new(id: ChannelId, client: &'a KiwiTalkSession) -> Self {
-        Self { id, client }
+    pub const fn id(&self) -> i64 {
+        match self {
+            ClientChannel::Normal(normal) => normal.id(),
+            ClientChannel::Open(open) => open.id(),
+        }
     }
 
-    #[inline(always)]
-    pub const fn channel_id(&self) -> ChannelId {
-        self.id
+    pub const fn client(&self) -> &'a HeadlessTalk {
+        match self {
+            ClientChannel::Normal(normal) => normal.client(),
+            ClientChannel::Open(open) => open.client(),
+        }
     }
-}
 
-impl ClientChannel<'_> {
     pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
-        let res = TalkSession(&self.client.session)
-            .write_chat(&WriteChatReq {
-                chat_id: self.id,
+        let client = self.client();
+        let id = self.id();
+
+        let res = TalkSession(&client.session)
+            .channel(id)
+            .write_chat(&write::Request {
                 chat_type: chat.chat_type.0,
                 msg_id: chat.message_id,
                 message: chat.content.message.as_deref(),
@@ -117,13 +92,13 @@ impl ClientChannel<'_> {
             })
             .await?;
 
-        let logged = res.chatlog.map(Chatlog::from).unwrap_or_else(|| Chatlog {
-            channel_id: self.id,
+        let logged = res.chatlog.unwrap_or(Chatlog {
+            channel_id: id,
 
             log_id: res.log_id,
             prev_log_id: Some(res.prev_id),
 
-            sender_id: self.client.user_id,
+            author_id: client.user_id,
 
             send_at: res.send_at,
 
@@ -132,84 +107,239 @@ impl ClientChannel<'_> {
             referer: None,
         });
 
-        {
-            let logged = logged.clone();
+        client
+            .pool
+            .spawn({
+                let logged = logged.clone();
 
-            self.client
-                .pool
-                .spawn_task(move |connection| {
-                    connection.chat().insert(&ChatRow {
-                        log: logged,
-                        deleted_time: None,
-                    })?;
+                move |conn| {
+                    diesel::replace_into(schema::chat::table)
+                        .values(ChatRow::from_chatlog(logged, None))
+                        .execute(conn)?;
 
                     Ok(())
-                })
-                .await?;
-        }
+                }
+            })
+            .await?;
 
         Ok(logged)
     }
 
-    pub async fn sync_chats(&self, max: LogId) -> ClientResult<usize> {
-        let current = {
-            let channel_id = self.id;
-            self.client
-                .pool
-                .spawn_task(move |connection| {
-                    Ok(connection
-                        .chat()
-                        .get_latest_log_id_in(channel_id)?
-                        .unwrap_or(0))
-                })
-                .await?
+    pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
+        let (id, pool) = match self {
+            ClientChannel::Normal(normal) => {
+                let id = normal.id();
+                let client = normal.client();
+
+                TalkSession(&client.session)
+                    .normal_channel(id)
+                    .noti_read(watermark)
+                    .await?;
+
+                (id, &client.pool)
+            }
+            ClientChannel::Open(open) => {
+                let id = open.id();
+                let client = open.client();
+
+                TalkSession(&client.session)
+                    .open_channel(open.id(), open.link_id())
+                    .noti_read(watermark)
+                    .await?;
+
+                (id, &client.pool)
+            }
         };
 
-        if current >= max {
-            return Ok(0);
-        }
-
-        let mut count = 0;
-
-        let (sender, mut recv) = channel(4);
-
-        let database_task = self.client.pool.spawn_task(move |mut connection| {
-            while let Some(list) = recv.blocking_recv() {
-                let transaction = connection.transaction()?;
-
-                for chatlog in list {
-                    transaction.chat().insert(&ChatRow {
-                        log: Chatlog::from(chatlog),
-                        deleted_time: None,
-                    })?;
-                }
-
-                transaction.commit()?;
-            }
+        pool.spawn(move |conn| {
+            diesel::update(channel_list::table)
+                .filter(channel_list::id.eq(id))
+                .set(channel_list::last_seen_log_id.eq(watermark))
+                .execute(conn)?;
 
             Ok(())
-        });
+        })
+        .await?;
 
-        let stream = TalkSession(&self.client.session).sync_chat_stream(&SyncChatReq {
-            chat_id: self.id,
-            current,
-            count: 0,
-            max,
-        });
+        Ok(())
+    }
 
-        pin_mut!(stream);
-        while let Some(res) = stream.next().await {
-            let res = res?;
+    pub async fn delete_chat(&self, log_id: i64) -> ClientResult<()> {
+        let id = self.id();
+        let client = self.client();
 
-            if let Some(chatlogs) = res.chatlogs {
-                count += chatlogs.len();
-                sender.send(chatlogs).await.ok();
+        TalkSession(&client.session)
+            .channel(id)
+            .delete_chat(log_id)
+            .await?;
+
+        client
+            .pool
+            .spawn(move |conn| {
+                diesel::update(chat::table)
+                    .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
+                    .set(
+                        chat::type_.eq(sql("(type | ")
+                            .bind::<Integer, _>(ChatType::DELETED_MASK)
+                            .sql(")")),
+                    )
+                    .execute(conn)?;
+
+                Ok(())
+            })
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn delete_chat_local(&self, log_id: i64) -> Result<bool, PoolTaskError> {
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+
+        let id = self.id();
+
+        self.client()
+            .pool
+            .spawn(move |conn| {
+                let count = diesel::update(chat::table)
+                    .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
+                    .set(chat::deleted_time.eq(now))
+                    .execute(conn)?;
+
+                Ok(count > 0)
+            })
+            .await
+    }
+
+    pub async fn load_chat_from(
+        self,
+        log_id: Bound<i64>,
+        count: i64,
+    ) -> Result<Vec<Chatlog>, PoolTaskError> {
+        let id = self.id();
+
+        self.client()
+            .pool
+            .spawn(move |conn| {
+                let iter = match log_id {
+                    Bound::Included(log_id) => chat::table
+                        .filter(chat::channel_id.eq(id).and(chat::log_id.le(log_id)))
+                        .limit(count)
+                        .load_iter::<ChatRow, _>(conn),
+                    Bound::Excluded(log_id) => chat::table
+                        .filter(chat::channel_id.eq(id).and(chat::log_id.lt(log_id)))
+                        .limit(count)
+                        .load_iter::<ChatRow, _>(conn),
+                    Bound::Unbounded => chat::table
+                        .filter(chat::channel_id.eq(id))
+                        .limit(count)
+                        .load_iter::<ChatRow, _>(conn),
+                }?;
+
+                Ok(iter
+                    .map(|row| row.map(|row| row.into()))
+                    .collect::<Result<_, _>>()?)
+            })
+            .await
+    }
+}
+
+pub(crate) async fn load_list_item(
+    pool: &DatabasePool,
+    row: &ChannelListRow,
+) -> Result<Option<ChannelListItem>, PoolTaskError> {
+    let channel_type = ChannelType::from(row.channel_type.as_str());
+
+    let (last_chat, display_users) = pool
+        .spawn({
+            let channel_id = row.id;
+            let display_user_id_list =
+                serde_json::from_str::<ArrayVec<i64, 4>>(&row.display_users).unwrap_or_default();
+
+            move |conn| {
+                let last_chat: Option<Chatlog> = chat::table
+                    .filter(
+                        chat::channel_id
+                            .eq(channel_id)
+                            .and(chat::deleted_time.is_null()),
+                    )
+                    .order(chat::log_id.desc())
+                    .select(chat::all_columns)
+                    .first::<ChatRow>(conn)
+                    .optional()?
+                    .map(Into::into);
+
+                let last_chat: Option<ListPreviewChat> = if let Some(chat) = last_chat {
+                    let profile = if let Some((nickname, image_url)) = user_profile::table
+                        .select((user_profile::nickname, user_profile::profile_url))
+                        .filter(
+                            user_profile::channel_id
+                                .eq(channel_id)
+                                .and(user_profile::id.eq(chat.author_id)),
+                        )
+                        .first::<(String, String)>(conn)
+                        .optional()?
+                    {
+                        Some(DisplayUserProfile {
+                            nickname,
+                            image_url: Some(image_url),
+                        })
+                    } else {
+                        None
+                    };
+
+                    Some(ListPreviewChat {
+                        profile,
+                        chatlog: chat,
+                    })
+                } else {
+                    None
+                };
+
+                let mut display_users = ArrayVec::<DisplayUser, 4>::new();
+
+                for id in display_user_id_list {
+                    if let Some((nickname, profile_url)) = user_profile::table
+                        .select((user_profile::nickname, user_profile::profile_url))
+                        .filter(
+                            user_profile::channel_id
+                                .eq(channel_id)
+                                .and(user_profile::id.eq(id)),
+                        )
+                        .first::<(String, String)>(conn)
+                        .optional()?
+                    {
+                        display_users.push(DisplayUser {
+                            id,
+                            profile: DisplayUserProfile {
+                                nickname,
+                                image_url: Some(profile_url),
+                            },
+                        });
+                    }
+                }
+
+                Ok((last_chat, display_users))
             }
+        })
+        .await?;
+
+    let profile = match channel_type {
+        ChannelType::DirectChat | ChannelType::MultiChat => {
+            normal::load_list_profile(pool, &display_users, row).await?
         }
 
-        drop(sender);
-        database_task.await?;
+        _ => return Ok(None),
+    };
 
-        Ok(count)
-    }
+    Ok(Some(ChannelListItem {
+        channel_type,
+        last_chat: last_chat.map(Into::into),
+        display_users,
+        unread_count: row.unread_count,
+        active_user_count: row.active_user_count,
+        profile,
+    }))
 }

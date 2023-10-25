@@ -4,10 +4,12 @@ mod constants;
 mod event;
 mod handler;
 
+use handler::handle_event;
 use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
+use serde::Deserialize;
 use sha2::{Digest, Sha256};
-use std::{task::Poll, time::Duration};
+use std::{sync::Arc, task::Poll};
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
@@ -15,24 +17,22 @@ use tauri::{
 };
 
 use anyhow::{anyhow, Context};
-use futures::{future::poll_fn, ready, stream, StreamExt};
+use futures::{future::poll_fn, ready};
 use headless_talk::{
-    config::ClientConfig, database::pool::DatabasePool, handler::SessionHandler, ClientCredential,
-    ClientStatus, KiwiTalkSession,
+    config::ClientEnv,
+    updater::{Credential, TalkInitializer},
+    ClientStatus, HeadlessTalk,
 };
-use talk_loco_client::{
-    futures_loco_protocol::{session::LocoSession, LocoClient},
-    talk::stream::TalkStream,
-};
-use tokio::{sync::mpsc, task::JoinHandle, time::sleep};
+use talk_loco_client::futures_loco_protocol::LocoClient;
+use tokio::sync::mpsc;
 
 use kiwi_talk_result::TauriResult;
 use kiwi_talk_system::get_system_info;
 
 use conn::checkin;
-use constants::{TALK_DEVICE_TYPE, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS, TALK_VERSION};
+use constants::{TALK_APP_VERSION, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS};
 
-use self::{conn::create_secure_stream, event::MainEvent, handler::run_handler};
+use self::{conn::create_secure_stream, event::MainEvent};
 
 pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
     Ok(Builder::new(name)
@@ -58,9 +58,24 @@ fn created(state: ClientState<'_>) -> bool {
     state.read().is_some()
 }
 
+#[derive(Clone, Deserialize, Copy)]
+enum Status {
+    Unlocked,
+    Locked,
+}
+
+impl From<Status> for ClientStatus {
+    fn from(val: Status) -> Self {
+        match val {
+            Status::Unlocked => ClientStatus::Unlocked,
+            Status::Locked => ClientStatus::Locked,
+        }
+    }
+}
+
 #[tauri::command(async)]
 async fn create(
-    status: ClientStatus,
+    status: Status,
     cred: CredentialState<'_>,
     state: ClientState<'_>,
 ) -> TauriResult<i32> {
@@ -73,10 +88,10 @@ async fn create(
     };
 
     let client = create_client(
-        status,
-        ClientCredential {
+        status.into(),
+        Credential {
             access_token: &access_token,
-            device_uuid: &get_system_info().device_info.device_uuid,
+            device_uuid: &get_system_info().device.device_uuid,
         },
         user_id as _,
     )
@@ -111,25 +126,18 @@ async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<MainEven
 
 #[derive(Debug)]
 struct Client {
-    session: KiwiTalkSession,
+    talk: Arc<HeadlessTalk>,
     event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
-    stream_task: JoinHandle<()>,
-    ping_task: JoinHandle<()>,
-}
-
-impl Drop for Client {
-    fn drop(&mut self) {
-        self.stream_task.abort();
-        self.ping_task.abort();
-    }
 }
 
 async fn create_client(
     status: ClientStatus,
-    credential: ClientCredential<'_>,
+    credential: Credential<'_>,
     user_id: i64,
 ) -> anyhow::Result<Client> {
-    let user_dir = get_system_info().data_dir.join("userdata").join({
+    let info = get_system_info();
+
+    let user_dir = info.data_dir.join("userdata").join({
         let mut digest = Sha256::new();
 
         digest.update("user_");
@@ -142,94 +150,53 @@ async fn create_client(
         .await
         .context("cannot create user directory")?;
 
-    let pool =
-        DatabasePool::file(user_dir.join("database.db")).context("failed to open database")?;
-    pool.migrate_to_latest()
-        .await
-        .context("failed to migrate database to latest")?;
-
     let checkin = checkin(user_id).await?;
 
-    let (session, stream) = LocoSession::new(LocoClient::new(
+    let client = LocoClient::new(
         create_secure_stream((checkin.host.as_str(), checkin.port as u16))
             .await
             .context("failed to create secure stream")?,
-    ));
+    );
 
-    let mut stream = TalkStream::new(stream);
-
-    let mut stream_buffer = Vec::new();
-
-    let session = {
-        let login_task = async {
-            let info = get_system_info();
-
-            KiwiTalkSession::login(
-                session,
-                pool,
-                ClientConfig {
-                    os: TALK_OS,
-                    net_type: TALK_NET_TYPE,
-                    app_version: TALK_VERSION,
-                    mccmnc: TALK_MCCMNC,
-                    language: info.device_info.language(),
-                    device_type: TALK_DEVICE_TYPE,
-                },
-                credential,
-                status,
-            )
-            .await
-            .context("failed to login")
-        };
-
-        let stream_task = async {
-            while let Some(read) = stream.next().await.transpose()? {
-                stream_buffer.push(read);
-            }
-
-            Ok::<_, anyhow::Error>(())
-        };
-
-        tokio::select! {
-            session = login_task => session?,
-            res = stream_task => {
-                res?;
-                unreachable!();
-            }
-        }
-    };
+    let initializer = TalkInitializer::new(
+        client,
+        ClientEnv {
+            os: TALK_OS,
+            net_type: TALK_NET_TYPE,
+            app_version: TALK_APP_VERSION,
+            mccmnc: TALK_MCCMNC,
+            language: info.device.language(),
+        },
+        user_dir.join("client.db").to_string_lossy(),
+    )
+    .await
+    .context("failed to login")?;
 
     let (event_tx, event_rx) = mpsc::channel(100);
 
-    let handler = SessionHandler::new(&session);
+    let talk = initializer
+        .login(credential, status, move |res| {
+            let event_tx = event_tx.clone();
 
-    run_handler(
-        handler.clone(),
-        stream::iter(stream_buffer).map(Ok),
-        event_tx.clone(),
-    )
-    .await;
+            async move {
+                match res {
+                    Ok(event) => {
+                        if let Err(err) = handle_event(event, event_tx.clone()).await {
+                            let _ = event_tx.send(Err(err)).await;
+                        }
+                    }
 
-    let stream_task = tokio::spawn(run_handler(handler, stream, event_tx));
-
-    let ping_task = tokio::spawn({
-        let session = session.clone();
-
-        async move {
-            loop {
-                sleep(Duration::from_secs(60)).await;
-
-                if session.send_ping().await.is_err() {
-                    return;
+                    Err(err) => {
+                        let _ = event_tx.send(Err(err.into())).await;
+                    }
                 }
             }
-        }
-    });
+        })
+        .await
+        .context("failed to initialize client")?;
 
     Ok(Client {
-        session,
+        talk: Arc::new(talk),
         event_rx,
-        stream_task,
-        ping_task,
     })
 }

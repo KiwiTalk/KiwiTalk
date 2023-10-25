@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::structs::{channel::ChannelInfo, channel::ChannelMeta, chat::Chatlog};
+use crate::talk::{channel::ChannelMeta, chat::Chatlog, session::channel::info::ChannelInfo};
 
 /// Send before server disconnect connection
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -120,7 +120,7 @@ pub struct SyncMemT {
     /// User member type list.
     /// Check `src/structs/openlink.rs` OpenMemberType for predefined types.
     #[serde(rename = "mts")]
-    pub mem_types: Vec<i8>,
+    pub mem_types: Vec<i32>,
 }
 
 /// Sync openchat user profile

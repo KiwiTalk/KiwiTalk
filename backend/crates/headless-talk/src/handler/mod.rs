@@ -1,19 +1,19 @@
 pub mod error;
 
+use diesel::{BoolExpressionMethods, ExpressionMethods, RunQueryDsl};
+use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 use talk_loco_client::talk::stream::{
     command::{DecunRead, Kickout, Msg},
     StreamCommand,
 };
 
 use crate::{
-    chat::Chatlog,
     database::{
-        channel::user::UserDatabaseExt,
-        chat::{ChatDatabaseExt, ChatRow},
-        pool::DatabasePool,
+        model::chat::ChatRow,
+        schema::{self, chat},
+        DatabasePool,
     },
     event::{channel::ChannelEvent, ClientEvent},
-    KiwiTalkSession,
 };
 
 use self::error::HandlerError;
@@ -21,19 +21,17 @@ use self::error::HandlerError;
 type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
 #[derive(Debug, Clone)]
-pub struct SessionHandler {
+pub(crate) struct SessionHandler {
     pool: DatabasePool,
 }
 
 impl SessionHandler {
-    pub fn new(client: &KiwiTalkSession) -> Self {
-        Self {
-            pool: client.pool.clone(),
-        }
+    pub fn new(pool: DatabasePool) -> Self {
+        Self { pool }
     }
 
-    pub async fn handle(&self, command: StreamCommand) -> HandlerResult {
-        match command {
+    pub async fn handle(&self, read: BoxedCommand) -> HandlerResult {
+        match StreamCommand::deserialize_from(read)? {
             StreamCommand::Kickout(kickout) => self.on_kickout(kickout).await,
             StreamCommand::SwitchServer => self.on_switch_server().await,
             StreamCommand::Chat(msg) => self.on_chat(msg).await,
@@ -52,17 +50,14 @@ impl SessionHandler {
     }
 
     async fn on_chat(&self, msg: Msg) -> HandlerResult {
-        let chat = Chatlog::from(msg.chatlog);
-
         self.pool
-            .spawn_task({
-                let chatlog = chat.clone();
+            .spawn({
+                let row = ChatRow::from_chatlog(msg.chatlog.clone(), None);
 
-                |connection| {
-                    connection.chat().insert(&ChatRow {
-                        log: chatlog,
-                        deleted_time: None,
-                    })?;
+                move |conn| {
+                    diesel::replace_into(chat::table)
+                        .values(row)
+                        .execute(conn)?;
 
                     Ok(())
                 }
@@ -76,25 +71,31 @@ impl SessionHandler {
                 link_id: msg.link_id,
 
                 user_nickname: msg.author_nickname,
-                chat,
+                chat: msg.chatlog,
             },
         }))
     }
 
     async fn on_chat_read(&self, read: DecunRead) -> HandlerResult {
         self.pool
-            .spawn_task({
+            .spawn({
                 let DecunRead {
-                    chat_id,
+                    chat_id: channel_id,
                     user_id,
                     watermark,
                 } = read.clone();
 
-                move |connection| {
-                    connection
-                        .user()
-                        .update_watermark(chat_id, user_id, watermark)?;
+                move |conn| {
+                    use schema::user_profile;
 
+                    diesel::update(user_profile::table)
+                        .filter(
+                            user_profile::channel_id
+                                .eq(channel_id)
+                                .and(user_profile::id.eq(user_id)),
+                        )
+                        .set(user_profile::watermark.eq(watermark))
+                        .execute(conn)?;
                     Ok(())
                 }
             })

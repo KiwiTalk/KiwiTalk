@@ -1,19 +1,17 @@
 pub mod client;
 pub mod macros;
-pub mod structs;
 pub mod talk;
 
 pub use futures_loco_protocol;
-pub use futures_loco_protocol::loco_protocol;
 
 use std::io;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use thiserror::Error;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BsonCommandStatus {
-    pub status: i32,
+#[derive(Deserialize)]
+struct Status {
+    status: i32,
 }
 
 pub type RequestResult<T> = Result<T, RequestError>;

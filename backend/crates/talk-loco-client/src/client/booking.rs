@@ -26,7 +26,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin> BookingClient<T> {
 }
 
 /// Request checkin server information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct GetConfReq<'a> {
     /// Network MCCMNC
     #[serde(rename = "MCCMNC")]
@@ -40,7 +40,7 @@ pub struct GetConfReq<'a> {
 }
 
 /// Answer checkin server information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct GetConfRes {
     /// Unknown
     pub revision: i32,

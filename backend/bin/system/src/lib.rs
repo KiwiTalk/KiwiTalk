@@ -41,12 +41,12 @@ pub async fn init<R: Runtime>(path_resolver: PathResolver) -> anyhow::Result<Tau
 
 #[tauri::command]
 fn get_device_locale() -> String {
-    get_system_info().device_info.locale.clone()
+    get_system_info().device.locale.clone()
 }
 
 #[tauri::command]
 fn get_device_name() -> String {
-    get_system_info().device_info.name.clone()
+    get_system_info().device.name.clone()
 }
 
 #[derive(Debug)]
@@ -59,11 +59,11 @@ pub struct SystemInfo {
     pub config_dir: PathBuf,
 
     /// Device information
-    pub device_info: DeviceInfo,
+    pub device: Device,
 }
 
 #[derive(Debug)]
-pub struct DeviceInfo {
+pub struct Device {
     /// Device locale
     pub locale: String,
 
@@ -74,7 +74,7 @@ pub struct DeviceInfo {
     pub device_uuid: DeviceUuid,
 }
 
-impl DeviceInfo {
+impl Device {
     #[inline]
     pub fn language(&self) -> &str {
         &self.locale[..2]
@@ -143,7 +143,7 @@ async fn create_system_info(resolver: &PathResolver) -> anyhow::Result<SystemInf
         .flatten()
         .unwrap_or_else(|| String::from(DEFAULT_DEVICE_NAME));
 
-    let device_info = DeviceInfo {
+    let device_info = Device {
         locale,
         name,
         device_uuid,
@@ -152,7 +152,7 @@ async fn create_system_info(resolver: &PathResolver) -> anyhow::Result<SystemInf
     Ok(SystemInfo {
         data_dir,
         config_dir,
-        device_info,
+        device: device_info,
     })
 }
 

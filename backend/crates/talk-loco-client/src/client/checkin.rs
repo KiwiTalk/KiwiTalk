@@ -63,7 +63,7 @@ pub struct CheckinReq<'a> {
 }
 
 /// Answer loco server information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct CheckinRes {
     /// Loco server ip
     pub host: String,
@@ -105,7 +105,7 @@ pub struct CheckinRes {
 
 /// Request call server host data.
 /// Checkin response already contains call server info
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct BuyCSReq<'a> {
     /// Current OS (win32, android, mac, etc.)
     pub os: &'a str,
@@ -127,7 +127,7 @@ pub struct BuyCSReq<'a> {
 }
 
 /// Call server information
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct BuyCSRes {
     /// Call server ip
     #[serde(rename = "cshost")]

@@ -1,37 +1,33 @@
-use serde::{Deserialize, Serialize};
-use talk_loco_client::structs::user::User;
+use crate::{
+    database::model::user::{normal::NormalChannelUserModel, UserProfileModel},
+    user::UserProfile,
+};
 
-use crate::channel::user::{UserData, UserProfile};
-
-pub type NormalUserData = UserData<NormalUserInfo>;
-
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct NormalUserInfo {
+#[derive(Debug, Clone)]
+pub struct NormalChannelUser {
     pub country_iso: String,
+
     pub account_id: i64,
-    pub status_message: Option<String>,
-    pub linked_services: Option<String>,
+    pub status_message: String,
+    pub linked_services: String,
+
     pub suspended: bool,
+
+    pub watermark: i64,
+
+    pub profile: UserProfile,
 }
 
-impl From<User> for UserData<NormalUserInfo> {
-    fn from(user: User) -> Self {
+impl NormalChannelUser {
+    pub(super) fn from_models(profile: UserProfileModel, user: NormalChannelUserModel) -> Self {
         Self {
-            id: user.user_id,
-            user_type: user.user_type,
-            profile: UserProfile {
-                nickname: user.nickname,
-                image_url: user.profile_image_url,
-                full_image_url: user.full_profile_image_url,
-                original_image_url: user.original_profile_image_url,
-            },
-            info: NormalUserInfo {
-                country_iso: user.country_iso,
-                account_id: user.account_id,
-                status_message: Some(user.status_message),
-                linked_services: Some(user.linked_services),
-                suspended: user.suspended,
-            },
+            country_iso: user.country_iso,
+            account_id: user.account_id,
+            status_message: user.status_message,
+            linked_services: user.linked_services,
+            suspended: user.suspended,
+            watermark: profile.watermark.unwrap_or(0),
+            profile: UserProfile::from(profile),
         }
     }
 }

@@ -40,7 +40,7 @@ async fn main() {
     if args.len() < 3 {
         println!(
             "Usage: {} <email> <password>",
-            args.get(0).unwrap_or(&String::new())
+            args.first().unwrap_or(&String::new())
         );
         return;
     }
