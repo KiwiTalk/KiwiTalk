@@ -1721,7 +1721,7 @@ checksum = "7dfda62a12f55daeae5015f81b0baea145391cb4520f86c248fc615d72640d12"
 
 [[package]]
 name = "headless-talk"
-version = "0.3.3"
+version = "0.4.0"
 dependencies = [
  "arrayvec",
  "bson",
@@ -2108,7 +2108,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-api"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2128,7 +2128,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-app"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "kiwi-talk-api",
@@ -2150,7 +2150,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-client"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "arrayvec",
@@ -2174,7 +2174,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-result"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "serde",
@@ -2182,7 +2182,7 @@ dependencies = [
 
 [[package]]
 name = "kiwi-talk-system"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "base64 0.21.4",
@@ -4136,7 +4136,7 @@ dependencies = [
 
 [[package]]
 name = "talk-api-internal"
-version = "0.1.3"
+version = "0.2.0"
 dependencies = [
  "hex",
  "reqwest",
@@ -4151,7 +4151,7 @@ dependencies = [
 
 [[package]]
 name = "talk-loco-client"
-version = "0.3.3"
+version = "0.4.0"
 dependencies = [
  "async-stream",
  "bitflags 2.4.1",
