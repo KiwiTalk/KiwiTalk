@@ -165,10 +165,8 @@ pub(crate) async fn open_channel(
                         )
                         .execute(conn)?;
 
-                    Ok::<_, PoolTaskError>(())
-                })?;
-
-                Ok(())
+                    Ok(())
+                })
             })
             .await?;
     }
