@@ -1,94 +1,39 @@
-import {
-  Accessor,
-  createEffect,
-  createResource,
-  createSignal,
-  mergeProps,
-  on,
-  untrack,
-} from 'solid-js';
+import { Accessor, untrack } from 'solid-js';
 
-import { Chatlog, NormalChannelUser, openChannel } from '@/api/client';
+import { Chatlog, NormalChannelUser } from '@/api/client';
 import { VirtualList } from '@/ui-common/virtual-list';
-import { useReady } from '@/pages/main/_utils';
 
 import * as styles from './message-list.css';
 import { Message } from '../message';
-import { useEvent } from '@/pages/main/_utils/useEvent';
 
-export type MessageListViewModelType = (id: string) => {
+export type MessageListViewModelType = () => {
   messages: Accessor<Chatlog[]>;
   members: Accessor<Record<string, NormalChannelUser>>;
-};
-
-export const MessageListViewModel: MessageListViewModelType = (id) => {
-  const isReady = useReady();
-  const event = useEvent();
-
-  const [loadMore, setLoadMore] = createSignal(true);
-  const [messages, setMessages] = createSignal<Chatlog[]>([]);
-  let lastLogId: string | undefined = undefined;
-
-  const [channel] = createResource(isReady, async (ready) => {
-    if (!ready) return null;
-
-    return openChannel(id);
-  });
-  const [members] = createResource(() => channel(), async (target) => {
-    if (!target) return {};
-
-    return Object.fromEntries(await target.getUsers() ?? []);
-  });
-
-  createResource(() => [channel(), loadMore()] as const, async ([target, isLoad]) => {
-    if (!target) return;
-    if (!isLoad) return;
-
-    const newLoaded = await target.loadChat(50, lastLogId) ?? [];
-
-    const result = [...messages(), ...newLoaded].reverse();
-    lastLogId = result.at(-1)?.logId;
-
-    setMessages(result);
-    setLoadMore(false);
-  });
-
-  createEffect(on(event, (event) => {
-    if (event?.type === 'chat') {
-      const newMessage = event.content;
-
-      if (newMessage.channel === id) {
-        channel()?.loadChat(1).then((newLoaded) => {
-          const result = [...messages(), ...newLoaded];
-
-          setMessages(result);
-        });
-      }
-    }
-  }));
-
-  return {
-    messages,
-    loadMore: () => setLoadMore(true),
-    members: () => members() ?? {},
-  };
 };
 
 export type MessageListProps = {
   channelId: string;
   logonId?: string
-  viewModel?: MessageListViewModelType;
+  viewModel: MessageListViewModelType;
 };
 export const MessageList = (props: MessageListProps) => {
-  const merged = mergeProps({ viewModel: MessageListViewModel }, props);
-  const [instance, setInstance] = createSignal(untrack(() => merged.viewModel(props.channelId)));
+  const instance = untrack(() => props.viewModel());
 
-  const messages = () => instance().messages();
-  const users = () => instance().members();
+  const messages = () => instance.messages();
+  const users = () => instance.members();
 
-  createEffect(on(() => props.channelId, () => {
-    setInstance(merged.viewModel(props.channelId));
-  }, { defer: true }));
+  const isDiff = (a: number, b: number) => {
+    const aDate = new Date(a * 1000);
+    const bDate = new Date(b * 1000);
+
+    return (
+      aDate.getFullYear() !== bDate.getFullYear() ||
+      aDate.getMonth() !== bDate.getMonth() ||
+      aDate.getDate() !== bDate.getDate() ||
+      aDate.getHours() !== bDate.getHours() ||
+      aDate.getMinutes() !== bDate.getMinutes()
+    );
+  };
 
   return (
     <VirtualList
@@ -96,8 +41,8 @@ export const MessageList = (props: MessageListProps) => {
       items={messages()}
       class={styles.virtualList.outer}
       innerClass={styles.virtualList.inner}
-      topMargin={32}
-      bottomMargin={32}
+      topMargin={32 + 64 + 16}
+      bottomMargin={24 + 44 + 16}
     >
       {(item, index) => (
         <Message
@@ -108,7 +53,11 @@ export const MessageList = (props: MessageListProps) => {
               undefined
           }
           unread={item.referer}
-          time={new Date(item.sendAt)}
+          time={
+            isDiff(messages()[index() + 1]?.sendAt, item.sendAt) ?
+              new Date(item.sendAt * 1000) :
+              undefined
+          }
           isMine={item.senderId === props.logonId}
           isConnected={messages()[index() + 1]?.senderId === item.senderId}
         >
