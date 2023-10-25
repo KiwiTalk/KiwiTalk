@@ -165,14 +165,6 @@ impl<'a> TalkChannel<'a> {
         .await
     }
 
-    pub async fn leave(self, block: bool) -> RequestResult<()> {
-        request!(self.session, "LEAVE", bson {
-            "chatId": self.id,
-            "block": block,
-        })
-        .await
-    }
-
     pub async fn set_meta(self, ty: i32, content: &str) -> RequestResult<ChannelMeta> {
         #[derive(Deserialize)]
         struct Response {
