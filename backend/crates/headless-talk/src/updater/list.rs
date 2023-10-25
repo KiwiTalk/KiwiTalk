@@ -29,7 +29,7 @@ impl<'a> ChannelListUpdater<'a> {
     pub async fn update(
         self,
         iter: impl IntoIterator<Item = ChannelListData>,
-        deleted_ids: impl IntoIterator<Item = i64>,
+        _deleted_ids: impl IntoIterator<Item = i64>,
     ) -> ClientResult<()> {
         let update_map = self
             .pool

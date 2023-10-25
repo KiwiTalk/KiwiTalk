@@ -8,14 +8,6 @@ pub struct OpenChannel<'a> {
 }
 
 impl<'a> OpenChannel<'a> {
-    pub(crate) const fn new(id: i64, link_id: i64, client: &'a HeadlessTalk) -> Self {
-        Self {
-            id,
-            link_id,
-            client,
-        }
-    }
-
     pub const fn id(self) -> i64 {
         self.id
     }
