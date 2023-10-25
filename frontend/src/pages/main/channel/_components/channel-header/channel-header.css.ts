@@ -2,15 +2,22 @@ import { classes, vars } from '@/features/theme';
 import { style, styleVariants } from '@vanilla-extract/css';
 
 export const container = style({
+  position: 'absolute',
+  top: 0,
+  left: 0,
   width: '100%',
 
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'flex-end',
 
+  zIndex: vars.layer.head,
+
   padding: '32px',
   paddingBottom: '20px',
 
+  backdropFilter: `${vars.blur.large}`,
+  WebkitBackdropFilter: `${vars.blur.large}`,
   backgroundColor: vars.color.glassPrimary.background,
   borderBottom: `1px solid ${vars.color.glassPrimary.fillTertiary}`,
 });

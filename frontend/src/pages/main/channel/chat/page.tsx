@@ -4,6 +4,7 @@ import { useParams } from '@solidjs/router';
 import { MessageList, MessageListViewModel } from './_components/message-list';
 
 import * as styles from './page.css';
+import { ChannelHeader } from '../_components/channel-header';
 
 export const ChatPage = () => {
   const params = useParams();
@@ -11,6 +12,7 @@ export const ChatPage = () => {
 
   return (
     <div class={styles.container}>
+      <ChannelHeader />
       <Show when={channelId()}>
         <MessageList
           channelId={channelId()!}

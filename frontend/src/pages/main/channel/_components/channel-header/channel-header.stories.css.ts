@@ -1,6 +1,8 @@
 import { style } from '@vanilla-extract/css';
 
 export const background = style({
+  position: 'relative',
+
   width: '900px',
   height: '300px',
 
