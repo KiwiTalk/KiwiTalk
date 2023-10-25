@@ -27,6 +27,7 @@ Default.args = {
   time: new Date(),
   isMine: true,
   isBubble: true,
+  isConnected: false,
 
   children: 'Content',
 };

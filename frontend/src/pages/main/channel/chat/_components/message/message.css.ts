@@ -23,7 +23,7 @@ export const container = styleVariants({
 
 export const profile = style({
   width: '48px',
-  height: '48px',
+  height: '24px',
 });
 
 export const contentContainer = style({
@@ -36,10 +36,21 @@ export const contentContainer = style({
   gap: '4px',
 });
 
-export const sender = style([classes.typography.title, {
+const baseSender = style([classes.typography.title, {
   color: vars.color.glassSecondary.fillPrimary,
   fontWeight: 700,
+
+  marginTop: '6px',
 }]);
+
+export const sender = styleVariants({
+  other: [baseSender, {
+    alignSelf: 'flex-start',
+  }],
+  mine: [baseSender, {
+    alignSelf: 'flex-end',
+  }],
+});
 
 const baseBubble = style({
   borderRadius: vars.radius.large,
@@ -59,6 +70,14 @@ export const bubble = styleVariants({
     color: vars.color.primary.fillPrimary,
 
     borderBottomRightRadius: 0,
+  }],
+  otherConnected: [baseBubble, {
+    backgroundColor: vars.color.solidSecondary.background,
+    color: vars.color.solidSecondary.fillPrimary,
+  }],
+  mineConnected: [baseBubble, {
+    backgroundColor: vars.color.primary.background,
+    color: vars.color.primary.fillPrimary,
   }],
 });
 
