@@ -1,6 +1,7 @@
 pub mod normal;
 
 use diesel::{prelude::Queryable, Insertable, Selectable};
+use talk_loco_client::talk::session;
 
 use crate::database::schema::user_profile;
 
@@ -15,6 +16,22 @@ pub struct UserProfileRow<'a> {
     pub profile_url: &'a str,
     pub full_profile_url: &'a str,
     pub original_profile_url: &'a str,
+}
+
+impl<'a> UserProfileRow<'a> {
+    pub fn from_normal_user(
+        channel_id: i64,
+        user: &'a session::channel::normal::user::User,
+    ) -> Self {
+        Self {
+            id: user.user_id,
+            channel_id,
+            nickname: user.nickname.as_str(),
+            profile_url: user.profile_image_url.as_str(),
+            full_profile_url: user.full_profile_image_url.as_str(),
+            original_profile_url: user.original_profile_image_url.as_str(),
+        }
+    }
 }
 
 #[derive(Debug, Queryable, Selectable, Clone, PartialEq, Eq)]

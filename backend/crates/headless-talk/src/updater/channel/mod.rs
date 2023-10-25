@@ -1,34 +1,39 @@
-use diesel::RunQueryDsl;
+mod normal;
+
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SqliteConnection};
 use futures_loco_protocol::session::LocoSession;
-use talk_loco_client::talk::session::{channel::info::ChannelInfoType, TalkSession};
+use talk_loco_client::talk::{
+    channel::ChannelType,
+    session::{channel::info::ChannelInfoType, TalkSession},
+};
 
 use crate::{
     database::{
-        model::{
-            channel::{meta::ChannelMetaRow, normal::NormalChannelRow},
-            user::{normal::NormalChannelUserRow, UserProfileRow},
-        },
-        schema::{channel_meta, normal_channel, normal_channel_user, user_profile},
-        DatabasePool,
+        model::channel::{meta::ChannelMetaRow, ChannelListRow},
+        schema::{channel_list, channel_meta, chat, user_profile},
+        DatabasePool, PoolTaskError,
     },
     ClientResult,
 };
 
-#[derive(Debug)]
-pub struct ChannelUpdater<'a> {
-    session: &'a LocoSession,
-    pool: &'a DatabasePool,
+use self::normal::NormalChannelUpdater;
 
+#[derive(Debug)]
+pub struct ChannelUpdater {
     id: i64,
 }
 
-impl<'a> ChannelUpdater<'a> {
-    pub fn new(session: &'a LocoSession, pool: &'a DatabasePool, id: i64) -> Self {
-        Self { session, pool, id }
+impl ChannelUpdater {
+    pub fn new(id: i64) -> Self {
+        Self { id }
     }
 
-    pub async fn update(self) -> ClientResult<Option<()>> {
-        let res = TalkSession(self.session).channel(self.id).info().await?;
+    pub async fn update(
+        self,
+        session: &LocoSession,
+        pool: &DatabasePool,
+    ) -> ClientResult<Option<()>> {
+        let res = TalkSession(session).channel(self.id).info().await?;
 
         let meta_rows = res
             .channel_metas
@@ -47,56 +52,10 @@ impl<'a> ChannelUpdater<'a> {
             ChannelInfoType::DirectChat(normal)
             | ChannelInfoType::MultiChat(normal)
             | ChannelInfoType::MemoChat(normal) => {
-                let list = TalkSession(self.session)
-                    .normal_channel(self.id)
-                    .list_users()
-                    .await?;
-
-                self.pool
-                    .spawn(move |conn| {
-                        let profiles = list
-                            .iter()
-                            .map(|user| UserProfileRow {
-                                id: user.user_id,
-                                channel_id: self.id,
-                                nickname: &user.nickname,
-                                profile_url: &user.profile_image_url,
-                                full_profile_url: &user.full_profile_image_url,
-                                original_profile_url: &user.original_profile_image_url,
-                            })
-                            .collect::<Vec<_>>();
-
-                        let users = list
-                            .iter()
-                            .map(|user| NormalChannelUserRow {
-                                id: user.user_id,
-                                channel_id: self.id,
-                                country_iso: &user.country_iso,
-                                account_id: user.account_id,
-                                status_message: &user.status_message,
-                                linked_services: &user.linked_services,
-                                suspended: user.suspended,
-                            })
-                            .collect::<Vec<_>>();
-
+                NormalChannelUpdater::new(self.id)
+                    .update(session, pool, normal, move |conn| {
                         diesel::replace_into(channel_meta::table)
                             .values(meta_rows)
-                            .execute(conn)?;
-
-                        diesel::replace_into(user_profile::table)
-                            .values(profiles)
-                            .execute(conn)?;
-
-                        diesel::replace_into(normal_channel_user::table)
-                            .values(users)
-                            .execute(conn)?;
-
-                        diesel::replace_into(normal_channel::table)
-                            .values(NormalChannelRow {
-                                id: self.id,
-                                joined_at_for_new_mem: Some(normal.joined_at_for_new_mem),
-                                inviter_user_id: normal.inviter_id,
-                            })
                             .execute(conn)?;
 
                         Ok(())
@@ -108,6 +67,35 @@ impl<'a> ChannelUpdater<'a> {
 
             _ => {}
         }
+
+        Ok(Some(()))
+    }
+
+    pub fn remove(self, conn: &mut SqliteConnection) -> Result<Option<()>, PoolTaskError> {
+        let row: ChannelListRow = channel_list::table
+            .select(channel_list::all_columns)
+            .filter(channel_list::id.eq(self.id))
+            .first::<ChannelListRow>(conn)?;
+
+        let ty = ChannelType::from(row.channel_type.as_str());
+
+        match ty {
+            ChannelType::DirectChat | ChannelType::MultiChat | ChannelType::MemoChat => {
+                NormalChannelUpdater::new(self.id).remove(conn)?;
+            }
+
+            _ => return Ok(None),
+        }
+
+        diesel::delete(chat::table.filter(chat::channel_id.eq(self.id))).execute(conn)?;
+
+        diesel::delete(channel_meta::table.filter(channel_meta::channel_id.eq(self.id)))
+            .execute(conn)?;
+
+        diesel::delete(user_profile::table.filter(user_profile::channel_id.eq(self.id)))
+            .execute(conn)?;
+
+        diesel::delete(channel_list::table.filter(channel_list::id.eq(self.id))).execute(conn)?;
 
         Ok(Some(()))
     }

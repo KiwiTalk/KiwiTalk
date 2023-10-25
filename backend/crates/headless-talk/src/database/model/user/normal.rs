@@ -1,4 +1,5 @@
 use diesel::{prelude::Queryable, Insertable, Selectable};
+use talk_loco_client::talk::session::channel::normal;
 
 use crate::database::schema::normal_channel_user;
 
@@ -15,6 +16,20 @@ pub struct NormalChannelUserRow<'a> {
     pub linked_services: &'a str,
 
     pub suspended: bool,
+}
+
+impl<'a> NormalChannelUserRow<'a> {
+    pub fn from_user(channel_id: i64, user: &'a normal::user::User) -> Self {
+        NormalChannelUserRow {
+            id: user.user_id,
+            channel_id,
+            country_iso: user.country_iso.as_str(),
+            account_id: user.account_id,
+            status_message: user.status_message.as_str(),
+            linked_services: user.linked_services.as_str(),
+            suspended: user.suspended,
+        }
+    }
 }
 
 #[derive(Debug, Queryable, Selectable, Clone, PartialEq, Eq)]
