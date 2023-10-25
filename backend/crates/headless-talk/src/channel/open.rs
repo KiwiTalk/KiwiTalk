@@ -1,22 +1,18 @@
-use crate::HeadlessTalk;
+use crate::conn::Conn;
 
-#[derive(Debug, Clone, Copy)]
-pub struct OpenChannel<'a> {
+#[derive(Debug)]
+pub struct OpenChannel {
     id: i64,
     link_id: i64,
-    client: &'a HeadlessTalk,
+    pub(super) conn: Conn,
 }
 
-impl<'a> OpenChannel<'a> {
-    pub const fn id(self) -> i64 {
+impl OpenChannel {
+    pub const fn id(&self) -> i64 {
         self.id
     }
 
-    pub const fn link_id(self) -> i64 {
+    pub const fn link_id(&self) -> i64 {
         self.link_id
-    }
-
-    pub const fn client(self) -> &'a HeadlessTalk {
-        self.client
     }
 }

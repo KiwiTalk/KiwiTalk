@@ -9,6 +9,7 @@ use talk_loco_client::talk::{
 };
 
 use crate::{
+    conn::Conn,
     database::{
         model::{
             channel::ChannelListRow,
@@ -28,30 +29,26 @@ use self::user::NormalChannelUser;
 
 use super::ListChannelProfile;
 
-#[derive(Debug, Clone)]
-pub struct NormalChannel<'a> {
+#[derive(Debug)]
+pub struct NormalChannel {
     id: i64,
-    client: &'a HeadlessTalk,
+    pub(super) conn: Conn,
 }
 
-impl<'a> NormalChannel<'a> {
+impl NormalChannel {
     pub const fn id(&self) -> i64 {
         self.id
     }
 
-    pub const fn client(&self) -> &'a HeadlessTalk {
-        self.client
-    }
-
-    pub async fn users(&self) -> Result<Vec<NormalChannelUser>, PoolTaskError> {
+    pub async fn users(&self) -> Result<Vec<(i64, NormalChannelUser)>, PoolTaskError> {
         let users = self
-            .client
+            .conn
             .pool
             .spawn({
                 let id = self.id;
 
                 move |conn| {
-                    let users: Vec<NormalChannelUser> = user_profile::table
+                    let users: Vec<(i64, NormalChannelUser)> = user_profile::table
                         .inner_join(
                             normal_channel_user::table.on(normal_channel_user::channel_id
                                 .eq(user_profile::channel_id)
@@ -59,13 +56,14 @@ impl<'a> NormalChannel<'a> {
                         )
                         .filter(user_profile::channel_id.eq(id))
                         .select((
+                            user_profile::id,
                             UserProfileModel::as_select(),
                             NormalChannelUserModel::as_select(),
                         ))
-                        .load_iter::<(UserProfileModel, NormalChannelUserModel), _>(conn)?
+                        .load_iter::<(i64, UserProfileModel, NormalChannelUserModel), _>(conn)?
                         .map(|res| {
-                            res.map(|(profile, normal)| {
-                                NormalChannelUser::from_models(profile, normal)
+                            res.map(|(user_id, profile, normal)| {
+                                (user_id, NormalChannelUser::from_models(profile, normal))
                             })
                         })
                         .collect::<Result<_, _>>()?;
@@ -130,6 +128,7 @@ pub(crate) async fn open_channel(
 ) -> ClientResult<NormalChannel> {
     if let Some(users) = normal.users {
         client
+            .conn
             .pool
             .spawn(move |conn| {
                 conn.transaction(move |conn| {
@@ -174,5 +173,8 @@ pub(crate) async fn open_channel(
             .await?;
     }
 
-    Ok(NormalChannel { id, client })
+    Ok(NormalChannel {
+        id,
+        conn: client.conn.clone(),
+    })
 }

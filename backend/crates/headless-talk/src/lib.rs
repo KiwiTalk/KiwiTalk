@@ -1,5 +1,6 @@
 pub mod channel;
 pub mod config;
+mod conn;
 mod constants;
 mod database;
 pub mod event;
@@ -8,17 +9,15 @@ pub mod updater;
 pub mod user;
 
 use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
-use diesel::{
-    BoolExpressionMethods, Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl,
-};
+use conn::Conn;
+use diesel::{BoolExpressionMethods, Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{
     model::channel::ChannelListRow,
     schema::{channel_list, user_profile},
-    DatabasePool, PoolTaskError,
+    PoolTaskError,
 };
-use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::{
     talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
     RequestError,
@@ -26,13 +25,9 @@ use talk_loco_client::{
 use thiserror::Error;
 use tokio::task::JoinHandle;
 
-use crate::database::schema::chat;
-
 #[derive(Debug)]
 pub struct HeadlessTalk {
-    user_id: i64,
-    session: LocoSession,
-    pool: DatabasePool,
+    pub(crate) conn: Conn,
 
     ping_task: JoinHandle<()>,
     stream_task: JoinHandle<()>,
@@ -40,11 +35,12 @@ pub struct HeadlessTalk {
 
 impl HeadlessTalk {
     pub const fn user_id(&self) -> i64 {
-        self.user_id
+        self.conn.user_id
     }
 
     pub async fn channel_list(&self) -> Result<Vec<(i64, ChannelListItem)>, PoolTaskError> {
         let rows = self
+            .conn
             .pool
             .spawn(|conn| {
                 let rows = channel_list::table
@@ -58,7 +54,7 @@ impl HeadlessTalk {
         let mut list = Vec::with_capacity(rows.capacity());
 
         for row in rows {
-            if let Some(list_item) = load_list_item(&self.pool, &row).await? {
+            if let Some(list_item) = load_list_item(&self.conn.pool, &row).await? {
                 list.push((row.id, list_item))
             }
         }
@@ -67,49 +63,22 @@ impl HeadlessTalk {
     }
 
     pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
-        let last_log_id = self
+        let last_seen_log_id = self
+            .conn
             .pool
             .spawn(move |conn| {
-                let last_log_id: Option<i64> = chat::table
-                    .filter(chat::channel_id.eq(id))
-                    .select(chat::log_id)
-                    .order_by(chat::log_id.desc())
-                    .first::<i64>(conn)
-                    .optional()?;
+                let last_seen_log_id: Option<i64> = channel_list::table
+                    .filter(channel_list::id.eq(id))
+                    .select(channel_list::last_seen_log_id)
+                    .first::<Option<i64>>(conn)?;
 
-                Ok(last_log_id)
+                Ok(last_seen_log_id)
             })
             .await?;
 
-        let res = TalkSession(&self.session)
+        let res = TalkSession(&self.conn.session)
             .channel(id)
-            .chat_on(last_log_id)
-            .await?;
-
-        let watermark_iter = res
-            .watermark_user_ids
-            .into_iter()
-            .zip(res.watermarks.into_iter());
-
-        self.pool
-            .spawn(move |conn| {
-                conn.transaction(|conn| {
-                    for (user_id, watermark) in watermark_iter {
-                        diesel::update(user_profile::table)
-                            .filter(
-                                user_profile::channel_id
-                                    .eq(id)
-                                    .and(user_profile::id.eq(user_id)),
-                            )
-                            .set(user_profile::watermark.eq(watermark))
-                            .execute(conn)?;
-                    }
-
-                    Ok::<_, PoolTaskError>(())
-                })?;
-
-                Ok(())
-            })
+            .chat_on(last_seen_log_id)
             .await?;
 
         let channel = match res.channel_type {
@@ -122,11 +91,39 @@ impl HeadlessTalk {
             _ => return Ok(None),
         };
 
+        if let (Some(watermark_user_ids), Some(watermarks)) =
+            (res.watermark_user_ids, res.watermarks)
+        {
+            let watermark_iter = watermark_user_ids.into_iter().zip(watermarks.into_iter());
+
+            self.conn
+                .pool
+                .spawn(move |conn| {
+                    conn.transaction(|conn| {
+                        for (user_id, watermark) in watermark_iter {
+                            diesel::update(user_profile::table)
+                                .filter(
+                                    user_profile::channel_id
+                                        .eq(id)
+                                        .and(user_profile::id.eq(user_id)),
+                                )
+                                .set(user_profile::watermark.eq(watermark))
+                                .execute(conn)?;
+                        }
+
+                        Ok::<_, PoolTaskError>(())
+                    })?;
+
+                    Ok(())
+                })
+                .await?;
+        }
+
         Ok(Some(channel))
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
-        TalkSession(&self.session)
+        TalkSession(&self.conn.session)
             .set_status(client_status as _)
             .await?;
 

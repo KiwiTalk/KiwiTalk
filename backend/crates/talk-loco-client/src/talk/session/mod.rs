@@ -93,37 +93,3 @@ impl<'a> TalkSession<'a> {
         TalkOpenChannel::new(self.channel(id), link_id)
     }
 }
-
-/*
-impl_session!(
-        pub fn chat_on_channel("CHATONROOM", bson ChatOnChannelReq) -> ChatOnChannelRes;
-
-        pub fn get_all_users("GETMEM", bson struct GetAllUsersReq {
-            /// Chatroom id
-            #[serde(rename = "chatId")]
-            pub chat_id: i64,
-        }) -> struct GetAllUsersRes {
-            /// User list
-            pub members: Vec<UserVariant>,
-        };
-
-        pub fn get_users("MEMBER", bson struct GetUsersReq<'a> {
-            /// Chatroom id
-            #[serde(rename = "chatId")]
-            pub chat_id: i64,
-
-            /// List of requesting user id list
-            #[serde(rename = "memberIds")]
-            pub user_ids: &'a [i64],
-        }) -> struct GetUsersRes {
-            /// Chatroom id
-            #[serde(rename = "chatId")]
-            pub chat_id: i64,
-
-            /// List of requested user list
-            #[serde(rename = "members")]
-            pub members: Vec<UserVariant>,
-        };
-    }
-);
-*/

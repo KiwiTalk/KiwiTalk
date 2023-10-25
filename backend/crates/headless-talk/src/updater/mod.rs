@@ -20,6 +20,7 @@ use tokio::time;
 
 use crate::{
     config::ClientEnv,
+    conn::Conn,
     constants::PING_INTERVAL,
     database::{schema::channel_list, DatabasePool, MigrationError, PoolTaskError},
     event::ClientEvent,
@@ -211,9 +212,11 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
             .await?;
 
         Ok(HeadlessTalk {
-            user_id,
-            session: self.session,
-            pool: self.pool,
+            conn: Conn {
+                user_id,
+                session: self.session,
+                pool: self.pool,
+            },
             ping_task,
             stream_task,
         })

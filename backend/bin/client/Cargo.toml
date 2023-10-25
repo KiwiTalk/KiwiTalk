@@ -32,3 +32,4 @@ once_cell = "1.18.0"
 tokio-util = { version = "0.7.9", features = ["compat"] }
 arrayvec = "0.7.4"
 hex = "0.4.3"
+dashmap = "5.5.3"
