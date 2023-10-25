@@ -73,6 +73,7 @@ export const content = style([classes.typography.body, {
 
   color: vars.color.primary.fillPrimary,
 
+  whiteSpace: 'pre-line',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   lineClamp: 2,

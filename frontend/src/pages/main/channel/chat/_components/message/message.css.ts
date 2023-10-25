@@ -34,6 +34,8 @@ export const contentContainer = style({
   justifyContent: 'flex-start',
   alignItems: 'flex-start',
   gap: '4px',
+
+  whiteSpace: 'pre-line',
 });
 
 const baseSender = style([classes.typography.title, {
