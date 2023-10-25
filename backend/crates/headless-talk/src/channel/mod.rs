@@ -4,13 +4,14 @@ pub mod open;
 use std::{ops::Bound, time::SystemTime};
 
 use crate::{
+    conn::Conn,
     database::{
         model::{channel::ChannelListRow, chat::ChatRow},
         schema::{self, channel_list, chat, user_profile},
         DatabasePool, PoolTaskError,
     },
     user::{DisplayUser, DisplayUserProfile},
-    ClientResult, HeadlessTalk,
+    ClientResult,
 };
 use arrayvec::ArrayVec;
 use diesel::{
@@ -56,12 +57,12 @@ pub struct ChannelListItem {
 }
 
 #[derive(Debug)]
-pub enum ClientChannel<'a> {
-    Normal(NormalChannel<'a>),
-    Open(OpenChannel<'a>),
+pub enum ClientChannel {
+    Normal(NormalChannel),
+    Open(OpenChannel),
 }
 
-impl<'a> ClientChannel<'a> {
+impl ClientChannel {
     pub const fn id(&self) -> i64 {
         match self {
             ClientChannel::Normal(normal) => normal.id(),
@@ -69,18 +70,18 @@ impl<'a> ClientChannel<'a> {
         }
     }
 
-    pub const fn client(&self) -> &'a HeadlessTalk {
+    const fn conn(&self) -> &Conn {
         match self {
-            ClientChannel::Normal(normal) => normal.client(),
-            ClientChannel::Open(open) => open.client(),
+            ClientChannel::Normal(normal) => &normal.conn,
+            ClientChannel::Open(open) => &open.conn,
         }
     }
 
     pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
-        let client = self.client();
+        let conn = self.conn();
         let id = self.id();
 
-        let res = TalkSession(&client.session)
+        let res = TalkSession(&conn.session)
             .channel(id)
             .write_chat(&write::Request {
                 chat_type: chat.chat_type.0,
@@ -98,7 +99,7 @@ impl<'a> ClientChannel<'a> {
             log_id: res.log_id,
             prev_log_id: Some(res.prev_id),
 
-            author_id: client.user_id,
+            author_id: conn.user_id,
 
             send_at: res.send_at,
 
@@ -107,8 +108,7 @@ impl<'a> ClientChannel<'a> {
             referer: None,
         });
 
-        client
-            .pool
+        conn.pool
             .spawn({
                 let logged = logged.clone();
 
@@ -129,25 +129,25 @@ impl<'a> ClientChannel<'a> {
         let (id, pool) = match self {
             ClientChannel::Normal(normal) => {
                 let id = normal.id();
-                let client = normal.client();
+                let conn = &normal.conn;
 
-                TalkSession(&client.session)
+                TalkSession(&conn.session)
                     .normal_channel(id)
                     .noti_read(watermark)
                     .await?;
 
-                (id, &client.pool)
+                (id, &conn.pool)
             }
             ClientChannel::Open(open) => {
                 let id = open.id();
-                let client = open.client();
+                let conn = &open.conn;
 
-                TalkSession(&client.session)
+                TalkSession(&conn.session)
                     .open_channel(open.id(), open.link_id())
                     .noti_read(watermark)
                     .await?;
 
-                (id, &client.pool)
+                (id, &conn.pool)
             }
         };
 
@@ -166,15 +166,14 @@ impl<'a> ClientChannel<'a> {
 
     pub async fn delete_chat(&self, log_id: i64) -> ClientResult<()> {
         let id = self.id();
-        let client = self.client();
+        let conn = self.conn();
 
-        TalkSession(&client.session)
+        TalkSession(&conn.session)
             .channel(id)
             .delete_chat(log_id)
             .await?;
 
-        client
-            .pool
+        conn.pool
             .spawn(move |conn| {
                 diesel::update(chat::table)
                     .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
@@ -200,7 +199,7 @@ impl<'a> ClientChannel<'a> {
 
         let id = self.id();
 
-        self.client()
+        self.conn()
             .pool
             .spawn(move |conn| {
                 let count = diesel::update(chat::table)
@@ -220,7 +219,7 @@ impl<'a> ClientChannel<'a> {
     ) -> Result<Vec<Chatlog>, PoolTaskError> {
         let id = self.id();
 
-        self.client()
+        self.conn()
             .pool
             .spawn(move |conn| {
                 let iter = match log_id {
@@ -246,7 +245,10 @@ impl<'a> ClientChannel<'a> {
     }
 
     pub async fn close(self) -> ClientResult<()> {
-        TalkSession(&self.client().session).channel(self.id()).chat_off().await?;
+        TalkSession(&self.conn().session)
+            .channel(self.id())
+            .chat_off()
+            .await?;
 
         Ok(())
     }
