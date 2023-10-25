@@ -200,8 +200,7 @@ impl<'a> ClientChannel<'a> {
 
         let id = self.id();
 
-        self
-            .client()
+        self.client()
             .pool
             .spawn(move |conn| {
                 let count = diesel::update(chat::table)
