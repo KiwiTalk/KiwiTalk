@@ -6,5 +6,7 @@ export const container = style({
   height: 'calc(100% + 32px)',
   marginTop: '-32px',
 
+  padding: '0 32px',
+
   backgroundColor: vars.color.glassSecondary.background,
 });

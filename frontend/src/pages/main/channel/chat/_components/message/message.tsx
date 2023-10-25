@@ -22,7 +22,7 @@ export const Message = (props: MessageProps) => {
 
   return (
     <li class={styles.container[variant()]}>
-      <Show when={merged.profile && !merged.isConnected} fallback={<div class={styles.profile} />}>
+      <Show when={!merged.isConnected} fallback={<div class={styles.profile} />}>
         <Profile src={merged.profile} size={'48px'} />
       </Show>
       <div class={styles.contentContainer}>
