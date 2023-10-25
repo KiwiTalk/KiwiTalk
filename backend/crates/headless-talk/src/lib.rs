@@ -7,7 +7,7 @@ pub mod handler;
 pub mod updater;
 pub mod user;
 
-use channel::{load_list_item, normal::NormalChannel, ChannelListItem, ClientChannel};
+use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
 use diesel::{
     BoolExpressionMethods, Connection, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl,
 };
@@ -113,10 +113,10 @@ impl HeadlessTalk {
             .await?;
 
         let channel = match res.channel_type {
-            ChatOnChannelType::DirectChat(_normal)
-            | ChatOnChannelType::MultiChat(_normal)
-            | ChatOnChannelType::MemoChat(_normal) => {
-                ClientChannel::Normal(NormalChannel::new(id, self))
+            ChatOnChannelType::DirectChat(normal)
+            | ChatOnChannelType::MultiChat(normal)
+            | ChatOnChannelType::MemoChat(normal) => {
+                ClientChannel::Normal(normal::open_channel(id, self, normal).await?)
             }
 
             _ => return Ok(None),
