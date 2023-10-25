@@ -23,7 +23,7 @@ use self::user::NormalChannelUser;
 
 use super::ListChannelProfile;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct NormalChannel<'a> {
     id: i64,
     client: &'a HeadlessTalk,
@@ -34,36 +34,43 @@ impl<'a> NormalChannel<'a> {
         Self { id, client }
     }
 
-    pub const fn id(self) -> i64 {
+    pub const fn id(&self) -> i64 {
         self.id
     }
 
-    pub const fn client(self) -> &'a HeadlessTalk {
+    pub const fn client(&self) -> &'a HeadlessTalk {
         self.client
     }
 
-    pub async fn users(self) -> Result<Vec<NormalChannelUser>, PoolTaskError> {
+    pub async fn users(&self) -> Result<Vec<NormalChannelUser>, PoolTaskError> {
         let users = self
             .client
             .pool
-            .spawn(move |conn| {
-                let users: Vec<(UserProfileModel, NormalChannelUserModel)> = user_profile::table
-                    .inner_join(
-                        normal_channel_user::table.on(normal_channel_user::channel_id
-                            .eq(user_profile::channel_id)
-                            .and(normal_channel_user::id.eq(user_profile::id))),
-                    )
-                    .filter(user_profile::channel_id.eq(self.id))
-                    .select((
-                        UserProfileModel::as_select(),
-                        NormalChannelUserModel::as_select(),
-                    ))
-                    .load::<(UserProfileModel, NormalChannelUserModel)>(conn)?;
+            .spawn({
+                let id = self.id;
 
-                Ok(users
-                    .into_iter()
-                    .map(|(profile, normal)| NormalChannelUser::from_models(profile, normal))
-                    .collect())
+                move |conn| {
+                    let users: Vec<NormalChannelUser> = user_profile::table
+                        .inner_join(
+                            normal_channel_user::table.on(normal_channel_user::channel_id
+                                .eq(user_profile::channel_id)
+                                .and(normal_channel_user::id.eq(user_profile::id))),
+                        )
+                        .filter(user_profile::channel_id.eq(id))
+                        .select((
+                            UserProfileModel::as_select(),
+                            NormalChannelUserModel::as_select(),
+                        ))
+                        .load_iter::<(UserProfileModel, NormalChannelUserModel), _>(conn)?
+                        .map(|res| {
+                            res.map(|(profile, normal)| {
+                                NormalChannelUser::from_models(profile, normal)
+                            })
+                        })
+                        .collect::<Result<_, _>>()?;
+
+                    Ok(users)
+                }
             })
             .await?;
 

@@ -1,4 +1,7 @@
-use crate::{user::UserProfile, database::model::user::{UserProfileModel, normal::NormalChannelUserModel}};
+use crate::{
+    database::model::user::{normal::NormalChannelUserModel, UserProfileModel},
+    user::UserProfile,
+};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannelUser {

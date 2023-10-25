@@ -1,6 +1,8 @@
 pub mod normal;
 pub mod open;
 
+use std::time::SystemTime;
+
 use crate::{
     database::{
         model::{channel::ChannelListRow, chat::ChatRow},
@@ -11,11 +13,14 @@ use crate::{
     ClientResult, HeadlessTalk,
 };
 use arrayvec::ArrayVec;
-use diesel::{BoolExpressionMethods, ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use diesel::{
+    dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods, OptionalExtension,
+    QueryDsl, RunQueryDsl,
+};
 use nohash_hasher::IntMap;
 use talk_loco_client::talk::{
     channel::{ChannelMeta, ChannelType},
-    chat::{Chat, Chatlog},
+    chat::{Chat, ChatType, Chatlog},
     session::{channel::write, TalkSession},
 };
 
@@ -50,28 +55,28 @@ pub struct ChannelListItem {
     pub profile: ListChannelProfile,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum ClientChannel<'a> {
     Normal(NormalChannel<'a>),
     Open(OpenChannel<'a>),
 }
 
 impl<'a> ClientChannel<'a> {
-    pub const fn id(self) -> i64 {
+    pub const fn id(&self) -> i64 {
         match self {
             ClientChannel::Normal(normal) => normal.id(),
             ClientChannel::Open(open) => open.id(),
         }
     }
 
-    pub const fn client(self) -> &'a HeadlessTalk {
+    pub const fn client(&self) -> &'a HeadlessTalk {
         match self {
             ClientChannel::Normal(normal) => normal.client(),
             ClientChannel::Open(open) => open.client(),
         }
     }
 
-    pub async fn send_chat(self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
+    pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
         let client = self.client();
         let id = self.id();
 
@@ -120,7 +125,7 @@ impl<'a> ClientChannel<'a> {
         Ok(logged)
     }
 
-    pub async fn read_chat(self, watermark: i64) -> ClientResult<()> {
+    pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
         let (id, pool) = match self {
             ClientChannel::Normal(normal) => {
                 let id = normal.id();
@@ -159,6 +164,52 @@ impl<'a> ClientChannel<'a> {
         Ok(())
     }
 
+    pub async fn delete_chat(&self, log_id: i64) -> ClientResult<()> {
+        let id = self.id();
+        let client = self.client();
+
+        TalkSession(&client.session)
+            .channel(id)
+            .delete_chat(log_id)
+            .await?;
+
+        client
+            .pool
+            .spawn(move |conn| {
+                diesel::update(chat::table)
+                    .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
+                    .set(chat::type_.eq(sql("type | ").bind::<Integer, _>(ChatType::DELETED_MASK)))
+                    .execute(conn)?;
+
+                Ok(())
+            })
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn delete_chat_local(&self, log_id: i64) -> Result<bool, PoolTaskError> {
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+
+        let id = self.id();
+
+        Ok(self
+            .client()
+            .pool
+            .spawn(move |conn| {
+                let count = diesel::update(chat::table)
+                    .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
+                    .set(chat::deleted_time.eq(now))
+                    .execute(conn)?;
+
+                Ok(count > 0)
+            })
+            .await?)
+    }
+
     pub async fn load_chat_from(
         self,
         log_id: i64,
@@ -169,17 +220,14 @@ impl<'a> ClientChannel<'a> {
         self.client()
             .pool
             .spawn(move |conn| {
-                let rows: Vec<ChatRow> = chat::table
-                    .filter(
-                        chat::channel_id
-                            .eq(id)
-                            .and(chat::deleted_time.is_null())
-                            .and(chat::log_id.le(log_id)),
-                    )
+                let rows: Vec<Chatlog> = chat::table
+                    .filter(chat::channel_id.eq(id).and(chat::log_id.le(log_id)))
                     .limit(count)
-                    .load::<ChatRow>(conn)?;
+                    .load_iter::<ChatRow, _>(conn)?
+                    .map(|row| row.map(|row| row.into()))
+                    .collect::<Result<_, _>>()?;
 
-                Ok(rows.into_iter().map(|row| row.into()).collect())
+                Ok(rows)
             })
             .await
     }
