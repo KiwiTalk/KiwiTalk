@@ -1,6 +1,6 @@
 mod normal;
 
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SqliteConnection};
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl, SqliteConnection};
 use futures_loco_protocol::session::LocoSession;
 use talk_loco_client::talk::{
     channel::ChannelType,
@@ -72,10 +72,17 @@ impl ChannelUpdater {
     }
 
     pub fn remove(self, conn: &mut SqliteConnection) -> Result<Option<()>, PoolTaskError> {
-        let row: ChannelListRow = channel_list::table
-            .select(channel_list::all_columns)
-            .filter(channel_list::id.eq(self.id))
-            .first::<ChannelListRow>(conn)?;
+        let row: ChannelListRow = if let Some(row) = {
+            channel_list::table
+                .select(channel_list::all_columns)
+                .filter(channel_list::id.eq(self.id))
+                .first::<ChannelListRow>(conn)
+                .optional()?
+        } {
+            row
+        } else {
+            return Ok(None);
+        };
 
         let ty = ChannelType::from(row.channel_type.as_str());
 
