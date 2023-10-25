@@ -9,7 +9,7 @@ on:
 name: Release new version
 jobs:
   draft:
-    if: contains(github.event.pull_request.labels.*.name, 'release') && github.event.pull_request.merged == true
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'release') && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
