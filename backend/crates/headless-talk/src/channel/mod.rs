@@ -200,7 +200,7 @@ impl<'a> ClientChannel<'a> {
 
         let id = self.id();
 
-        Ok(self
+        self
             .client()
             .pool
             .spawn(move |conn| {
@@ -211,7 +211,7 @@ impl<'a> ClientChannel<'a> {
 
                 Ok(count > 0)
             })
-            .await?)
+            .await
     }
 
     pub async fn load_chat_from(
