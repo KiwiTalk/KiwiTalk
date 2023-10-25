@@ -81,4 +81,12 @@ impl<'a> TalkNormalChannel<'a> {
         .await?
         .members)
     }
+
+    pub async fn leave(self, block: bool) -> RequestResult<()> {
+        request!(self.0.session, "LEAVE", bson {
+            "chatId": self.0.id,
+            "block": block,
+        })
+        .await
+    }
 }

@@ -68,4 +68,13 @@ impl<'a> TalkOpenChannel<'a> {
         .await?
         .members)
     }
+
+    pub async fn leave(self, block: bool) -> RequestResult<()> {
+        request!(self.inner.session, "LEAVE", bson {
+            "chatId": self.inner.id,
+            "block": block,
+            "li": self.link_id,
+        })
+        .await
+    }
 }
