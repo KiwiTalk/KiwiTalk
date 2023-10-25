@@ -1,7 +1,6 @@
-import { useNavigate, useParams } from '@solidjs/router';
+import { Outlet, useNavigate, useParams } from '@solidjs/router';
 
 import { ChannelList, ChannelListViewModel } from './_components/channel-list/channel-list';
-import { ChatPage } from './chat';
 
 import * as styles from './page.css';
 
@@ -23,7 +22,7 @@ export const ChannelListPage = () => {
           setActiveId={setActiveId}
         />
       </div>
-      <ChatPage />
+      <Outlet />
     </div>
   );
 };

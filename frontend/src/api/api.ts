@@ -1,12 +1,12 @@
 import { tauri } from '@tauri-apps/api';
 
 import {
-  FriendsUpdate,
+  FriendsUpdateResult,
   LoginDetailForm,
   LoginForm,
   LoginResult,
   LogonProfile,
-  Profile,
+  UserProfile,
   Response,
 } from './_types';
 
@@ -55,11 +55,11 @@ export function meProfile(): Promise<LogonProfile> {
   return tauri.invoke('plugin:api|me_profile');
 }
 
-export function friendProfile(id: string): Promise<Profile> {
+export function friendProfile(id: string): Promise<UserProfile> {
   return tauri.invoke('plugin:api|friend_profile', { id });
 }
 
-export function updateFriends(friendIds: string[]): Promise<FriendsUpdate> {
+export function updateFriends(friendIds: string[]): Promise<FriendsUpdateResult> {
   return tauri.invoke('plugin:api|update_friends', { friendIds });
 }
 
