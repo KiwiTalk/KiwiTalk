@@ -24,7 +24,7 @@ use crate::{
     database::{schema::channel_list, DatabasePool, MigrationError, PoolTaskError},
     event::ClientEvent,
     handler::{error::HandlerError, SessionHandler},
-    ClientError, ClientStatus, HeadlessTalk,
+    ClientError, ClientStatus, HeadlessTalk, conn::Conn,
 };
 
 use self::list::ChannelListUpdater;
@@ -211,9 +211,11 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
             .await?;
 
         Ok(HeadlessTalk {
-            user_id,
-            session: self.session,
-            pool: self.pool,
+            conn: Conn {
+                user_id,
+                session: self.session,
+                pool: self.pool,
+            },
             ping_task,
             stream_task,
         })

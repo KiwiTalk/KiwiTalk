@@ -20,6 +20,7 @@ use crate::{
         schema::{channel_meta, normal_channel_user, user_profile},
         DatabasePool, PoolTaskError,
     },
+    conn::Conn,
     user::DisplayUser,
     ClientResult, HeadlessTalk,
 };
@@ -29,23 +30,19 @@ use self::user::NormalChannelUser;
 use super::ListChannelProfile;
 
 #[derive(Debug)]
-pub struct NormalChannel<'a> {
+pub struct NormalChannel {
     id: i64,
-    client: &'a HeadlessTalk,
+    pub(super) conn: Conn,
 }
 
-impl<'a> NormalChannel<'a> {
+impl NormalChannel {
     pub const fn id(&self) -> i64 {
         self.id
     }
 
-    pub const fn client(&self) -> &'a HeadlessTalk {
-        self.client
-    }
-
     pub async fn users(&self) -> Result<Vec<NormalChannelUser>, PoolTaskError> {
         let users = self
-            .client
+            .conn
             .pool
             .spawn({
                 let id = self.id;
@@ -130,6 +127,7 @@ pub(crate) async fn open_channel(
 ) -> ClientResult<NormalChannel> {
     if let Some(users) = normal.users {
         client
+            .conn
             .pool
             .spawn(move |conn| {
                 conn.transaction(move |conn| {
@@ -174,5 +172,8 @@ pub(crate) async fn open_channel(
             .await?;
     }
 
-    Ok(NormalChannel { id, client })
+    Ok(NormalChannel {
+        id,
+        conn: client.conn.clone(),
+    })
 }
