@@ -31,7 +31,7 @@ impl ChannelMap {
 
         self.map.insert(rid, value);
 
-        return rid;
+        rid
     }
 
     fn remove(&self, rid: u32) -> Option<ClientChannel> {
