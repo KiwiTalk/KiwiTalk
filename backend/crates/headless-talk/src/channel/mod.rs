@@ -1,7 +1,7 @@
 pub mod normal;
 pub mod open;
 
-use std::time::SystemTime;
+use std::{ops::Bound, time::SystemTime};
 
 use crate::{
     database::{
@@ -212,7 +212,7 @@ impl<'a> ClientChannel<'a> {
 
     pub async fn load_chat_from(
         self,
-        log_id: i64,
+        log_id: Bound<i64>,
         count: i64,
     ) -> Result<Vec<Chatlog>, PoolTaskError> {
         let id = self.id();
@@ -220,14 +220,24 @@ impl<'a> ClientChannel<'a> {
         self.client()
             .pool
             .spawn(move |conn| {
-                let rows: Vec<Chatlog> = chat::table
-                    .filter(chat::channel_id.eq(id).and(chat::log_id.le(log_id)))
-                    .limit(count)
-                    .load_iter::<ChatRow, _>(conn)?
-                    .map(|row| row.map(|row| row.into()))
-                    .collect::<Result<_, _>>()?;
+                let iter = match log_id {
+                    Bound::Included(log_id) => chat::table
+                        .filter(chat::channel_id.eq(id).and(chat::log_id.le(log_id)))
+                        .limit(count)
+                        .load_iter::<ChatRow, _>(conn),
+                    Bound::Excluded(log_id) => chat::table
+                        .filter(chat::channel_id.eq(id).and(chat::log_id.lt(log_id)))
+                        .limit(count)
+                        .load_iter::<ChatRow, _>(conn),
+                    Bound::Unbounded => chat::table
+                        .filter(chat::channel_id.eq(id))
+                        .limit(count)
+                        .load_iter::<ChatRow, _>(conn),
+                }?;
 
-                Ok(rows)
+                Ok(iter
+                    .map(|row| row.map(|row| row.into()))
+                    .collect::<Result<_, _>>()?)
             })
             .await
     }
