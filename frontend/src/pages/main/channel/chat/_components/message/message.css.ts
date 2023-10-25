@@ -2,12 +2,14 @@ import { classes, vars } from '@/features/theme';
 import { style, styleVariants } from '@vanilla-extract/css';
 
 const baseContainer = style({
-  width: 'fit-content',
+  width: '100%',
 
   display: 'flex',
   justifyContent: 'flex-start',
   alignItems: 'flex-end',
   gap: '8px',
+
+  padding: '2px 0',
 });
 
 export const container = styleVariants({
@@ -25,6 +27,8 @@ export const profile = style({
 });
 
 export const contentContainer = style({
+  maxWidth: '50%',
+
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'flex-start',

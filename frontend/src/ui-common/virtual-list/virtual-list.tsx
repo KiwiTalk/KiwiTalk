@@ -1,30 +1,30 @@
 import {
   Accessor,
+  ComponentProps,
   createEffect,
   createSignal,
   createUniqueId,
   For,
+  mergeProps,
   on,
   onMount,
+  ParentProps,
   splitProps,
   useTransition,
+  ValidComponent,
 } from 'solid-js';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { Dynamic, DynamicProps } from 'solid-js/web';
 
 import { calculateVisibleRange } from './calculate-visible-range';
 import * as styles from './virtual-list.css';
 
 import type { JSX } from 'solid-js/jsx-runtime';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
 
 const DEFAULT_HEIGHT = 50;
 
-type AllowProperty = (
-  'style'
-  | 'class' | 'classList'
-);
-
 export interface VirtualListRef {}
-export type VirtualListProps<T> = Pick<JSX.HTMLAttributes<HTMLDivElement>, AllowProperty> & {
+export type VirtualListProps<T> = {
   ref?: VirtualListRef;
   items: T[];
   children: (item: T, index: Accessor<number>) => JSX.Element;
@@ -38,17 +38,32 @@ export type VirtualListProps<T> = Pick<JSX.HTMLAttributes<HTMLDivElement>, Allow
   innerClass?: JSX.HTMLAttributes<HTMLDivElement>['class'];
 }
 
-export const VirtualList = <T, >(props: VirtualListProps<T>): JSX.Element => {
-  const [local, children, leftProps] = splitProps(props, [
-    'items',
-    'overscan',
-    'itemHeight',
-    'topMargin',
-    'bottomMargin',
-    'class',
-    'innerStyle',
-    'innerClass',
-  ], ['children']);
+export const VirtualList = <
+  Item extends unknown,
+  T extends ValidComponent,
+  P = ComponentProps<T>
+>(props: Partial<DynamicProps<T, P>> & VirtualListProps<Item>): JSX.Element => {
+  const [local, classProps, children, leftProps] = splitProps(
+    mergeProps(
+      { component: 'div', class: '', classList: {} },
+      props,
+    ) as DynamicProps<T, P> & VirtualListProps<Item> & { class: string; classList: Record<string, boolean> },
+    [
+      'component',
+      'items',
+      'overscan',
+      'itemHeight',
+      'topMargin',
+      'bottomMargin',
+    ],
+    [
+      'class',
+      'classList',
+      'innerStyle',
+      'innerClass',
+    ],
+    ['children'],
+  );
 
   const ignoreClass = createUniqueId();
 
@@ -58,7 +73,7 @@ export const VirtualList = <T, >(props: VirtualListProps<T>): JSX.Element => {
 
   const [isRangeChanged, startRangeChange] = useTransition();
 
-  const defaultItemHeight = (
+  const defaultItemHeight: number = (
     typeof local.itemHeight === 'function' ?
       DEFAULT_HEIGHT :
       (local.itemHeight ?? DEFAULT_HEIGHT)
@@ -169,14 +184,15 @@ export const VirtualList = <T, >(props: VirtualListProps<T>): JSX.Element => {
       [styles.outer]: true,
     };
 
-    if (local.class) list[local.class] = true;
-    if (leftProps.classList) Object.assign(list, leftProps.classList);
+    if (classProps.class) list[classProps.class] = true;
+    if (classProps.classList) Object.assign(list, classProps.classList);
 
     return list;
   };
 
   return (
-    <div
+    <Dynamic
+      component={local.component}
       {...leftProps}
       ref={frameRef}
       classList={outerClassList()}
@@ -184,8 +200,8 @@ export const VirtualList = <T, >(props: VirtualListProps<T>): JSX.Element => {
     >
       <div
         ref={parentRef}
-        class={`${styles.inner} ${local.innerClass}`}
-        style={local.innerStyle}
+        class={`${styles.inner} ${classProps.innerClass}`}
+        style={classProps.innerStyle}
       >
         <div
           class={`${styles.placeholer} ${ignoreClass}`}
@@ -203,6 +219,6 @@ export const VirtualList = <T, >(props: VirtualListProps<T>): JSX.Element => {
           })}
         />
       </div>
-    </div>
+    </Dynamic>
   );
 };
