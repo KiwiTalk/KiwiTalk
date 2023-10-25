@@ -70,6 +70,7 @@ impl<'a> ChannelUpdater<'a> {
                             .iter()
                             .map(|user| NormalChannelUserRow {
                                 id: user.user_id,
+                                channel_id: self.id,
                                 country_iso: &user.country_iso,
                                 account_id: user.account_id,
                                 status_message: &user.status_message,

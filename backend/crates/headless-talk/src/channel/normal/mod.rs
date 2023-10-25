@@ -8,11 +8,14 @@ use talk_loco_client::talk::channel::ChannelMetaType;
 
 use crate::{
     database::{
-        model::{channel::ChannelListRow, user::UserProfileModel},
+        model::{
+            channel::ChannelListRow,
+            user::{normal::NormalChannelUserModel, UserProfileModel},
+        },
         schema::{channel_meta, normal_channel_user, user_profile},
         DatabasePool, PoolTaskError,
     },
-    user::{DisplayUser, UserProfile},
+    user::DisplayUser,
     HeadlessTalk,
 };
 
@@ -44,28 +47,22 @@ impl<'a> NormalChannel<'a> {
             .client
             .pool
             .spawn(move |conn| {
-                let users: Vec<((String, bool), UserProfileModel)> = user_profile::table
+                let users: Vec<(UserProfileModel, NormalChannelUserModel)> = user_profile::table
                     .inner_join(
-                        normal_channel_user::table.on(normal_channel_user::id.eq(user_profile::id)),
+                        normal_channel_user::table.on(normal_channel_user::channel_id
+                            .eq(user_profile::channel_id)
+                            .and(normal_channel_user::id.eq(user_profile::id))),
                     )
                     .filter(user_profile::channel_id.eq(self.id))
                     .select((
-                        (
-                            normal_channel_user::country_iso,
-                            normal_channel_user::suspended,
-                        ),
                         UserProfileModel::as_select(),
+                        NormalChannelUserModel::as_select(),
                     ))
-                    .load::<((String, bool), UserProfileModel)>(conn)?;
+                    .load::<(UserProfileModel, NormalChannelUserModel)>(conn)?;
 
                 Ok(users
                     .into_iter()
-                    .map(|((country_iso, suspended), model)| NormalChannelUser {
-                        country_iso,
-                        suspended,
-                        watermark: model.watermark.unwrap_or(0),
-                        profile: UserProfile::from(model),
-                    })
+                    .map(|(profile, normal)| NormalChannelUser::from_models(profile, normal))
                     .collect())
             })
             .await?;

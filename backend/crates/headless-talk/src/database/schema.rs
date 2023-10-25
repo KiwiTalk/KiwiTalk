@@ -52,8 +52,9 @@ diesel::table! {
 }
 
 diesel::table! {
-    normal_channel_user (id) {
+    normal_channel_user (id, channel_id) {
         id -> BigInt,
+        channel_id -> BigInt,
         country_iso -> Text,
         account_id -> BigInt,
         status_message -> Text,
