@@ -55,8 +55,6 @@ export type Chatlog = {
 }
 
 export type ChannelUser = {
-  id: string,
-
   nickname: string,
 
   profileUrl: string,
