@@ -13,6 +13,9 @@ export default {
 type VirtualListStoryProps = {
   listLength: number;
   enableRandomHeight: boolean;
+  reverse: boolean;
+  topMargin: number;
+  bottomMargin: number
 };
 const Template: StoryFn<VirtualListStoryProps> = (props) => {
   const list = createMemo(
@@ -27,7 +30,13 @@ const Template: StoryFn<VirtualListStoryProps> = (props) => {
 
   return (
     <div class={styles.background}>
-      <VirtualList items={list()} class={styles.container}>
+      <VirtualList
+        items={list()}
+        class={styles.container}
+        reverse={props.reverse}
+        topMargin={props.topMargin}
+        bottomMargin={props.bottomMargin}
+      >
         {(item) => (
           <div
             class={styles.item}
@@ -47,4 +56,7 @@ export const Default = Template.bind({});
 Default.args = {
   listLength: 1000,
   enableRandomHeight: false,
+  reverse: false,
+  topMargin: 0,
+  bottomMargin: 0,
 };

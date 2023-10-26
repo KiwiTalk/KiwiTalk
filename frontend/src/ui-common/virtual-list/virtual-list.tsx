@@ -2,13 +2,14 @@ import {
   Accessor,
   ComponentProps,
   createEffect,
+  createMemo,
   createSignal,
-  createUniqueId,
   For,
   mergeProps,
   on,
   onMount,
   splitProps,
+  untrack,
   useTransition,
   ValidComponent,
 } from 'solid-js';
@@ -22,16 +23,27 @@ import type { JSX } from 'solid-js/jsx-runtime';
 
 const DEFAULT_HEIGHT = 50;
 
-export interface VirtualListRef {}
+type RequiredKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
+export interface VirtualListRef {
+  scrollToIndex: (index: number) => void;
+  refresh: () => void;
+
+  element: HTMLElement;
+  innerElement: Accessor<HTMLElement | null>;
+}
 export type VirtualListProps<T> = {
-  ref?: VirtualListRef;
+  ref?: (ref: VirtualListRef) => void;
+
   items: T[];
   children: (item: T, index: Accessor<number>) => JSX.Element;
 
   overscan?: number;
   itemHeight?: number | ((index: number) => number);
+  estimatedItemHeight?: number;
   topMargin?: number;
   bottomMargin?: number;
+  reverse?: boolean;
 
   innerStyle?: JSX.HTMLAttributes<HTMLDivElement>['style'];
   innerClass?: JSX.HTMLAttributes<HTMLDivElement>['class'];
@@ -44,9 +56,17 @@ export const VirtualList = <
 >(props: Partial<DynamicProps<T, P>> & VirtualListProps<Item>): JSX.Element => {
   const [local, classProps, children, leftProps] = splitProps(
     mergeProps(
-      { component: 'div', class: '', classList: {} },
+      {
+        overscan: 5,
+        component: 'div',
+        class: '',
+        classList: {},
+        reverse: false,
+        estimatedItemHeight: DEFAULT_HEIGHT,
+      },
       props,
-    ) as DynamicProps<T, P> & VirtualListProps<Item> & {
+    ) as DynamicProps<T, P> &
+      RequiredKey<VirtualListProps<Item>, 'overscan' | 'reverse' | 'estimatedItemHeight'> & {
       class: string;
       classList: Record<string, boolean>;
     },
@@ -57,6 +77,8 @@ export const VirtualList = <
       'itemHeight',
       'topMargin',
       'bottomMargin',
+      'reverse',
+      'estimatedItemHeight',
     ],
     [
       'class',
@@ -64,24 +86,35 @@ export const VirtualList = <
       'innerStyle',
       'innerClass',
     ],
-    ['children'],
+    [
+      'children',
+      // 'header',
+      // 'footer',
+    ],
   );
 
-  const ignoreClass = createUniqueId();
+  const [isRangeChanged, startRangeChange] = useTransition();
 
   const [frameHeight, setFrameHeight] = createSignal(0);
   const [topPadding, setTopPadding] = createSignal(0);
   const [bottomPadding, setBottomPadding] = createSignal(0);
+  const [range, setRange] = createSignal<[number, number]>([0, 30]);
 
-  const [isRangeChanged, startRangeChange] = useTransition();
+  let frameRef: HTMLElement | undefined;
+  let parentRef: HTMLDivElement | undefined;
 
   const defaultItemHeight: number = (
     typeof local.itemHeight === 'function' ?
-      DEFAULT_HEIGHT :
-      (local.itemHeight ?? DEFAULT_HEIGHT)
+      local.estimatedItemHeight :
+      (local.itemHeight ?? local.estimatedItemHeight)
   );
   const itemHeights = new Map<number, number>();
-  const [range, setRange] = createSignal<[number, number]>([0, 30]);
+
+  const items = createMemo(() => {
+    if (local.reverse) return [...local.items].reverse();
+
+    return local.items;
+  });
 
   const getHeight = (index: number) => {
     const defaultValue = typeof local.itemHeight === 'function' ?
@@ -91,16 +124,12 @@ export const VirtualList = <
     return Number(itemHeights.get(index) ?? defaultValue);
   };
 
-  let frameRef: HTMLDivElement | undefined;
-  let parentRef: HTMLDivElement | undefined;
-
   const calculateRange = (scroll: number, height: number) => {
-    const top = topPadding();
-    const [start, end] = range();
+    const [start, end] = untrack(() => range());
     const [newStart, newEnd] = calculateVisibleRange(
-      [start, end],
-      { top, scroll, height },
-      { getHeight, overscan: local.overscan ?? 5, length: local.items.length },
+      scroll,
+      height,
+      { getHeight, overscan: local.overscan, length: items().length },
     );
 
     if (start !== newStart || end !== newEnd) {
@@ -120,7 +149,7 @@ export const VirtualList = <
       for (let i = 0; i < newStart; i++) {
         newTop += itemHeights.get(i) ?? defaultItemHeight;
       }
-      for (let i = newEnd; i < local.items.length; i++) {
+      for (let i = newEnd; i < items().length; i++) {
         newBottom += itemHeights.get(i) ?? defaultItemHeight;
       }
 
@@ -141,25 +170,31 @@ export const VirtualList = <
     calculateRange(scroll, height);
   };
 
+  const scrollToIndex = (index: number) => {
+    const rawIndex = local.reverse ? items().length - index - 1 : index;
+
+    let top = 0;
+
+    for (let i = 0; i < rawIndex; i++) {
+      top += itemHeights.get(i) ?? defaultItemHeight;
+    }
+
+    frameRef?.scrollTo({ top });
+  };
+
   onMount(() => {
     const frameRect = frameRef?.getBoundingClientRect();
 
     if (frameRect && frameHeight() === 0) setFrameHeight(frameRect.height);
   });
 
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const index = Number(entry.target.getAttribute('data-index'));
+  createEffect(on(() => local.reverse, () => {
+    requestAnimationFrame(() => {
+      scrollToIndex(0);
+    });
+  }));
 
-      if (Number.isFinite(index)) {
-        const rect = entry.target.getBoundingClientRect();
-
-        itemHeights.set(index, rect.height ?? defaultItemHeight);
-      }
-    }
-  });
-
-  createEffect(on(() => local.items, () => {
+  createEffect(on(items, () => {
     if (!parentRef || !frameRef) return;
 
     const scroll = parentRef.scrollTop;
@@ -168,18 +203,31 @@ export const VirtualList = <
     calculateRange(scroll, height);
   }));
 
-  createEffect(() => {
-    const [start, end] = range();
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const index = Number(entry.target.getAttribute('data-sorted-index'));
 
+      if (Number.isFinite(index)) {
+        const rect = entry.target.getBoundingClientRect();
+
+        itemHeights.set(index, rect.height ?? defaultItemHeight);
+      }
+    }
+  });
+  createEffect(on(range, ([start, end]) => {
     const children = Array.from(parentRef!.children);
     resizeObserver.disconnect();
+
     for (let i = start; i < end; i++) {
       if (!children[i - start + 1]) continue;
 
-      children[i - start + 1].setAttribute('data-index', i.toString());
+      const index = local.reverse ? items().length - i - 1 : i;
+
+      children[i - start + 1].setAttribute('data-sorted-index', i.toString());
+      children[i - start + 1].setAttribute('data-index', index.toString());
       resizeObserver.observe(children[i - start + 1]);
     }
-  });
+  }));
 
   const outerClassList = () => {
     const list: Record<string, boolean> = {
@@ -192,11 +240,31 @@ export const VirtualList = <
     return list;
   };
 
+  const onRegisterFrame = (element: HTMLElement) => {
+    frameRef = element;
+
+    const ref: VirtualListRef = {
+      scrollToIndex,
+      refresh: () => {
+        if (!parentRef) return;
+
+        const scroll = parentRef.scrollTop;
+        const height = parentRef.clientHeight;
+
+        calculateRange(scroll, height);
+      },
+
+      element,
+      innerElement: () => parentRef ?? null,
+    };
+    props.ref?.(ref);
+  };
+
   return (
     <Dynamic
-      component={local.component}
       {...leftProps}
-      ref={frameRef}
+      component={local.component}
+      ref={onRegisterFrame}
       classList={outerClassList()}
       onScroll={onScroll}
     >
@@ -206,16 +274,24 @@ export const VirtualList = <
         style={classProps.innerStyle}
       >
         <div
-          class={`${styles.placeholer} ${ignoreClass}`}
+          class={styles.placeholer}
           style={assignInlineVars({
             [styles.gap]: `${(local.topMargin ?? 0) + topPadding() || 0}px`,
           })}
         />
-        <For each={local.items.slice(...range())}>
-          {(item, index) => children.children(item, () => index() + range()[0])}
+        <For each={items().slice(...range())}>
+          {(item, index) => children.children(
+            item,
+            createMemo(() => {
+              const arrayIndex = index() + range()[0];
+
+              if (local.reverse) return items().length - arrayIndex - 1;
+              return arrayIndex;
+            }),
+          )}
         </For>
         <div
-          class={`${styles.placeholer} ${ignoreClass}`}
+          class={styles.placeholer}
           style={assignInlineVars({
             [styles.gap]: `${(local.bottomMargin ?? 0) + bottomPadding() || 0}px`,
           })}
