@@ -23,7 +23,7 @@
       "temporary": "Receive One-time Authentication"
     },
     "reason": {
-      "required_id_password": "Please enter your ID and password.",
+      "required_id_password": "Please enter your account ID and password.",
       "auto_login_failed": {
         "file_read": "An error occurred while reading the stored account information",
         "general": "Auto login has failed"
