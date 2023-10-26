@@ -11,7 +11,7 @@
     "register_title": "Device Authentication",
     "login": "Sign in",
     "login_name": "Sign in to {{name}}",
-    "logout": "Logout",
+    "logout": "Sign out",
     "id_placeholder": "Kakao Account (Email or Phone Number)",
     "password_placeholder": "Password",
     "manage_account": "Manage Account",
