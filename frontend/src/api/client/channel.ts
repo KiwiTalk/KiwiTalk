@@ -31,10 +31,13 @@ class NormalChannel implements ClientChannel {
   }
 
   async getUsers(): Promise<[string, NormalChannelUser][]> {
-    return await tauri.invoke(
+    type RawChannelUser = Omit<NormalChannelUser, 'watermark'> & { watermark: string };
+    const result = await tauri.invoke<[string, RawChannelUser][]>(
       'plugin:client|channel_users',
       { rid: this.#rid },
     );
+
+    return result.map(([id, user]) => [id, { ...user, watermark: BigInt(user.watermark) }]);
   }
 }
 
@@ -63,7 +66,7 @@ export type ChannelUser = {
   fullProfileUrl: string,
   originalProfileUrl: string,
 
-  watermark: string,
+  watermark: bigint,
 }
 
 export type NormalChannelUser = {

@@ -25,7 +25,7 @@ const Template: StoryFn<MessageListProps> = () => {
         fullProfileUrl: `https://picsum.photos/200?s=${Math.random()}`,
         originalProfileUrl: `https://picsum.photos/500?s=${Math.random()}`,
 
-        watermark: 'watermark',
+        watermark: 0n,
       }] as [string, NormalChannelUser])
       .reduce(
         (acc, [key, value]) => ({ ...acc, [key]: value }),

@@ -40,6 +40,13 @@ export const MessageList = (props: MessageListProps) => {
     );
   };
 
+  const getReadCount = (chat: Chatlog) => {
+    const userList = Object.values(users());
+    const count = userList.filter((user) => user.watermark < BigInt(chat.logId)).length;
+
+    return count > 0 ? count : undefined;
+  };
+
   return (
     <VirtualList
       reverse
@@ -66,7 +73,7 @@ export const MessageList = (props: MessageListProps) => {
                     users()[chat.senderId]?.nickname :
                     undefined
                 }
-                unread={chat.referer}
+                unread={getReadCount(chat)}
                 time={
                   (
                     isDiff(prevChat?.sendAt ?? chat.sendAt, chat.sendAt) ||
