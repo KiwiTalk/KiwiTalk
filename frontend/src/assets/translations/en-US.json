@@ -7,7 +7,7 @@
     "next": "Next"
   },
   "login": {
-    "title": "Kakao Account Login",
+    "title": "Sign in with Kakao Account",
     "register_title": "Device Authentication",
     "login": "Login",
     "login_name": "{{name}} Login",
