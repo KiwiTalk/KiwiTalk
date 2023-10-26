@@ -51,7 +51,7 @@
         "-910": "Invalid login token",
         "-950": "Invalid access token",
         "-997": "Account is blocked",
-        "-998": "Authentication is required",
+        "-998": "Registration is required",
         "-999": "Client version is too low",
         "-9797": "Server is under maintenance"
       },
