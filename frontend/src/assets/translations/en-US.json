@@ -59,7 +59,7 @@
         "-112": "Exceeded the number of daily registration attempts."
       },
       "passcode": {
-        "-111": "Authentication number is incorrect",
+        "-111": "Registration number is incorrect",
         "-102": "Exceeded the number of devices that can be registered. The maximum number of devices that can be registered is 5."
       }
     },
