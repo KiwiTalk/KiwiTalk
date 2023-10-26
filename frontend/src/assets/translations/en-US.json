@@ -56,7 +56,7 @@
         "-9797": "Server is under maintenance"
       },
       "device_register": {
-        "-112": "Exceeded the number of daily authentication attempts."
+        "-112": "Exceeded the number of daily registration attempts."
       },
       "passcode": {
         "-111": "Authentication number is incorrect",
