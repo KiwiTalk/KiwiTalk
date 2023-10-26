@@ -1,6 +1,6 @@
 pub mod normal;
 
-use diesel::{prelude::Queryable, Insertable, Selectable, query_builder::AsChangeset};
+use diesel::{prelude::Queryable, query_builder::AsChangeset, Insertable, Selectable};
 use talk_loco_client::talk::session;
 
 use crate::database::schema::user_profile;
@@ -43,7 +43,6 @@ pub struct UserProfileUpdate<'a> {
     pub full_profile_url: &'a str,
     pub original_profile_url: &'a str,
 }
-
 
 #[derive(Debug, Queryable, Selectable, Clone, PartialEq, Eq)]
 #[diesel(table_name = user_profile)]

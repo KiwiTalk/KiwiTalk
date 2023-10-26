@@ -1,4 +1,4 @@
-use diesel::{prelude::Queryable, Insertable, Selectable, query_builder::AsChangeset};
+use diesel::{prelude::Queryable, query_builder::AsChangeset, Insertable, Selectable};
 use talk_loco_client::talk::session::channel::normal;
 
 use crate::database::schema::normal_channel_user;
