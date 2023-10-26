@@ -269,7 +269,7 @@ export const VirtualList = <
       onScroll={onScroll}
     >
       <div
-        ref={parentRef}
+        ref={(el) => parentRef = el}
         class={`${styles.inner} ${classProps.innerClass}`}
         style={classProps.innerStyle}
       >
