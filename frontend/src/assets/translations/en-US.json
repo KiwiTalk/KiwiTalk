@@ -10,7 +10,7 @@
     "title": "Sign in with Kakao Account",
     "register_title": "Device Authentication",
     "login": "Sign in",
-    "login_name": "{{name}} Login",
+    "login_name": "Sign in to {{name}}",
     "logout": "Logout",
     "id_placeholder": "Kakao Account (Email or Phone Number)",
     "password_placeholder": "Password",
