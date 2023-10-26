@@ -63,7 +63,7 @@ export const LoginContentPage = () => {
     } else {
       if (result.forced) setForced(true);
 
-      setError(t(result.key, {detail: result.detail}));
+      setError(t(result.key, { detail: result.detail }));
     }
   };
 
