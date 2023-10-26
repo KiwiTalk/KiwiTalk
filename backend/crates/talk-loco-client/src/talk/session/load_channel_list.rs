@@ -10,7 +10,7 @@ pub struct Request<'a> {
     #[serde(rename = "chatIds")]
     pub chat_ids: &'a [i64],
 
-    /// Unknown
+    /// last seen log id paired with chat_ids
     #[serde(rename = "maxIds")]
     pub max_ids: &'a [i64],
 

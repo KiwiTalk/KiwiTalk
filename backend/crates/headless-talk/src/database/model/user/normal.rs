@@ -1,4 +1,4 @@
-use diesel::{prelude::Queryable, Insertable, Selectable};
+use diesel::{prelude::Queryable, query_builder::AsChangeset, Insertable, Selectable};
 use talk_loco_client::talk::session::channel::normal;
 
 use crate::database::schema::normal_channel_user;
@@ -30,6 +30,18 @@ impl<'a> NormalChannelUserRow<'a> {
             suspended: user.suspended,
         }
     }
+}
+
+#[derive(Debug, AsChangeset, Clone, PartialEq, Eq)]
+#[diesel(table_name = normal_channel_user)]
+pub struct NormalChannelUserUpdate<'a> {
+    pub country_iso: &'a str,
+
+    pub account_id: i64,
+    pub status_message: &'a str,
+    pub linked_services: &'a str,
+
+    pub suspended: bool,
 }
 
 #[derive(Debug, Queryable, Selectable, Clone, PartialEq, Eq)]

@@ -1,6 +1,6 @@
 pub mod normal;
 
-use diesel::{prelude::Queryable, Insertable, Selectable};
+use diesel::{prelude::Queryable, query_builder::AsChangeset, Insertable, Selectable};
 use talk_loco_client::talk::session;
 
 use crate::database::schema::user_profile;
@@ -32,6 +32,16 @@ impl<'a> UserProfileRow<'a> {
             original_profile_url: user.original_profile_image_url.as_str(),
         }
     }
+}
+
+#[derive(Debug, AsChangeset, Clone, PartialEq, Eq)]
+#[diesel(table_name = user_profile)]
+pub struct UserProfileUpdate<'a> {
+    pub nickname: &'a str,
+
+    pub profile_url: &'a str,
+    pub full_profile_url: &'a str,
+    pub original_profile_url: &'a str,
 }
 
 #[derive(Debug, Queryable, Selectable, Clone, PartialEq, Eq)]
