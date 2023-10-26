@@ -18,7 +18,6 @@ const Template: StoryFn<MessageListProps> = () => {
         accountId: 'test-account-id',
         linkedServices: 'test-linked-services',
         suspended: false,
-        id: `user-${index}`,
 
         nickname: `User ${index + 1}`,
         profileUrl: `https://picsum.photos/64?s=${Math.random()}`,
@@ -34,8 +33,8 @@ const Template: StoryFn<MessageListProps> = () => {
 
     return {
       messages: () => Array.from({ length: 1000 }).map((_, i) => ({
-        logId: `chat-${i}`,
-        prevLogId: i > 0 ? `chat-${i - 1}` : undefined,
+        logId: `${i}`,
+        prevLogId: i > 0 ? `${i - 1}` : undefined,
 
         senderId: `user-${Math.floor(Math.random() * 5)}`,
         sendAt: Date.now(),
