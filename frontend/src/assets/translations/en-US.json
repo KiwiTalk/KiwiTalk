@@ -31,7 +31,7 @@
       "kickout": "Logged out due to access from another device"
     },
     "passcode_tip": "KakaoTalk App: Settings > Privacy > Manage Devices",
-    "passcode_placeholder": "Enter Authentication Code",
+    "passcode_placeholder": "Enter Registration Code",
     "set_forced": "Upon re-login, the connection on other devices will be terminated.",
     "generic_error": "An internal error has occurred.",
     "unknown_error": "An unknown error has occurred. {{detail}}",
