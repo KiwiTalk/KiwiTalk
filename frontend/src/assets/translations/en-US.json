@@ -45,7 +45,7 @@
         "-101": "Already connected to another device",
         "-102": "Exceeded the number of devices that can be authenticated",
         "-110": "UUID is not Base64 encoded",
-        "-111": "Authentication number is incorrect",
+        "-111": "Registration number is incorrect",
         "-125": "Already registered with another device",
         "-500": "API request failed",
         "-910": "Invalid login token",
