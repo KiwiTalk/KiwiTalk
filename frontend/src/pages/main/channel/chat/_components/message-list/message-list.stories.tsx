@@ -46,9 +46,10 @@ const Template: StoryFn<MessageListProps> = () => {
         // attachment?: string,
         // supplement?: string,
 
-        referer: Math.floor(Math.random() * 10),
+        // referer: undefined,
       })),
       members: () => users,
+      loadMore: () => {},
     };
   };
   return (

@@ -1,26 +1,31 @@
-import { Accessor, untrack } from 'solid-js';
+import { Accessor, Match, Switch, createMemo, untrack } from 'solid-js';
 
 import { Chatlog, NormalChannelUser } from '@/api/client';
-import { VirtualList } from '@/ui-common/virtual-list';
+import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
+import { Message } from '../message';
 
 import * as styles from './message-list.css';
-import { Message } from '../message';
+import { classes } from '@/features/theme';
 
 export type MessageListViewModelType = () => {
   messages: Accessor<Chatlog[]>;
   members: Accessor<Record<string, NormalChannelUser>>;
+  loadMore: () => void;
 };
 
+type ListItem = Chatlog | { type: 'loader' };
+
 export type MessageListProps = {
-  channelId: string;
+  scroller?: (ref: VirtualListRef) => void;
   logonId?: string
+  channelId: string;
   viewModel: MessageListViewModelType;
 };
 export const MessageList = (props: MessageListProps) => {
   const instance = untrack(() => props.viewModel());
 
-  const messages = () => instance.messages();
-  const users = () => instance.members();
+  const items = createMemo<ListItem[]>(() => [...instance.messages(), { type: 'loader' }]);
+  const users = createMemo(() => instance.members());
 
   const isDiff = (a: number, b: number) => {
     const aDate = new Date(a * 1000);
@@ -37,33 +42,54 @@ export const MessageList = (props: MessageListProps) => {
 
   return (
     <VirtualList
-      component={'section'}
-      items={messages()}
+      reverse
+      ref={props.scroller}
+      items={items()}
       class={styles.virtualList.outer}
       innerClass={styles.virtualList.inner}
       topMargin={32 + 64 + 16}
       bottomMargin={24 + 44 + 16}
+      estimatedItemHeight={65}
     >
-      {(item, index) => (
-        <Message
-          profile={users()[item.senderId]?.profileUrl}
-          sender={
-            messages()[index() - 1]?.senderId !== item.senderId ?
-              users()[item.senderId]?.nickname :
-              undefined
-          }
-          unread={item.referer}
-          time={
-            isDiff(messages()[index() + 1]?.sendAt, item.sendAt) ?
-              new Date(item.sendAt * 1000) :
-              undefined
-          }
-          isMine={item.senderId === props.logonId}
-          isConnected={messages()[index() + 1]?.senderId === item.senderId}
-        >
-          {item.content}
-        </Message>
-      )}
+      {(item, index) => {
+        const chat = item as Chatlog;
+        const prevChat = items()[index() - 1] as Chatlog | undefined;
+        const nextChat = items()[index() + 1] as Chatlog | undefined;
+
+        return (
+          <Switch
+            fallback={
+              <Message
+                profile={users()[chat.senderId]?.profileUrl}
+                sender={
+                  nextChat?.senderId !== chat.senderId ?
+                    users()[chat.senderId]?.nickname :
+                    undefined
+                }
+                unread={chat.referer}
+                time={
+                  (
+                    isDiff(prevChat?.sendAt ?? chat.sendAt, chat.sendAt) ||
+                    prevChat?.senderId !== chat.senderId
+                  ) ?
+                    new Date(chat.sendAt * 1000) :
+                    undefined
+                }
+                isMine={chat.senderId === props.logonId}
+                isConnected={prevChat?.senderId === chat.senderId}
+              >
+                {chat.content}
+              </Message>
+            }
+          >
+            <Match when={'type' in item && item.type === 'loader'}>
+              <div ref={() => instance.loadMore()} class={classes.typography.body}>
+                loading...
+              </div>
+            </Match>
+          </Switch>
+        );
+      }}
     </VirtualList>
   );
 };

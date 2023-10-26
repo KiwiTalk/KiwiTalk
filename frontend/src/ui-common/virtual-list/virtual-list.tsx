@@ -20,14 +20,16 @@ import { calculateVisibleRange } from './calculate-visible-range';
 import * as styles from './virtual-list.css';
 
 import type { JSX } from 'solid-js/jsx-runtime';
+import { Range } from './types';
 
 const DEFAULT_HEIGHT = 50;
 
 type RequiredKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 export interface VirtualListRef {
-  scrollToIndex: (index: number) => void;
+  scrollToIndex: (index: number, options?: ScrollToOptions) => void;
   refresh: () => void;
+  range: () => Range;
 
   element: HTMLElement;
   innerElement: Accessor<HTMLElement | null>;
@@ -170,7 +172,7 @@ export const VirtualList = <
     calculateRange(scroll, height);
   };
 
-  const scrollToIndex = (index: number) => {
+  const scrollToIndex = (index: number, options: ScrollToOptions = {}) => {
     const rawIndex = local.reverse ? items().length - index - 1 : index;
 
     let top = 0;
@@ -179,7 +181,10 @@ export const VirtualList = <
       top += itemHeights.get(i) ?? defaultItemHeight;
     }
 
-    frameRef?.scrollTo({ top });
+    frameRef?.scrollTo({
+      ...options,
+      top: top + (options?.top ?? 0),
+    });
   };
 
   onMount(() => {
@@ -253,6 +258,7 @@ export const VirtualList = <
 
         calculateRange(scroll, height);
       },
+      range,
 
       element,
       innerElement: () => parentRef ?? null,
