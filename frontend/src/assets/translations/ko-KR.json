@@ -7,7 +7,7 @@
     "next": "다음으로"
   },
   "login": {
-    "title": "카카오 계정 로그인",
+    "title": "카카오 계정으로 로그인",
     "register_title": "기기 인증",
     "login": "로그인",
     "login_name": "{{name}} 로그인",
