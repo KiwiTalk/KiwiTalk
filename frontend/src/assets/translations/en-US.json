@@ -1,4 +1,99 @@
 {
+  "common": {
+    "ok": "Ok",
+    "cancel": "Cancel",
+    "close": "Close",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "login": {
+    "title": "Kakao Account Login",
+    "register_title": "Device Authentication",
+    "login": "Login",
+    "login_name": "{{name}} Login",
+    "logout": "Logout",
+    "id_placeholder": "Kakao Account (Email or Phone Number)",
+    "password_placeholder": "Password",
+    "manage_account": "Manage Account",
+    "add_account": "Add a New Account",
+    "save_id": "Save ID",
+    "auto_login_on_launch": "Auto Login on Launch",
+    "register_type": {
+      "permanent": "Authenticate My PC",
+      "temporary": "Receive One-time Authentication"
+    },
+    "reason": {
+      "required_id_password": "Please enter your ID and password.",
+      "auto_login_failed": {
+        "file_read": "An error occurred while reading the stored account information",
+        "general": "Auto login has failed"
+      },
+      "kickout": "Logged out due to access from another device"
+    },
+    "passcode_tip": "KakaoTalk App: Settings > Personal/Security > PC Connection Management",
+    "passcode_placeholder": "Enter Authentication Code",
+    "set_forced": "Upon re-login, the connection on other devices will be terminated.",
+    "generic_error": "An internal error has occurred.",
+    "unknown_error": "An unknown error has occurred. {{detail}}",
+    "status": {
+      "login": {
+        "500": "An internal error has occurred",
+        "30": "Account information is incorrect",
+        "32": "Account does not exist",
+        "-16": "Account information is incorrect",
+        "-100": "Unregistered device",
+        "-101": "Already connected to another device",
+        "-102": "Exceeded the number of devices that can be authenticated",
+        "-110": "UUID is not Base64 encoded",
+        "-111": "Authentication number is incorrect",
+        "-125": "Already registered with another device",
+        "-500": "API request failed",
+        "-910": "Invalid login token",
+        "-950": "Invalid access token",
+        "-997": "Account is blocked",
+        "-998": "Authentication is required",
+        "-999": "Client version is too low",
+        "-9797": "Server is under maintenance"
+      },
+      "device_register": {
+        "-112": "Exceeded the number of daily authentication attempts."
+      },
+      "passcode": {
+        "-111": "Authentication number is incorrect",
+        "-102": "Exceeded the number of devices that can be registered. The maximum number of devices that can be registered is 5."
+      }
+    },
+    "result": {},
+    "end_title": "Start",
+    "end_caption_title": "All preparations are now complete",
+    "end_caption_subtitle": "Press 'Start' to take the first step in the universal communication protocol",
+    "start": "Start"
+  },
+  "main": {
+    "menu": {
+      "chat": {
+        "name": "Chat",
+        "normal_chat": "Normal Chat",
+        "open_chat": "Open Chat"
+      },
+      "friend": {
+        "name": "Friends",
+        "channel": "Channel"
+      }
+    },
+    "chat": {
+      "empty": {
+        "chat": "Select a chat room to start a conversation.",
+        "friend": "Kiwi bird is waiting for friends."
+      }
+    },
+    "friend": {
+      "all_friends": "All Friends",
+      "pinned_friends": "Pinned Friends",
+      "near_birthday_friends": "Friends with Upcoming Birthdays",
+      "me": "Me"
+    }
+  },
   "window-controls": {
     "minimize": "Minimize",
     "maximize": "Maximize",

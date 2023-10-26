@@ -12,7 +12,7 @@
     "login": "로그인",
     "login_name": "{{name}} 로그인",
     "logout": "로그아웃",
-    "id_placeholder": "카카오계정 (이메일 또는 전화번호)",
+    "id_placeholder": "카카오 계정 (이메일 또는 전화번호)",
     "password_placeholder": "비밀번호",
     "manage_account": "계정 관리",
     "add_account": "새로운 계정 추가",
@@ -20,21 +20,21 @@
     "auto_login_on_launch": "실행 시 자동 로그인",
     "register_type": {
       "permanent": "내 PC 인증 받기",
-      "temporary": "1회용 인증 받기"
+      "temporary": "일회용 인증 받기"
     },
     "reason": {
-      "required_id_password": "아이디와 비밀번호를 입력해주세요.",
+      "required_id_password": "아이디와 비밀번호를 입력해 주세요.",
       "auto_login_failed": {
         "file_read": "저장된 계정 정보를 읽는 중 오류가 발생했습니다",
-        "general": "자동 로그인이 실패 했습니다"
+        "general": "자동 로그인이 실패했습니다"
       },
-      "kickout": "다른 기기 접속으로 인해 로그아웃 되었습니다"
+      "kickout": "다른 기기 접속으로 인해 로그아웃되었습니다"
     },
     "passcode_tip": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
     "passcode_placeholder": "인증코드 입력",
     "set_forced": "다시 로그인 시 다른 기기의 연결을 해제합니다.",
     "generic_error": "내부 에러가 발생했습니다.",
-    "unknown_error": "알수없는 에러가 발생했습니다. {{detail}}",
+    "unknown_error": "알 수 없는 에러가 발생했습니다. {{detail}}",
     "status": {
       "login": {
         "500": "내부 오류가 발생했습니다",
