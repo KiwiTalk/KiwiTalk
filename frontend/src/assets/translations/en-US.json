@@ -17,7 +17,7 @@
     "manage_account": "Manage Account",
     "add_account": "Add a New Account",
     "save_id": "Save ID",
-    "auto_login_on_launch": "Auto Login on Launch",
+    "auto_login_on_launch": "Automatic sign-in on Launch",
     "register_type": {
       "permanent": "Authenticate My PC",
       "temporary": "Receive One-time Authentication"
