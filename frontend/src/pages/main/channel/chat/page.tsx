@@ -165,7 +165,22 @@ export const ChatPage = () => {
           viewModel={() => ({
             messages: viewModel()!.messages,
             members: viewModel()!.members,
-            loadMore: viewModel()!.loadMore,
+            loadMore: () => {
+              const element = scroller()?.element;
+              const messageLength = viewModel()!.messages().length;
+
+              if (!element) return;
+              viewModel()!.loadMore();
+
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => { // queue this task as last macro task
+                  scroller()?.scrollToIndex(
+                    messageLength - 5, // 5 is overscan
+                    { behavior: 'instant' },
+                  );
+                });
+              });
+            },
           })}
         />
       </Show>

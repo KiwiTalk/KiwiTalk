@@ -47,6 +47,8 @@ export const MessageList = (props: MessageListProps) => {
     return count > 0 ? count : undefined;
   };
 
+  let loadCooldown: NodeJS.Timeout | null = null;
+
   return (
     <VirtualList
       reverse
@@ -56,7 +58,7 @@ export const MessageList = (props: MessageListProps) => {
       innerClass={styles.virtualList.inner}
       topMargin={32 + 64 + 16}
       bottomMargin={24 + 44 + 16}
-      estimatedItemHeight={65}
+      estimatedItemHeight={75}
     >
       {(item, index) => {
         const chat = item as Chatlog;
@@ -91,7 +93,14 @@ export const MessageList = (props: MessageListProps) => {
           >
             <Match when={'type' in item && item.type === 'loader'}>
               <div
-                ref={() => instance.loadMore()}
+                ref={() => {
+                  if (typeof loadCooldown === 'number') return;
+
+                  instance.loadMore();
+                  loadCooldown = setTimeout(() => {
+                    loadCooldown = null;
+                  }, 500);
+                }}
                 class={styles.loader}
               >
                 <Trans key={'main.chat.first_chat'} />

@@ -30,6 +30,8 @@ export interface VirtualListRef {
   scrollToIndex: (index: number, options?: ScrollToOptions) => void;
   refresh: () => void;
   range: () => Range;
+  topPadding: () => number;
+  bottomPadding: () => number;
 
   element: HTMLElement;
   innerElement: Accessor<HTMLElement | null>;
@@ -251,14 +253,21 @@ export const VirtualList = <
     const ref: VirtualListRef = {
       scrollToIndex,
       refresh: () => {
-        if (!parentRef) return;
+        if (!frameRef) return;
 
-        const scroll = parentRef.scrollTop;
-        const height = parentRef.clientHeight;
+        const scroll = frameRef.scrollTop;
+        const height = frameRef.clientHeight;
 
         calculateRange(scroll, height);
       },
-      range,
+      range: () => {
+        const [start, end] = range();
+
+        if (local.reverse) return [items().length - end - 1, items().length - start - 1];
+        return [start, end];
+      },
+      topPadding,
+      bottomPadding,
 
       element,
       innerElement: () => parentRef ?? null,
