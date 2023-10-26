@@ -5,7 +5,7 @@ import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
 import { Message } from '../message';
 
 import * as styles from './message-list.css';
-import { classes } from '@/features/theme';
+import { Trans } from '@jellybrick/solid-i18next';
 
 export type MessageListViewModelType = () => {
   messages: Accessor<Chatlog[]>;
@@ -90,8 +90,11 @@ export const MessageList = (props: MessageListProps) => {
             }
           >
             <Match when={'type' in item && item.type === 'loader'}>
-              <div ref={() => instance.loadMore()} class={classes.typography.body}>
-                loading...
+              <div
+                ref={() => instance.loadMore()}
+                class={styles.loader}
+              >
+                <Trans key={'main.chat.first_chat'} />
               </div>
             </Match>
           </Switch>

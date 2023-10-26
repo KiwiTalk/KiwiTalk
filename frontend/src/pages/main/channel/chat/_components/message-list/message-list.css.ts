@@ -1,4 +1,5 @@
-import { styleVariants } from '@vanilla-extract/css';
+import { classes, vars } from '@/features/theme';
+import { style, styleVariants } from '@vanilla-extract/css';
 
 export const virtualList = styleVariants({
   outer: {
@@ -29,3 +30,19 @@ export const virtualList = styleVariants({
     width: '100%',
   },
 });
+
+export const loader = style([classes.typography.title, {
+  width: 'fit-content',
+  height: 'fit-content',
+
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+
+  padding: '16px 24px',
+  margin: 'auto',
+
+  backgroundColor: vars.color.glassSecondary.background,
+  color: vars.color.glassSecondary.fillSecondary,
+  borderRadius: vars.radius.regular,
+}]);

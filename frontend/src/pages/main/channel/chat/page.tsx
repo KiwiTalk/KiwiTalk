@@ -15,7 +15,7 @@ import { MessageList } from './_components/message-list';
 import * as styles from './page.css';
 import { ChannelHeader } from '../_components/channel-header';
 import { MessageInput } from './_components/message-input';
-import { meProfile } from '@/api';
+import { getChannelList, meProfile } from '@/api';
 import { useReady } from '../../_utils';
 import { Chatlog, openChannel } from '@/api/client';
 import { useEvent } from '../../_utils/useEvent';
@@ -101,10 +101,18 @@ export const ChatPage = () => {
     null
   >(null);
 
-  const [me] = createResource(async () => {
-    if (!isReady) return null;
+  const [me] = createResource(isReady, async (ready) => {
+    if (!ready) return null;
 
     return meProfile();
+  });
+  const [channel] = createResource(() => [isReady(), channelId()] as const, async ([ready, id]) => {
+    if (!ready) return null;
+    if (!id) return null;
+
+    const channelMap = Object.fromEntries(await getChannelList());
+
+    return channelMap[id];
   });
 
   createEffect(() => {
@@ -144,7 +152,11 @@ export const ChatPage = () => {
 
   return (
     <div class={styles.container}>
-      <ChannelHeader />
+      <ChannelHeader
+        name={channel()?.name ?? '...'}
+        profile={channel()?.profile}
+        members={channel()?.userCount ?? 0}
+      />
       <Show keyed when={channelId() && viewModel()}>
         <MessageList
           scroller={setScroller}

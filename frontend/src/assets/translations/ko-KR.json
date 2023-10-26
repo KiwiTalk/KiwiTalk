@@ -87,7 +87,8 @@
         "friend": "키위새는 친구를 기다리고 있어요."
       },
       "member_count": "{{count}}명",
-      "placeholder": "메시지 보내기..."
+      "placeholder": "메시지 보내기...",
+      "first_chat": "채팅창의 첫부분 입니다"
     },
     "friend": {
       "all_friends": "전체 친구",
