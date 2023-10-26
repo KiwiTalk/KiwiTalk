@@ -1,19 +1,17 @@
-import { Accessor, Match, Switch, createMemo, untrack } from 'solid-js';
+import { Accessor, Show, createMemo, untrack } from 'solid-js';
+import { Trans } from '@jellybrick/solid-i18next';
 
 import { Chatlog, NormalChannelUser } from '@/api/client';
 import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
 import { Message } from '../message';
 
 import * as styles from './message-list.css';
-import { Trans } from '@jellybrick/solid-i18next';
 
 export type MessageListViewModelType = () => {
   messages: Accessor<Chatlog[]>;
   members: Accessor<Record<string, NormalChannelUser>>;
   loadMore: () => void;
 };
-
-type ListItem = Chatlog | { type: 'loader' };
 
 export type MessageListProps = {
   scroller?: (ref: VirtualListRef) => void;
@@ -24,7 +22,7 @@ export type MessageListProps = {
 export const MessageList = (props: MessageListProps) => {
   const instance = untrack(() => props.viewModel());
 
-  const items = createMemo<ListItem[]>(() => [...instance.messages(), { type: 'loader' }]);
+  const items = createMemo<(Chatlog | null)[]>(() => [...instance.messages(), null]);
   const users = createMemo(() => instance.members());
 
   const isDiff = (a: number, b: number) => {
@@ -40,14 +38,42 @@ export const MessageList = (props: MessageListProps) => {
     );
   };
 
+  /* property getters */
+  const getSender = (chat: Chatlog, index: number) => {
+    const nextChat = items()[index + 1];
+
+    if (nextChat?.senderId !== chat.senderId) return users()[chat.senderId]?.nickname;
+    return undefined;
+  };
   const getReadCount = (chat: Chatlog) => {
     const userList = Object.values(users());
     const count = userList.filter((user) => user.watermark < BigInt(chat.logId)).length;
 
     return count > 0 ? count : undefined;
   };
+  const getTime = (chat: Chatlog, index: number) => {
+    const prevChat = items()[index - 1];
 
+    if (
+      prevChat &&
+      (isDiff(prevChat.sendAt, chat.sendAt) || prevChat.senderId !== chat.senderId)
+    ) {
+      return new Date(chat.sendAt * 1000);
+    }
+
+    return undefined;
+  };
+
+  /* loader */
   let loadCooldown: NodeJS.Timeout | null = null;
+  const onLoad = () => {
+    if (typeof loadCooldown === 'number') return;
+
+    instance.loadMore();
+    loadCooldown = setTimeout(() => {
+      loadCooldown = null;
+    }, 500);
+  };
 
   return (
     <VirtualList
@@ -61,52 +87,29 @@ export const MessageList = (props: MessageListProps) => {
       estimatedItemHeight={75}
     >
       {(item, index) => {
-        const chat = item as Chatlog;
-        const prevChat = items()[index() - 1] as Chatlog | undefined;
-        const nextChat = items()[index() + 1] as Chatlog | undefined;
-
         return (
-          <Switch
+          <Show
+            when={item}
             fallback={
-              <Message
-                profile={users()[chat.senderId]?.profileUrl}
-                sender={
-                  nextChat?.senderId !== chat.senderId ?
-                    users()[chat.senderId]?.nickname :
-                    undefined
-                }
-                unread={getReadCount(chat)}
-                time={
-                  (
-                    isDiff(prevChat?.sendAt ?? chat.sendAt, chat.sendAt) ||
-                    prevChat?.senderId !== chat.senderId
-                  ) ?
-                    new Date(chat.sendAt * 1000) :
-                    undefined
-                }
-                isMine={chat.senderId === props.logonId}
-                isConnected={prevChat?.senderId === chat.senderId}
-              >
-                {chat.content}
-              </Message>
-            }
-          >
-            <Match when={'type' in item && item.type === 'loader'}>
               <div
-                ref={() => {
-                  if (typeof loadCooldown === 'number') return;
-
-                  instance.loadMore();
-                  loadCooldown = setTimeout(() => {
-                    loadCooldown = null;
-                  }, 500);
-                }}
+                ref={onLoad}
                 class={styles.loader}
               >
                 <Trans key={'main.chat.first_chat'} />
               </div>
-            </Match>
-          </Switch>
+            }
+          >
+            <Message
+              profile={users()[item!.senderId]?.profileUrl}
+              sender={getSender(item!, index())}
+              unread={getReadCount(item!)}
+              time={getTime(item!, index())}
+              isMine={item!.senderId === props.logonId}
+              isConnected={items()[index() - 1]?.senderId === item!.senderId}
+            >
+              {item!.content}
+            </Message>
+          </Show>
         );
       }}
     </VirtualList>

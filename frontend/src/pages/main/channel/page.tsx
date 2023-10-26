@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useParams } from '@solidjs/router';
 
-import { ChannelList, ChannelListViewModel } from './_components/channel-list/channel-list';
+import { ChannelList, ChannelListViewModel } from './_components/channel-list';
 
 import * as styles from './page.css';
 

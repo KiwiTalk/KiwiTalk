@@ -9,18 +9,18 @@ import {
   untrack,
 } from 'solid-js';
 import { useParams } from '@solidjs/router';
+import { useTransContext } from '@jellybrick/solid-i18next';
 
+import { VirtualListRef } from '@/ui-common/virtual-list';
 import { MessageList } from './_components/message-list';
+import { MessageInput } from './_components/message-input';
+import { ChannelHeader } from '../_components/channel-header';
+
+import { getChannelList, meProfile } from '@/api';
+import { Chatlog, openChannel } from '@/api/client';
+import { useReady, useEvent } from '@/pages/main/_utils';
 
 import * as styles from './page.css';
-import { ChannelHeader } from '../_components/channel-header';
-import { MessageInput } from './_components/message-input';
-import { getChannelList, meProfile } from '@/api';
-import { useReady } from '../../_utils';
-import { Chatlog, openChannel } from '@/api/client';
-import { useEvent } from '../../_utils/useEvent';
-import { useTransContext } from '@jellybrick/solid-i18next';
-import { VirtualListRef } from '@/ui-common/virtual-list';
 
 const createMessageListViewModel = (id: string) => {
   const isReady = useReady();
@@ -30,6 +30,7 @@ const createMessageListViewModel = (id: string) => {
   const [messages, setMessages] = createSignal<Chatlog[]>([]);
   let lastLogId: string | undefined = undefined;
 
+  /* resources */
   const [channel] = createResource(() => [isReady(), id] as const, async ([ready, id]) => {
     if (!ready) return null;
     if (!id) return null;
@@ -41,6 +42,8 @@ const createMessageListViewModel = (id: string) => {
 
     return Object.fromEntries(await target.getUsers() ?? []);
   });
+
+  /* infinite message loader */
   createResource(() => [channel(), loadMore()] as const, async ([target, isLoad]) => {
     if (!target) return;
     if (!isLoad) return;
@@ -58,6 +61,8 @@ const createMessageListViewModel = (id: string) => {
     channel()?.close();
   };
 
+  /* lifecycle */
+  // listen message event
   createEffect(on(event, (event) => {
     if (event?.type === 'chat') {
       const newMessage = event.content;
@@ -70,6 +75,7 @@ const createMessageListViewModel = (id: string) => {
     }
   }));
 
+  // close channel on unmount
   onCleanup(() => {
     onClose();
   });
@@ -101,6 +107,7 @@ export const ChatPage = () => {
     null
   >(null);
 
+  /* resources */
   const [me] = createResource(isReady, async (ready) => {
     if (!ready) return null;
 
@@ -115,6 +122,8 @@ export const ChatPage = () => {
     return channelMap[id];
   });
 
+  /* lifecycle */
+  // Create ViewModel
   createEffect(() => {
     const id = channelId();
 
@@ -132,6 +141,7 @@ export const ChatPage = () => {
     });
   });
 
+  // Auto Scroll
   let lastLogId = '';
   createEffect(on(() => viewModel()?.messages(), (messages) => {
     if (messages?.[0]?.logId === lastLogId) return;
@@ -145,10 +155,6 @@ export const ChatPage = () => {
       });
     }
   }));
-
-  const onSubmit = async (message: string) => {
-    await viewModel()?.sendText(message);
-  };
 
   return (
     <div class={styles.container}>
@@ -173,7 +179,7 @@ export const ChatPage = () => {
               viewModel()!.loadMore();
 
               requestAnimationFrame(() => {
-                requestAnimationFrame(() => { // queue this task as last macro task
+                requestAnimationFrame(() => { // queue this task as last as possible
                   scroller()?.scrollToIndex(
                     messageLength - 5, // 5 is overscan
                     { behavior: 'instant' },
@@ -186,7 +192,7 @@ export const ChatPage = () => {
       </Show>
       <MessageInput
         placeholder={t('main.chat.placeholder')}
-        onSubmit={onSubmit}
+        onSubmit={(message) => viewModel()?.sendText(message)}
       />
     </div>
   );
