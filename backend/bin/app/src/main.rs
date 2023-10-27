@@ -21,14 +21,19 @@ use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
 use window_vibrancy::apply_acrylic;
 
 fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<Window<R>> {
-    let window = WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
-        .inner_size(1280.0, 720.0)
-        .resizable(true)
-        .title("KiwiTalk")
-        .decorations(false)
-        .visible(false)
-        .transparent(true)
-        .build()?;
+    let window_builder =
+        WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
+            .inner_size(1280.0, 720.0)
+            .resizable(true)
+            .title("KiwiTalk")
+            .decorations(false)
+            .visible(false);
+
+    #[cfg(target_os = "linux")]
+    // TODO: see https://github.com/tauri-apps/tao/issues/470 (original winit supports `window.set_blur(true)`)
+    let window = window_builder.build()?;
+    #[cfg(not(target_os = "linux"))]
+    let window = window_builder.transparent(true).build()?;
 
     #[cfg(target_os = "macos")]
     #[allow(deprecated)]
