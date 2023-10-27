@@ -18,9 +18,6 @@ pub struct ChatOnChannel {
     #[serde(rename = "w")]
     pub watermarks: Option<Vec<i64>>,
 
-    #[serde(rename = "mi")]
-    pub user_ids: Option<Vec<i64>>,
-
     #[serde(rename = "l")]
     pub last_log_id: i64,
 
@@ -62,8 +59,8 @@ impl ChatOnChannelType {
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct NormalChatOnChannel {
-    #[serde(rename = "m")]
-    pub users: Option<Vec<normal::user::User>>,
+    #[serde(flatten)]
+    pub users: ChatOnChannelUsers<normal::user::User>,
 }
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -76,4 +73,12 @@ pub struct OpenChatOnChannel {
 
     #[serde(rename = "m")]
     pub users: Option<Vec<open::user::User>>,
+}
+
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+pub enum ChatOnChannelUsers<T> {
+    #[serde(rename = "mi")]
+    Ids(Vec<i64>),
+    #[serde(rename = "m")]
+    Users(Vec<T>),
 }

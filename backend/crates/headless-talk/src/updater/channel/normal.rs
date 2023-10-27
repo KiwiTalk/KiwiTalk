@@ -24,7 +24,7 @@ impl NormalChannelUpdater {
         Self { id }
     }
 
-    pub async fn update<F>(
+    pub async fn initialize<F>(
         self,
         session: &LocoSession,
         pool: &DatabasePool,

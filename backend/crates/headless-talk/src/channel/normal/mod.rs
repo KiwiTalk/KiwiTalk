@@ -2,10 +2,14 @@ pub mod user;
 
 use diesel::{
     BoolExpressionMethods, Connection, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl,
-    RunQueryDsl, SelectableHelper,
+    RunQueryDsl, SelectableHelper, SqliteConnection,
 };
 use talk_loco_client::talk::{
-    channel::ChannelMetaType, session::channel::chat_on::NormalChatOnChannel,
+    channel::ChannelMetaType,
+    session::channel::{
+        chat_on::{ChatOnChannelUsers, NormalChatOnChannel},
+        normal,
+    },
 };
 
 use crate::{
@@ -91,31 +95,17 @@ pub(crate) async fn open_channel(
     active_user_ids: Vec<i64>,
     normal: NormalChatOnChannel,
 ) -> ClientResult<(NormalChannel, UserList<NormalChannelUser>)> {
-    let users = normal.users;
-
     let user_list = client
         .conn
         .pool
         .spawn(move |conn| {
             conn.transaction(move |conn| {
-                if let Some(users) = users {
-                    for user in &users {
-                        diesel::insert_into(user_profile::table)
-                            .values(UserProfileRow::from_normal_user(id, user))
-                            .on_conflict(user_profile::id)
-                            .do_update()
-                            .set(UserProfileUpdate::from(user))
-                            .execute(conn)?;
+                match normal.users {
+                    ChatOnChannelUsers::Ids(_) => {
+                        // TODO
                     }
 
-                    diesel::replace_into(normal_channel_user::table)
-                        .values(
-                            users
-                                .iter()
-                                .map(|user| NormalChannelUserRow::from_user(id, user))
-                                .collect::<Vec<_>>(),
-                        )
-                        .execute(conn)?;
+                    ChatOnChannelUsers::Users(users) => update_channel_users(conn, id, &users)?,
                 }
 
                 let mut user_list: UserList<NormalChannelUser> = UserList::new();
@@ -152,4 +142,30 @@ pub(crate) async fn open_channel(
         },
         user_list,
     ))
+}
+
+fn update_channel_users(
+    conn: &mut SqliteConnection,
+    id: i64,
+    users: &[normal::user::User],
+) -> Result<(), PoolTaskError> {
+    for user in users {
+        diesel::insert_into(user_profile::table)
+            .values(UserProfileRow::from_normal_user(id, user))
+            .on_conflict(user_profile::id)
+            .do_update()
+            .set(UserProfileUpdate::from(user))
+            .execute(conn)?;
+    }
+
+    diesel::replace_into(normal_channel_user::table)
+        .values(
+            users
+                .iter()
+                .map(|user| NormalChannelUserRow::from_user(id, user))
+                .collect::<Vec<_>>(),
+        )
+        .execute(conn)?;
+
+    Ok(())
 }
