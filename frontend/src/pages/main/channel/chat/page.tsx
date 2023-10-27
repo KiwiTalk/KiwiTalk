@@ -48,7 +48,7 @@ const createMessageListViewModel = (id: string) => {
     if (!target) return;
     if (!isLoad) return;
 
-    const newLoaded = await target.loadChat(50, lastLogId, true) ?? [];
+    const newLoaded = await target.loadChat(300, lastLogId, true) ?? [];
 
     const result = [...messages(), ...newLoaded];
     lastLogId = result.at(-1)?.logId;
