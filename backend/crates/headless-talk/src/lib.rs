@@ -85,15 +85,17 @@ impl HeadlessTalk {
             ChatOnChannelType::DirectChat(normal)
             | ChatOnChannelType::MultiChat(normal)
             | ChatOnChannelType::MemoChat(normal) => {
-                ClientChannel::Normal(normal::open_channel(id, self, normal).await?)
+                let (channel, user_list) =
+                    normal::open_channel(id, self, res.active_user_ids.clone(), normal).await?;
+                ClientChannel::Normal(channel, user_list)
             }
 
             _ => return Ok(None),
         };
 
-        if let (Some(active_user_ids), Some(watermarks)) = (res.active_user_ids, res.watermarks) {
-            let active_user_count = active_user_ids.len() as i32;
-            let watermark_iter = active_user_ids.into_iter().zip(watermarks.into_iter());
+        if let Some(watermarks) = res.watermarks {
+            let active_user_count = res.active_user_ids.len() as i32;
+            let watermark_iter = res.active_user_ids.into_iter().zip(watermarks.into_iter());
 
             self.conn
                 .pool
