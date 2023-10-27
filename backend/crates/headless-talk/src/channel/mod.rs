@@ -26,9 +26,14 @@ use talk_loco_client::talk::{
     session::{channel::write, TalkSession},
 };
 
-use self::{normal::NormalChannel, open::OpenChannel};
+use self::{
+    normal::{user::NormalChannelUser, NormalChannel},
+    open::OpenChannel,
+};
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
+
+pub type UserList<T> = Vec<(i64, T)>;
 
 #[derive(Debug, Clone)]
 pub struct ListPreviewChat {
@@ -59,21 +64,21 @@ pub struct ChannelListItem {
 
 #[derive(Debug)]
 pub enum ClientChannel {
-    Normal(NormalChannel),
+    Normal(NormalChannel, UserList<NormalChannelUser>),
     Open(OpenChannel),
 }
 
 impl ClientChannel {
     pub const fn id(&self) -> i64 {
         match self {
-            ClientChannel::Normal(normal) => normal.id(),
+            ClientChannel::Normal(normal, _) => normal.id(),
             ClientChannel::Open(open) => open.id(),
         }
     }
 
     const fn conn(&self) -> &Conn {
         match self {
-            ClientChannel::Normal(normal) => &normal.conn,
+            ClientChannel::Normal(normal, _) => &normal.conn,
             ClientChannel::Open(open) => &open.conn,
         }
     }
@@ -128,7 +133,7 @@ impl ClientChannel {
 
     pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
         let (id, pool) = match self {
-            ClientChannel::Normal(normal) => {
+            ClientChannel::Normal(normal, _) => {
                 let id = normal.id();
                 let conn = &normal.conn;
 
@@ -253,7 +258,7 @@ impl ClientChannel {
         let conn = self.conn();
 
         match self {
-            ClientChannel::Normal(_) => {
+            ClientChannel::Normal(_, _) => {
                 TalkSession(&conn.session)
                     .normal_channel(id)
                     .leave(block)

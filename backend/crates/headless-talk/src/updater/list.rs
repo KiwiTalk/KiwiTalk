@@ -83,7 +83,7 @@ impl<'a> ChannelListUpdater<'a> {
             };
 
             if ChannelUpdater::new(list_data.id)
-                .update(self.session, self.pool)
+                .initialize(self.session, self.pool)
                 .await?
                 .is_none()
             {

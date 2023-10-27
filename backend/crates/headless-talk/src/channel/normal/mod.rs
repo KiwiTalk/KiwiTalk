@@ -2,10 +2,14 @@ pub mod user;
 
 use diesel::{
     BoolExpressionMethods, Connection, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl,
-    RunQueryDsl, SelectableHelper,
+    RunQueryDsl, SelectableHelper, SqliteConnection,
 };
 use talk_loco_client::talk::{
-    channel::ChannelMetaType, session::channel::chat_on::NormalChatOnChannel,
+    channel::ChannelMetaType,
+    session::channel::{
+        chat_on::{ChatOnChannelUsers, NormalChatOnChannel},
+        normal,
+    },
 };
 
 use crate::{
@@ -14,8 +18,8 @@ use crate::{
         model::{
             channel::ChannelListRow,
             user::{
-                normal::{NormalChannelUserModel, NormalChannelUserUpdate},
-                UserProfileModel, UserProfileUpdate,
+                normal::{NormalChannelUserModel, NormalChannelUserRow},
+                UserProfileModel, UserProfileRow, UserProfileUpdate,
             },
         },
         schema::{channel_meta, normal_channel_user, user_profile},
@@ -27,7 +31,7 @@ use crate::{
 
 use self::user::NormalChannelUser;
 
-use super::ListChannelProfile;
+use super::{ListChannelProfile, UserList};
 
 #[derive(Debug)]
 pub struct NormalChannel {
@@ -38,42 +42,6 @@ pub struct NormalChannel {
 impl NormalChannel {
     pub const fn id(&self) -> i64 {
         self.id
-    }
-
-    pub async fn users(&self) -> Result<Vec<(i64, NormalChannelUser)>, PoolTaskError> {
-        let users = self
-            .conn
-            .pool
-            .spawn({
-                let id = self.id;
-
-                move |conn| {
-                    let users: Vec<(i64, NormalChannelUser)> = user_profile::table
-                        .inner_join(
-                            normal_channel_user::table.on(normal_channel_user::channel_id
-                                .eq(user_profile::channel_id)
-                                .and(normal_channel_user::id.eq(user_profile::id))),
-                        )
-                        .filter(user_profile::channel_id.eq(id))
-                        .select((
-                            user_profile::id,
-                            UserProfileModel::as_select(),
-                            NormalChannelUserModel::as_select(),
-                        ))
-                        .load_iter::<(i64, UserProfileModel, NormalChannelUserModel), _>(conn)?
-                        .map(|res| {
-                            res.map(|(user_id, profile, normal)| {
-                                (user_id, NormalChannelUser::from_models(profile, normal))
-                            })
-                        })
-                        .collect::<Result<_, _>>()?;
-
-                    Ok(users)
-                }
-            })
-            .await?;
-
-        Ok(users)
     }
 }
 
@@ -124,53 +92,80 @@ pub(super) async fn load_list_profile(
 pub(crate) async fn open_channel(
     id: i64,
     client: &HeadlessTalk,
+    active_user_ids: Vec<i64>,
     normal: NormalChatOnChannel,
-) -> ClientResult<NormalChannel> {
-    if let Some(users) = normal.users {
-        client
-            .conn
-            .pool
-            .spawn(move |conn| {
-                conn.transaction(move |conn| {
-                    for user in &users {
-                        diesel::update(user_profile::table)
-                            .filter(
-                                user_profile::id
-                                    .eq(user.user_id)
-                                    .and(user_profile::channel_id.eq(id)),
-                            )
-                            .set(UserProfileUpdate {
-                                nickname: &user.nickname,
-                                profile_url: &user.profile_image_url,
-                                full_profile_url: &user.full_profile_image_url,
-                                original_profile_url: &user.original_profile_image_url,
-                            })
-                            .execute(conn)?;
-
-                        diesel::update(normal_channel_user::table)
-                            .filter(
-                                normal_channel_user::id
-                                    .eq(user.user_id)
-                                    .and(normal_channel_user::channel_id.eq(id)),
-                            )
-                            .set(NormalChannelUserUpdate {
-                                country_iso: &user.country_iso,
-                                account_id: user.account_id,
-                                status_message: &user.status_message,
-                                linked_services: &user.linked_services,
-                                suspended: user.suspended,
-                            })
-                            .execute(conn)?;
+) -> ClientResult<(NormalChannel, UserList<NormalChannelUser>)> {
+    let user_list = client
+        .conn
+        .pool
+        .spawn(move |conn| {
+            conn.transaction(move |conn| {
+                match normal.users {
+                    ChatOnChannelUsers::Ids(_) => {
+                        // TODO
                     }
 
-                    Ok(())
-                })
+                    ChatOnChannelUsers::Users(users) => update_channel_users(conn, id, &users)?,
+                }
+
+                let mut user_list: UserList<NormalChannelUser> = UserList::new();
+                for user_id in active_user_ids {
+                    let (profile, normal) = user_profile::table
+                        .filter(
+                            user_profile::channel_id
+                                .eq(id)
+                                .and(user_profile::id.eq(user_id)),
+                        )
+                        .inner_join(
+                            normal_channel_user::table.on(normal_channel_user::channel_id
+                                .eq(user_profile::channel_id)
+                                .and(normal_channel_user::id.eq(user_profile::id))),
+                        )
+                        .select((
+                            UserProfileModel::as_select(),
+                            NormalChannelUserModel::as_select(),
+                        ))
+                        .first::<(UserProfileModel, NormalChannelUserModel)>(conn)?;
+
+                    user_list.push((user_id, NormalChannelUser::from_models(profile, normal)));
+                }
+
+                Ok(user_list)
             })
-            .await?;
+        })
+        .await?;
+
+    Ok((
+        NormalChannel {
+            id,
+            conn: client.conn.clone(),
+        },
+        user_list,
+    ))
+}
+
+fn update_channel_users(
+    conn: &mut SqliteConnection,
+    id: i64,
+    users: &[normal::user::User],
+) -> Result<(), PoolTaskError> {
+    for user in users {
+        diesel::insert_into(user_profile::table)
+            .values(UserProfileRow::from_normal_user(id, user))
+            .on_conflict(user_profile::id)
+            .do_update()
+            .set(UserProfileUpdate::from(user))
+            .execute(conn)?;
     }
 
-    Ok(NormalChannel {
-        id,
-        conn: client.conn.clone(),
-    })
+    diesel::replace_into(normal_channel_user::table)
+        .values(
+            users
+                .iter()
+                .map(|user| NormalChannelUserRow::from_user(id, user))
+                .collect::<Vec<_>>(),
+        )
+        .execute(conn)?;
+
+    Ok(())
 }
