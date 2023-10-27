@@ -30,8 +30,7 @@ fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<W
 
     #[cfg(target_os = "linux")]
     // TODO: see https://github.com/tauri-apps/tao/issues/470 (original winit supports `window.set_blur(true)`)
-    let window = window_builder
-        .build()?;
+    let window = window_builder.build()?;
     #[cfg(not(target_os = "linux"))]
     let window = window_builder
         .transparent(true)
