@@ -219,14 +219,11 @@ pub(super) async fn channel_users(
     let channel = map.get(rid)?;
 
     match &*channel {
-        ClientChannel::Normal(normal) => {
-            let users = normal.users().await.context("cannot load users")?;
-
-            Ok(users
-                .into_iter()
-                .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
-                .collect())
-        }
+        ClientChannel::Normal(_, users) => Ok(users
+            .iter()
+            .cloned()
+            .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
+            .collect()),
 
         _ => Err(anyhow!("unsupported channel types").into()),
     }
