@@ -109,11 +109,11 @@ pub(crate) async fn open_channel(
                     }
 
                     ChatOnChannelUsers::Users(users) => {
+                        update_channel_users(conn, id, &users)?;
+
                         for user_id in users.iter().map(|user| user.user_id) {
                             user_list.push((user_id, get_channel_user(conn, id, user_id)?));
                         }
-
-                        update_channel_users(conn, id, &users)?;
                     }
                 }
 
