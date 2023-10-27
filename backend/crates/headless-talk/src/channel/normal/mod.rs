@@ -152,7 +152,7 @@ fn update_channel_users(
     for user in users {
         diesel::insert_into(user_profile::table)
             .values(UserProfileRow::from_normal_user(id, user))
-            .on_conflict(user_profile::id)
+            .on_conflict((user_profile::id, user_profile::channel_id))
             .do_update()
             .set(UserProfileUpdate::from(user))
             .execute(conn)?;
