@@ -26,7 +26,10 @@ use talk_loco_client::talk::{
     session::{channel::write, TalkSession},
 };
 
-use self::{normal::{NormalChannel, user::NormalChannelUser}, open::OpenChannel};
+use self::{
+    normal::{user::NormalChannelUser, NormalChannel},
+    open::OpenChannel,
+};
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 

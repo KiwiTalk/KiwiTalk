@@ -220,7 +220,7 @@ pub(super) async fn channel_users(
 
     match &*channel {
         ClientChannel::Normal(_, users) => Ok(users
-            .into_iter()
+            .iter()
             .cloned()
             .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
             .collect()),
