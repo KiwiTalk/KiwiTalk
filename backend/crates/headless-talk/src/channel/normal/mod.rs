@@ -14,8 +14,8 @@ use crate::{
         model::{
             channel::ChannelListRow,
             user::{
-                normal::{NormalChannelUserModel, NormalChannelUserUpdate},
-                UserProfileModel, UserProfileUpdate,
+                normal::{NormalChannelUserModel, NormalChannelUserRow},
+                UserProfileModel, UserProfileRow, UserProfileUpdate,
             },
         },
         schema::{channel_meta, normal_channel_user, user_profile},
@@ -100,29 +100,22 @@ pub(crate) async fn open_channel(
             conn.transaction(move |conn| {
                 if let Some(users) = users {
                     for user in &users {
-                        diesel::update(user_profile::table)
-                            .filter(
-                                user_profile::id
-                                    .eq(user.user_id)
-                                    .and(user_profile::channel_id.eq(id)),
-                            )
-                            .set(UserProfileUpdate {
-                                nickname: &user.nickname,
-                                profile_url: &user.profile_image_url,
-                                full_profile_url: &user.full_profile_image_url,
-                                original_profile_url: &user.original_profile_image_url,
-                            })
-                            .execute(conn)?;
-
-                        diesel::update(normal_channel_user::table)
-                            .filter(
-                                normal_channel_user::id
-                                    .eq(user.user_id)
-                                    .and(normal_channel_user::channel_id.eq(id)),
-                            )
-                            .set(NormalChannelUserUpdate::from(user))
+                        diesel::insert_into(user_profile::table)
+                            .values(UserProfileRow::from_normal_user(id, user))
+                            .on_conflict(user_profile::id)
+                            .do_update()
+                            .set(UserProfileUpdate::from(user))
                             .execute(conn)?;
                     }
+
+                    diesel::replace_into(normal_channel_user::table)
+                        .values(
+                            users
+                                .iter()
+                                .map(|user| NormalChannelUserRow::from_user(id, user))
+                                .collect::<Vec<_>>(),
+                        )
+                        .execute(conn)?;
                 }
 
                 let mut user_list: UserList<NormalChannelUser> = UserList::new();
