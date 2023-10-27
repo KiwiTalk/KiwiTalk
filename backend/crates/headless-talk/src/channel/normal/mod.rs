@@ -14,8 +14,8 @@ use crate::{
         model::{
             channel::ChannelListRow,
             user::{
-                normal::{NormalChannelUserModel, NormalChannelUserRow},
-                UserProfileModel, UserProfileRow, UserProfileUpdate,
+                normal::{NormalChannelUserModel, NormalChannelUserUpdate},
+                UserProfileModel, UserProfileUpdate,
             },
         },
         schema::{channel_meta, normal_channel_user, user_profile},
@@ -133,10 +133,12 @@ pub(crate) async fn open_channel(
             .spawn(move |conn| {
                 conn.transaction(move |conn| {
                     for user in &users {
-                        diesel::insert_into(user_profile::table)
-                            .values(UserProfileRow::from_normal_user(id, user))
-                            .on_conflict(user_profile::id)
-                            .do_update()
+                        diesel::update(user_profile::table)
+                            .filter(
+                                user_profile::id
+                                    .eq(user.user_id)
+                                    .and(user_profile::channel_id.eq(id)),
+                            )
                             .set(UserProfileUpdate {
                                 nickname: &user.nickname,
                                 profile_url: &user.profile_image_url,
@@ -144,16 +146,22 @@ pub(crate) async fn open_channel(
                                 original_profile_url: &user.original_profile_image_url,
                             })
                             .execute(conn)?;
-                    }
 
-                    diesel::replace_into(normal_channel_user::table)
-                        .values(
-                            users
-                                .iter()
-                                .map(|user| NormalChannelUserRow::from_user(id, user))
-                                .collect::<Vec<_>>(),
-                        )
-                        .execute(conn)?;
+                        diesel::update(normal_channel_user::table)
+                            .filter(
+                                normal_channel_user::id
+                                    .eq(user.user_id)
+                                    .and(normal_channel_user::channel_id.eq(id)),
+                            )
+                            .set(NormalChannelUserUpdate {
+                                country_iso: &user.country_iso,
+                                account_id: user.account_id,
+                                status_message: &user.status_message,
+                                linked_services: &user.linked_services,
+                                suspended: user.suspended,
+                            })
+                            .execute(conn)?;
+                    }
 
                     Ok(())
                 })
