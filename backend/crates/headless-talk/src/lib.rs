@@ -91,15 +91,19 @@ impl HeadlessTalk {
             _ => return Ok(None),
         };
 
-        if let (Some(watermark_user_ids), Some(watermarks)) =
-            (res.watermark_user_ids, res.watermarks)
-        {
-            let watermark_iter = watermark_user_ids.into_iter().zip(watermarks.into_iter());
+        if let (Some(active_user_ids), Some(watermarks)) = (res.active_user_ids, res.watermarks) {
+            let active_user_count = active_user_ids.len() as i32;
+            let watermark_iter = active_user_ids.into_iter().zip(watermarks.into_iter());
 
             self.conn
                 .pool
                 .spawn(move |conn| {
                     conn.transaction(|conn| {
+                        diesel::update(channel_list::table)
+                            .filter(channel_list::id.eq(id))
+                            .set(channel_list::active_user_count.eq(active_user_count))
+                            .execute(conn)?;
+
                         for (user_id, watermark) in watermark_iter {
                             diesel::update(user_profile::table)
                                 .filter(

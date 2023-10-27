@@ -11,9 +11,9 @@ pub struct ChatOnChannel {
     #[serde(flatten)]
     pub channel_type: ChatOnChannelType,
 
-    /// watermark user ids
+    /// Also watermark user ids
     #[serde(rename = "a")]
-    pub watermark_user_ids: Option<Vec<i64>>,
+    pub active_user_ids: Option<Vec<i64>>,
 
     #[serde(rename = "w")]
     pub watermarks: Option<Vec<i64>>,
