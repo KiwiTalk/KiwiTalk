@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 // Openlink types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum OpenLinkType {
     Profile = 1,
@@ -10,6 +11,7 @@ pub enum OpenLinkType {
 }
 
 /// Openchat user member types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum OpenMemberType {
     Owner = 1,
@@ -19,6 +21,7 @@ pub enum OpenMemberType {
 }
 
 /// Openchat user profile types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum OpenProfileType {
     Main = 1,
@@ -30,7 +33,7 @@ pub enum OpenProfileType {
 
 bitflags! {
     #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
-    pub struct LinkPrivilegeMask: i16 {
+    pub struct LinkPrivilegeMask: i32 {
         const URL_SHARABLE = 2;
         const REPORTABLE = 4;
         const PROFILE_EDITABLE = 8;
@@ -43,8 +46,8 @@ bitflags! {
 }
 
 /// Openchat kicked user info
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OpenKickedUserInfo {
+#[derive(Debug, Clone, Deserialize)]
+pub struct OpenKickedUser {
     #[serde(rename = "userId")]
     pub user_id: i64,
 
