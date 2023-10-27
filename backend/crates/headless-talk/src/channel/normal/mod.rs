@@ -92,7 +92,6 @@ pub(super) async fn load_list_profile(
 pub(crate) async fn open_channel(
     id: i64,
     client: &HeadlessTalk,
-    active_user_ids: Vec<i64>,
     normal: NormalChatOnChannel,
 ) -> ClientResult<(NormalChannel, UserList<NormalChannelUser>)> {
     let user_list = client
@@ -100,34 +99,22 @@ pub(crate) async fn open_channel(
         .pool
         .spawn(move |conn| {
             conn.transaction(move |conn| {
+                let mut user_list: UserList<NormalChannelUser> = UserList::new();
+
                 match normal.users {
-                    ChatOnChannelUsers::Ids(_) => {
-                        // TODO
+                    ChatOnChannelUsers::Ids(ids) => {
+                        for user_id in ids.iter().copied() {
+                            user_list.push((user_id, get_channel_user(conn, id, user_id)?));
+                        }
                     }
 
-                    ChatOnChannelUsers::Users(users) => update_channel_users(conn, id, &users)?,
-                }
+                    ChatOnChannelUsers::Users(users) => {
+                        for user_id in users.iter().map(|user| user.user_id) {
+                            user_list.push((user_id, get_channel_user(conn, id, user_id)?));
+                        }
 
-                let mut user_list: UserList<NormalChannelUser> = UserList::new();
-                for user_id in active_user_ids {
-                    let (profile, normal) = user_profile::table
-                        .filter(
-                            user_profile::channel_id
-                                .eq(id)
-                                .and(user_profile::id.eq(user_id)),
-                        )
-                        .inner_join(
-                            normal_channel_user::table.on(normal_channel_user::channel_id
-                                .eq(user_profile::channel_id)
-                                .and(normal_channel_user::id.eq(user_profile::id))),
-                        )
-                        .select((
-                            UserProfileModel::as_select(),
-                            NormalChannelUserModel::as_select(),
-                        ))
-                        .first::<(UserProfileModel, NormalChannelUserModel)>(conn)?;
-
-                    user_list.push((user_id, NormalChannelUser::from_models(profile, normal)));
+                        update_channel_users(conn, id, &users)?;
+                    }
                 }
 
                 Ok(user_list)
@@ -142,6 +129,31 @@ pub(crate) async fn open_channel(
         },
         user_list,
     ))
+}
+
+fn get_channel_user(
+    conn: &mut SqliteConnection,
+    id: i64,
+    user_id: i64,
+) -> Result<NormalChannelUser, PoolTaskError> {
+    let (profile, normal) = user_profile::table
+        .filter(
+            user_profile::channel_id
+                .eq(id)
+                .and(user_profile::id.eq(user_id)),
+        )
+        .inner_join(
+            normal_channel_user::table.on(normal_channel_user::channel_id
+                .eq(user_profile::channel_id)
+                .and(normal_channel_user::id.eq(user_profile::id))),
+        )
+        .select((
+            UserProfileModel::as_select(),
+            NormalChannelUserModel::as_select(),
+        ))
+        .first::<(UserProfileModel, NormalChannelUserModel)>(conn)?;
+
+    Ok(NormalChannelUser::from_models(profile, normal))
 }
 
 fn update_channel_users(

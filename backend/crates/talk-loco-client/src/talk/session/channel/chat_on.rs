@@ -13,7 +13,7 @@ pub struct ChatOnChannel {
 
     /// Also watermark user ids
     #[serde(rename = "a")]
-    pub active_user_ids: Vec<i64>,
+    pub active_user_ids: Option<Vec<i64>>,
 
     #[serde(rename = "w")]
     pub watermarks: Option<Vec<i64>>,
