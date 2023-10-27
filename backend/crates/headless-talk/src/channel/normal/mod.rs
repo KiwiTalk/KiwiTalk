@@ -135,7 +135,7 @@ pub(crate) async fn open_channel(
                     for user in &users {
                         diesel::insert_into(user_profile::table)
                             .values(UserProfileRow::from_normal_user(id, user))
-                            .on_conflict(user_profile::id)
+                            .on_conflict((user_profile::channel_id, user_profile::id))
                             .do_update()
                             .set(UserProfileUpdate {
                                 nickname: &user.nickname,
