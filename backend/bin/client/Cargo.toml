@@ -24,7 +24,7 @@ anyhow = { workspace = true }
 serde = { workspace = true }
 log = { workspace = true }
 
-futures = "0.3.28"
+futures = "0.3.29"
 sha2 = "0.10.8"
 parking_lot = "0.12.1"
 num-bigint-dig = "0.8.4"
