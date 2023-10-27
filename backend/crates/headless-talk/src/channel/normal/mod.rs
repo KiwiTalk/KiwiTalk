@@ -120,13 +120,7 @@ pub(crate) async fn open_channel(
                                     .eq(user.user_id)
                                     .and(normal_channel_user::channel_id.eq(id)),
                             )
-                            .set(NormalChannelUserUpdate {
-                                country_iso: &user.country_iso,
-                                account_id: user.account_id,
-                                status_message: &user.status_message,
-                                linked_services: &user.linked_services,
-                                suspended: user.suspended,
-                            })
+                            .set(NormalChannelUserUpdate::from(user))
                             .execute(conn)?;
                     }
                 }

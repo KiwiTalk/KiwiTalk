@@ -44,6 +44,18 @@ pub struct NormalChannelUserUpdate<'a> {
     pub suspended: bool,
 }
 
+impl<'a> From<&'a normal::user::User> for NormalChannelUserUpdate<'a> {
+    fn from(user: &'a normal::user::User) -> Self {
+        Self {
+            country_iso: &user.country_iso,
+            account_id: user.account_id,
+            status_message: &user.status_message,
+            linked_services: &user.linked_services,
+            suspended: user.suspended,
+        }
+    }
+}
+
 #[derive(Debug, Queryable, Selectable, Clone, PartialEq, Eq)]
 #[diesel(table_name = normal_channel_user)]
 pub struct NormalChannelUserModel {
