@@ -28,7 +28,7 @@ impl ChannelUpdater {
         Self { id }
     }
 
-    pub async fn update(
+    pub async fn initialize(
         self,
         session: &LocoSession,
         pool: &DatabasePool,
@@ -53,7 +53,7 @@ impl ChannelUpdater {
             | ChannelInfoType::MultiChat(normal)
             | ChannelInfoType::MemoChat(normal) => {
                 NormalChannelUpdater::new(self.id)
-                    .update(session, pool, normal, move |conn| {
+                    .initialize(session, pool, normal, move |conn| {
                         diesel::replace_into(channel_meta::table)
                             .values(meta_rows)
                             .execute(conn)?;
