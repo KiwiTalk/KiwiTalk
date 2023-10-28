@@ -1,10 +1,13 @@
 import { tauri } from '@tauri-apps/api';
 
 class NormalChannel implements ClientChannel {
+  public id: string;
+
   #rid: number;
 
-  constructor(rid: number) {
+  constructor(rid: number, id: string) {
     this.#rid = rid;
+    this.id = id;
   }
 
   async close() {
@@ -76,6 +79,8 @@ export type NormalChannelUser = {
 } & ChannelUser;
 
 export interface ClientChannel {
+  id: string;
+
   sendText(text: string): Promise<Chatlog>;
 
   readChat(logId: string): Promise<void>;
@@ -90,5 +95,5 @@ export interface ClientChannel {
 export async function openChannel(id: string): Promise<NormalChannel> {
   const rid = await tauri.invoke<number>('plugin:client|open_channel', { id });
 
-  return new NormalChannel(rid);
+  return new NormalChannel(rid, id);
 }

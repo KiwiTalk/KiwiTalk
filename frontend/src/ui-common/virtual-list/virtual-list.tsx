@@ -57,8 +57,8 @@ export const VirtualList = <
   Item,
   T extends ValidComponent,
   P = ComponentProps<T>
->(props: Partial<DynamicProps<T, P>> & VirtualListProps<Item>): JSX.Element => {
-  const [local, classProps, children, leftProps] = splitProps(
+>(props: DynamicProps<T, P> & VirtualListProps<Item>): JSX.Element => {
+  const [local, classProps, componentProps, leftProps] = splitProps(
     mergeProps(
       {
         overscan: 5,
@@ -73,6 +73,7 @@ export const VirtualList = <
       RequiredKey<VirtualListProps<Item>, 'overscan' | 'reverse' | 'estimatedItemHeight'> & {
       class: string;
       classList: Record<string, boolean>;
+      onScroll?: JSX.EventHandler<T, Event>;
     },
     [
       'component',
@@ -92,8 +93,7 @@ export const VirtualList = <
     ],
     [
       'children',
-      // 'header',
-      // 'footer',
+      'onScroll',
     ],
   );
 
@@ -165,13 +165,15 @@ export const VirtualList = <
     }
   };
 
-  const onScroll: JSX.EventHandlerUnion<HTMLDivElement, Event> = (event) => {
-    if (isRangeChanged()) return;
+  const onScroll: JSX.EventHandlerUnion<T, Event> = (event) => {
+    if (!isRangeChanged()) {
+      const scroll = event.target.scrollTop;
+      const height = event.target.clientHeight;
 
-    const scroll = event.target.scrollTop;
-    const height = event.target.clientHeight;
+      calculateRange(scroll, height);
+    }
 
-    calculateRange(scroll, height);
+    componentProps.onScroll?.(event);
   };
 
   const scrollToIndex = (index: number, options: ScrollToOptions = {}) => {
@@ -197,7 +199,7 @@ export const VirtualList = <
 
   createEffect(on(() => local.reverse, () => {
     requestAnimationFrame(() => {
-      scrollToIndex(0);
+      frameRef?.scrollTo({ top: frameRef.scrollHeight });
     });
   }));
 
@@ -295,7 +297,7 @@ export const VirtualList = <
           })}
         />
         <For each={items().slice(...range())}>
-          {(item, index) => children.children(
+          {(item, index) => componentProps.children(
             item,
             createMemo(() => {
               const arrayIndex = index() + range()[0];
