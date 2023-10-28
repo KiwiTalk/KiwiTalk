@@ -18,7 +18,7 @@ import { ChannelHeader } from '../_components/channel-header';
 
 import { getChannelList, meProfile } from '@/api';
 import { Chatlog, openChannel } from '@/api/client';
-import { useReady, useEvent } from '@/pages/main/_utils';
+import { useReady, useEvent } from '@/pages/main/_hooks';
 
 import * as styles from './page.css';
 

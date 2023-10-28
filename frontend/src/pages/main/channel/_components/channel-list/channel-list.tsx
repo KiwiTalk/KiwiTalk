@@ -3,7 +3,7 @@ import { useTransContext } from '@jellybrick/solid-i18next';
 
 import { ChannelItem } from '../channel-item';
 import { getChannelList } from '@/api/client/client';
-import { useReady } from '@/pages/main/_utils';
+import { useReady } from '@/pages/main/_hooks';
 
 import IconSearch from '@/assets/icons/search.svg';
 import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
@@ -12,7 +12,7 @@ import * as styles from './channel-list.css';
 
 import type { ChannelListItem } from '@/pages/main/channel/_types';
 import { ScrollArea } from '@/ui-common/scroll-area';
-import { useEvent } from '@/pages/main/_utils/useEvent';
+import { useEvent } from '@/pages/main/_hooks/useEvent';
 
 export type ChannelListIconProps = {
   icon: JSX.Element;

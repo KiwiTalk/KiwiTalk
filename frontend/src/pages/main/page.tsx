@@ -6,8 +6,8 @@ import { destroy } from '@/api/client/client';
 import { Sidebar } from './_components/sidebar';
 
 import * as styles from './page.css';
-import { ReadyProvider } from './_utils/useReady';
-import { EventContext } from './_utils/useEvent';
+import { ReadyProvider } from './_hooks/useReady';
+import { EventContext } from './_hooks/useEvent';
 import { createSignal } from 'solid-js';
 
 export const MainPage = () => {

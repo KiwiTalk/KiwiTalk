@@ -13,7 +13,7 @@ import {
 } from 'solid-js';
 
 import { getChannelList } from '@/api/client/client';
-import { useReady } from '@/pages/main/_utils';
+import { useReady } from '@/pages/main/_hooks';
 
 import IconChat from '@/assets/icons/chat.svg';
 import IconNotification from '@/assets/icons/notification.svg';
