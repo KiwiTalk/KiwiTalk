@@ -45,8 +45,7 @@ const createMessageListViewModel = (id: string) => {
 
   /* infinite message loader */
   createResource(() => [channel(), loadMore()] as const, async ([target, isLoad]) => {
-    if (!target) return;
-    if (!isLoad) return;
+    if (!target || !isLoad) return;
 
     const newLoaded = await target.loadChat(300, lastLogId, true) ?? [];
 
@@ -114,8 +113,7 @@ export const ChatPage = () => {
     return meProfile();
   });
   const [channel] = createResource(() => [isReady(), channelId()] as const, async ([ready, id]) => {
-    if (!ready) return null;
-    if (!id) return null;
+    if (!ready || !id) return null;
 
     const channelMap = Object.fromEntries(await getChannelList());
 

@@ -47,7 +47,7 @@ export const MessageList = (props: MessageListProps) => {
   };
   const getReadCount = (chat: Chatlog) => {
     const userList = Object.values(users());
-    const count = userList.filter((user) => user.watermark < BigInt(chat.logId)).length;
+    const count = userList.filter((user) => BigInt(user.watermark) < BigInt(chat.logId)).length;
 
     return count > 0 ? count : undefined;
   };
@@ -65,12 +65,12 @@ export const MessageList = (props: MessageListProps) => {
   };
 
   /* loader */
-  let loadCooldown: NodeJS.Timeout | null = null;
+  let loadCooldown: number | null = null;
   const onLoad = () => {
     if (typeof loadCooldown === 'number') return;
 
     instance.loadMore();
-    loadCooldown = setTimeout(() => {
+    loadCooldown = window.setTimeout(() => {
       loadCooldown = null;
     }, 500);
   };

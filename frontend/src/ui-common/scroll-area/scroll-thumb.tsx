@@ -46,12 +46,12 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
     return props.edgeSize + defaultLeft + offsetLeft;
   };
 
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: number | null = null;
   createEffect(on(() => props.position, () => {
     setIsHide(false);
     if (timeout) clearTimeout(timeout);
 
-    timeout = setTimeout(() => {
+    timeout = window.setTimeout(() => {
       setIsHide(true);
     }, 1000);
   }, { defer: true }));
@@ -66,7 +66,7 @@ export const ScrollThumb = (props: ScrollThumbProps) => {
     if (typeof timeout === 'number') clearTimeout(timeout);
     if (isScroll()) return;
 
-    timeout = setTimeout(() => {
+    timeout = window.setTimeout(() => {
       setIsHide(true);
     }, 1000);
 
