@@ -53,11 +53,7 @@ export const ChatPage = () => {
   );
 
   /* lifecycle */
-  let lastLogId = '';
-  createEffect(on(messages, (messages) => {
-    if (messages[0]?.logId === lastLogId) return;
-    lastLogId = messages?.[0]?.logId ?? '';
-
+  createEffect(on(messages, () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         scroller()?.scrollToIndex(0, { behavior: 'smooth' });
