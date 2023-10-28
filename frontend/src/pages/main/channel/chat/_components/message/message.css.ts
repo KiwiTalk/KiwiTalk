@@ -21,9 +21,20 @@ export const container = styleVariants({
   }],
 });
 
-export const profile = style({
+export const profileContainer = style({
+  position: 'relative',
+
   width: '48px',
   height: '24px',
+});
+
+export const profile = style({
+  position: 'absolute',
+  left: 0,
+  bottom: 0,
+
+  width: '48px',
+  height: '48px',
 });
 
 export const contentContainer = style({
