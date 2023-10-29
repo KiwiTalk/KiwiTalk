@@ -2,7 +2,7 @@ import { Accessor, For, createResource, mergeProps, untrack, JSX, Show } from 's
 import { useTransContext } from '@jellybrick/solid-i18next';
 
 import { FriendItem } from '../friend-item';
-import { useReady } from '@/pages/main/_utils';
+import { useReady } from '@/pages/main/_hooks';
 
 import IconSearch from '@/assets/icons/search.svg';
 import IconAddUser from '@/pages/main/friend/_assets/icons/add-user.svg';

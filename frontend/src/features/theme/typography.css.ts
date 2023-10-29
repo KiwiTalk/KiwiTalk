@@ -20,6 +20,14 @@ const typographySize12 = style([
   },
 ]);
 
+const typographySize14 = style([
+  typographyBase,
+  {
+    fontSize: '14px',
+    lineHeight: '18px',
+  },
+]);
+
 const typographySize16 = style([
   typographyBase,
   {
@@ -60,6 +68,9 @@ export const typography = {
   /** 12 / 16 */
   body: typographySize12,
 
+  /** 14 / 18 */
+  title: style([typographySize14, { fontWeight: 600 }]),
+
   /** 24 / 42 */
   head1: style([typographySize24, { fontWeight: 600 }]),
   /** 20 / 28 */
@@ -75,6 +86,7 @@ export const typography = {
   atom: {
     size10: typographySize10,
     size12: typographySize12,
+    size14: typographySize14,
     size16: typographySize16,
     size20: typographySize20,
     size24: typographySize24,

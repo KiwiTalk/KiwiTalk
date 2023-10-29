@@ -83,9 +83,12 @@
     },
     "chat": {
       "empty": {
-        "chat": "대화할 채팅방을 선택하세요.",
-        "friend": "키위새는 친구를 기다리고 있어요."
-      }
+        "title": "키위새는 대화할 친구를 기다리고 있어요",
+        "subtitle": "친구와 새로운 대화를 시작해보세요"
+      },
+      "member_count": "{{count}}명",
+      "placeholder": "메시지 보내기...",
+      "first_chat": "채팅창의 첫부분 입니다"
     },
     "friend": {
       "all_friends": "전체 친구",
