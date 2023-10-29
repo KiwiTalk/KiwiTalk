@@ -81,7 +81,7 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn focus_window(app: &AppHandle<impl Runtime>) {
+fn show_window(app: &AppHandle<impl Runtime>) {
     let main_window = if let Some(window) = app.get_window("main") {
         window
     } else {
@@ -97,11 +97,11 @@ fn focus_window(app: &AppHandle<impl Runtime>) {
 fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::LeftClick { .. } => {
-            focus_window(app);
+            show_window(app);
         }
 
-        SystemTrayEvent::MenuItemClick { id, .. } if id == "focus" => {
-            focus_window(app);
+        SystemTrayEvent::MenuItemClick { id, .. } if id == "show" => {
+            show_window(app);
         }
 
         SystemTrayEvent::MenuItemClick { id, .. } if id == "quit" => {
@@ -116,11 +116,11 @@ fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
 async fn main() -> anyhow::Result<()> {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
-    let focus_item = CustomMenuItem::new("focus", "Show Window"); // TODO tag for translation
+    let show_item = CustomMenuItem::new("show", "Show Window"); // TODO tag for translation
     let quit_item = CustomMenuItem::new("quit", "Quit KiwiTalk");
 
     let tray_menu = SystemTrayMenu::new()
-        .add_item(focus_item)
+        .add_item(show_item)
         .add_item(quit_item);
 
     let system_tray = SystemTray::new().with_menu(tray_menu);
