@@ -81,17 +81,6 @@ impl HeadlessTalk {
             .chat_on(last_seen_log_id)
             .await?;
 
-        let channel = match res.channel_type {
-            ChatOnChannelType::DirectChat(normal)
-            | ChatOnChannelType::MultiChat(normal)
-            | ChatOnChannelType::MemoChat(normal) => {
-                let (channel, user_list) = normal::open_channel(id, self, normal).await?;
-                ClientChannel::Normal(channel, user_list)
-            }
-
-            _ => return Ok(None),
-        };
-
         if let (Some(active_user_ids), Some(watermarks)) = (res.active_user_ids, res.watermarks) {
             let active_user_count = active_user_ids.len() as i32;
             let watermark_iter = active_user_ids.into_iter().zip(watermarks.into_iter());
@@ -124,7 +113,17 @@ impl HeadlessTalk {
                 .await?;
         }
 
-        Ok(Some(channel))
+        Ok(match res.channel_type {
+            ChatOnChannelType::DirectChat(normal)
+            | ChatOnChannelType::MultiChat(normal)
+            | ChatOnChannelType::MemoChat(normal) => {
+                let (channel, user_list) = normal::open_channel(id, self, normal).await?;
+                
+                Some(ClientChannel::Normal(channel, user_list))
+            }
+
+            _ => None,
+        })
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
