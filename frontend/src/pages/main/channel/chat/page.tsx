@@ -9,6 +9,7 @@ import { useParams } from '@solidjs/router';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
 import { VirtualListRef } from '@/ui-common/virtual-list';
+import { ChatEmpty } from './_components/chat-empty';
 import { MessageList } from './_components/message-list';
 import { MessageInput } from './_components/message-input';
 import { ChannelHeader } from '../_components/channel-header';
@@ -85,12 +86,12 @@ export const ChatPage = () => {
 
   return (
     <div class={styles.container}>
-      <ChannelHeader
-        name={channelInfo()?.name ?? '...'}
-        profile={channelInfo()?.profile}
-        members={channelInfo()?.userCount ?? 0}
-      />
-      <Show keyed when={channelId()}>
+      <Show when={channelId()} fallback={<ChatEmpty />}>
+        <ChannelHeader
+          name={channelInfo()?.name ?? '...'}
+          profile={channelInfo()?.profile}
+          members={channelInfo()?.userCount ?? 0}
+        />
         <MessageList
           scroller={setScroller}
           channelId={channelId()!}
@@ -100,11 +101,11 @@ export const ChatPage = () => {
           isEnd={isLoadEnd()}
           onLoadMore={onLoadMore}
         />
+        <MessageInput
+          placeholder={t('main.chat.placeholder')}
+          onSubmit={onSubmit}
+        />
       </Show>
-      <MessageInput
-        placeholder={t('main.chat.placeholder')}
-        onSubmit={onSubmit}
-      />
     </div>
   );
 };
