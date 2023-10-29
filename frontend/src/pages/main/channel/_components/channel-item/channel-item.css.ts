@@ -2,6 +2,8 @@ import { classes, vars } from '@/features/theme';
 import { style, styleVariants } from '@vanilla-extract/css';
 
 const baseChannelItemContainer = style({
+  width: '100%',
+
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'flex-start',
@@ -43,13 +45,15 @@ export const channelItemContainer = styleVariants({
 });
 
 export const contentContainer = style({
-  width: '100%',
+  minWidth: '0px',
 
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'flex-start',
-  gap: 8,
+  gap: '8px',
+
+  overflow: 'hidden',
 });
 
 export const header = style([classes.typography.body, {
@@ -66,6 +70,10 @@ export const header = style([classes.typography.body, {
 
 export const title = style([classes.typography.head3, {
   color: vars.color.primary.fillPrimary,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+
+  flexShrink: 1,
 }]);
 
 export const content = style([classes.typography.body, {
@@ -79,8 +87,11 @@ export const content = style([classes.typography.body, {
   lineClamp: 2,
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
+  wordBreak: 'break-word',
 }]);
 
 export const time = style([classes.typography.fineprint, {
   marginLeft: 'auto',
+
+  flexShrink: 0,
 }]);

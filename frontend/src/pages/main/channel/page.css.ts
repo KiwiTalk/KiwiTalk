@@ -12,7 +12,7 @@ export const container = style({
 });
 
 export const list = style({
-  minWidth: '300px',
-  maxWidth: '500px',
+  minWidth: '240px',
+  maxWidth: '360px',
   height: '100%',
 });

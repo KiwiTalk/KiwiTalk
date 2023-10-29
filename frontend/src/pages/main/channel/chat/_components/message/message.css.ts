@@ -47,6 +47,8 @@ export const contentContainer = style({
   gap: '4px',
 
   whiteSpace: 'pre-line',
+  overflow: 'hidden',
+  wordBreak: 'break-word',
 });
 
 const baseSender = style([classes.typography.title, {
