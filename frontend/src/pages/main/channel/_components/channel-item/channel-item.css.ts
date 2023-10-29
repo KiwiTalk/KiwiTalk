@@ -70,6 +70,7 @@ export const header = style([classes.typography.body, {
 
 export const title = style([classes.typography.head3, {
   color: vars.color.primary.fillPrimary,
+  whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 
