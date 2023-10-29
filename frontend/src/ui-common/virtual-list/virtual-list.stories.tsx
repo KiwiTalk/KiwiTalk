@@ -36,6 +36,7 @@ const Template: StoryFn<VirtualListStoryProps> = (props) => {
         reverse={props.reverse}
         topMargin={props.topMargin}
         bottomMargin={props.bottomMargin}
+        component={'div'}
       >
         {(item) => (
           <div
