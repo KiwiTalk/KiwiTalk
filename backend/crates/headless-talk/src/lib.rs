@@ -118,7 +118,7 @@ impl HeadlessTalk {
             | ChatOnChannelType::MultiChat(normal)
             | ChatOnChannelType::MemoChat(normal) => {
                 let (channel, user_list) = normal::open_channel(id, self, normal).await?;
-                
+
                 Some(ClientChannel::Normal(channel, user_list))
             }
 
