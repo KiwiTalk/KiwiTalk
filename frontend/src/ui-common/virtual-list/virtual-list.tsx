@@ -48,6 +48,7 @@ export type VirtualListProps<T> = {
   topMargin?: number;
   bottomMargin?: number;
   reverse?: boolean;
+  alignToBottom?: boolean;
 
   innerStyle?: JSX.HTMLAttributes<HTMLDivElement>['style'];
   innerClass?: JSX.HTMLAttributes<HTMLDivElement>['class'];
@@ -66,11 +67,15 @@ export const VirtualList = <
         class: '',
         classList: {},
         reverse: false,
+        alignToBottom: props.reverse ?? false,
         estimatedItemHeight: DEFAULT_HEIGHT,
       },
       props,
     ) as DynamicProps<T, P> &
-      RequiredKey<VirtualListProps<Item>, 'overscan' | 'reverse' | 'estimatedItemHeight'> & {
+      RequiredKey<
+        VirtualListProps<Item>,
+        'overscan' | 'reverse' | 'estimatedItemHeight' | 'alignToBottom'
+      > & {
       class: string;
       classList: Record<string, boolean>;
       onScroll?: JSX.EventHandler<T, Event>;
@@ -84,6 +89,7 @@ export const VirtualList = <
       'bottomMargin',
       'reverse',
       'estimatedItemHeight',
+      'alignToBottom',
     ],
     [
       'class',
@@ -103,7 +109,6 @@ export const VirtualList = <
   const [topPadding, setTopPadding] = createSignal(0);
   const [bottomPadding, setBottomPadding] = createSignal(0);
   const [range, setRange] = createSignal<[number, number]>([0, 30]);
-
   let frameRef: HTMLElement | undefined;
   let parentRef: HTMLDivElement | undefined;
 
@@ -197,11 +202,19 @@ export const VirtualList = <
     if (frameRect && frameHeight() === 0) setFrameHeight(frameRect.height);
   });
 
-  createEffect(on(() => local.reverse, () => {
-    requestAnimationFrame(() => {
-      frameRef?.scrollTo({ top: frameRef.scrollHeight });
-    });
-  }));
+  createEffect(on(
+    () => [local.reverse, local.alignToBottom, items().length] as const,
+    ([isReverse, isStickBottom]) => {
+      if (!isReverse || !isStickBottom) return;
+
+      requestAnimationFrame(() => {
+        frameRef?.scrollTo({
+          top: frameRef.scrollHeight,
+          behavior: 'instant',
+        });
+      });
+    },
+  ));
 
   createEffect(on(items, () => {
     if (!parentRef || !frameRef) return;

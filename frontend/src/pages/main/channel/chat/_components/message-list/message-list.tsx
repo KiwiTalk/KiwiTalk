@@ -1,5 +1,4 @@
-import { Show, JSX } from 'solid-js';
-import { Trans } from '@jellybrick/solid-i18next';
+import { JSX, createEffect, createRenderEffect, createSignal, on } from 'solid-js';
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
@@ -33,6 +32,8 @@ export type MessageListProps = {
   onLoadMore?: () => void;
 };
 export const MessageList = (props: MessageListProps) => {
+  const [isStickBottom, setIsStickBottom] = createSignal(false);
+
   const getSender = (chat: Chatlog, index: number) => {
     const nextChat = props.messages[index + 1];
 
@@ -57,7 +58,17 @@ export const MessageList = (props: MessageListProps) => {
     return undefined;
   };
 
-  let isLoaded = false;
+  createRenderEffect(on(() => props.channelId, () => {
+    setIsStickBottom(true);
+  }));
+
+  createEffect(on(() => props.messages.length, (length) => {
+    if (length > 0 && isStickBottom()) {
+      setIsStickBottom(false);
+    }
+  }));
+
+  let isLoaded = true;
   const onScroll: JSX.EventHandlerUnion<HTMLUListElement, Event> = (event) => {
     if (!props.isEnd && !isLoaded && event.target.scrollTop <= 0) {
       isLoaded = true;
@@ -80,31 +91,21 @@ export const MessageList = (props: MessageListProps) => {
       topMargin={32 + 64 + 16}
       bottomMargin={24 + 44 + 16}
       estimatedItemHeight={75}
+      alignToBottom={isStickBottom()}
       onScroll={onScroll}
     >
-      {(item, index) => {
-        return (
-          <Show
-            when={item}
-            fallback={
-              <div class={styles.loader}>
-                <Trans key={'main.chat.first_chat'} />
-              </div>
-            }
-          >
-            <Message
-              profile={props.members[item!.senderId]?.profileUrl}
-              sender={getSender(item!, index())}
-              unread={getReadCount(item!)}
-              time={getTime(item!, index())}
-              isMine={item!.senderId === props.logonId}
-              isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
-            >
-              {item!.content}
-            </Message>
-          </Show>
-        );
-      }}
+      {(item, index) => (
+        <Message
+          profile={props.members[item!.senderId]?.profileUrl}
+          sender={getSender(item!, index())}
+          unread={getReadCount(item!)}
+          time={getTime(item!, index())}
+          isMine={item!.senderId === props.logonId}
+          isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
+        >
+          {item!.content}
+        </Message>
+      )}
     </VirtualList>
   );
 };

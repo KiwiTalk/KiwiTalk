@@ -54,9 +54,16 @@ export const ChatPage = () => {
   );
 
   /* lifecycle */
-  createEffect(on(messages, () => {
+  let isInit = false;
+  createEffect(on(messages, (messageList) => {
+    if (!isInit) {
+      isInit = true;
+      return;
+    }
+    if (messageList.length === 0) isInit = false;
+
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
+      requestAnimationFrame(() => { // queue this task as last as possible
         scroller()?.scrollToIndex(0, { behavior: 'smooth' });
       });
     });
