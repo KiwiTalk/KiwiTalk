@@ -77,6 +77,10 @@ export const title = style([classes.typography.head3, {
   flexShrink: 1,
 }]);
 
+export const icon = style({
+  flexShrink: 0,
+});
+
 export const content = style([classes.typography.body, {
   display: '-webkit-box',
 

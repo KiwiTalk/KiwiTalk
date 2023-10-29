@@ -26,7 +26,7 @@ export const ChannelItem = (props: ChannelItemProps) => {
       onClick={props.onClick}
     >
       <Profile src={props.profileSrc} badge={props.unreadBadge} />
-      <span class={styles.contentContainer}>
+      <div class={styles.contentContainer}>
         <div class={styles.header}>
           <span class={styles.title}>
             {props.name}
@@ -35,7 +35,7 @@ export const ChannelItem = (props: ChannelItemProps) => {
             {props.members}
           </Show>
           <Show when={props.silent}>
-            <IconNotificationOff />
+            <IconNotificationOff class={styles.icon} />
           </Show>
           <span class={styles.time}>
             {props.lastMessageTime?.toLocaleTimeString()}
@@ -44,7 +44,7 @@ export const ChannelItem = (props: ChannelItemProps) => {
         <div class={styles.content}>
           {props.lastMessage || '\u{3000}'}
         </div>
-      </span>
+      </div>
     </li>
   );
 };
