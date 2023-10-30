@@ -61,12 +61,15 @@ export const ChatPage = () => {
       return;
     }
     if (messageList.length === 0) isInit = false;
+    const [start] = scroller()?.range() ?? [0, 0];
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { // queue this task as last as possible
-        scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+    if (start === 0) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { // queue this task as last as possible
+          scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+        });
       });
-    });
+    }
   }));
 
   /* callbacks */
@@ -76,19 +79,23 @@ export const ChatPage = () => {
     loadMoreMessages();
     scroller()?.refresh();
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { // queue this task as last as possible
-        scroller()?.scrollToIndex(
-          messageLength - 5, // 5 is overscan
-          { behavior: 'instant' },
-        );
-      });
-    });
+    setTimeout(() => {
+      scroller()?.scrollToIndex(
+        messageLength,
+        {
+          top: (32 + 64 + 16),
+          behavior: 'instant',
+        },
+      );
+    }, 16 * 1); // next frame
   };
   const onSubmit = async (text: string) => {
     const result = await channel()?.sendText(text);
 
-    if (result) loadMoreMessages([result]);
+    if (result) {
+      loadMoreMessages([result]);
+      scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+    }
   };
 
   return (

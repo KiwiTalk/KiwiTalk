@@ -1,5 +1,6 @@
 import {
   Accessor,
+  batch,
   ComponentProps,
   createEffect,
   createMemo,
@@ -10,7 +11,6 @@ import {
   onMount,
   splitProps,
   untrack,
-  useTransition,
   ValidComponent,
 } from 'solid-js';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
@@ -103,8 +103,7 @@ export const VirtualList = <
     ],
   );
 
-  const [isRangeChanged, startRangeChange] = useTransition();
-
+  const [alignToBottom, setAlignToBottom] = createSignal<boolean>(local.alignToBottom);
   const [frameHeight, setFrameHeight] = createSignal(0);
   const [topPadding, setTopPadding] = createSignal(0);
   const [bottomPadding, setBottomPadding] = createSignal(0);
@@ -162,7 +161,7 @@ export const VirtualList = <
         newBottom += itemHeights.get(i) ?? defaultItemHeight;
       }
 
-      startRangeChange(() => {
+      batch(() => {
         setRange([newStart, newEnd]);
         setTopPadding(newTop);
         setBottomPadding(newBottom);
@@ -170,13 +169,14 @@ export const VirtualList = <
     }
   };
 
+  let ignoreAlignScroll = false;
   const onScroll: JSX.EventHandlerUnion<T, Event> = (event) => {
-    if (!isRangeChanged()) {
-      const scroll = event.target.scrollTop;
-      const height = event.target.clientHeight;
+    if (!ignoreAlignScroll) setAlignToBottom(false);
 
-      calculateRange(scroll, height);
-    }
+    const scroll = event.target.scrollTop;
+    const height = event.target.clientHeight;
+
+    calculateRange(scroll, height);
 
     componentProps.onScroll?.(event);
   };
@@ -196,25 +196,29 @@ export const VirtualList = <
     });
   };
 
+  let cancelAlignScroll: number | null = null;
+  const tryAlignToBottom = () => {
+    if (alignToBottom()) {
+      if (typeof cancelAlignScroll === 'number') cancelAnimationFrame(cancelAlignScroll);
+      ignoreAlignScroll = true;
+
+      frameRef?.scrollTo({
+        top: frameRef.scrollHeight,
+        behavior: 'instant',
+      });
+
+      cancelAlignScroll = requestAnimationFrame(() => {
+        ignoreAlignScroll = false;
+      });
+    }
+  };
   onMount(() => {
     const frameRect = frameRef?.getBoundingClientRect();
 
     if (frameRect && frameHeight() === 0) setFrameHeight(frameRect.height);
+
+    tryAlignToBottom();
   });
-
-  createEffect(on(
-    () => [local.reverse, local.alignToBottom, items().length] as const,
-    ([isReverse, isStickBottom]) => {
-      if (!isReverse || !isStickBottom) return;
-
-      requestAnimationFrame(() => {
-        frameRef?.scrollTo({
-          top: frameRef.scrollHeight,
-          behavior: 'instant',
-        });
-      });
-    },
-  ));
 
   createEffect(on(items, () => {
     if (!parentRef || !frameRef) return;
@@ -223,6 +227,9 @@ export const VirtualList = <
     const height = parentRef.clientHeight;
 
     calculateRange(scroll, height);
+    if (local.alignToBottom) setAlignToBottom(true);
+
+    tryAlignToBottom();
   }));
 
   const resizeObserver = new ResizeObserver((entries) => {
@@ -233,6 +240,7 @@ export const VirtualList = <
         const rect = entry.target.getBoundingClientRect();
 
         itemHeights.set(index, rect.height ?? defaultItemHeight);
+        tryAlignToBottom();
       }
     }
   });
