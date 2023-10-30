@@ -4,7 +4,8 @@
     "cancel": "Cancel",
     "close": "Close",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "unknown": "Unknown"
   },
   "login": {
     "title": "Sign in with Kakao Account",
@@ -37,9 +38,9 @@
     "unknown_error": "An unknown error has occurred. {{detail}}",
     "status": {
       "login": {
-        "500": "An internal error has occurred",
         "30": "Account information is incorrect",
         "32": "Account does not exist",
+        "500": "An internal error has occurred",
         "-16": "Account information is incorrect",
         "-100": "Unregistered device",
         "-101": "Already connected to another device",
@@ -83,9 +84,24 @@
     },
     "chat": {
       "empty": {
-        "chat": "Select a chat room to start a conversation.",
-        "friend": "Kiwi bird is waiting for friends."
-      }
+        "title": "Kiwi is waiting to talk to friends",
+        "subtitle": "Start a new conversation"
+      },
+      "member_count": "{{count}} people",
+      "placeholder": "Send a message...",
+      "attachment": {
+        "audio": "Audio",
+        "binary": "Executable",
+        "document": "Document",
+        "file": "File",
+        "image": "Image",
+        "presentation": "Presentation",
+        "spreadsheet": "Spreadsheet",
+        "text": "Text",
+        "video": "Video"
+      },
+      "first_chat": "",
+      "show_more": "Show more"
     },
     "friend": {
       "all_friends": "All Friends",
