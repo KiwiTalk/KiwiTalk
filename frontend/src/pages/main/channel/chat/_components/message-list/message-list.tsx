@@ -2,7 +2,7 @@ import { JSX, createEffect, createRenderEffect, createSignal, on } from 'solid-j
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
-import { Message } from '../message';
+import { Message, TypedMessage } from '../message';
 
 import * as styles from './message-list.css';
 
@@ -68,7 +68,7 @@ export const MessageList = (props: MessageListProps) => {
         setIsStickBottom(false);
       });
     }
-  }, { defer: true }));
+  }, { defer: false }));
 
   let isLoaded = true;
   const onScroll: JSX.EventHandlerUnion<HTMLUListElement, Event> = (event) => {
@@ -105,7 +105,10 @@ export const MessageList = (props: MessageListProps) => {
           isMine={item!.senderId === props.logonId}
           isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
         >
-          {item!.content}
+          <TypedMessage
+            type={item.chatType}
+            chatlog={item}
+          />
         </Message>
       )}
     </VirtualList>

@@ -16,7 +16,7 @@ import { ChannelHeader } from '../_components/channel-header';
 
 import { getChannelList, meProfile } from '@/api';
 import { useReady } from '@/pages/main/_hooks';
-import { useChannel, useMessageList } from './_hooks';
+import { LocalChannelContext, useChannel, useMessageList } from './_hooks';
 
 import * as styles from './page.css';
 
@@ -106,15 +106,22 @@ export const ChatPage = () => {
           profile={channelInfo()?.profile}
           members={channelInfo()?.userCount ?? 0}
         />
-        <MessageList
-          scroller={setScroller}
-          channelId={channelId()!}
-          logonId={me()?.profile.id}
-          messages={messages()}
-          members={members() ?? {}}
-          isEnd={isLoadEnd()}
-          onLoadMore={onLoadMore}
-        />
+        <LocalChannelContext.Provider
+          value={{
+            channel,
+            members: () => members() ?? {},
+          }}
+        >
+          <MessageList
+            scroller={setScroller}
+            channelId={channelId()!}
+            logonId={me()?.profile.id}
+            messages={messages()}
+            members={members() ?? {}}
+            isEnd={isLoadEnd()}
+            onLoadMore={onLoadMore}
+          />
+        </LocalChannelContext.Provider>
         <MessageInput
           placeholder={t('main.chat.placeholder')}
           onSubmit={onSubmit}
