@@ -1,20 +1,22 @@
+import { createSignal } from 'solid-js';
 import { Outlet, useLocation, useNavigate } from '@solidjs/router';
 
 import { KiwiTalkMainEvent, LogoutReason } from '@/api';
 import { destroy } from '@/api/client/client';
 
 import { Sidebar } from './_components/sidebar';
+import { ReadyProvider, EventContext, useSidebar } from './_hooks';
 
 import * as styles from './page.css';
-import { ReadyProvider } from './_hooks/useReady';
-import { EventContext } from './_hooks/useEvent';
-import { createSignal } from 'solid-js';
 
 export const MainPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [isReady, setIsReady] = createSignal(false);
   const [listeners, setListeners] = createSignal<((event: KiwiTalkMainEvent) => void)[]>([]);
+
+  const sidebar = useSidebar(isReady);
 
   const activeTab = () => location.pathname.match(/main\/([^/]+)/)?.[1] ?? 'chat';
   const setActiveTab = (tab: string) => {
@@ -44,13 +46,18 @@ export const MainPage = () => {
         setListeners(newList);
       },
     }}>
-      <ReadyProvider onLogout={onLogout} onEvent={onEvent}>
+      <ReadyProvider onLogout={onLogout} onEvent={onEvent} onReady={() => setIsReady(true)}>
         <main class={styles.container}>
           <div class={styles.sidebarWrapper}>
             <Sidebar
               collapsed={false}
               activePath={activeTab()}
               setActivePath={setActiveTab}
+
+              chatBadges={sidebar.badges()?.chat}
+              openChatBadges={sidebar.badges()?.open}
+              notificationActive={sidebar.notificationActive()}
+              onNotificationActive={sidebar.setNotificationActive}
             />
           </div>
           <Outlet />
