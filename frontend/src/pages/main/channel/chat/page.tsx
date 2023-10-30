@@ -61,12 +61,15 @@ export const ChatPage = () => {
       return;
     }
     if (messageList.length === 0) isInit = false;
+    const [start] = scroller()?.range() ?? [0, 0];
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { // queue this task as last as possible
-        scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+    if (start === 0) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { // queue this task as last as possible
+          scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+        });
       });
-    });
+    }
   }));
 
   /* callbacks */
