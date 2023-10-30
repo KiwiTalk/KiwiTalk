@@ -1,8 +1,7 @@
-import { Accessor, For, createResource, mergeProps, untrack, JSX, Show } from 'solid-js';
+import { For, JSX, Show } from 'solid-js';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
 import { FriendItem } from '../friend-item';
-import { useReady } from '@/pages/main/_hooks';
 
 import IconSearch from '@/assets/icons/search.svg';
 import IconAddUser from '@/pages/main/friend/_assets/icons/add-user.svg';
@@ -10,7 +9,7 @@ import IconAddUser from '@/pages/main/friend/_assets/icons/add-user.svg';
 import * as styles from './friend-list.css';
 
 import { ScrollArea } from '@/ui-common/scroll-area';
-import { FriendProfile, LogonProfile, meProfile, updateFriends } from '@/api';
+import { FriendProfile, LogonProfile } from '@/api';
 
 export type FriendListIconProps = {
   icon: JSX.Element;
@@ -43,77 +42,14 @@ const FriendSectionTitle = (props: FriendListSectionTitleProps) => (
   </div>
 );
 
-type ClickableFriendListTopItem = {
-  kind: 'click';
-  icon: JSX.Element;
-  onClick?: () => void;
-};
-type CustomFriendListTopItem = {
-  kind: 'custom';
-  icon: JSX.Element;
-  custom: JSX.Element;
-};
-type FriendListTopItem = ClickableFriendListTopItem | CustomFriendListTopItem;
-export type FriendListViewModelType = () => {
-  me: Accessor<LogonProfile | null>;
-
-  all: Accessor<FriendProfile[]>;
-  pinned: Accessor<FriendProfile[]>;
-  nearBirthday: Accessor<FriendProfile[]>;
-
-  topItems: () => FriendListTopItem[];
-};
-
-export const FriendListViewModel: FriendListViewModelType = () => {
-  const isReady = useReady();
-
-  const [me] = createResource(async () => {
-    if (!isReady) return null;
-
-    return meProfile();
-  });
-
-  const [friends] = createResource([] as FriendProfile[], async (list) => {
-    if (!isReady) return list;
-
-    const res = await updateFriends(list.map((friend) => friend.userId));
-
-    for (const removed of res.removedIds) {
-      const index = list.findIndex((friend) => friend.userId === removed);
-      list.splice(index, 1);
-    }
-
-    for (const added of res.added) {
-      list.push(added);
-    }
-
-    return list;
-  });
-
-  return {
-    me: () => me() ?? null,
-    all: (() => friends() ?? []),
-    pinned: () => [], // TODO: implement
-    nearBirthday: () => [], // TODO: implement
-    topItems: () => [
-      {
-        kind: 'click', // TODO: change to 'custom' when new design created
-        icon: <IconSearch />,
-      },
-      {
-        kind: 'click',
-        icon: <IconAddUser />,
-      },
-    ],
-  };
-};
-
 export type FriendListProps = {
-  viewModel?: FriendListViewModelType;
+  me?: LogonProfile;
+
+  all?: FriendProfile[];
+  pinned?: FriendProfile[];
+  nearBirthday?: FriendProfile[];
 }
 export const FriendList = (props: FriendListProps) => {
-  const merged = mergeProps({ viewModel: FriendListViewModel }, props);
-  const instance = untrack(() => merged.viewModel());
   const [t] = useTransContext();
 
   return (
@@ -123,34 +59,34 @@ export const FriendList = (props: FriendListProps) => {
           {t('main.menu.friend.name')}
         </span>
         <div class={styles.iconContainer}>
-          <For each={instance.topItems()}>
-            {(item) => (
-              <FriendListIcon
-                icon={item.icon}
-                onClick={item.kind === 'click' ? item.onClick : undefined}
-              />
-            )}
-          </For>
+          <FriendListIcon
+            icon={<IconSearch />}
+          />
+          <FriendListIcon
+            icon={<IconAddUser />}
+          />
         </div>
       </header>
       <ScrollArea component={'div'} edgeSize={12}>
         <FriendSectionTitle title={t('main.friend.me')} />
-        <Show when={instance.me()}>
-          <div class={styles.meFrame}>
-            <FriendItem
-              name={instance.me()!.nickname}
-              profile={instance.me()!.profile.profileUrl}
-              description={instance.me()!.profile.statusMessage}
-            />
-          </div>
+        <Show keyed when={props.me}>
+          {(myProfile) => (
+            <div class={styles.meFrame}>
+              <FriendItem
+                name={myProfile.nickname}
+                profile={myProfile.profile.profileUrl}
+                description={myProfile.profile.statusMessage}
+              />
+            </div>
+          )}
         </Show>
         <FriendSectionTitle
           title={t('main.friend.near_birthday_friends')}
-          count={instance.nearBirthday().length}
+          count={props.nearBirthday?.length ?? 0}
         />
         <div class={styles.sectionContainer.horizontalWrapper}>
           <ScrollArea component={'ul'} class={styles.sectionContainer.horizontal} edgeSize={8}>
-            <For each={instance.nearBirthday()}>
+            <For each={props.nearBirthday}>
               {(item) => (
                 <FriendItem
                   name={item.nickname}
@@ -164,10 +100,10 @@ export const FriendList = (props: FriendListProps) => {
         </div>
         <FriendSectionTitle
           title={t('main.friend.pinned_friends')}
-          count={instance.pinned().length}
+          count={props.pinned?.length}
         />
         <ul class={styles.sectionContainer.vertical}>
-          <For each={instance.pinned()}>
+          <For each={props.pinned}>
             {(item) => (
               <FriendItem
                 name={item.nickname}
@@ -179,10 +115,10 @@ export const FriendList = (props: FriendListProps) => {
         </ul>
         <FriendSectionTitle
           title={t('main.friend.all_friends')}
-          count={instance.all().length}
+          count={props.all?.length}
         />
         <ul class={styles.sectionContainer.vertical}>
-          <For each={instance.all()}>
+          <For each={props.all}>
             {(item) => (
               <FriendItem
                 name={item.nickname}
