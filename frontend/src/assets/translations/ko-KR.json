@@ -89,7 +89,18 @@
       "member_count": "{{count}}명",
       "placeholder": "메시지 보내기...",
       "first_chat": "채팅창의 첫부분 입니다",
-      "show_more": "더보기"
+      "show_more": "더보기",
+      "attachment": {
+        "image": "이미지",
+        "video": "동영상",
+        "audio": "음악",
+        "spreadsheet": "스프레드 시트",
+        "presentation": "프레젠테이션",
+        "document": "문서",
+        "text": "텍스트",
+        "binary": "실행 파일",
+        "file": "파일"
+      }
     },
     "friend": {
       "all_friends": "전체 친구",

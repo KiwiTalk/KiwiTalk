@@ -8,24 +8,18 @@ import { useLocalChannel } from '@/pages/main/channel/chat/_hooks';
 import { Chatlog } from '@/api/client';
 import { TextMessage } from './text-message';
 import { ImageMessage } from './image-message';
+import { AttachmentMessage } from './attachment-message';
 
 export type TypedMessageProps = {
   type: number;
   chatlog: Chatlog;
 }
 export const TypedMessage = (props: TypedMessageProps) => {
-  const { channel, members } = useLocalChannel();
+  const { members } = useLocalChannel();
 
   const attachmentJson = (): Record<string, unknown> | null => {
     try {
       return JSON.parse(props.chatlog.attachment ?? '{}');
-    } catch {
-      return null;
-    }
-  };
-  const contentJson = (): Record<string, unknown> | null => {
-    try {
-      return JSON.parse(props.chatlog.content ?? '{}');
     } catch {
       return null;
     }
@@ -45,6 +39,14 @@ export const TypedMessage = (props: TypedMessageProps) => {
       <Match when={props.type === 2}> {/* Single Image: TODO replace fallback  */}
         <ImageMessage
           url={attachmentJson()?.url?.toString()}
+        />
+      </Match>
+      <Match when={props.type === 18}> {/* Attachment */}
+        <AttachmentMessage
+          mimeType={attachmentJson()?.mime?.toString() ?? ''}
+          fileName={attachmentJson()?.name?.toString() ?? 'unknown'}
+          fileSize={Number(attachmentJson()?.size ?? 0)}
+          expire={Number(attachmentJson()?.expire ?? 0)}
         />
       </Match>
       <Match when={props.type === 26}> {/* Reply */}
