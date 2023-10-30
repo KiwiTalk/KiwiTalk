@@ -57,6 +57,12 @@ export const MessageList = (props: MessageListProps) => {
 
     return undefined;
   };
+  const isBubble = (type: number) => {
+    if (type === 0) return false; // feed
+    if (type === 2) return false; // single image
+
+    return true;
+  };
 
   createRenderEffect(on(() => props.channelId, () => {
     setIsStickBottom(true);
@@ -103,6 +109,7 @@ export const MessageList = (props: MessageListProps) => {
           unread={getReadCount(item!)}
           time={getTime(item!, index())}
           isMine={item!.senderId === props.logonId}
+          isBubble={isBubble(item!.chatType)}
           isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
         >
           <TypedMessage

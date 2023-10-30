@@ -7,6 +7,7 @@ import { useLocalChannel } from '@/pages/main/channel/chat/_hooks';
 
 import { Chatlog } from '@/api/client';
 import { TextMessage } from './text-message';
+import { ImageMessage } from './image-message';
 
 export type TypedMessageProps = {
   type: number;
@@ -39,6 +40,11 @@ export const TypedMessage = (props: TypedMessageProps) => {
         <TextMessage
           content={props.chatlog.content}
           isLong={attachmentJson()?.path?.toString()?.includes('.txt')}
+        />
+      </Match>
+      <Match when={props.type === 2}> {/* Single Image: TODO replace fallback  */}
+        <ImageMessage
+          url={attachmentJson()?.url?.toString()}
         />
       </Match>
       <Match when={props.type === 26}> {/* Reply */}
