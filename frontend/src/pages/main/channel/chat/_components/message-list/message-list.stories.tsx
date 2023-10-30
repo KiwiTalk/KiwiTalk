@@ -37,7 +37,7 @@ const Template: StoryFn<MessageListProps> = () => {
     senderId: `user-${Math.floor(Math.random() * 5)}`,
     sendAt: Date.now(),
 
-    chatType: 0,
+    chatType: 1,
 
     content: 'Test Message'.repeat(Math.floor(Math.random() * 29) + 1),
     // attachment?: string,
