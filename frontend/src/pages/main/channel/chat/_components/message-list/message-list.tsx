@@ -32,7 +32,7 @@ export type MessageListProps = {
   onLoadMore?: () => void;
 };
 export const MessageList = (props: MessageListProps) => {
-  const [isStickBottom, setIsStickBottom] = createSignal(false);
+  const [isStickBottom, setIsStickBottom] = createSignal(true);
 
   const getSender = (chat: Chatlog, index: number) => {
     const nextChat = props.messages[index + 1];
@@ -64,9 +64,11 @@ export const MessageList = (props: MessageListProps) => {
 
   createEffect(on(() => props.messages.length, (length) => {
     if (length > 0 && isStickBottom()) {
-      setIsStickBottom(false);
+      requestAnimationFrame(() => {
+        setIsStickBottom(false);
+      });
     }
-  }));
+  }, { defer: true }));
 
   let isLoaded = true;
   const onScroll: JSX.EventHandlerUnion<HTMLUListElement, Event> = (event) => {
