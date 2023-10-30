@@ -1,14 +1,7 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { StoryFn } from 'storybook-solidjs';
 
-import IconChat from '@/assets/icons/chat.svg';
-import IconNotification from '@/assets/icons/notification.svg';
-import IconNotificationOff from '@/assets/icons/notification_off.svg';
-import IconOpenChat from '@/assets/icons/openchat.svg';
-import IconSettings from '@/assets/icons/settings.svg';
-import IconUsers from '@/assets/icons/users.svg';
-
-import { Sidebar, SidebarPathType, SidebarViewModelType } from './sidebar';
+import { Sidebar, SidebarPathType } from './sidebar';
 import * as styles from './sidebar.stories.css';
 
 export default {
@@ -18,35 +11,26 @@ export default {
 
 const Template: StoryFn<{ collapsed: boolean }> = (props) => {
   const [activePath, setActivePath] = createSignal<SidebarPathType>('friends');
-  const NoOpViewModel: SidebarViewModelType<SidebarPathType> = () => {
-    const [isNotificationActive, setIsNotificationActive] = createSignal(false);
+  const [notificationActive, setNotificationActive] = createSignal(false);
+  const [badges, setBadges] = createSignal<[string, string]>(['...', '...']);
 
-    return {
-      topItems: () => [
-        { kind: 'tab', icon: <IconUsers />, path: 'friends' },
-        { kind: 'tab', icon: <IconChat />, path: 'chat', badge: 6 },
-        { kind: 'tab', icon: <IconOpenChat />, path: 'openchat', badge: 12 },
-      ],
-      bottomItems: () => [
-        {
-          kind: 'toggle',
-          iconOn: <IconNotification />,
-          iconOff: <IconNotificationOff />,
-          isActive: isNotificationActive,
-          setIsActive: setIsNotificationActive,
-        },
-        { kind: 'tab', icon: <IconSettings />, path: 'settings' },
-      ],
-    };
-  };
+  onMount(() => {
+    setTimeout(() => {
+      setBadges(['1', '2']);
+    }, 500);
+  });
 
   return (
     <div class={styles.background}>
       <Sidebar
+        collapsed={props.collapsed}
         activePath={activePath()}
         setActivePath={setActivePath}
-        collapsed={props.collapsed}
-        viewModel={NoOpViewModel}
+
+        chatBadges={badges()[0]}
+        openChatBadges={badges()[1]}
+        notificationActive={notificationActive()}
+        onNotificationActive={setNotificationActive}
       />
     </div>
   );

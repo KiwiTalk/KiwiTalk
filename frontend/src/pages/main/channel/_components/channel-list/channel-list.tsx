@@ -1,9 +1,8 @@
-import { Accessor, For, createResource, mergeProps, untrack, JSX, splitProps } from 'solid-js';
+import { For, JSX, splitProps } from 'solid-js';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
+import { ScrollArea } from '@/ui-common/scroll-area';
 import { ChannelItem } from '../channel-item';
-import { getChannelList } from '@/api/client/client';
-import { useReady } from '@/pages/main/_hooks';
 
 import IconSearch from '@/assets/icons/search.svg';
 import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
@@ -11,8 +10,6 @@ import IconAddChat from '@/pages/main/channel/_assets/icons/add-chat.svg';
 import * as styles from './channel-list.css';
 
 import type { ChannelListItem } from '@/pages/main/channel/_types';
-import { ScrollArea } from '@/ui-common/scroll-area';
-import { useEvent } from '@/pages/main/_hooks/useEvent';
 
 export type ChannelListIconProps = {
   icon: JSX.Element;
@@ -28,81 +25,14 @@ const ChannelListIcon = (props: ChannelListIconProps) => (
   </button>
 );
 
-type ClickableChannelListTopItem = {
-  kind: 'click';
-  icon: JSX.Element;
-  onClick?: () => void;
-};
-type CustomChannelListTopItem = {
-  kind: 'custom';
-  icon: JSX.Element;
-  custom: JSX.Element;
-};
-type ChannelListTopItem = ClickableChannelListTopItem | CustomChannelListTopItem;
-export type ChannelListViewModelType = () => {
-  channels: Accessor<ChannelListItem[]>;
-  topItems: () => ChannelListTopItem[];
-};
-
-export const ChannelListViewModel: ChannelListViewModelType = () => {
-  const isReady = useReady();
-  const event = useEvent();
-
-  let cached: ChannelListItem[] = [];
-  const [channelMap] = createResource(
-    () => [isReady(), event()] as const,
-    async ([isReady, event]) => {
-      if (!isReady) return [];
-      if (event?.type !== 'chat' && cached.length > 0) return cached;
-
-      const result: ChannelListItem[] = [];
-
-      for (const [id, item] of await getChannelList()) {
-        result.push({
-          id,
-          name: item.name ?? item.displayUsers.map(([, user]) => user.nickname).join(', '),
-          displayUsers: item.displayUsers,
-          lastChat: item.lastChat ? {
-            ...item.lastChat,
-            timestamp: new Date(item.lastChat.timestamp),
-          } : undefined,
-          userCount: item.userCount,
-          unreadCount: item.unreadCount,
-          profile: item.profile,
-          silent: false, // TODO
-        });
-      }
-
-      cached = result;
-      return result;
-    },
-  );
-
-  return {
-    channels: (() => channelMap() ?? []),
-    topItems: () => [
-      {
-        kind: 'click', // TODO: change to 'custom' when new design created
-        icon: <IconSearch />,
-      },
-      {
-        kind: 'click',
-        icon: <IconAddChat />,
-      },
-    ],
-  };
-};
-
-
 export type ChannelListProps = {
-  viewModel?: ChannelListViewModelType;
   activeId?: string;
   setActiveId?: (id: string) => void;
+
+  channels: ChannelListItem[];
 }
 export const ChannelList = (props: ChannelListProps) => {
-  const [local] = splitProps(props, ['activeId', 'setActiveId']);
-  const merged = mergeProps({ viewModel: ChannelListViewModel }, props);
-  const instance = untrack(() => merged.viewModel());
+  const [itemProps] = splitProps(props, ['activeId', 'setActiveId']);
   const [t] = useTransContext();
 
   return (
@@ -112,18 +42,16 @@ export const ChannelList = (props: ChannelListProps) => {
           {t('main.menu.chat.name')}
         </span>
         <div class={styles.iconContainer}>
-          <For each={instance.topItems()}>
-            {(item) => (
-              <ChannelListIcon
-                icon={item.icon}
-                onClick={item.kind === 'click' ? item.onClick : undefined}
-              />
-            )}
-          </For>
+          <ChannelListIcon
+            icon={<IconSearch />}
+          />
+          <ChannelListIcon
+            icon={<IconAddChat />}
+          />
         </div>
       </header>
       <ScrollArea component={'ul'} edgeSize={12}>
-        <For each={instance.channels()}>
+        <For each={props.channels}>
           {(channel) => (
             <ChannelItem
               name={channel.name}
@@ -133,8 +61,8 @@ export const ChannelList = (props: ChannelListProps) => {
               profileSrc={channel.profile}
               unreadBadge={channel.unreadCount}
               silent={channel.silent}
-              selected={channel.id === local.activeId}
-              onClick={() => local.setActiveId?.(channel.id)}
+              selected={channel.id === itemProps.activeId}
+              onClick={() => itemProps.setActiveId?.(channel.id)}
             />
           )}
         </For>

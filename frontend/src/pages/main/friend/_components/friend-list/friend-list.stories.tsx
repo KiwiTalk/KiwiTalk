@@ -1,12 +1,9 @@
 import { StoryFn } from 'storybook-solidjs';
 
 import * as styles from './friend-list.stories.css';
-import { FriendList, FriendListProps, FriendListViewModelType } from './friend-list';
+import { FriendList, FriendListProps } from './friend-list';
 
 import { FriendProfile, LogonProfile } from '@/api';
-
-import IconSearch from '@/assets/icons/search.svg';
-import IconAddUser from '@/pages/main/friend/_assets/icons/add-user.svg';
 
 export default {
   title: 'KiwiTalk v2/Friend/Friend List',
@@ -47,28 +44,16 @@ const Template: StoryFn<FriendListProps> = () => {
 
     profileImageUrl: Math.random() > 0.2 ? `https://picsum.photos/200?s=${Math.random()}` : '',
   }));
-
-  const NoOpViewModel: FriendListViewModelType = () => ({
-    me: () => me,
-    all: () => allFriends,
-    pinned: () => allFriends.slice(0, 3),
-    nearBirthday: () => allFriends.slice(3, 10),
-    topItems: () => [
-      {
-        kind: 'click',
-        icon: <IconSearch />,
-      },
-      {
-        kind: 'click',
-        icon: <IconAddUser />,
-      },
-    ],
-  });
+  const pinned = allFriends.slice(0, 3);
+  const nearBirthday = allFriends.slice(3, 10);
 
   return (
     <div class={styles.background}>
       <FriendList
-        viewModel={NoOpViewModel}
+        me={me}
+        pinned={pinned}
+        nearBirthday={nearBirthday}
+        all={allFriends}
       />
     </div>
   );
