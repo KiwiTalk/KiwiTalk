@@ -88,7 +88,8 @@
       },
       "member_count": "{{count}}명",
       "placeholder": "메시지 보내기...",
-      "first_chat": "채팅창의 첫부분 입니다"
+      "first_chat": "채팅창의 첫부분 입니다",
+      "show_more": "더보기"
     },
     "friend": {
       "all_friends": "전체 친구",

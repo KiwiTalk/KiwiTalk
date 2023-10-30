@@ -5,7 +5,8 @@ import { UnknownMessage } from './unknown-message';
 
 import { useLocalChannel } from '@/pages/main/channel/chat/_hooks';
 
-import type { Chatlog } from '@/api/client';
+import { Chatlog } from '@/api/client';
+import { TextMessage } from './text-message';
 
 export type TypedMessageProps = {
   type: number;
@@ -35,7 +36,10 @@ export const TypedMessage = (props: TypedMessageProps) => {
         {props.chatlog.content}
       </Match>
       <Match when={props.type === 1}> {/* Text */}
-        {props.chatlog.content}
+        <TextMessage
+          content={props.chatlog.content}
+          isLong={attachmentJson()?.path?.toString()?.includes('.txt')}
+        />
       </Match>
       <Match when={props.type === 26}> {/* Reply */}
         <ReplyMessage
