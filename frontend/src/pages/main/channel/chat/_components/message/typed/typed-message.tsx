@@ -38,7 +38,7 @@ export const TypedMessage = (props: TypedMessageProps) => {
       </Match>
       <Match when={props.type === 2}> {/* Single Image: TODO replace fallback  */}
         <ImageMessage
-          url={attachmentJson()?.url?.toString()}
+          urls={[attachmentJson()?.url?.toString() ?? '']}
         />
       </Match>
       <Match when={props.type === 18}> {/* Attachment */}
@@ -54,6 +54,11 @@ export const TypedMessage = (props: TypedMessageProps) => {
           content={props.chatlog.content}
           replyContent={attachmentJson()?.src_message?.toString()}
           replySender={members()[attachmentJson()?.src_userId?.toString() ?? '']?.nickname}
+        />
+      </Match>
+      <Match when={props.type === 27}> {/* Multiple Image: TODO replace fallback  */}
+        <ImageMessage
+          urls={attachmentJson()?.imageUrls as string[] ?? []}
         />
       </Match>
     </Switch>

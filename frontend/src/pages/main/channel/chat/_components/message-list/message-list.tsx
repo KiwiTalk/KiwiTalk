@@ -60,6 +60,7 @@ export const MessageList = (props: MessageListProps) => {
   const isBubble = (type: number) => {
     if (type === 0) return false; // feed
     if (type === 2) return false; // single image
+    if (type === 27) return false; // multiple image
 
     return true;
   };
@@ -102,22 +103,25 @@ export const MessageList = (props: MessageListProps) => {
       alignToBottom={isStickBottom()}
       onScroll={onScroll}
     >
-      {(item, index) => (
-        <Message
-          profile={props.members[item!.senderId]?.profileUrl}
-          sender={getSender(item!, index())}
-          unread={getReadCount(item!)}
-          time={getTime(item!, index())}
-          isMine={item!.senderId === props.logonId}
-          isBubble={isBubble(item!.chatType)}
-          isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
-        >
-          <TypedMessage
-            type={item.chatType}
-            chatlog={item}
-          />
-        </Message>
-      )}
+      {(item, index) => {
+        console.log(JSON.stringify(item, null, 2));
+        return (
+          <Message
+            profile={props.members[item!.senderId]?.profileUrl}
+            sender={getSender(item!, index())}
+            unread={getReadCount(item!)}
+            time={getTime(item!, index())}
+            isMine={item!.senderId === props.logonId}
+            isBubble={isBubble(item!.chatType)}
+            isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
+          >
+            <TypedMessage
+              type={item.chatType}
+              chatlog={item}
+            />
+          </Message>
+        );
+      }}
     </VirtualList>
   );
 };
