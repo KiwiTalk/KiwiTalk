@@ -1,4 +1,4 @@
-use talk_loco_client::talk::{chat::Chatlog, channel::ChannelMeta};
+use talk_loco_client::talk::{channel::ChannelMeta, chat::Chatlog};
 
 #[derive(Debug, Clone)]
 pub enum ChannelEvent {
@@ -20,9 +20,8 @@ pub enum ChannelEvent {
     ChangeMeta(ChannelMeta),
 
     ChatDeleted(Chatlog),
-    
+
     Added {
         chatlog: Option<Chatlog>,
-        
     },
 }

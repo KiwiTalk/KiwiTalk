@@ -3,7 +3,7 @@ use std::io;
 use talk_loco_client::RequestError;
 use thiserror::Error;
 
-use crate::{ClientError, database::PoolTaskError};
+use crate::{database::PoolTaskError, ClientError};
 
 #[derive(Debug, Error)]
 #[error(transparent)]
