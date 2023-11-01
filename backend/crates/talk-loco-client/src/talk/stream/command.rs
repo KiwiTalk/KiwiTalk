@@ -87,7 +87,7 @@ pub struct SyncJoin {
 pub struct SyncDlMsg {
     /// Deleted chat
     #[serde(rename = "chatLog")]
-    pub chat_log: Chatlog,
+    pub chatlog: Chatlog,
 }
 
 /// Sync openlink creation

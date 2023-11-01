@@ -17,5 +17,7 @@ pub enum ChannelEvent {
         log_id: i64,
     },
 
-    ChangeMeta(ChannelMeta)
+    ChangeMeta(ChannelMeta),
+
+    ChatDeleted(Chatlog),
 }
