@@ -3,15 +3,15 @@ pub mod error;
 use diesel::{BoolExpressionMethods, ExpressionMethods, RunQueryDsl};
 use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 use talk_loco_client::talk::stream::{
-    command::{DecunRead, Kickout, Msg},
+    command::{ChgMeta, DecunRead, Kickout, Msg},
     StreamCommand,
 };
 
 use crate::{
+    conn::Conn,
     database::{
-        model::chat::ChatRow,
-        schema::{self, chat},
-        DatabasePool,
+        model::{channel::meta::ChannelMetaRow, chat::ChatRow},
+        schema::{self, channel_meta, chat},
     },
     event::{channel::ChannelEvent, ClientEvent},
 };
@@ -22,12 +22,12 @@ type HandlerResult = Result<Option<ClientEvent>, HandlerError>;
 
 #[derive(Debug, Clone)]
 pub(crate) struct SessionHandler {
-    pool: DatabasePool,
+    conn: Conn,
 }
 
 impl SessionHandler {
-    pub fn new(pool: DatabasePool) -> Self {
-        Self { pool }
+    pub fn new(conn: Conn) -> Self {
+        Self { conn }
     }
 
     pub async fn handle(&self, read: BoxedCommand) -> HandlerResult {
@@ -36,6 +36,7 @@ impl SessionHandler {
             StreamCommand::SwitchServer => self.on_switch_server().await,
             StreamCommand::Chat(msg) => self.on_chat(msg).await,
             StreamCommand::ChatRead(read) => self.on_chat_read(read).await,
+            StreamCommand::ChangeMeta(meta) => self.on_meta_change(meta).await,
 
             _ => Ok(None),
         }
@@ -50,7 +51,8 @@ impl SessionHandler {
     }
 
     async fn on_chat(&self, msg: Msg) -> HandlerResult {
-        self.pool
+        self.conn
+            .pool
             .spawn({
                 let row = ChatRow::from_chatlog(msg.chatlog.clone(), None);
 
@@ -77,7 +79,8 @@ impl SessionHandler {
     }
 
     async fn on_chat_read(&self, read: DecunRead) -> HandlerResult {
-        self.pool
+        self.conn
+            .pool
             .spawn({
                 let DecunRead {
                     chat_id: channel_id,
@@ -108,6 +111,28 @@ impl SessionHandler {
                 user_id: read.user_id,
                 log_id: read.watermark,
             },
+        }))
+    }
+
+    async fn on_meta_change(&self, value: ChgMeta) -> HandlerResult {
+        self.conn
+            .pool
+            .spawn({
+                let value = value.clone();
+
+                move |conn| {
+                    diesel::replace_into(channel_meta::table)
+                        .values(ChannelMetaRow::from(value))
+                        .execute(conn)?;
+
+                    Ok(())
+                }
+            })
+            .await?;
+
+        Ok(Some(ClientEvent::Channel {
+            id: value.chat_id,
+            event: ChannelEvent::ChangeMeta(value.meta),
         }))
     }
 }

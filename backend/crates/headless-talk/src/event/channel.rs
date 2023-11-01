@@ -1,4 +1,4 @@
-use talk_loco_client::talk::chat::Chatlog;
+use talk_loco_client::talk::{chat::Chatlog, channel::ChannelMeta};
 
 #[derive(Debug, Clone)]
 pub enum ChannelEvent {
@@ -16,4 +16,6 @@ pub enum ChannelEvent {
         /// Read chat log id
         log_id: i64,
     },
+
+    ChangeMeta(ChannelMeta)
 }

@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChannelType {
@@ -44,11 +44,8 @@ impl From<&str> for ChannelType {
     }
 }
 
-/// Chatroom meta. Like chatroom profile, notice, etc.
-///
-/// serde does not support integer tag yet. We will switch to enum as fast as the support added.
-/// Check serde#745
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+/// Chatroom meta. Like chatroom profile, notice, etc
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub struct ChannelMeta {
     /// Meta type. See [ChannelMetaType] for predefined types.
     #[serde(rename = "type")]
