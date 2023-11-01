@@ -38,14 +38,7 @@ impl ChannelUpdater {
         let meta_rows = res
             .channel_metas
             .into_iter()
-            .map(|meta| ChannelMetaRow {
-                channel_id: self.id,
-                meta_type: meta.meta_type,
-                author_id: meta.author_id,
-                revision: meta.revision,
-                content: meta.content,
-                updated_at: meta.updated_at,
-            })
+            .map(|meta| ChannelMetaRow::from_meta(self.id, meta))
             .collect::<Vec<_>>();
 
         match res.channel_type {

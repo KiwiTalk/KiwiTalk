@@ -1,5 +1,5 @@
 use diesel::Insertable;
-use talk_loco_client::talk::stream::command::ChgMeta;
+use talk_loco_client::talk::{channel::ChannelMeta, stream::command::ChgMeta};
 
 use crate::database::schema::channel_meta;
 
@@ -20,15 +20,21 @@ pub struct ChannelMetaRow {
     pub updated_at: i64,
 }
 
+impl ChannelMetaRow {
+    pub fn from_meta(channel_id: i64, meta: ChannelMeta) -> Self {
+        Self {
+            channel_id: channel_id,
+            meta_type: meta.meta_type,
+            author_id: meta.author_id,
+            revision: meta.revision,
+            content: meta.content,
+            updated_at: meta.updated_at,
+        }
+    }
+}
+
 impl From<ChgMeta> for ChannelMetaRow {
     fn from(value: ChgMeta) -> Self {
-        Self {
-            channel_id: value.chat_id,
-            meta_type: value.meta.meta_type,
-            author_id: value.meta.author_id,
-            revision: value.meta.revision,
-            content: value.meta.content,
-            updated_at: value.meta.updated_at,
-        }
+        Self::from_meta(value.chat_id, value.meta)
     }
 }
