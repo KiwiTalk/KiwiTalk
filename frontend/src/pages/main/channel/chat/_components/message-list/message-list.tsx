@@ -103,25 +103,22 @@ export const MessageList = (props: MessageListProps) => {
       alignToBottom={isStickBottom()}
       onScroll={onScroll}
     >
-      {(item, index) => {
-        console.log(JSON.stringify(item, null, 2));
-        return (
-          <Message
-            profile={props.members[item!.senderId]?.profileUrl}
-            sender={getSender(item!, index())}
-            unread={getReadCount(item!)}
-            time={getTime(item!, index())}
-            isMine={item!.senderId === props.logonId}
-            isBubble={isBubble(item!.chatType)}
-            isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
-          >
-            <TypedMessage
-              type={item.chatType}
-              chatlog={item}
-            />
-          </Message>
-        );
-      }}
+      {(item, index) => (
+        <Message
+          profile={props.members[item!.senderId]?.profileUrl}
+          sender={getSender(item!, index())}
+          unread={getReadCount(item!)}
+          time={getTime(item!, index())}
+          isMine={item!.senderId === props.logonId}
+          isBubble={isBubble(item!.chatType)}
+          isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
+        >
+          <TypedMessage
+            type={item.chatType}
+            chatlog={item}
+          />
+        </Message>
+      )}
     </VirtualList>
   );
 };

@@ -23,9 +23,6 @@ export const content = style({
   whiteSpace: 'pre-line',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  lineClamp: 30,
-  WebkitLineClamp: 30,
-  WebkitBoxOrient: 'vertical',
   wordBreak: 'break-word',
 
   color: vars.color.primary.fillPrimary,

@@ -27,13 +27,18 @@ export const TypedMessage = (props: TypedMessageProps) => {
 
   return (
     <Switch fallback={<UnknownMessage type={props.type} />}>
-      <Match when={props.type === 0}> {/* Feed */}
+      <Match when={props.type === 0}> {/* Feed: TODO Pretty print */}
         {props.chatlog.content}
       </Match>
-      <Match when={props.type === 1}> {/* Text */}
+      <Match when={props.type === 1}> {/* Text: TODO implement onShowMore */}
         <TextMessage
-          content={props.chatlog.content}
-          isLong={attachmentJson()?.path?.toString()?.includes('.txt')}
+          content={`${
+            props.chatlog.content?.slice(0, 500)
+          }${
+            (props.chatlog.content?.length ?? 0) > 500 ? '...' : ''
+          }`}
+          isLong={(props.chatlog.content?.length ?? 0) > 500}
+          longContent={props.chatlog.content}
         />
       </Match>
       <Match when={props.type === 2}> {/* Single Image: TODO replace fallback  */}
@@ -41,7 +46,7 @@ export const TypedMessage = (props: TypedMessageProps) => {
           urls={[attachmentJson()?.url?.toString() ?? '']}
         />
       </Match>
-      <Match when={props.type === 18}> {/* Attachment */}
+      <Match when={props.type === 18}> {/* Attachment: TODO implement download */}
         <AttachmentMessage
           mimeType={attachmentJson()?.mime?.toString() ?? ''}
           fileName={attachmentJson()?.name?.toString() ?? 'unknown'}
@@ -49,16 +54,16 @@ export const TypedMessage = (props: TypedMessageProps) => {
           expire={Number(attachmentJson()?.expire ?? 0)}
         />
       </Match>
-      <Match when={props.type === 26}> {/* Reply */}
+      <Match when={props.type === 26}> {/* Reply: TODO implement move to original chat */}
         <ReplyMessage
           content={props.chatlog.content}
           replyContent={attachmentJson()?.src_message?.toString()}
           replySender={members()[attachmentJson()?.src_userId?.toString() ?? '']?.nickname}
         />
       </Match>
-      <Match when={props.type === 27}> {/* Multiple Image: TODO replace fallback  */}
+      <Match when={props.type === 27}> {/* Multiple Image: TODO replace fallback / gallery  */}
         <ImageMessage
-          urls={attachmentJson()?.imageUrls as string[] ?? []}
+          urls={attachmentJson()?.thumbnailUrls as string[] ?? []}
         />
       </Match>
     </Switch>

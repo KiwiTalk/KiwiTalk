@@ -1,5 +1,5 @@
 import { vars } from '@/features/theme';
-import { style } from '@vanilla-extract/css';
+import { createVar, style } from '@vanilla-extract/css';
 
 export const container = style({
   display: 'grid',
@@ -17,9 +17,18 @@ export const container = style({
   },
 });
 
+export const preservedWidth = createVar();
+export const preservedHeight = createVar();
 export const image = style({
+  vars: {
+    [preservedWidth]: '0',
+    [preservedHeight]: '0',
+  },
+
   width: '100%',
   height: '100%',
+  minWidth: preservedWidth,
+  minHeight: preservedHeight,
 
   objectFit: 'cover',
   gridColumn: 'span 2',

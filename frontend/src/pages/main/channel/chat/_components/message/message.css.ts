@@ -46,6 +46,8 @@ export const contentContainer = style({
   alignItems: 'flex-start',
   gap: '4px',
 
+  marginBottom: '4px',
+
   whiteSpace: 'pre-line',
   overflow: 'hidden',
   wordBreak: 'break-word',
