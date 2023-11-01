@@ -1,6 +1,6 @@
 pub mod channel;
 
-use std::error::Error;
+use crate::handler::error::HandlerError;
 
 use self::channel::ChannelEvent;
 
@@ -18,5 +18,5 @@ pub enum ClientEvent {
     /// Kickout reason
     Kickout(i16),
 
-    Error(Box<dyn Error + Send + Sync>),
+    Error(HandlerError),
 }
