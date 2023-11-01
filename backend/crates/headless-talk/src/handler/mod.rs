@@ -1,9 +1,9 @@
 pub mod error;
 
-use diesel::{BoolExpressionMethods, ExpressionMethods, RunQueryDsl};
+use diesel::{dsl::exists, BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
 use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 use talk_loco_client::talk::stream::{
-    command::{ChgMeta, DecunRead, Kickout, Msg, SyncDlMsg},
+    command::{ChgMeta, DecunRead, Kickout, Msg, SyncDlMsg, SyncJoin},
     StreamCommand,
 };
 
@@ -14,9 +14,10 @@ use crate::{
             channel::meta::ChannelMetaRow,
             chat::{ChatRow, ChatUpdate},
         },
-        schema::{self, channel_meta, chat},
+        schema::{self, channel_list, channel_meta, chat},
     },
     event::{channel::ChannelEvent, ClientEvent},
+    updater::channel::ChannelUpdater,
 };
 
 use self::error::HandlerError;
@@ -41,6 +42,7 @@ impl SessionHandler {
             StreamCommand::ChatRead(read) => self.on_chat_read(read).await,
             StreamCommand::ChangeMeta(meta) => self.on_meta_change(meta).await,
             StreamCommand::SyncChatDeletion(deletion) => self.on_chat_deleted(deletion).await,
+            StreamCommand::SyncChannelJoin(sync_join) => self.on_channel_join(sync_join).await,
 
             _ => Ok(None),
         }
@@ -55,20 +57,32 @@ impl SessionHandler {
     }
 
     async fn on_chat(&self, msg: Msg) -> HandlerResult {
-        self.conn
+        let exists = self
+            .conn
             .pool
             .spawn({
                 let row = ChatRow::from_chatlog(msg.chatlog.clone(), None);
 
                 move |conn| {
+                    let count = diesel::select(exists(
+                        channel_list::table.filter(channel_list::id.eq(row.channel_id)),
+                    ))
+                    .execute(conn)?;
+
                     diesel::replace_into(chat::table)
                         .values(row)
                         .execute(conn)?;
 
-                    Ok(())
+                    Ok(count > 0)
                 }
             })
             .await?;
+
+        if !exists {
+            ChannelUpdater::new(msg.chat_id)
+                .initialize(&self.conn.session, &self.conn.pool)
+                .await?;
+        }
 
         Ok(Some(ClientEvent::Channel {
             id: msg.chat_id,
@@ -164,6 +178,19 @@ impl SessionHandler {
         Ok(Some(ClientEvent::Channel {
             id: value.chatlog.channel_id,
             event: ChannelEvent::ChatDeleted(value.chatlog),
+        }))
+    }
+
+    async fn on_channel_join(&self, sync_join: SyncJoin) -> HandlerResult {
+        ChannelUpdater::new(sync_join.chat_id)
+            .initialize(&self.conn.session, &self.conn.pool)
+            .await?;
+
+        Ok(Some(ClientEvent::Channel {
+            id: sync_join.chat_id,
+            event: ChannelEvent::Added {
+                chatlog: sync_join.chatlog,
+            },
         }))
     }
 }

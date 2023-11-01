@@ -79,7 +79,7 @@ pub struct SyncJoin {
 
     /// Last chat
     #[serde(rename = "chatLog")]
-    pub chat_log: Option<Chatlog>,
+    pub chatlog: Option<Chatlog>,
 }
 
 /// Sync chat delete

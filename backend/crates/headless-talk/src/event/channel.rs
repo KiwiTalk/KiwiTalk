@@ -20,4 +20,9 @@ pub enum ChannelEvent {
     ChangeMeta(ChannelMeta),
 
     ChatDeleted(Chatlog),
+    
+    Added {
+        chatlog: Option<Chatlog>,
+        
+    },
 }
