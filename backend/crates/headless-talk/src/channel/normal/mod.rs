@@ -1,7 +1,7 @@
 pub mod user;
 
 use diesel::{
-    BoolExpressionMethods, Connection, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl,
+    BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl,
     RunQueryDsl, SelectableHelper, SqliteConnection,
 };
 use talk_loco_client::talk::{
@@ -97,28 +97,26 @@ pub(crate) async fn open_channel(
     let user_list = client
         .conn
         .pool
-        .spawn(move |conn| {
-            conn.transaction(move |conn| {
-                let mut user_list: UserList<NormalChannelUser> = UserList::new();
+        .spawn_transaction(move |conn| {
+            let mut user_list: UserList<NormalChannelUser> = UserList::new();
 
-                match normal.users {
-                    ChatOnChannelUsers::Ids(ids) => {
-                        for user_id in ids.iter().copied() {
-                            user_list.push((user_id, get_channel_user(conn, id, user_id)?));
-                        }
-                    }
-
-                    ChatOnChannelUsers::Users(users) => {
-                        update_channel_users(conn, id, &users)?;
-
-                        for user_id in users.iter().map(|user| user.user_id) {
-                            user_list.push((user_id, get_channel_user(conn, id, user_id)?));
-                        }
+            match normal.users {
+                ChatOnChannelUsers::Ids(ids) => {
+                    for user_id in ids.iter().copied() {
+                        user_list.push((user_id, get_channel_user(conn, id, user_id)?));
                     }
                 }
 
-                Ok(user_list)
-            })
+                ChatOnChannelUsers::Users(users) => {
+                    update_channel_users(conn, id, &users)?;
+
+                    for user_id in users.iter().map(|user| user.user_id) {
+                        user_list.push((user_id, get_channel_user(conn, id, user_id)?));
+                    }
+                }
+            }
+
+            Ok(user_list)
         })
         .await?;
 
