@@ -16,8 +16,8 @@ use crate::{
 };
 use arrayvec::ArrayVec;
 use diesel::{
-    dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods,
-    OptionalExtension, QueryDsl, RunQueryDsl,
+    dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods, OptionalExtension,
+    QueryDsl, RunQueryDsl,
 };
 use nohash_hasher::IntMap;
 use talk_loco_client::talk::{

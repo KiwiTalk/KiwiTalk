@@ -1,8 +1,8 @@
 pub mod user;
 
 use diesel::{
-    BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl,
-    RunQueryDsl, SelectableHelper, SqliteConnection,
+    BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl, RunQueryDsl,
+    SelectableHelper, SqliteConnection,
 };
 use talk_loco_client::talk::{
     channel::ChannelMetaType,
