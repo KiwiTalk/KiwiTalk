@@ -10,7 +10,7 @@ pub mod user;
 
 use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
 use conn::Conn;
-use diesel::{BoolExpressionMethods, Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
 pub use talk_loco_client;
 
 use database::{
@@ -87,26 +87,22 @@ impl HeadlessTalk {
 
             self.conn
                 .pool
-                .spawn(move |conn| {
-                    conn.transaction(|conn| {
-                        diesel::update(channel_list::table)
-                            .filter(channel_list::id.eq(id))
-                            .set(channel_list::active_user_count.eq(active_user_count))
+                .spawn_transaction(move |conn| {
+                    diesel::update(channel_list::table)
+                        .filter(channel_list::id.eq(id))
+                        .set(channel_list::active_user_count.eq(active_user_count))
+                        .execute(conn)?;
+
+                    for (user_id, watermark) in watermark_iter {
+                        diesel::update(user_profile::table)
+                            .filter(
+                                user_profile::channel_id
+                                    .eq(id)
+                                    .and(user_profile::id.eq(user_id)),
+                            )
+                            .set(user_profile::watermark.eq(watermark))
                             .execute(conn)?;
-
-                        for (user_id, watermark) in watermark_iter {
-                            diesel::update(user_profile::table)
-                                .filter(
-                                    user_profile::channel_id
-                                        .eq(id)
-                                        .and(user_profile::id.eq(user_id)),
-                                )
-                                .set(user_profile::watermark.eq(watermark))
-                                .execute(conn)?;
-                        }
-
-                        Ok::<_, PoolTaskError>(())
-                    })?;
+                    }
 
                     Ok(())
                 })

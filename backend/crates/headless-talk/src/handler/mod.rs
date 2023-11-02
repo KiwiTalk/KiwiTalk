@@ -3,7 +3,7 @@ pub mod error;
 use diesel::{dsl::exists, BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
 use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 use talk_loco_client::talk::stream::{
-    command::{ChgMeta, DecunRead, Kickout, Msg, SyncDlMsg, SyncJoin},
+    command::{ChgMeta, DecunRead, Kickout, Left, Msg, SyncDlMsg, SyncJoin},
     StreamCommand,
 };
 
@@ -43,6 +43,7 @@ impl SessionHandler {
             StreamCommand::ChangeMeta(meta) => self.on_meta_change(meta).await,
             StreamCommand::SyncChatDeletion(deletion) => self.on_chat_deleted(deletion).await,
             StreamCommand::SyncChannelJoin(sync_join) => self.on_channel_join(sync_join).await,
+            StreamCommand::Left(left) => self.on_left(left).await,
 
             _ => Ok(None),
         }
@@ -191,6 +192,20 @@ impl SessionHandler {
             event: ChannelEvent::Added {
                 chatlog: sync_join.chatlog,
             },
+        }))
+    }
+
+    async fn on_left(&self, left: Left) -> HandlerResult {
+        let channel_id = left.chat_id;
+
+        self.conn
+            .pool
+            .spawn_transaction(move |conn| ChannelUpdater::new(channel_id).remove(conn))
+            .await?;
+
+        Ok(Some(ClientEvent::Channel {
+            id: channel_id,
+            event: ChannelEvent::Left,
         }))
     }
 }

@@ -1,7 +1,7 @@
 pub mod command;
 
 use self::command::{
-    ChgMeta, DecunRead, Msg, SyncDlMsg, SyncJoin, SyncLinkCr, SyncLinkPf, SyncMemT, SyncRewr,
+    ChgMeta, DecunRead, Left, Msg, SyncDlMsg, SyncJoin, SyncLinkCr, SyncLinkPf, SyncMemT, SyncRewr,
 };
 use command::Kickout;
 use futures_loco_protocol::loco_protocol::command::BoxedCommand;
@@ -74,5 +74,7 @@ create_enum!(
         "SYNCLINKCR" => SyncLinkCreation(SyncLinkCr),
         "SYNCMEMT" => SyncOpenUserType(SyncMemT),
         "SYNCLINKPR" => SyncLinkProfile(SyncLinkPf),
+
+        "LEFT" => Left(Left),
     }
 );
