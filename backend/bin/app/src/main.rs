@@ -21,14 +21,19 @@ use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
 use window_vibrancy::apply_acrylic;
 
 fn create_main_window<R: Runtime>(manager: &impl Manager<R>) -> anyhow::Result<Window<R>> {
-    let window = WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
-        .inner_size(1280.0, 720.0)
-        .resizable(true)
-        .title("KiwiTalk")
-        .decorations(false)
-        .visible(false)
-        .transparent(true)
-        .build()?;
+    let window_builder =
+        WindowBuilder::new(manager, "main", tauri::WindowUrl::App("index.html".into()))
+            .inner_size(1280.0, 720.0)
+            .resizable(true)
+            .title("KiwiTalk")
+            .decorations(false)
+            .visible(false);
+
+    #[cfg(target_os = "linux")]
+    // TODO: see https://github.com/tauri-apps/tao/issues/470 (original winit supports `window.set_blur(true)`)
+    let window = window_builder.build()?;
+    #[cfg(not(target_os = "linux"))]
+    let window = window_builder.transparent(true).build()?;
 
     #[cfg(target_os = "macos")]
     #[allow(deprecated)]
@@ -76,20 +81,27 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
     Ok(())
 }
 
+fn show_window(app: &AppHandle<impl Runtime>) {
+    let main_window = if let Some(window) = app.get_window("main") {
+        window
+    } else {
+        let window = create_main_window(app).unwrap();
+        window.restore_state(StateFlags::all()).unwrap();
+        window.show().unwrap();
+
+        window
+    };
+    main_window.set_focus().unwrap();
+}
+
 fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::LeftClick { .. } => {
-            let main_window = if let Some(window) = app.get_window("main") {
-                window
-            } else {
-                let window = create_main_window(app).unwrap();
-                window.restore_state(StateFlags::all()).unwrap();
-                window.show().unwrap();
+            show_window(app);
+        }
 
-                window
-            };
-
-            main_window.set_focus().unwrap();
+        SystemTrayEvent::MenuItemClick { id, .. } if id == "show" => {
+            show_window(app);
         }
 
         SystemTrayEvent::MenuItemClick { id, .. } if id == "quit" => {
@@ -104,7 +116,13 @@ fn on_tray_event(app: &AppHandle<impl Runtime>, event: SystemTrayEvent) {
 async fn main() -> anyhow::Result<()> {
     tauri::async_runtime::set(tokio::runtime::Handle::current());
 
-    let tray_menu = SystemTrayMenu::new().add_item(CustomMenuItem::new("quit", "Quit KiwiTalk"));
+    let show_item = CustomMenuItem::new("show", "Show Window"); // TODO tag for translation
+    let quit_item = CustomMenuItem::new("quit", "Quit KiwiTalk");
+
+    let tray_menu = SystemTrayMenu::new()
+        .add_item(show_item)
+        .add_item(quit_item);
+
     let system_tray = SystemTray::new().with_menu(tray_menu);
 
     let app = tauri::Builder::default()

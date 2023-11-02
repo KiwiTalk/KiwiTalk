@@ -1,6 +1,6 @@
 import { StoryFn } from 'storybook-solidjs';
 
-import { WindowControls, WindowControlsViewModelType } from './window-controls';
+import { WindowControls } from './window-controls';
 import * as styles from './window-controls.stories.css';
 
 export default {
@@ -9,17 +9,9 @@ export default {
 };
 
 const Template: StoryFn<{ isActive: boolean }> = (props) => {
-  const isActive = () => props.isActive;
-  const NoOpViewModel: WindowControlsViewModelType = () => ({
-    onMinimize: () => {},
-    onMaximize: () => {},
-    onClose: () => {},
-    isActive,
-  });
-
   return (
     <div class={styles.background}>
-      <WindowControls viewModel={NoOpViewModel}/>
+      <WindowControls isActive={props.isActive} />
     </div>
   );
 };

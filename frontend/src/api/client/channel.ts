@@ -1,10 +1,13 @@
 import { tauri } from '@tauri-apps/api';
 
 class NormalChannel implements ClientChannel {
+  public id: string;
+
   #rid: number;
 
-  constructor(rid: number) {
+  constructor(rid: number, id: string) {
     this.#rid = rid;
+    this.id = id;
   }
 
   async close() {
@@ -39,40 +42,45 @@ class NormalChannel implements ClientChannel {
 }
 
 export type Chatlog = {
-  logId: string,
-  prevLogId?: string,
+  /** bigint */
+  logId: string;
+  /** bigint */
+  prevLogId?: string;
 
-  senderId: string,
-  sendAt: number,
+  senderId: string;
+  sendAt: number;
 
-  chatType: number,
+  chatType: number;
 
-  content?: string,
-  attachment?: string,
-  supplement?: string,
+  content?: string;
+  attachment?: string;
+  supplement?: string;
 
-  referer?: number,
+  referer?: number;
 }
 
 export type ChannelUser = {
-  nickname: string,
+  nickname: string;
 
-  profileUrl: string,
-  fullProfileUrl: string,
-  originalProfileUrl: string,
+  profileUrl: string;
+  fullProfileUrl: string;
+  originalProfileUrl: string;
 
-  watermark: string,
+  /** bigint */
+  watermark: string;
 }
 
 export type NormalChannelUser = {
-  countryIso: string,
-  statusMessage: string,
-  accountId: string,
-  linkedServices: string,
-  suspended: boolean,
+  countryIso: string;
+  statusMessage: string;
+  accountId: string;
+  linkedServices: string;
+  suspended: boolean;
 } & ChannelUser;
 
 export interface ClientChannel {
+  id: string;
+
   sendText(text: string): Promise<Chatlog>;
 
   readChat(logId: string): Promise<void>;
@@ -87,5 +95,5 @@ export interface ClientChannel {
 export async function openChannel(id: string): Promise<NormalChannel> {
   const rid = await tauri.invoke<number>('plugin:client|open_channel', { id });
 
-  return new NormalChannel(rid);
+  return new NormalChannel(rid, id);
 }

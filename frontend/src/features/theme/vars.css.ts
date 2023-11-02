@@ -40,6 +40,7 @@ const [themeClass, baseVars] = createTheme({
     extraSmall: '6px',
     small: '10px',
     regular: '18px',
+    large: '20px',
     full: '999px',
   },
   layer: {

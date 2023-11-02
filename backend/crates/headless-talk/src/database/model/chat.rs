@@ -1,4 +1,4 @@
-use diesel::{Insertable, Queryable};
+use diesel::{query_builder::AsChangeset, Insertable, Queryable};
 use talk_loco_client::talk::chat::{Chat, ChatContent, ChatType, Chatlog};
 
 use super::super::schema::chat;
@@ -64,6 +64,40 @@ impl From<ChatRow> for Chatlog {
                 },
                 message_id: val.message_id,
             },
+            referer: val.referer,
+        }
+    }
+}
+
+#[derive(Debug, AsChangeset, Clone, PartialEq, Eq)]
+#[diesel(table_name = chat)]
+pub struct ChatUpdate {
+    #[diesel(column_name = "type_")]
+    pub chat_type: i32,
+
+    pub message_id: i64,
+
+    pub send_at: i64,
+
+    pub author_id: i64,
+
+    pub message: Option<String>,
+    pub attachment: Option<String>,
+    pub supplement: Option<String>,
+
+    pub referer: Option<i32>,
+}
+
+impl From<Chatlog> for ChatUpdate {
+    fn from(val: Chatlog) -> Self {
+        Self {
+            chat_type: val.chat.chat_type.0,
+            message_id: val.chat.message_id,
+            send_at: val.send_at,
+            author_id: val.author_id,
+            message: val.chat.content.message,
+            attachment: val.chat.content.attachment,
+            supplement: val.chat.content.supplement,
             referer: val.referer,
         }
     }

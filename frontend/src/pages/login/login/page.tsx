@@ -23,11 +23,11 @@ export const LoginContentPage = () => {
   const [error, setError] = createSignal<string | null>(null);
   const [forced, setForced] = createSignal(false);
 
-  createEffect((prevTimeout: NodeJS.Timeout | undefined) => {
+  createEffect((prevTimeout: number | undefined) => {
     if (typeof error() === 'string') {
       if (prevTimeout !== undefined) clearTimeout(prevTimeout);
 
-      const timeout = setTimeout(() => {
+      const timeout = window.setTimeout(() => {
         setError(null);
       }, 5000);
 

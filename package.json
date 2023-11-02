@@ -23,17 +23,17 @@
   },
   "homepage": "https://github.com/KiwiTalk/kiwitalk",
   "devDependencies": {
-    "@storybook/addon-essentials": "7.5.1",
-    "@storybook/types": "7.5.1",
+    "@storybook/addon-essentials": "7.5.2",
+    "@storybook/types": "7.5.2",
     "@tauri-apps/cli": "1.5.6",
-    "@typescript-eslint/eslint-plugin": "6.9.0",
-    "@typescript-eslint/parser": "6.9.0",
+    "@typescript-eslint/eslint-plugin": "6.9.1",
+    "@typescript-eslint/parser": "6.9.1",
     "@vanilla-extract/vite-plugin": "3.9.0",
     "csstype": "3.1.2",
     "eslint": "8.52.0",
     "eslint-config-google": "0.14.0",
     "eslint-plugin-storybook": "0.6.15",
-    "storybook": "7.5.1",
+    "storybook": "7.5.2",
     "storybook-solidjs": "1.0.0-beta.2",
     "storybook-solidjs-vite": "1.0.0-beta.2",
     "typescript": "5.2.2",
@@ -50,10 +50,10 @@
     "deepmerge-ts": "5.1.0",
     "html-parse-string": "0.0.9",
     "i18next": "23.6.0",
-    "solid-js": "1.8.4",
+    "solid-js": "1.8.5",
     "solid-transition-group": "^0.2.3",
     "tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1",
     "tauri-plugin-window-state-api": "github:tauri-apps/tauri-plugin-window-state#v1"
   },
-  "packageManager": "pnpm@8.9.2"
+  "packageManager": "pnpm@8.10.2"
 }
