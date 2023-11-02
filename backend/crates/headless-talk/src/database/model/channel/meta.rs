@@ -23,7 +23,7 @@ pub struct ChannelMetaRow {
 impl ChannelMetaRow {
     pub fn from_meta(channel_id: i64, meta: ChannelMeta) -> Self {
         Self {
-            channel_id: channel_id,
+            channel_id,
             meta_type: meta.meta_type,
             author_id: meta.author_id,
             revision: meta.revision,
