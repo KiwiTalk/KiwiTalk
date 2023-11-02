@@ -200,7 +200,7 @@ impl SessionHandler {
 
         self.conn
             .pool
-            .spawn_transaction(move |conn| Ok(ChannelUpdater::new(channel_id).remove(conn)?))
+            .spawn_transaction(move |conn| ChannelUpdater::new(channel_id).remove(conn))
             .await?;
 
         Ok(Some(ClientEvent::Channel {
