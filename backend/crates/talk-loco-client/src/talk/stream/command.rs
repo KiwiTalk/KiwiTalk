@@ -142,3 +142,12 @@ pub struct SyncRewr {
     #[serde(rename = "chatLog")]
     pub chat_log: Chatlog,
 }
+
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+pub struct Left {
+    #[serde(rename = "chatId")]
+    pub chat_id: i64,
+
+    #[serde(rename = "lastTokenId")]
+    pub last_token_id: i64,
+}
