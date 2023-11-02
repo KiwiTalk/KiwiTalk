@@ -21,6 +21,7 @@ kiwi-talk-system = { path = "../system" }
 kiwi-talk-result = { path = "../result" }
 kiwi-talk-api = { path = "../api" }
 kiwi-talk-client = { path = "../client" }
+kiwi-talk-resource = { path = "../resource" }
 
 tokio = { workspace = true, features = ["full"] }
 tauri = { workspace = true, features = ["updater", "api-all", "system-tray", "macos-private-api"] }

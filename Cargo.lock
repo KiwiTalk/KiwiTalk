@@ -2160,6 +2160,7 @@ dependencies = [
  "anyhow",
  "kiwi-talk-api",
  "kiwi-talk-client",
+ "kiwi-talk-resource",
  "kiwi-talk-result",
  "kiwi-talk-system",
  "log",
@@ -2199,6 +2200,15 @@ dependencies = [
  "tauri",
  "tokio",
  "tokio-util",
+]
+
+[[package]]
+name = "kiwi-talk-resource"
+version = "0.4.1"
+dependencies = [
+ "dashmap",
+ "serde",
+ "tauri",
 ]
 
 [[package]]

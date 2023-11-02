@@ -81,6 +81,7 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
         );
     }))?;
 
+    handle.plugin(kiwi_talk_resource::init())?;
     handle.plugin(kiwi_talk_api::init().await)?;
     handle.plugin(configuration::init_plugin("configuration").await?)?;
     handle.plugin(kiwi_talk_client::init_plugin("client").await?)?;
