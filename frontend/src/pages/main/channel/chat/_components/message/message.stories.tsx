@@ -1,6 +1,5 @@
 import { StoryFn } from 'storybook-solidjs';
 
-import * as styles from './message.stories.css';
 import { Message, type MessageProps } from './message';
 
 export default {
@@ -10,19 +9,14 @@ export default {
 
 const Template: StoryFn<MessageProps> = (props) => {
   return (
-    <div class={styles.background}>
-      <Message
-        {...props}
-      />
-    </div>
+    <Message
+      {...props}
+    />
   );
 };
 
 export const Default = Template.bind({});
 Default.args = {
-  profile: 'https://picsum.photos/200',
-  sender: 'User 1',
-
   unread: 1,
   time: new Date(),
   isMine: true,
