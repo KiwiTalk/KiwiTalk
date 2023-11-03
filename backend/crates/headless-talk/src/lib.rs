@@ -87,7 +87,8 @@ impl HeadlessTalk {
             let active_user_count = active_user_ids.len() as i32;
             let watermark_iter = active_user_ids.into_iter().zip(watermarks.into_iter());
 
-            self.inner.conn
+            self.inner
+                .conn
                 .pool
                 .spawn_transaction(move |conn| {
                     diesel::update(channel_list::table)
