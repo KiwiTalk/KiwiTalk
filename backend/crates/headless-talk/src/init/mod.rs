@@ -22,8 +22,9 @@ use crate::{
     database::{schema::channel_list, DatabasePool, MigrationError, PoolTaskError},
     event::ClientEvent,
     handler::{error::HandlerError, SessionHandler},
+    task::BackgroundTask,
     updater::list::ChannelListUpdater,
-    ClientError, ClientStatus, HeadlessTalk,
+    ClientError, ClientStatus, HeadlessTalk, Inner,
 };
 
 use self::config::ClientEnv;
@@ -142,35 +143,13 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
             pool: self.pool.clone(),
         };
 
-        let stream_task = tokio::spawn({
-            let command_handler = Arc::new(command_handler);
-            let handler = Arc::new(SessionHandler::new(conn.clone()));
+        let stream_task = BackgroundTask::new(
+            tokio::spawn({
+                let command_handler = Arc::new(command_handler);
+                let handler = Arc::new(SessionHandler::new(conn.clone()));
 
-            async move {
-                for read in stream_buffer {
-                    tokio::spawn({
-                        let command_handler = command_handler.clone();
-                        let handler = handler.clone();
-
-                        async move {
-                            match handler.handle(read).await {
-                                Ok(Some(event)) => {
-                                    command_handler(Ok(event)).await;
-                                }
-
-                                Err(err) => {
-                                    command_handler(Err(err)).await;
-                                }
-
-                                _ => {}
-                            }
-                        }
-                    });
-                }
-
-                let res: Result<ClientEvent, HandlerError> = async {
-                    let mut stream = pin!(self.stream);
-                    while let Some(read) = stream.try_next().await? {
+                async move {
+                    for read in stream_buffer {
                         tokio::spawn({
                             let command_handler = command_handler.clone();
                             let handler = handler.clone();
@@ -191,34 +170,64 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
                         });
                     }
 
-                    unreachable!();
+                    let res: Result<ClientEvent, HandlerError> = async {
+                        let mut stream = pin!(self.stream);
+                        while let Some(read) = stream.try_next().await? {
+                            tokio::spawn({
+                                let command_handler = command_handler.clone();
+                                let handler = handler.clone();
+
+                                async move {
+                                    match handler.handle(read).await {
+                                        Ok(Some(event)) => {
+                                            command_handler(Ok(event)).await;
+                                        }
+
+                                        Err(err) => {
+                                            command_handler(Err(err)).await;
+                                        }
+
+                                        _ => {}
+                                    }
+                                }
+                            });
+                        }
+
+                        unreachable!();
+                    }
+                    .await;
+
+                    command_handler(res);
                 }
-                .await;
+            })
+            .abort_handle(),
+        );
 
-                command_handler(res);
-            }
-        });
+        let ping_task = BackgroundTask::new(
+            tokio::spawn({
+                let session = self.session.clone();
 
-        let ping_task = tokio::spawn({
-            let session = self.session.clone();
+                async move {
+                    let mut interval = time::interval(PING_INTERVAL);
 
-            async move {
-                let mut interval = time::interval(PING_INTERVAL);
-
-                while TalkSession(&session).ping().await.is_ok() {
-                    interval.tick().await;
+                    while TalkSession(&session).ping().await.is_ok() {
+                        interval.tick().await;
+                    }
                 }
-            }
-        });
+            })
+            .abort_handle(),
+        );
 
         ChannelListUpdater::new(&self.session, &self.pool)
             .update(channel_list.into_iter().flatten(), deleted_channels)
             .await?;
 
         Ok(HeadlessTalk {
-            conn,
-            ping_task,
-            stream_task,
+            inner: Arc::new(Inner {
+                conn,
+                _ping_task: ping_task,
+                _stream_task: stream_task,
+            }),
         })
     }
 }

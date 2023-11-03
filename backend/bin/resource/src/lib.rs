@@ -1,3 +1,4 @@
+use anyhow::bail;
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -47,23 +48,19 @@ impl ResourceTable {
         id
     }
 
-    pub fn get<T: Send + Sync + 'static>(&self, id: ResourceId) -> Option<Arc<T>> {
-        Some(
-            self.map
-                .get(&(TypeId::of::<T>(), id))?
-                .clone()
-                .downcast()
-                .unwrap(),
-        )
+    pub fn get<T: Send + Sync + 'static>(&self, id: ResourceId) -> anyhow::Result<Arc<T>> {
+        if let Some(res) = self.map.get(&(TypeId::of::<T>(), id)) {
+            Ok(res.clone().downcast::<T>().unwrap())
+        } else {
+            bail!("bad resource id")
+        }
     }
 
-    pub fn remove<T: Send + Sync + 'static>(&self, id: ResourceId) -> Option<Arc<T>> {
-        Some(
-            self.map
-                .remove(&(TypeId::of::<T>(), id))?
-                .1
-                .downcast()
-                .unwrap(),
-        )
+    pub fn remove<T: Send + Sync + 'static>(&self, id: ResourceId) -> anyhow::Result<Arc<T>> {
+        if let Some(res) = self.map.get(&(TypeId::of::<T>(), id)) {
+            Ok(res.clone().downcast::<T>().unwrap())
+        } else {
+            bail!("bad resource id")
+        }
     }
 }

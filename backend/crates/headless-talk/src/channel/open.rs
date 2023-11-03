@@ -1,10 +1,12 @@
-use crate::conn::Conn;
+use std::sync::Arc;
 
-#[derive(Debug)]
+use crate::Inner;
+
+#[derive(Debug, Clone)]
 pub struct OpenChannel {
     id: i64,
     link_id: i64,
-    pub(super) conn: Conn,
+    pub(super) inner: Arc<Inner>,
 }
 
 impl OpenChannel {
