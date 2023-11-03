@@ -1,5 +1,7 @@
 pub mod user;
 
+use std::sync::Arc;
+
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl, RunQueryDsl,
     SelectableHelper, SqliteConnection,
@@ -13,7 +15,6 @@ use talk_loco_client::talk::{
 };
 
 use crate::{
-    conn::Conn,
     database::{
         model::{
             channel::ChannelListRow,
@@ -26,17 +27,17 @@ use crate::{
         DatabasePool, PoolTaskError,
     },
     user::DisplayUser,
-    ClientResult, HeadlessTalk,
+    ClientResult, HeadlessTalk, Inner,
 };
 
 use self::user::NormalChannelUser;
 
 use super::{ListChannelProfile, UserList};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NormalChannel {
     id: i64,
-    pub(super) conn: Conn,
+    pub(super) inner: Arc<Inner>,
 }
 
 impl NormalChannel {
@@ -95,6 +96,7 @@ pub(crate) async fn open_channel(
     normal: NormalChatOnChannel,
 ) -> ClientResult<(NormalChannel, UserList<NormalChannelUser>)> {
     let user_list = client
+        .inner
         .conn
         .pool
         .spawn_transaction(move |conn| {
@@ -123,7 +125,7 @@ pub(crate) async fn open_channel(
     Ok((
         NormalChannel {
             id,
-            conn: client.conn.clone(),
+            inner: client.inner.clone(),
         },
         user_list,
     ))

@@ -2207,6 +2207,7 @@ dependencies = [
 name = "kiwi-talk-resource"
 version = "0.4.1"
 dependencies = [
+ "anyhow",
  "dashmap",
  "serde",
  "tauri",

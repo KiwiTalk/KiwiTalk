@@ -62,7 +62,7 @@ pub struct ChannelListItem {
     pub profile: ListChannelProfile,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ClientChannel {
     Normal(NormalChannel, UserList<NormalChannelUser>),
     Open(OpenChannel),
@@ -76,10 +76,10 @@ impl ClientChannel {
         }
     }
 
-    const fn conn(&self) -> &Conn {
+    fn conn(&self) -> &Conn {
         match self {
-            ClientChannel::Normal(normal, _) => &normal.conn,
-            ClientChannel::Open(open) => &open.conn,
+            ClientChannel::Normal(normal, _) => &normal.inner.conn,
+            ClientChannel::Open(open) => &open.inner.conn,
         }
     }
 
@@ -135,7 +135,7 @@ impl ClientChannel {
         let (id, pool) = match self {
             ClientChannel::Normal(normal, _) => {
                 let id = normal.id();
-                let conn = &normal.conn;
+                let conn = &normal.inner.conn;
 
                 TalkSession(&conn.session)
                     .normal_channel(id)
@@ -146,7 +146,7 @@ impl ClientChannel {
             }
             ClientChannel::Open(open) => {
                 let id = open.id();
-                let conn = &open.conn;
+                let conn = &open.inner.conn;
 
                 TalkSession(&conn.session)
                     .open_channel(open.id(), open.link_id())
