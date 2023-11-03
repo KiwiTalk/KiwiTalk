@@ -6,6 +6,7 @@
 mod configuration;
 
 use kiwi_talk_system::get_system_info;
+use log::info;
 use tauri::{
     api::dialog, AppHandle, CustomMenuItem, DeviceEventFilter, Manager, RunEvent, Runtime,
     SystemTray, SystemTrayEvent, SystemTrayMenu, Window, WindowBuilder,
@@ -73,6 +74,12 @@ async fn init_plugin(handle: &AppHandle<impl Runtime>) -> anyhow::Result<()> {
             .build(),
     )?;
     handle.plugin(tauri_plugin_window_state::Builder::default().build())?;
+    handle.plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+        info!(
+            "app: {} argv: {argv:?} cwd: {cwd:?}",
+            &app.package_info().name
+        );
+    }))?;
 
     handle.plugin(kiwi_talk_resource::init())?;
     handle.plugin(kiwi_talk_api::init().await)?;
