@@ -62,7 +62,7 @@ export const MessageList = (props: MessageListProps) => {
       {(item) => (
         <MessageGroup
           profile={props.members[item![0].senderId]?.profileUrl}
-          sender={props.members[item![0].senderId]?.nickname ?? '...'}
+          sender={props.members[item![0].senderId]?.nickname}
           isMine={item![0].senderId === props.logonId}
           messages={item!}
           members={Object.values(props.members)}

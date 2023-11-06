@@ -9,12 +9,14 @@ import IconChart from '@/pages/main/channel/chat/_assets/icons/chart.svg';
 import IconFile from '@/pages/main/channel/chat/_assets/icons/file.svg';
 
 import * as styles from './attachment-message.css';
+import { Show } from 'solid-js';
+import { Loader } from '@/ui-common/loader';
 
 export type AttachmentMessageProps = {
   mimeType: string;
-  fileName: string;
-  fileSize: number;
-  expire: number;
+  fileName?: string;
+  fileSize?: number;
+  expire?: number;
 };
 export const AttachmentMessage = (props: AttachmentMessageProps) => {
   const [t] = useTransContext();
@@ -61,20 +63,26 @@ export const AttachmentMessage = (props: AttachmentMessageProps) => {
       </div>
       <div class={styles.content}>
         <div class={styles.title}>
-          {props.fileName}
+          <Show when={props.fileName} fallback={<Loader />}>
+            {props.fileName}
+          </Show>
         </div>
         <div class={styles.infoContainer}>
           <span>
             {descriptableType()}
           </span>
           <div class={styles.infoDivider} />
-          <span>
-            {filesize(props.fileSize, { standard: 'jedec' })}
-          </span>
+          <Show when={props.fileSize}>
+            <span>
+              {filesize(props.fileSize!, { standard: 'jedec' })}
+            </span>
+          </Show>
           <div class={styles.infoDivider} />
-          <span>
-            ~ {new Date(props.expire).toLocaleDateString()}
-          </span>
+          <Show when={props.expire}>
+            <span>
+              ~ {new Date(props.expire!).toLocaleDateString()}
+            </span>
+          </Show>
         </div>
       </div>
     </div>

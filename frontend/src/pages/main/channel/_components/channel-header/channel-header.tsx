@@ -8,6 +8,7 @@ import IconNotificationOff from '@/assets/icons/notification_off.svg';
 import IconNotificationOn from '@/assets/icons/notification.svg';
 import IconSearch from '@/assets/icons/search.svg';
 import IconMenu from '@/assets/icons/menu.svg';
+import { Loader } from '@/ui-common/loader';
 
 
 export type ChannelHeaderProps = {
@@ -22,7 +23,11 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
       <div class={styles.contentContainer}>
         <Profile src={props.profile} />
         <div class={styles.textContainer}>
-          <span class={styles.text.title}>{props.name}</span>
+          <span class={styles.text.title}>
+            <Show when={props.name} fallback={<Loader />}>
+              {props.name}
+            </Show>
+          </span>
           <span class={styles.text.subtitle}>
             <Trans key={'main.chat.member_count'} options={{ count: props.members }} />
             <span>

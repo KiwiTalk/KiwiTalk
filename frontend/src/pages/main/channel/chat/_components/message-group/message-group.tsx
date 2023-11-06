@@ -1,4 +1,4 @@
-import { For, Suspense, createResource } from 'solid-js';
+import { For, Show, Suspense, createResource } from 'solid-js';
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { Profile } from '@/pages/main/_components/profile';
@@ -6,6 +6,7 @@ import { Message } from '../message/message';
 
 import * as styles from './message-group.css';
 import { useChatFactory } from '../../_hooks/useChatFactory';
+import { Loader } from '@/ui-common/loader';
 
 const isDateDiff = (a: number, b: number) => {
   const aDate = new Date(a * 1000);
@@ -22,7 +23,7 @@ const isDateDiff = (a: number, b: number) => {
 
 export type MessageGroupProps = {
   profile?: string;
-  sender: string;
+  sender?: string;
   isMine: boolean;
   messages: Chatlog[];
   members: ChannelUser[];
@@ -73,14 +74,18 @@ export const MessageGroup = (props: MessageGroupProps) => {
                 time={isShowTime(index()) ? message.sendAt : undefined}
                 unread={getUnreadCount(message)}
               >
-                <Suspense fallback={'...'}>
+                <Suspense fallback={<Loader />}>
                   {renderer()}
                 </Suspense>
               </Message>
             );
           }}
         </For>
-        <div class={styles.sender[variant()]}>{props.sender}</div>
+        <div class={styles.sender[variant()]}>
+          <Show when={props.sender} fallback={<Loader />}>
+            {props.sender}
+          </Show>
+        </div>
       </div>
     </div>
   );
