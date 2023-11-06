@@ -1,4 +1,4 @@
-import { For, Suspense, createResource, getOwner, runWithOwner } from 'solid-js';
+import { For, Suspense, createResource } from 'solid-js';
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { Profile } from '@/pages/main/_components/profile';
@@ -63,12 +63,7 @@ export const MessageGroup = (props: MessageGroupProps) => {
       <div class={styles.messageContainer}>
         <For each={props.messages}>
           {(message, index) => {
-            const owner = getOwner();
-            const [renderer] = createResource(async () => {
-              const element = await runWithOwner(owner, async () => factory()?.create(message));
-
-              return element;
-            });
+            const [renderer] = createResource(async () => factory()?.create(message));
 
             return (
               <Message
