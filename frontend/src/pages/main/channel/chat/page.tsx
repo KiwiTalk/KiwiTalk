@@ -1,8 +1,10 @@
 import {
   Show,
   createEffect,
+  createMemo,
   createResource,
   createSignal,
+  getOwner,
   on,
 } from 'solid-js';
 import { useParams } from '@solidjs/router';
@@ -16,9 +18,11 @@ import { ChannelHeader } from '../_components/channel-header';
 
 import { getChannelList, meProfile } from '@/api';
 import { useReady } from '@/pages/main/_hooks';
-import { LocalChannelContext, useChannel, useMessageList } from './_hooks';
+import { useChannel, useMessageList } from './_hooks';
 
 import * as styles from './page.css';
+import { ChatFactoryContext } from './_hooks/useChatFactory';
+import { ChatFactory } from './_utils/chat-factory';
 
 export const ChatPage = () => {
   const isReady = useReady();
@@ -28,6 +32,10 @@ export const ChatPage = () => {
   const channelId = () => params.channelId;
   const channel = useChannel(channelId);
   const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channel);
+  const channelFactory = createMemo(on(
+    channel,
+    (channel) => channel && new ChatFactory(channel, getOwner()),
+  ));
 
   const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
 
@@ -106,12 +114,7 @@ export const ChatPage = () => {
           profile={channelInfo()?.profile}
           members={channelInfo()?.userCount ?? 0}
         />
-        <LocalChannelContext.Provider
-          value={{
-            channel,
-            members: () => members() ?? {},
-          }}
-        >
+        <ChatFactoryContext.Provider value={channelFactory}>
           <MessageList
             scroller={setScroller}
             channelId={channelId()!}
@@ -121,7 +124,7 @@ export const ChatPage = () => {
             isEnd={isLoadEnd()}
             onLoadMore={onLoadMore}
           />
-        </LocalChannelContext.Provider>
+        </ChatFactoryContext.Provider>
         <MessageInput
           placeholder={t('main.chat.placeholder')}
           onSubmit={onSubmit}

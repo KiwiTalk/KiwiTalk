@@ -1,6 +1,10 @@
+import { getOwner } from 'solid-js';
 import { StoryFn } from 'storybook-solidjs';
 
 import { MessageGroup, type MessageGroupProps } from './message-group';
+import { ChatFactoryContext } from '../../_hooks/useChatFactory';
+import { MockChannel } from '../../_utils/mock-channel';
+import { ChatFactory } from '../../_utils/chat-factory';
 
 export default {
   title: 'KiwiTalk v2/Channel/Chat/Message Group',
@@ -8,10 +12,14 @@ export default {
 };
 
 const Template: StoryFn<MessageGroupProps> = (props) => {
+  const chatFactory = new ChatFactory(new MockChannel(), getOwner());
+
   return (
-    <MessageGroup
-      {...props}
-    />
+    <ChatFactoryContext.Provider value={() => chatFactory}>
+      <MessageGroup
+        {...props}
+      />
+    </ChatFactoryContext.Provider>
   );
 };
 

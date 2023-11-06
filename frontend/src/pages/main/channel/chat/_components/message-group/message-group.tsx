@@ -1,10 +1,11 @@
-import { For } from 'solid-js';
+import { For, Suspense, createResource, getOwner, runWithOwner } from 'solid-js';
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { Profile } from '@/pages/main/_components/profile';
 import { Message } from '../message/message';
 
 import * as styles from './message-group.css';
+import { useChatFactory } from '../../_hooks/useChatFactory';
 
 const isDateDiff = (a: number, b: number) => {
   const aDate = new Date(a * 1000);
@@ -27,6 +28,8 @@ export type MessageGroupProps = {
   members: ChannelUser[];
 };
 export const MessageGroup = (props: MessageGroupProps) => {
+  const factory = useChatFactory();
+
   const variant = () => props.isMine ? 'mine' : 'other';
   const isShowTime = (index: number) => {
     if (index === 0) return true;
@@ -59,17 +62,28 @@ export const MessageGroup = (props: MessageGroupProps) => {
       <Profile src={props.profile} />
       <div class={styles.messageContainer}>
         <For each={props.messages}>
-          {(message, index) => (
-            <Message
-              isMine={props.isMine}
-              isBubble={isBubble(message.chatType)}
-              isConnected={index() !== 0}
-              time={isShowTime(index()) ? message?.sendAt : undefined}
-              unread={getUnreadCount(message)}
-            >
-              {message.content}
-            </Message>
-          )}
+          {(message, index) => {
+            const owner = getOwner();
+            const [renderer] = createResource(async () => {
+              const element = await runWithOwner(owner, async () => factory()?.create(message));
+
+              return element;
+            });
+
+            return (
+              <Message
+                isMine={props.isMine}
+                isBubble={isBubble(message.chatType)}
+                isConnected={index() !== 0}
+                time={isShowTime(index()) ? message?.sendAt : undefined}
+                unread={getUnreadCount(message)}
+              >
+                <Suspense fallback={'...'}>
+                  {renderer()}
+                </Suspense>
+              </Message>
+            );
+          }}
         </For>
         <div class={styles.sender[variant()]}>{props.sender}</div>
       </div>
