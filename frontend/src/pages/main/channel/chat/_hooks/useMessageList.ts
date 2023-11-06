@@ -16,7 +16,7 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
   const [isEnd, setIsEnd] = createSignal(false);
 
   const appendMessages = (...messages: Chatlog[]) => {
-    const result = [...messageGroups()];
+    const result = [...messageGroups().map((group) => [...group])];
     const newGroups = messages.reduce<Chatlog[][]>((acc, cur) => {
       const lastGroup = acc.at(-1);
       if (lastGroup?.at(-1)?.senderId === cur.senderId) {
@@ -39,7 +39,7 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
   };
 
   const prependMessages = (...messages: Chatlog[]) => {
-    const result = [...messageGroups()];
+    const result = [...messageGroups().map((group) => [...group])];
     const newGroups = messages.reduce<Chatlog[][]>((acc, cur) => {
       const firstGroup = acc.at(0);
       if (firstGroup?.at(0)?.senderId === cur.senderId) {
