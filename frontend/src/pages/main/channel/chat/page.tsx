@@ -1,8 +1,10 @@
 import {
   Show,
   createEffect,
+  createMemo,
   createResource,
   createSignal,
+  getOwner,
   on,
 } from 'solid-js';
 import { useParams } from '@solidjs/router';
@@ -19,6 +21,8 @@ import { useReady } from '@/pages/main/_hooks';
 import { useChannel, useMessageList } from './_hooks';
 
 import * as styles from './page.css';
+import { ChatFactoryContext } from './_hooks/useChatFactory';
+import { ChatFactory } from './_utils/chat-factory';
 
 export const ChatPage = () => {
   const isReady = useReady();
@@ -27,7 +31,11 @@ export const ChatPage = () => {
 
   const channelId = () => params.channelId;
   const channel = useChannel(channelId);
-  const [messages, loadMoreMessages, isLoadEnd] = useMessageList(channel);
+  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channel);
+  const channelFactory = createMemo(on(
+    channel,
+    (channel) => channel && new ChatFactory(channel, getOwner()),
+  ));
 
   const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
 
@@ -55,7 +63,7 @@ export const ChatPage = () => {
 
   /* lifecycle */
   let isInit = false;
-  createEffect(on(messages, (messageList) => {
+  createEffect(on(messageGroups, (messageList) => {
     if (!isInit) {
       isInit = true;
       return;
@@ -66,7 +74,13 @@ export const ChatPage = () => {
     if (start === 0) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => { // queue this task as last as possible
-          scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+          const scrollElement = scroller()?.element;
+          if (!scrollElement) return;
+
+          scrollElement.scrollTo({
+            top: scrollElement.scrollHeight,
+            behavior: 'smooth',
+          });
         });
       });
     }
@@ -74,7 +88,7 @@ export const ChatPage = () => {
 
   /* callbacks */
   const onLoadMore = () => {
-    const messageLength = messages().length;
+    const messageLength = messageGroups().length;
 
     loadMoreMessages();
     scroller()?.refresh();
@@ -106,15 +120,17 @@ export const ChatPage = () => {
           profile={channelInfo()?.profile}
           members={channelInfo()?.userCount ?? 0}
         />
-        <MessageList
-          scroller={setScroller}
-          channelId={channelId()!}
-          logonId={me()?.profile.id}
-          messages={messages()}
-          members={members() ?? {}}
-          isEnd={isLoadEnd()}
-          onLoadMore={onLoadMore}
-        />
+        <ChatFactoryContext.Provider value={channelFactory}>
+          <MessageList
+            scroller={setScroller}
+            channelId={channelId()!}
+            logonId={me()?.profile.id}
+            messageGroups={messageGroups()}
+            members={members() ?? {}}
+            isEnd={isLoadEnd()}
+            onLoadMore={onLoadMore}
+          />
+        </ChatFactoryContext.Provider>
         <MessageInput
           placeholder={t('main.chat.placeholder')}
           onSubmit={onSubmit}

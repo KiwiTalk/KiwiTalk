@@ -21,22 +21,6 @@ export const container = styleVariants({
   }],
 });
 
-export const profileContainer = style({
-  position: 'relative',
-
-  width: '48px',
-  height: '24px',
-});
-
-export const profile = style({
-  position: 'absolute',
-  left: 0,
-  bottom: 0,
-
-  width: '48px',
-  height: '48px',
-});
-
 export const contentContainer = style({
   maxWidth: '50%',
 
@@ -46,25 +30,11 @@ export const contentContainer = style({
   alignItems: 'flex-start',
   gap: '4px',
 
+  marginBottom: '4px',
+
   whiteSpace: 'pre-line',
   overflow: 'hidden',
   wordBreak: 'break-word',
-});
-
-const baseSender = style([classes.typography.title, {
-  color: vars.color.glassSecondary.fillPrimary,
-  fontWeight: 700,
-
-  marginTop: '6px',
-}]);
-
-export const sender = styleVariants({
-  other: [baseSender, {
-    alignSelf: 'flex-start',
-  }],
-  mine: [baseSender, {
-    alignSelf: 'flex-end',
-  }],
 });
 
 const baseBubble = style({

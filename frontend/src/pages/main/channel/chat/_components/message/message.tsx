@@ -1,14 +1,10 @@
 import { mergeProps, JSX, Show } from 'solid-js';
 
 import * as styles from './message.css';
-import { Profile } from '@/pages/main/_components/profile';
 
 export type MessageProps = {
-  profile?: string;
-  sender?: string;
-
   unread?: number;
-  time?: Date;
+  time?: number;
   isMine?: boolean;
   isBubble?: boolean;
   isConnected?: boolean;
@@ -16,23 +12,20 @@ export type MessageProps = {
   children?: JSX.Element;
 };
 export const Message = (props: MessageProps) => {
-  const merged = mergeProps({ isBubble: true }, props);
+  const merged = mergeProps({
+    isBubble: true,
+    isMine: false,
+    isConnected: false,
+  }, props);
 
   const variant = () => merged.isMine ? 'mine' : 'other';
+  const time = () => typeof merged.time === 'number' ?
+    new Date(merged.time * 1000).toLocaleTimeString() :
+    undefined;
 
   return (
     <li class={styles.container[variant()]}>
-      <div class={styles.profileContainer}>
-        <Show when={!merged.isConnected}>
-          <div class={styles.profile}>
-            <Profile src={merged.profile} size={'48px'} />
-          </div>
-        </Show>
-      </div>
       <div class={styles.contentContainer}>
-        <Show when={!merged.isMine && merged.sender}>
-          <span class={styles.sender[variant()]}>{merged.sender}</span>
-        </Show>
         <Show when={merged.isBubble} fallback={merged.children}>
           <div
             class={
@@ -47,7 +40,7 @@ export const Message = (props: MessageProps) => {
       </div>
       <div class={styles.infoContainer[variant()]}>
         <span class={styles.unread}>{merged.unread}</span>
-        <span class={styles.time}>{merged.time?.toLocaleTimeString()}</span>
+        <span class={styles.time}>{time()}</span>
       </div>
     </li>
   );

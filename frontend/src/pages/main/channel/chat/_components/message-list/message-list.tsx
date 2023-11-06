@@ -2,28 +2,15 @@ import { JSX, createEffect, createRenderEffect, createSignal, on } from 'solid-j
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
-import { Message } from '../message';
 
 import * as styles from './message-list.css';
-
-const isDiff = (a: number, b: number) => {
-  const aDate = new Date(a * 1000);
-  const bDate = new Date(b * 1000);
-
-  return (
-    aDate.getFullYear() !== bDate.getFullYear() ||
-    aDate.getMonth() !== bDate.getMonth() ||
-    aDate.getDate() !== bDate.getDate() ||
-    aDate.getHours() !== bDate.getHours() ||
-    aDate.getMinutes() !== bDate.getMinutes()
-  );
-};
+import { MessageGroup } from '../message-group';
 
 export type MessageListProps = {
   scroller?: (ref: VirtualListRef) => void;
 
   channelId: string;
-  messages: Chatlog[];
+  messageGroups: Chatlog[][];
   members: Record<string, ChannelUser>;
 
   logonId?: string;
@@ -34,41 +21,17 @@ export type MessageListProps = {
 export const MessageList = (props: MessageListProps) => {
   const [isStickBottom, setIsStickBottom] = createSignal(true);
 
-  const getSender = (chat: Chatlog, index: number) => {
-    const nextChat = props.messages[index + 1];
-
-    if (nextChat?.senderId !== chat.senderId) return props.members[chat.senderId]?.nickname;
-    return undefined;
-  };
-  const getReadCount = (chat: Chatlog) => {
-    const userList = Object.values(props.members);
-    const count = userList.filter((user) => BigInt(user.watermark) < BigInt(chat.logId)).length;
-
-    return count > 0 ? count : undefined;
-  };
-  const getTime = (chat: Chatlog, index: number) => {
-    const prevChat = props.messages[index - 1];
-
-    if (prevChat) {
-      if (isDiff(prevChat.sendAt, chat.sendAt) || prevChat.senderId !== chat.senderId) {
-        return new Date(chat.sendAt * 1000);
-      }
-    }
-
-    return undefined;
-  };
-
   createRenderEffect(on(() => props.channelId, () => {
     setIsStickBottom(true);
   }));
 
-  createEffect(on(() => props.messages.length, (length) => {
+  createEffect(on(() => props.messageGroups.length, (length) => {
     if (length > 0 && isStickBottom()) {
       requestAnimationFrame(() => {
         setIsStickBottom(false);
       });
     }
-  }, { defer: true }));
+  }, { defer: false }));
 
   let isLoaded = true;
   const onScroll: JSX.EventHandlerUnion<HTMLUListElement, Event> = (event) => {
@@ -87,7 +50,7 @@ export const MessageList = (props: MessageListProps) => {
       reverse
       component={'ul'}
       ref={props.scroller}
-      items={props.messages}
+      items={props.messageGroups}
       class={styles.virtualList.outer}
       innerClass={styles.virtualList.inner}
       topMargin={32 + 64 + 16}
@@ -96,17 +59,14 @@ export const MessageList = (props: MessageListProps) => {
       alignToBottom={isStickBottom()}
       onScroll={onScroll}
     >
-      {(item, index) => (
-        <Message
-          profile={props.members[item!.senderId]?.profileUrl}
-          sender={getSender(item!, index())}
-          unread={getReadCount(item!)}
-          time={getTime(item!, index())}
-          isMine={item!.senderId === props.logonId}
-          isConnected={props.messages[index() - 1]?.senderId === item!.senderId}
-        >
-          {item!.content}
-        </Message>
+      {(item) => (
+        <MessageGroup
+          profile={props.members[item![0].senderId]?.profileUrl}
+          sender={props.members[item![0].senderId]?.nickname ?? '...'}
+          isMine={item![0].senderId === props.logonId}
+          messages={item!}
+          members={Object.values(props.members)}
+        />
       )}
     </VirtualList>
   );
