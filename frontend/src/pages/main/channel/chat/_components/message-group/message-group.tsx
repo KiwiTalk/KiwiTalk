@@ -75,7 +75,7 @@ export const MessageGroup = (props: MessageGroupProps) => {
                 isMine={props.isMine}
                 isBubble={isBubble(message.chatType)}
                 isConnected={index() !== 0}
-                time={isShowTime(index()) ? message?.sendAt : undefined}
+                time={isShowTime(index()) ? message.sendAt : undefined}
                 unread={getUnreadCount(message)}
               >
                 <Suspense fallback={'...'}>

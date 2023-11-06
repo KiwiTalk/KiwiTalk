@@ -19,7 +19,9 @@ export const Message = (props: MessageProps) => {
   }, props);
 
   const variant = () => merged.isMine ? 'mine' : 'other';
-  const time = () => merged.time ? new Date(merged.time * 1000)?.toLocaleTimeString() : undefined;
+  const time = () => typeof merged.time === 'number' ?
+    new Date(merged.time * 1000)?.toLocaleTimeString() :
+    undefined;
 
   return (
     <li class={styles.container[variant()]}>
