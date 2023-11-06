@@ -18,7 +18,7 @@ const Template: StoryFn<MessageProps> = (props) => {
 export const Default = Template.bind({});
 Default.args = {
   unread: 1,
-  time: new Date(),
+  time: Date.now(),
   isMine: true,
   isBubble: true,
   isConnected: false,
