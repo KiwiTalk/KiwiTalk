@@ -74,7 +74,13 @@ export const ChatPage = () => {
     if (start === 0) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => { // queue this task as last as possible
-          scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+          const scrollElement = scroller()?.element;
+          if (!scrollElement) return;
+
+          scrollElement.scrollTo({
+            top: scrollElement.scrollHeight,
+            behavior: 'smooth',
+          });
         });
       });
     }
