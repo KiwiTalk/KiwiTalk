@@ -12,7 +12,7 @@ export default {
 };
 
 const Template: StoryFn<MessageGroupProps> = (props) => {
-  const chatFactory = new ChatFactory(new MockChannel(), getOwner());
+  const chatFactory = new ChatFactory(new MockChannel({ delay: 1000 }), getOwner());
 
   return (
     <ChatFactoryContext.Provider value={() => chatFactory}>
@@ -44,7 +44,7 @@ Default.args = {
       logId: '2',
     },
     {
-      chatType: 1,
+      chatType: 26,
       content: 'Content 3',
       sendAt: Math.floor(Date.now() / 1000),
       senderId: '1',

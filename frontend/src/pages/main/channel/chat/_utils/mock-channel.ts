@@ -32,6 +32,17 @@ export class MockChannel implements ClientChannel {
       watermark: '0',
     }] as [string, NormalChannelUser]);
 
+  private delay: number = 250;
+  private delayRange: number = 500;
+
+  constructor({
+    delay = 250,
+    delayRange = 500,
+  } = {}) {
+    this.delay = delay;
+    this.delayRange = delayRange;
+  }
+
   async sendText(text: string) {
     return {
       logId: '0',
@@ -51,11 +62,20 @@ export class MockChannel implements ClientChannel {
   }
 
   async loadChat(count: number): Promise<Chatlog[]> {
+    await new Promise((resolve) => setTimeout(
+      resolve,
+      Math.random() * this.delayRange + this.delay,
+    ));
+
     return this.messages.slice(0, count);
   }
 
   async getUsers() {
-    await new Promise((resolve) => setTimeout(resolve, Math.random() * 500 + 250));
+    await new Promise((resolve) => setTimeout(
+      resolve,
+      Math.random() * this.delayRange + this.delay,
+    ));
+
     return this.members;
   }
 
