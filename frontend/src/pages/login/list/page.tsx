@@ -36,7 +36,9 @@ export const LoginListPage = () => {
 
     passwordInput?.focus();
   };
-  const onLogin = async () => {
+  const onSubmit = async (event: Event) => {
+    event.preventDefault();
+
     const data = loginData();
 
     if (!data || !passwordInput?.value) {
@@ -69,7 +71,7 @@ export const LoginListPage = () => {
   };
 
   return (
-    <ul class={styles.container}>
+    <div class={styles.container}>
       <div>
         <span class={styles.title.normal}>Kiwi</span>
         <span class={styles.title.bold}>Talk</span>
@@ -81,31 +83,32 @@ export const LoginListPage = () => {
         email={loginData()?.email}
         onClick={onToggleLoginData}
       />
-      <Show when={selectedLoginData()} keyed>
-        <Input
-          ref={(element) => passwordInput = element}
-          type={'password'}
-          icon={<IconKey />}
-          placeholder={t('login.password_placeholder')}
-        />
-      </Show>
-      <div class={styles.tool}>
-        <TransitionGroup appear {...classes.transition.scale}>
-          <Show when={!selectedLoginData()}>
-            <Button variant={'text'}>
-              <Trans key={'login.manage_account'} />
-            </Button>
-          </Show>
-          <Button variant={'text'} onClick={onAddAccount}>
-            <Trans key={'login.add_account'} />
-          </Button>
-          <Show when={!!selectedLoginData()}>
-            <Button onClick={onLogin}>
-              <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.name }} />
-            </Button>
-          </Show>
-        </TransitionGroup>
-      </div>
-    </ul>
+      <form class={styles.form} onSubmit={onSubmit}>
+        <Show when={selectedLoginData()} keyed>
+          <Input
+            ref={(element) => passwordInput = element}
+            type={'password'}
+            icon={<IconKey />}
+            placeholder={t('login.password_placeholder')}
+          />
+        </Show>
+        <div class={styles.tool}>
+          <TransitionGroup appear {...classes.transition.scale}>
+            <Show
+              when={selectedLoginData()}
+              fallback={(
+                <Button variant={'text'} onClick={onAddAccount}>
+                  <Trans key={'login.add_account'} />
+                </Button>
+              )}
+            >
+              <Button>
+                <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.name }} />
+              </Button>
+            </Show>
+          </TransitionGroup>
+        </div>
+      </form>
+    </div>
   );
 };

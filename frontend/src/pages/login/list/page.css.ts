@@ -27,6 +27,14 @@ export const title = styleVariants({
   }],
 });
 
+export const form = style({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-end',
+  alignItems: 'stretch',
+  gap: '16px',
+});
+
 export const tool = style({
   display: 'flex',
   flexDirection: 'row',
