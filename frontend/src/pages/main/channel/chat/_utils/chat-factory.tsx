@@ -31,33 +31,41 @@ export class ChatFactory {
     return element;
   }
 
-  private async createElement(chat: Chatlog): Promise<JSX.Element> {
-    let attachment: Record<string, unknown> | null = null;
+  private getAttachment(chat: Chatlog): Record<string, unknown> | null {
     try {
-      attachment = JSON.parse(chat.attachment ?? '{}');
+      return JSON.parse(chat.attachment ?? '{}');
     } catch {
-      // ignore
+      return null;
     }
+  }
 
+  private async createElement(chat: Chatlog): Promise<JSX.Element> {
     switch (chat.chatType) {
-    case 0: // TODO: Feed
-      return 'FEED';
-    case 1: // Text
+    case 1: { // Text
+      const isLong = typeof chat.content === 'string' && chat.content.length > 500;
+      let content = chat.content ?? '';
+      if (isLong) content = `${content.slice(0, 500)}...`;
+
       return (
         <TextMessage
-          isLong={false}
-          content={chat.content}
+          isLong={isLong}
+          content={content}
           longContent={chat.content}
 
-          onShowMore={() => {}}
+          onShowMore={() => {
+            // TODO: implement onShowMore
+          }}
         />
       );
+    }
     case 2: {// Single Image
+      const attachment = this.getAttachment(chat);
       const url = typeof attachment?.url === 'string' ? attachment.url : '';
 
       return <ImageMessage urls={[url]} />;
     }
     case 18: { // Attachment
+      const attachment = this.getAttachment(chat);
       const mimeType = typeof attachment?.mime === 'string' ?
         attachment.mime :
         'application/octet-stream';
@@ -77,6 +85,7 @@ export class ChatFactory {
       );
     }
     case 26: { // Reply
+      const attachment = this.getAttachment(chat);
       const members = Object.fromEntries(await this.channel.getUsers());
       const replyContent = typeof attachment?.src_message === 'string' ?
         attachment.src_message :
@@ -90,12 +99,16 @@ export class ChatFactory {
           content={chat.content}
           replyContent={replyContent}
           replySender={nickname}
-          onClickReply={() => {}}
+          onClickReply={() => {
+            // TODO: implement move to refered chat
+          }}
         />
       ));
     }
     case 27: {// Multiple Image
+      const attachment = this.getAttachment(chat);
       const urls: string[] = [];
+
       if (attachment && Array.isArray(attachment?.imageUrls)) {
         urls.push(...attachment.imageUrls.filter((url) => typeof url === 'string'));
       }
