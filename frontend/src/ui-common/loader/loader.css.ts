@@ -1,11 +1,15 @@
 import { vars } from '@/features/theme';
 import { createVar, keyframes, style } from '@vanilla-extract/css';
 
+export const size = createVar();
 export const container = style({
+  height: size,
+
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: '2px',
+
+  padding: '2px 0',
 });
 
 const pulse = keyframes({
@@ -17,7 +21,6 @@ const pulse = keyframes({
     opacity: 0.5,
   },
 });
-export const size = createVar();
 export const duration = createVar();
 export const delayIndex = createVar();
 export const dot = style({
@@ -25,8 +28,8 @@ export const dot = style({
     [delayIndex]: '0',
   },
 
-  width: size,
-  height: size,
+  width: `calc(${size} - 4px)`,
+  height: `calc(${size} - 4px)`,
   borderRadius: size,
 
   animation: vars.easing.linear,
@@ -37,6 +40,5 @@ export const dot = style({
   animationIterationCount: 'infinite',
   animationDirection: 'alternate-reverse',
 
-  backgroundColor: vars.color.glassSecondary.background,
-  backdropFilter: vars.blur.regular,
+  backgroundColor: 'currentcolor',
 });

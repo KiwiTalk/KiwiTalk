@@ -82,7 +82,7 @@ export class ChatFactory {
       'application/octet-stream';
     const fileName = typeof attachment?.name === 'string' ?
       attachment.name :
-      'unknown';
+      undefined;
     const fileSize = Number(attachment?.size ?? 0);
     const expire = Number(attachment?.expire ?? 0);
 
@@ -101,10 +101,10 @@ export class ChatFactory {
     const members = Object.fromEntries(await this.channel.getUsers());
     const replyContent = typeof attachment?.src_message === 'string' ?
       attachment.src_message :
-      '...';
+      undefined;
     const nickname = typeof attachment?.src_userId === 'number' ?
       members[attachment.src_userId]?.nickname :
-      '...';
+      undefined;
 
     return runWithOwner(this.owner, () => (
       <ReplyMessage

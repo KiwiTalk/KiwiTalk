@@ -1,4 +1,6 @@
+import { Show } from 'solid-js';
 import * as styles from './reply-message.css';
+import { Loader } from '@/ui-common/loader';
 
 export type ReplyMessageProps = {
   content?: string;
@@ -13,10 +15,14 @@ export const ReplyMessage = (props: ReplyMessageProps) => {
       <div class={styles.replyContainer} onClick={props.onClickReply}>
         <div class={styles.replyDivider} />
         <div class={styles.replyText.sender}>
-          {props.replySender}
+          <Show when={props.replySender} fallback={<Loader />}>
+            {props.replySender}
+          </Show>
         </div>
         <div class={styles.replyText.content}>
-          {props.replyContent}
+          <Show when={props.replyContent} fallback={<Loader />}>
+            {props.replyContent}
+          </Show>
         </div>
       </div>
       {props.content}

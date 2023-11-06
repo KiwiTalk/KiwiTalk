@@ -9,7 +9,7 @@ export type LoaderProps = {
 export const Loader = (props: LoaderProps) => {
   const merged = mergeProps({
     duration: '0.6s',
-    size: '8px',
+    size: '1em',
   }, props);
 
   return (
