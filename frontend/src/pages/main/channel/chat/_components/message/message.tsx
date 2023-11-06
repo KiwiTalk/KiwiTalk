@@ -20,7 +20,7 @@ export const Message = (props: MessageProps) => {
 
   const variant = () => merged.isMine ? 'mine' : 'other';
   const time = () => typeof merged.time === 'number' ?
-    new Date(merged.time * 1000)?.toLocaleTimeString() :
+    new Date(merged.time * 1000).toLocaleTimeString() :
     undefined;
 
   return (
