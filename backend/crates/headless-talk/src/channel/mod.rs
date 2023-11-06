@@ -16,8 +16,8 @@ use crate::{
 };
 use arrayvec::ArrayVec;
 use diesel::{
-    dsl::sql, sql_types::Integer, BoolExpressionMethods, Connection, ExpressionMethods,
-    OptionalExtension, QueryDsl, RunQueryDsl,
+    dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods, OptionalExtension,
+    QueryDsl, RunQueryDsl,
 };
 use nohash_hasher::IntMap;
 use talk_loco_client::talk::{
@@ -274,7 +274,7 @@ impl ClientChannel {
         }
 
         conn.pool
-            .spawn(move |conn| conn.transaction(move |conn| ChannelUpdater::new(id).remove(conn)))
+            .spawn_transaction(move |conn| ChannelUpdater::new(id).remove(conn))
             .await?;
 
         Ok(())
@@ -288,7 +288,7 @@ pub(crate) async fn load_list_item(
     let channel_type = ChannelType::from(row.channel_type.as_str());
 
     let (last_chat, display_users) = pool
-        .spawn({
+        .spawn_transaction({
             let channel_id = row.id;
             let display_user_id_list =
                 serde_json::from_str::<ArrayVec<i64, 4>>(&row.display_users).unwrap_or_default();

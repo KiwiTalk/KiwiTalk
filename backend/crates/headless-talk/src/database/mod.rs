@@ -2,7 +2,7 @@ mod constants;
 pub mod model;
 pub mod schema;
 
-use diesel::{connection::SimpleConnection, SqliteConnection};
+use diesel::{connection::SimpleConnection, Connection, SqliteConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use futures::{Future, FutureExt};
 use r2d2::Pool;
@@ -42,6 +42,19 @@ impl DatabasePool {
         let this = self.clone();
 
         tokio::task::spawn_blocking(move || closure(&mut this.get()?)).map(|res| res.unwrap())
+    }
+
+    pub fn spawn_transaction<
+        R: Send + 'static,
+        F: FnOnce(&mut PooledConnection) -> PoolTaskResult<R>,
+    >(
+        &self,
+        closure: F,
+    ) -> impl Future<Output = PoolTaskResult<R>>
+    where
+        F: Send + 'static,
+    {
+        self.spawn(move |conn| conn.transaction(closure))
     }
 
     pub async fn migrate_to_latest(&self) -> Result<(), MigrationError> {

@@ -136,9 +136,15 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
             })
             .await??;
 
+        let conn = Conn {
+            user_id,
+            session: self.session.clone(),
+            pool: self.pool.clone(),
+        };
+
         let stream_task = tokio::spawn({
             let command_handler = Arc::new(command_handler);
-            let handler = Arc::new(SessionHandler::new(self.pool.clone()));
+            let handler = Arc::new(SessionHandler::new(conn.clone()));
 
             async move {
                 for read in stream_buffer {
@@ -210,11 +216,7 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
             .await?;
 
         Ok(HeadlessTalk {
-            conn: Conn {
-                user_id,
-                session: self.session,
-                pool: self.pool,
-            },
+            conn,
             ping_task,
             stream_task,
         })
