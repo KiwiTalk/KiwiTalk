@@ -1,10 +1,10 @@
 import { For } from 'solid-js';
 
 import { ChannelUser, Chatlog } from '@/api/client';
-
-import * as styles from './message-group.css';
 import { Profile } from '@/pages/main/_components/profile';
 import { Message } from '../message/message';
+
+import * as styles from './message-group.css';
 
 const isDateDiff = (a: number, b: number) => {
   const aDate = new Date(a * 1000);
@@ -28,14 +28,22 @@ export type MessageGroupProps = {
 };
 export const MessageGroup = (props: MessageGroupProps) => {
   const variant = () => props.isMine ? 'mine' : 'other';
-  const isLastIndex = (index: number) => index === props.messages.length - 1;
   const isShowTime = (index: number) => {
-    if (isLastIndex(index)) return true;
+    if (index === 0) return true;
 
     const current = props.messages[index];
     const next = props.messages[index + 1];
 
+    if (!current || !next) return false;
+
     return isDateDiff(current.sendAt, next.sendAt);
+  };
+  const isBubble = (type: number) => {
+    if (type === 0) return false; // feed
+    if (type === 2) return false; // single image
+    if (type === 27) return false; // multiple image
+
+    return true;
   };
 
   const getUnreadCount = (chat: Chatlog) => {
@@ -50,20 +58,20 @@ export const MessageGroup = (props: MessageGroupProps) => {
     <div class={styles.container[variant()]}>
       <Profile src={props.profile} />
       <div class={styles.messageContainer}>
-        <div class={styles.sender[variant()]}>{props.sender}</div>
         <For each={props.messages}>
           {(message, index) => (
             <Message
               isMine={props.isMine}
-              isBubble={message.chatType !== 0}
-              isConnected={!isLastIndex(index())}
-              time={isShowTime(index()) ? new Date(message.sendAt * 1000) : undefined}
+              isBubble={isBubble(message.chatType)}
+              isConnected={index() !== 0}
+              time={isShowTime(index()) ? message?.sendAt : undefined}
               unread={getUnreadCount(message)}
             >
               {message.content}
             </Message>
           )}
         </For>
+        <div class={styles.sender[variant()]}>{props.sender}</div>
       </div>
     </div>
   );

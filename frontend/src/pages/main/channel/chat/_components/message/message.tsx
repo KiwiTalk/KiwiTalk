@@ -4,7 +4,7 @@ import * as styles from './message.css';
 
 export type MessageProps = {
   unread?: number;
-  time?: Date;
+  time?: number;
   isMine?: boolean;
   isBubble?: boolean;
   isConnected?: boolean;
@@ -19,6 +19,7 @@ export const Message = (props: MessageProps) => {
   }, props);
 
   const variant = () => merged.isMine ? 'mine' : 'other';
+  const time = () => merged.time ? new Date(merged.time * 1000)?.toLocaleTimeString() : undefined;
 
   return (
     <li class={styles.container[variant()]}>
@@ -37,7 +38,7 @@ export const Message = (props: MessageProps) => {
       </div>
       <div class={styles.infoContainer[variant()]}>
         <span class={styles.unread}>{merged.unread}</span>
-        <span class={styles.time}>{merged.time?.toLocaleTimeString()}</span>
+        <span class={styles.time}>{time()}</span>
       </div>
     </li>
   );

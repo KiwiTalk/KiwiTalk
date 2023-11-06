@@ -4,16 +4,61 @@ import { Chatlog, ClientChannel } from '@/api/client';
 import { useEvent } from '@/pages/main/_hooks';
 
 export const useMessageList = (channel: Accessor<ClientChannel | null>): [
-  messages: Accessor<Chatlog[]>,
+  messageGroups: Accessor<Chatlog[][]>,
   load: (messages?: Chatlog[]) => void,
   isEnd: Accessor<boolean>,
 ] => {
   let lastLogId: string | undefined = undefined;
   const event = useEvent();
 
-  const [messages, setMessages] = createSignal<Chatlog[]>([]);
+  const [messageGroups, setMessageGroups] = createSignal<Chatlog[][]>([]);
   const [loadMore, setLoadMore] = createSignal(true);
   const [isEnd, setIsEnd] = createSignal(false);
+
+  const appendMessages = (...messages: Chatlog[]) => {
+    const result = [...messageGroups()];
+    const newGroups = messages.reduce<Chatlog[][]>((acc, cur) => {
+      const lastGroup = acc.at(-1);
+      if (lastGroup?.at(-1)?.senderId === cur.senderId) {
+        lastGroup.push(cur);
+      } else {
+        acc.push([cur]);
+      }
+
+      return acc;
+    }, []);
+
+    const isCombine = result.at(-1)?.at(-1)?.senderId === newGroups.at(0)?.at(0)?.senderId;
+    if (isCombine) {
+      result.at(-1)?.push(...newGroups.shift()!);
+    }
+    result.push(...newGroups);
+    lastLogId = newGroups.at(-1)?.at(-1)?.logId;
+
+    return result;
+  };
+
+  const prependMessages = (...messages: Chatlog[]) => {
+    const result = [...messageGroups()];
+    const newGroups = messages.reduce<Chatlog[][]>((acc, cur) => {
+      const firstGroup = acc.at(0);
+      if (firstGroup?.at(0)?.senderId === cur.senderId) {
+        firstGroup.unshift(cur);
+      } else {
+        acc.unshift([cur]);
+      }
+
+      return acc;
+    }, []);
+
+    const isCombine = result.at(0)?.at(0)?.senderId === newGroups.at(-1)?.at(-1)?.senderId;
+    if (isCombine) {
+      result.at(0)?.unshift(...newGroups.pop()!);
+    }
+    result.unshift(...newGroups);
+
+    return result;
+  };
 
   createResource(() => [channel(), loadMore()] as const, async ([target, isLoad]) => {
     if (!target || !isLoad) return;
@@ -22,10 +67,11 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
     if (newLoaded.length === 0) {
       setIsEnd(true);
     } else {
-      const result = [...messages(), ...newLoaded];
-      lastLogId = result.at(-1)?.logId;
+      const newGroups = appendMessages(...newLoaded);
 
-      setMessages(result);
+      lastLogId = newGroups.at(-1)?.at(-1)?.logId;
+
+      setMessageGroups(newGroups);
     }
 
     setLoadMore(false);
@@ -34,7 +80,7 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
   createEffect(on(channel, () => {
     lastLogId = undefined;
 
-    setMessages([]);
+    setMessageGroups([]);
     setLoadMore(true);
   }));
 
@@ -45,15 +91,16 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
 
       if (newMessage.channel === target?.id) {
         const newLoaded = await target?.loadChat(1);
-        setMessages([...newLoaded, ...messages()]);
+
+        setMessageGroups(prependMessages(...newLoaded));
       }
     }
   }));
 
   const onLoadMore = (newMessages: Chatlog[] | undefined = undefined) => {
-    if (newMessages) setMessages([...newMessages, ...messages()]);
+    if (newMessages) setMessageGroups(prependMessages(...newMessages));
     else setLoadMore(true);
   };
 
-  return [messages, onLoadMore, isEnd];
+  return [messageGroups, onLoadMore, isEnd];
 };

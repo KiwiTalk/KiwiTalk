@@ -2,7 +2,7 @@ import { StoryFn } from 'storybook-solidjs';
 
 import * as styles from './message-list.stories.css';
 import { MessageList, MessageListProps } from './message-list';
-import { NormalChannelUser } from '@/api/client';
+import { Chatlog, NormalChannelUser } from '@/api/client';
 
 export default {
   title: 'KiwiTalk v2/Channel/Chat/Message List',
@@ -30,28 +30,42 @@ const Template: StoryFn<MessageListProps> = () => {
       {} as Record<string, NormalChannelUser>,
     );
 
-  const messages = Array.from({ length: 1000 }).map((_, i) => ({
-    logId: `${i}`,
-    prevLogId: i > 0 ? `${i - 1}` : undefined,
+  const messageGroups = Array
+    .from({ length: 1000 })
+    .map((_, i) => ({
+      logId: `${i}`,
+      prevLogId: i > 0 ? `${i - 1}` : undefined,
 
-    senderId: `user-${Math.floor(Math.random() * 5)}`,
-    sendAt: Date.now(),
+      senderId: `user-${Math.floor(Math.random() * 5)}`,
+      sendAt: Date.now(),
 
-    chatType: 1,
+      chatType: 1,
 
-    content: 'Test Message'.repeat(Math.floor(Math.random() * 29) + 1),
-    // attachment?: string,
-    // supplement?: string,
+      content: 'Test Message'.repeat(Math.floor(Math.random() * 29) + 1),
+      // attachment?: string,
+      // supplement?: string,
 
-    // referer: undefined,
-  }));
+      // referer: undefined,
+    }))
+    .reduce((acc, message) => {
+      const lastMessage = acc.at(-1)?.at(-1);
+
+      if (lastMessage?.senderId === message.senderId) {
+        acc.at(-1)?.push(message);
+      } else {
+        acc.push([message]);
+      }
+
+      return acc;
+    }
+    , [] as Chatlog[][]);
 
   return (
     <div class={styles.background}>
       <MessageList
         channelId={'channel-0'}
         logonId={'user-0'}
-        messages={messages}
+        messageGroups={messageGroups}
         members={members}
       />
     </div>

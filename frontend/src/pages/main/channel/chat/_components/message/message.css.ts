@@ -22,6 +22,8 @@ export const container = styleVariants({
 });
 
 export const contentContainer = style({
+  maxWidth: '50%',
+
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'flex-start',

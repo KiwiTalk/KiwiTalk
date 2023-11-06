@@ -21,10 +21,10 @@ export const container = styleVariants({
 });
 
 export const messageContainer = style({
-  maxWidth: '50%',
+  width: '100%',
 
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'column-reverse',
   gap: '0',
 });
 
@@ -34,6 +34,7 @@ const baseSender = style([classes.typography.title, {
 
   marginLeft: '12px',
   marginBottom: '2px',
+  marginTop: '6px',
 }]);
 
 export const sender = styleVariants({

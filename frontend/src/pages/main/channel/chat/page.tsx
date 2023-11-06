@@ -27,7 +27,7 @@ export const ChatPage = () => {
 
   const channelId = () => params.channelId;
   const channel = useChannel(channelId);
-  const [messages, loadMoreMessages, isLoadEnd] = useMessageList(channel);
+  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channel);
 
   const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
 
@@ -55,7 +55,7 @@ export const ChatPage = () => {
 
   /* lifecycle */
   let isInit = false;
-  createEffect(on(messages, (messageList) => {
+  createEffect(on(messageGroups, (messageList) => {
     if (!isInit) {
       isInit = true;
       return;
@@ -74,7 +74,7 @@ export const ChatPage = () => {
 
   /* callbacks */
   const onLoadMore = () => {
-    const messageLength = messages().length;
+    const messageLength = messageGroups().length;
 
     loadMoreMessages();
     scroller()?.refresh();
@@ -116,7 +116,7 @@ export const ChatPage = () => {
             scroller={setScroller}
             channelId={channelId()!}
             logonId={me()?.profile.id}
-            messages={messages()}
+            messageGroups={messageGroups()}
             members={members() ?? {}}
             isEnd={isLoadEnd()}
             onLoadMore={onLoadMore}
