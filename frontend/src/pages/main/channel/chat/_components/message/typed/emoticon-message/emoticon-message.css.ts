@@ -5,7 +5,6 @@ export const height = createVar();
 export const ratio = createVar();
 export const emoticon = style({
   minWidth: '150px',
-  minHeight: '150px',
 
   width: 'fit-content',
   height: 'fit-content',
