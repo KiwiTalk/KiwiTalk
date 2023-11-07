@@ -9,6 +9,7 @@ export type EmoticonMessageProps = {
 
   src: string;
   sound?: string;
+  alt?: string;
 };
 export const EmoticonMessage = (props: EmoticonMessageProps) => {
   const merged = mergeProps({ width: 150, height: 150 }, props);
@@ -23,6 +24,7 @@ export const EmoticonMessage = (props: EmoticonMessageProps) => {
   return (
     <img
       src={props.src}
+      alt={props.alt}
       onLoad={playSound}
       onClick={playSound}
       class={styles.emoticon}

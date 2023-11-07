@@ -88,6 +88,9 @@ export class ChatFactory {
     const sound = typeof attachment?.sound === 'string' ?
       `${baseURL}${attachment.sound}` :
       undefined;
+    const alt = typeof attachment?.alt === 'string' ?
+      attachment.alt :
+      undefined;
 
     let width = 150;
     let height = 150;
@@ -108,6 +111,7 @@ export class ChatFactory {
         width={width}
         height={height}
         sound={sound}
+        alt={alt}
       />
     );
   }
