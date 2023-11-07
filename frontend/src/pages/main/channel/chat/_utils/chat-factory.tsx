@@ -112,7 +112,7 @@ export class ChatFactory {
 
     if (typeof url !== 'string') return <UnknownMessage type={chat.chatType} />;
 
-    if (chat.chatType === 20 || chat.chatType === 6) {
+    if (chat.chatType === 20 || chat.chatType === 6 || chat.chatType === 25) {
       const client = await getClient();
       const response = await client.get<number[]>(url, {
         responseType: ResponseType.Binary,

@@ -20,7 +20,7 @@ export const EmoticonMessage = (props: EmoticonMessageProps) => {
       if (entries.every((it) => it.intersectionRatio <= 0)) return;
 
       observer.disconnect();
-      playSound();
+      // playSound(); // TODO: enable this when sound setting is implemented
     });
     observer.observe(element);
   };
