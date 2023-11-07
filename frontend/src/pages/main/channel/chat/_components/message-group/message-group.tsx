@@ -45,6 +45,7 @@ export const MessageGroup = (props: MessageGroupProps) => {
   const isBubble = (type: number) => {
     if (type === 0) return false; // feed
     if (type === 2) return false; // single image
+    if (type === 12) return false; // emoticon
     if (type === 27) return false; // multiple image
 
     return true;

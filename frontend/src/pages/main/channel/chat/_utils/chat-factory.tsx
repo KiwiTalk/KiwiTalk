@@ -7,6 +7,7 @@ import {
   TextMessage,
   UnknownMessage,
   AttachmentMessage,
+  EmoticonMessage,
 } from '../_components/message';
 
 export class ChatFactory {
@@ -43,6 +44,7 @@ export class ChatFactory {
     switch (chat.chatType) {
     case 1: return this.createTextElement(chat); // Text
     case 2: return this.createSingleImageElement(chat); // Signle Image
+    case 12: return this.createEmoticonElement(chat); // Emoticon
     case 18: return this.createAttachmentElement(chat); // Attachment
     case 26: return this.createReplyElement(chat); // Reply
     case 27: return this.createMultipleImageElement(chat); // Multiple Image
@@ -73,6 +75,27 @@ export class ChatFactory {
     const url = typeof attachment?.url === 'string' ? attachment.url : '';
 
     return <ImageMessage urls={[url]} />;
+  }
+
+  private createEmoticonElement(chat: Chatlog): JSX.Element {
+    const baseURL = 'http://item-kr.talk.kakao.co.kr/dw/';
+    const attachment = this.getAttachment(chat);
+
+    const url = typeof attachment?.path === 'string' ? `${baseURL}${attachment.path}` : null;
+    const width = typeof attachment?.width === 'string' ? attachment.width : '150px';
+    const height = typeof attachment?.height === 'string' ? attachment.height : '150px';
+    const sound = typeof attachment?.sound === 'string' ? `${baseURL}${attachment.sound}` : null;
+
+    if (!url) return <UnknownMessage type={chat.chatType} />;
+
+    return (
+      <EmoticonMessage
+        src={url}
+        width={width}
+        height={height}
+        sound={sound ?? undefined}
+      />
+    );
   }
 
   private createAttachmentElement(chat: Chatlog): JSX.Element {
