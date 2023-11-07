@@ -36,7 +36,9 @@ export const LoginListPage = () => {
 
     passwordInput?.focus();
   };
-  const onLogin = async () => {
+  const onLogin = async (e: SubmitEvent) => {
+    e.preventDefault();
+
     const data = loginData();
 
     if (!data || !passwordInput?.value) {
@@ -69,7 +71,7 @@ export const LoginListPage = () => {
   };
 
   return (
-    <ul class={styles.container}>
+    <form class={styles.container} onSubmit={onLogin}>
       <div>
         <span class={styles.title.normal}>Kiwi</span>
         <span class={styles.title.bold}>Talk</span>
@@ -92,20 +94,20 @@ export const LoginListPage = () => {
       <div class={styles.tool}>
         <TransitionGroup appear {...classes.transition.scale}>
           <Show when={!selectedLoginData()}>
-            <Button variant={'text'}>
+            <Button variant={'text'} type='button'>
               <Trans key={'login.manage_account'} />
             </Button>
           </Show>
-          <Button variant={'text'} onClick={onAddAccount}>
+          <Button variant={'text'} type='button' onClick={onAddAccount}>
             <Trans key={'login.add_account'} />
           </Button>
           <Show when={!!selectedLoginData()}>
-            <Button onClick={onLogin}>
+            <Button>
               <Trans key={'login.login_name'} options={{ name: selectedLoginData()?.name }} />
             </Button>
           </Show>
         </TransitionGroup>
       </div>
-    </ul>
+    </form>
   );
 };

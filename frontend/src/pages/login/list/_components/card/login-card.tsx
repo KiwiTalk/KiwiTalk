@@ -9,7 +9,7 @@ export type LoginCardProps = {
 };
 export const LoginCard = (props: LoginCardProps) => {
   return (
-    <li class={styles.container} onClick={props.onClick}>
+    <button type='button' class={styles.container} onClick={props.onClick}>
       <Profile src={props.profile} />
       <div class={styles.textContainer}>
         <span class={styles.name}>
@@ -19,6 +19,6 @@ export const LoginCard = (props: LoginCardProps) => {
           {props.email}
         </span>
       </div>
-    </li>
+    </button>
   );
 };
