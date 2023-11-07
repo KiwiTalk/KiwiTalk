@@ -46,6 +46,7 @@ export class ChatFactory {
     case 2: return this.createSingleImageElement(chat); // Signle Image
     case 12: return this.createEmoticonElement(chat); // Emoticon
     case 18: return this.createAttachmentElement(chat); // Attachment
+    // case 20: return this.createEmoticonElement(chat); // TODO: Animation Emoticon
     case 26: return this.createReplyElement(chat); // Reply
     case 27: return this.createMultipleImageElement(chat); // Multiple Image
     default: return <UnknownMessage type={chat.chatType} />;
@@ -81,10 +82,23 @@ export class ChatFactory {
     const baseURL = 'http://item-kr.talk.kakao.co.kr/dw/';
     const attachment = this.getAttachment(chat);
 
-    const url = typeof attachment?.path === 'string' ? `${baseURL}${attachment.path}` : null;
-    const width = typeof attachment?.width === 'string' ? attachment.width : '150px';
-    const height = typeof attachment?.height === 'string' ? attachment.height : '150px';
-    const sound = typeof attachment?.sound === 'string' ? `${baseURL}${attachment.sound}` : null;
+    const url = typeof attachment?.path === 'string' ?
+      `${baseURL}${attachment.path}` :
+      undefined;
+    const sound = typeof attachment?.sound === 'string' ?
+      `${baseURL}${attachment.sound}` :
+      undefined;
+
+    let width = 150;
+    let height = 150;
+
+    if (typeof attachment?.width === 'string') width = Number(attachment.width);
+    if (typeof attachment?.height === 'string') height = Number(attachment.height);
+    if (typeof attachment?.width === 'number') width = attachment.width;
+    if (typeof attachment?.height === 'number') height = attachment.height;
+
+    if (!Number.isFinite(width)) width = 150;
+    if (!Number.isFinite(height)) height = 150;
 
     if (!url) return <UnknownMessage type={chat.chatType} />;
 
@@ -93,7 +107,7 @@ export class ChatFactory {
         src={url}
         width={width}
         height={height}
-        sound={sound ?? undefined}
+        sound={sound}
       />
     );
   }
