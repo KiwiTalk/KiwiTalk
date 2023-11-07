@@ -1,19 +1,11 @@
-import { mergeProps } from 'solid-js';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-
 import * as styles from './emoticon-message.css';
 
 export type EmoticonMessageProps = {
-  width?: number;
-  height?: number;
-
   src: string;
   sound?: string;
   alt?: string;
 };
 export const EmoticonMessage = (props: EmoticonMessageProps) => {
-  const merged = mergeProps({ width: 150, height: 150 }, props);
-
   const playSound = async () => {
     if (typeof props.sound !== 'string') return;
 
@@ -21,18 +13,25 @@ export const EmoticonMessage = (props: EmoticonMessageProps) => {
     await sound.play();
   };
 
+  const onRegisterSound = (element: Element) => {
+    if (!props.sound) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.every((it) => it.intersectionRatio <= 0)) return;
+
+      observer.disconnect();
+      playSound();
+    });
+    observer.observe(element);
+  };
+
   return (
     <img
+      ref={onRegisterSound}
       src={props.src}
       alt={props.alt}
-      onLoad={playSound}
       onClick={playSound}
       class={styles.emoticon}
-      style={assignInlineVars({
-        [styles.width]: `${merged.width}px`,
-        [styles.height]: `${merged.height}px`,
-        [styles.ratio]: `${merged.height / merged.width * 100}%`,
-      })}
     />
   );
 };

@@ -1,5 +1,6 @@
 import { ResponseType, getClient } from '@tauri-apps/api/http';
 import { JSX, Owner, runWithOwner } from 'solid-js';
+
 import { Chatlog, ClientChannel } from '@/api/client';
 
 import {
@@ -58,7 +59,7 @@ export class ChatFactory {
     case 1: return this.createTextElement(chat); // Text
     case 2: return this.createSingleImageElement(chat); // Signle Image
     case 6: return this.createEmoticonElement(chat); // Emoticon (gif) (legacy)
-    case 12: return this.createEmoticonElement(chat); // Emoticon ()
+    case 12: return this.createEmoticonElement(chat); // Emoticon (default)
     case 18: return this.createAttachmentElement(chat); // Attachment
     case 20: return this.createEmoticonElement(chat); // Emoticon (webp)
     case 25: return this.createEmoticonElement(chat); // Emoticon (gif)
@@ -102,7 +103,6 @@ export class ChatFactory {
         typeof attachment?.url === 'string' ? `${baseURL}${attachment.url}` :
           undefined
     );
-
     const sound = typeof attachment?.sound === 'string' ?
       `${baseURL}${attachment.sound}` :
       undefined;
@@ -110,26 +110,15 @@ export class ChatFactory {
       attachment.alt :
       undefined;
 
-    let width = 150;
-    let height = 150;
-
-    if (typeof attachment?.width === 'string') width = Number(attachment.width);
-    if (typeof attachment?.height === 'string') height = Number(attachment.height);
-    if (typeof attachment?.width === 'number') width = attachment.width;
-    if (typeof attachment?.height === 'number') height = attachment.height;
-
-    if (!Number.isFinite(width)) width = 150;
-    if (!Number.isFinite(height)) height = 150;
-
     if (typeof url !== 'string') return <UnknownMessage type={chat.chatType} />;
 
     if (chat.chatType === 20 || chat.chatType === 6) {
       const client = await getClient();
-      const response = await client.get(url, {
+      const response = await client.get<number[]>(url, {
         responseType: ResponseType.Binary,
       });
 
-      const data = new Uint8Array(response.data as number[]);
+      const data = new Uint8Array(response.data);
       for (let i = 0; i < 128; i++) {
         data[i] ^= EMOTICON_DECODE_ARRAY[i % EMOTICON_DECODE_ARRAY.length];
       }
@@ -141,8 +130,6 @@ export class ChatFactory {
     return runWithOwner(this.owner, () => (
       <EmoticonMessage
         src={url!}
-        width={width}
-        height={height}
         sound={sound}
         alt={alt}
       />

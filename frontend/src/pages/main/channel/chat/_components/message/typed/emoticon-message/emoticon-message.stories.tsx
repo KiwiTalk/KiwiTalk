@@ -17,8 +17,6 @@ const Template: StoryFn<EmoticonMessageProps> = (props) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  width: 150,
-  height: 150,
   src: 'https://picsum.photos/150/150',
   sound: 'https://cdn.freesound.org/previews/506/506546_6142149-lq.mp3',
 };
