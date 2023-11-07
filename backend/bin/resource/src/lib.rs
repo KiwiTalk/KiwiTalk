@@ -10,7 +10,7 @@ use std::{
 };
 use tauri::{
     plugin::{Builder, TauriPlugin},
-    Manager, Runtime,
+    Manager, Runtime, State,
 };
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
@@ -25,6 +25,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct ResourceId(i32);
+
+pub type ResourceTableState<'a> = State<'a, ResourceTable>;
 
 #[derive(Debug)]
 pub struct ResourceTable {
