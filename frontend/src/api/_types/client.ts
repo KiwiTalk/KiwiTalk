@@ -3,16 +3,16 @@ import { ChannelMeta, Chatlog } from '../client';
 export type ClientStatus = 'Locked' | 'Unlocked';
 
 type Kickout = {
-  type: 'kickout',
+  type: 'Kickout',
   content: { reason: number },
 }
 type SwitchServer = {
-  type: 'switchServer',
+  type: 'SwitchServer',
 }
 type Channel = {
-  type: 'channel',
+  type: 'Channel',
   content: {
-    channel: string,
+    id: string,
     event: KiwiTalkChannelEvent,
   }
 }
@@ -20,30 +20,30 @@ type Channel = {
 export type KiwiTalkEvent = Kickout | SwitchServer | Channel;
 
 type Chat = {
-  type: 'chat',
+  type: 'Chat',
   content: Chatlog,
 }
 type ChatRead = {
-  type: 'chatRead',
+  type: 'ChatRead',
   content: {
-    user_id: string,
-    log_id: string,
+    userId: string,
+    logId: string,
   },
 }
 type ChatDeleted = {
-  type: 'chatDeleted',
+  type: 'ChatDeleted',
   content: Chatlog,
 }
 type MetaChanged = {
-  type: 'metaChanged',
+  type: 'MetaChanged',
   content: ChannelMeta,
 }
 type Added = {
-  type: 'added',
+  type: 'Added',
   content?: Chatlog,
 }
 type Left = {
-  type: 'left'
+  type: 'Left'
 }
 
 export type KiwiTalkChannelEvent = Chat | ChatRead | ChatDeleted | MetaChanged | Added | Left;

@@ -85,7 +85,7 @@ export const useMessageList = (channelId: Accessor<string | null>): [
   }));
 
   createEffect(on(event, async (event) => {
-    if (event?.type === 'chat') {
+    if (event?.type === 'Chat') {
       const id = channelId();
 
       if (event.channelId === id) {

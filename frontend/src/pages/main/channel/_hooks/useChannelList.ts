@@ -14,7 +14,7 @@ export const useChannelList = (): Accessor<ChannelListItem[]> => {
     () => [isReady(), event()] as const,
     async ([isReady, event]) => {
       if (!isReady) return [];
-      if (event?.type !== 'chat' && cached.length > 0) return cached;
+      if (event?.type !== 'Chat' && cached.length > 0) return cached;
 
       const result: ChannelListItem[] = [];
 

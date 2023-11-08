@@ -9,10 +9,10 @@ export const useChannelEvent = () => {
   const event = useEvent();
 
   createEffect(on(event, (e) => {
-    if (e?.type === 'channel') {
+    if (e?.type === 'Channel') {
       setChannelEvent({
         ...e.content.event,
-        channelId: e.content.channel,
+        channelId: e.content.id,
       });
     }
   }));

@@ -3,10 +3,10 @@ use serde::Serialize;
 use crate::channel::{ChannelMeta, Chatlog};
 
 #[derive(Debug, Serialize)]
-#[serde(tag = "type", content = "content", rename_all = "camelCase")]
+#[serde(tag = "type", content = "content")]
 pub(crate) enum ClientEvent {
     Channel {
-        channel: String,
+        id: String,
         event: ChannelEvent,
     },
 
@@ -18,10 +18,11 @@ pub(crate) enum ClientEvent {
 }
 
 #[derive(Debug, Serialize)]
-#[serde(tag = "type", content = "content", rename_all = "camelCase")]
+#[serde(tag = "type", content = "content")]
 pub(crate) enum ChannelEvent {
     Chat(Chatlog),
 
+    #[serde(rename_all = "camelCase")]
     ChatRead { user_id: String, log_id: String },
 
     ChatDeleted(Chatlog),

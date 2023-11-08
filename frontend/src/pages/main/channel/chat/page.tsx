@@ -52,8 +52,8 @@ export const ChatPage = () => {
       result = Object.fromEntries(target.content.users);
     }
 
-    if (e?.type === 'chatRead') {
-      const { log_id: logId, user_id: userId } = e.content;
+    if (e?.type === 'ChatRead') {
+      const { logId, userId } = e.content;
 
       if (target?.kind === 'normal') {
         const [, user] = target.content.users.find(([id]) => id === userId) ?? [];

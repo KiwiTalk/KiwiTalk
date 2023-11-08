@@ -34,7 +34,7 @@ export const ReadyProvider = (props: ReadyProviderProps) => {
 
     try {
       for await (const event of stream) {
-        if (event.type === 'kickout') {
+        if (event.type === 'Kickout') {
           props.onLogout?.({ type: 'Kickout', reasonId: event.content.reason });
           finished = true;
           return;
