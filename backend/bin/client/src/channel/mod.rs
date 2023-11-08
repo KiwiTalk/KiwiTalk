@@ -16,7 +16,6 @@ pub(crate) enum Channel {
     Normal {
         users: Vec<(String, NormalChannelUser)>,
     },
-    Open,
 }
 
 #[tauri::command(async)]

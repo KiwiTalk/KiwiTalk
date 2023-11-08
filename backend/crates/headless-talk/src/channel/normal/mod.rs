@@ -87,7 +87,7 @@ impl<'a> NormalChannelOp<'a> {
             .normal_channel(id)
             .leave(block)
             .await?;
-        
+
         self.conn
             .pool
             .spawn_transaction(move |conn| ChannelUpdater::new(id).remove(conn))
