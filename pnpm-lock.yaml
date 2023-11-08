@@ -9,8 +9,8 @@ dependencies:
     specifier: 1.2.2
     version: 1.2.2(html-parse-string@0.0.9)(i18next@23.6.0)(solid-js@1.8.5)
   '@solidjs/router':
-    specifier: ^0.8.3
-    version: 0.8.3(solid-js@1.8.5)
+    specifier: ^0.9.0
+    version: 0.9.0(solid-js@1.8.5)
   '@tauri-apps/api':
     specifier: 1.5.1
     version: 1.5.1
@@ -2632,8 +2632,8 @@ packages:
       solid-js: 1.8.5
     dev: false
 
-  /@solidjs/router@0.8.3(solid-js@1.8.5):
-    resolution: {integrity: sha512-oJuqQo10rVTiQYhe1qXIG1NyZIZ2YOwHnlLc8Xx+g/iJhFCJo1saLOIrD/Dkh2fpIaIny5ZMkz1cYYqoTYGJbg==}
+  /@solidjs/router@0.9.0(solid-js@1.8.5):
+    resolution: {integrity: sha512-q1RxUhLa8lKdbhqEPkG+8RwBQKIH5f5AIWiOxVoUTK4UllgsR0C0FNT++ufnIAb9LNkx3ahE4WxAHZqH4l1vEQ==}
     peerDependencies:
       solid-js: ^1.5.3
     dependencies:
