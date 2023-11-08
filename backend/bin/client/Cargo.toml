@@ -17,6 +17,7 @@ headless-talk = { workspace = true }
 kiwi-talk-api = { path = "../api" }
 kiwi-talk-system = { path = "../system" }
 kiwi-talk-result = { path = "../result" }
+kiwi-talk-resource = { path = "../resource" }
 
 tokio = { workspace = true, features = ["rt"] }
 tauri = { workspace = true }
@@ -32,4 +33,3 @@ once_cell = "1.18.0"
 tokio-util = { version = "0.7.10", features = ["compat"] }
 arrayvec = "0.7.4"
 hex = "0.4.3"
-dashmap = "5.5.3"

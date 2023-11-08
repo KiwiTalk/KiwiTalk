@@ -1,15 +1,49 @@
+import { ChannelMeta, Chatlog } from '../client';
+
 export type ClientStatus = 'Locked' | 'Unlocked';
 
-type KiwiTalkKickoutEvent = {
-  type: 'kickout',
+type Kickout = {
+  type: 'Kickout',
   content: { reason: number },
 }
-type KiwiTalkChatEvent = {
-  type: 'chat',
+type SwitchServer = {
+  type: 'SwitchServer',
+}
+type Channel = {
+  type: 'Channel',
   content: {
-    channel: string,
-    previewMessage: string,
-    unreadCount: number,
+    id: string,
+    event: KiwiTalkChannelEvent,
+  }
+}
+
+export type KiwiTalkEvent = Kickout | SwitchServer | Channel;
+
+type Chat = {
+  type: 'Chat',
+  content: Chatlog,
+}
+type ChatRead = {
+  type: 'ChatRead',
+  content: {
+    userId: string,
+    logId: string,
   },
-};
-export type KiwiTalkMainEvent = KiwiTalkKickoutEvent | KiwiTalkChatEvent;
+}
+type ChatDeleted = {
+  type: 'ChatDeleted',
+  content: Chatlog,
+}
+type MetaChanged = {
+  type: 'MetaChanged',
+  content: ChannelMeta,
+}
+type Added = {
+  type: 'Added',
+  content?: Chatlog,
+}
+type Left = {
+  type: 'Left'
+}
+
+export type KiwiTalkChannelEvent = Chat | ChatRead | ChatDeleted | MetaChanged | Added | Left;

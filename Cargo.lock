@@ -2182,11 +2182,11 @@ version = "0.4.2"
 dependencies = [
  "anyhow",
  "arrayvec",
- "dashmap",
  "futures",
  "headless-talk",
  "hex",
  "kiwi-talk-api",
+ "kiwi-talk-resource",
  "kiwi-talk-result",
  "kiwi-talk-system",
  "log",
@@ -2199,6 +2199,15 @@ dependencies = [
  "tauri",
  "tokio",
  "tokio-util",
+]
+
+[[package]]
+name = "kiwi-talk-resource"
+version = "0.4.2"
+dependencies = [
+ "anyhow",
+ "dashmap",
+ "serde",
 ]
 
 [[package]]

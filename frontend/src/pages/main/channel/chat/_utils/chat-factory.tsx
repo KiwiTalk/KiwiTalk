@@ -1,7 +1,6 @@
 import { ResponseType, getClient } from '@tauri-apps/api/http';
 import { JSX, Owner, runWithOwner } from 'solid-js';
-
-import { Chatlog, ClientChannel } from '@/api/client';
+import { Channel, ChannelUser, Chatlog } from '@/api/client';
 
 import {
   ReplyMessage,
@@ -25,11 +24,11 @@ const EMOTICON_DECODE_ARRAY = new Uint8Array([
 ]);
 
 export class ChatFactory {
-  private channel: ClientChannel;
+  private channel: Channel;
   private chatMap: Record<string, JSX.Element> = {};
   private owner: Owner | null = null;
 
-  constructor(channel: ClientChannel, owner: Owner | null) {
+  constructor(channel: Channel, owner: Owner | null) {
     this.channel = channel;
     this.owner = owner;
   }
@@ -159,7 +158,14 @@ export class ChatFactory {
 
   private async createReplyElement(chat: Chatlog): Promise<JSX.Element> {
     const attachment = this.getAttachment(chat);
-    const members = Object.fromEntries(await this.channel.getUsers());
+    const members: Record<string, ChannelUser> = {};
+
+    if (this.channel.kind === 'normal') {
+      this.channel.content.users.forEach(([id, user]) => {
+        members[id] = user;
+      });
+    }
+
     const replyContent = typeof attachment?.src_message === 'string' ?
       attachment.src_message :
       undefined;

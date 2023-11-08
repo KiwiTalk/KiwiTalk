@@ -10,7 +10,7 @@ pub struct Kickout {
     /// * Change server = 2
     /// * Login another = 0
     /// * Account deleted = 1
-    pub reason: i16,
+    pub reason: i32,
 }
 
 /// Message sent from chatroom

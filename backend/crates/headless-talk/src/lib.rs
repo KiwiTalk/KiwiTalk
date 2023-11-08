@@ -5,13 +5,18 @@ mod database;
 pub mod event;
 pub mod handler;
 pub mod init;
+mod task;
 mod updater;
 pub mod user;
 
-use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
+use channel::{
+    load_list_item,
+    normal::{self, NormalChannelOp},
+    open::OpenChannelOp,
+    ChannelListItem, ChannelOp, ClientChannel,
+};
 use conn::Conn;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
-pub use talk_loco_client;
 
 use database::{
     model::channel::ChannelListRow,
@@ -22,19 +27,21 @@ use talk_loco_client::{
     talk::session::{channel::chat_on::ChatOnChannelType, TalkSession},
     RequestError,
 };
+use task::BackgroundTask;
 use thiserror::Error;
-use tokio::task::JoinHandle;
+
+pub use talk_loco_client;
 
 #[derive(Debug)]
 pub struct HeadlessTalk {
-    pub(crate) conn: Conn,
+    pub conn: Conn,
 
-    ping_task: JoinHandle<()>,
-    stream_task: JoinHandle<()>,
+    pub _ping_task: BackgroundTask,
+    pub _stream_task: BackgroundTask,
 }
 
 impl HeadlessTalk {
-    pub const fn user_id(&self) -> i64 {
+    pub fn user_id(&self) -> i64 {
         self.conn.user_id
     }
 
@@ -62,7 +69,7 @@ impl HeadlessTalk {
         Ok(list)
     }
 
-    pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
+    pub async fn load_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
         let last_seen_log_id = self
             .conn
             .pool
@@ -112,14 +119,24 @@ impl HeadlessTalk {
         Ok(match res.channel_type {
             ChatOnChannelType::DirectChat(normal)
             | ChatOnChannelType::MultiChat(normal)
-            | ChatOnChannelType::MemoChat(normal) => {
-                let (channel, user_list) = normal::open_channel(id, self, normal).await?;
-
-                Some(ClientChannel::Normal(channel, user_list))
-            }
+            | ChatOnChannelType::MemoChat(normal) => Some(ClientChannel::Normal(
+                normal::load_channel(id, &self.conn, normal).await?,
+            )),
 
             _ => None,
         })
+    }
+
+    pub fn channel(&self, id: i64) -> ChannelOp<'_> {
+        ChannelOp::new(id, &self.conn)
+    }
+
+    pub fn normal_channel(&self, id: i64) -> NormalChannelOp<'_> {
+        NormalChannelOp::new(id, &self.conn)
+    }
+
+    pub fn open_channel(&self, id: i64, link_id: i64) -> OpenChannelOp<'_> {
+        OpenChannelOp::new(id, link_id, &self.conn)
     }
 
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
@@ -128,13 +145,6 @@ impl HeadlessTalk {
             .await?;
 
         Ok(())
-    }
-}
-
-impl Drop for HeadlessTalk {
-    fn drop(&mut self) {
-        self.ping_task.abort();
-        self.stream_task.abort();
     }
 }
 

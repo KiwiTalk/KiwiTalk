@@ -79,7 +79,7 @@ impl SessionHandler {
             })
             .await?;
 
-        if !exists {
+        if !exists && msg.link_id.is_none() {
             ChannelUpdater::new(msg.chat_id)
                 .initialize(&self.conn.session, &self.conn.pool)
                 .await?;
@@ -151,7 +151,7 @@ impl SessionHandler {
 
         Ok(Some(ClientEvent::Channel {
             id: value.chat_id,
-            event: ChannelEvent::ChangeMeta(value.meta),
+            event: ChannelEvent::MetaChanged(value.meta),
         }))
     }
 

@@ -1,15 +1,15 @@
 import { Accessor, createEffect, createResource, createSignal, on } from 'solid-js';
 
-import { Chatlog, ClientChannel } from '@/api/client';
-import { useEvent } from '@/pages/main/_hooks';
+import { Chatlog, loadChat } from '@/api/client';
+import { useChannelEvent } from '@/pages/main/_hooks';
 
-export const useMessageList = (channel: Accessor<ClientChannel | null>): [
+export const useMessageList = (channelId: Accessor<string | null>): [
   messageGroups: Accessor<Chatlog[][]>,
   load: (messages?: Chatlog[]) => void,
   isEnd: Accessor<boolean>,
 ] => {
   let lastLogId: string | undefined = undefined;
-  const event = useEvent();
+  const event = useChannelEvent();
 
   const [messageGroups, setMessageGroups] = createSignal<Chatlog[][]>([]);
   const [loadMore, setLoadMore] = createSignal(true);
@@ -60,10 +60,10 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
     return result;
   };
 
-  createResource(() => [channel(), loadMore()] as const, async ([target, isLoad]) => {
-    if (!target || !isLoad) return;
+  createResource(() => [channelId(), loadMore()] as const, async ([id, isLoad]) => {
+    if (typeof id !== 'string' || !isLoad) return;
 
-    const newLoaded = await target.loadChat(300, lastLogId, true) ?? [];
+    const newLoaded = await loadChat(id, 300, lastLogId, true) ?? [];
     if (newLoaded.length === 0) {
       setIsEnd(true);
     } else {
@@ -77,7 +77,7 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
     setLoadMore(false);
   });
 
-  createEffect(on(channel, () => {
+  createEffect(on(channelId, () => {
     lastLogId = undefined;
 
     setMessageGroups([]);
@@ -85,12 +85,11 @@ export const useMessageList = (channel: Accessor<ClientChannel | null>): [
   }));
 
   createEffect(on(event, async (event) => {
-    if (event?.type === 'chat') {
-      const newMessage = event.content;
-      const target = channel();
+    if (event?.type === 'Chat') {
+      const id = channelId();
 
-      if (newMessage.channel === target?.id) {
-        const newLoaded = await target?.loadChat(1);
+      if (event.channelId === id) {
+        const newLoaded = await loadChat(id, 1);
 
         setMessageGroups(prependMessages(...newLoaded));
       }

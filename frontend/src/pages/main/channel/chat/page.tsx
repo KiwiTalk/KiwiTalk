@@ -17,12 +17,13 @@ import { MessageInput } from './_components/message-input';
 import { ChannelHeader } from '../_components/channel-header';
 
 import { getChannelList, meProfile } from '@/api';
-import { useReady } from '@/pages/main/_hooks';
+import { useChannelEvent, useReady } from '@/pages/main/_hooks';
 import { useChannel, useMessageList } from './_hooks';
 
 import * as styles from './page.css';
 import { ChatFactoryContext } from './_hooks/useChatFactory';
 import { ChatFactory } from './_utils/chat-factory';
+import { NormalChannelUser, sendText } from '@/api/client';
 
 export const ChatPage = () => {
   const isReady = useReady();
@@ -30,8 +31,11 @@ export const ChatPage = () => {
   const [t] = useTransContext();
 
   const channelId = () => params.channelId;
+
   const channel = useChannel(channelId);
-  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channel);
+  const event = useChannelEvent();
+
+  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channelId);
   const channelFactory = createMemo(on(
     channel,
     (channel) => channel && new ChatFactory(channel, getOwner()),
@@ -40,10 +44,30 @@ export const ChatPage = () => {
   const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
 
   /* resources */
-  const [members] = createResource(channel, async (target) => {
-    if (!target) return {};
+  let cachedMembers: Record<string, NormalChannelUser> | null = null;
+  const [members] = createResource(() => [channel(), event()] as const, async ([target, e]) => {
+    let result = cachedMembers;
 
-    return Object.fromEntries(await target.getUsers() ?? []);
+    if (cachedMembers === null && target?.kind === 'normal') {
+      result = Object.fromEntries(target.content.users);
+    }
+
+    if (e?.type === 'ChatRead') {
+      const { logId, userId } = e.content;
+
+      if (target?.kind === 'normal') {
+        const [, user] = target.content.users.find(([id]) => id === userId) ?? [];
+
+        if (user) {
+          result = { ...result };
+
+          if (result[userId]) result[userId].watermark = logId;
+        }
+      }
+    }
+
+    cachedMembers = result;
+    return result;
   });
   const [me] = createResource(isReady, async (ready) => {
     if (!ready) return null;
@@ -104,7 +128,10 @@ export const ChatPage = () => {
     }, 16 * 1); // next frame
   };
   const onSubmit = async (text: string) => {
-    const result = await channel()?.sendText(text);
+    const id = channelId();
+    if (typeof id !== 'string') return;
+
+    const result = await sendText(id, text);
 
     if (result) {
       loadMoreMessages([result]);
