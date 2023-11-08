@@ -29,7 +29,7 @@ export const useChannelList = (): Accessor<ChannelListItem[]> => {
           } : undefined,
           userCount: item.userCount,
           unreadCount: item.unreadCount,
-          profile: item.profile,
+          profile: item.profile?.imageUrl,
           silent: false, // TODO
         });
       }

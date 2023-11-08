@@ -60,7 +60,10 @@ export type ChannelListItem = {
   },
 
   name?: string;
-  profile?: string;
+  profile?: {
+    imageUrl: string;
+    fullImageUrl: string;
+  };
 
   unreadCount: number;
 

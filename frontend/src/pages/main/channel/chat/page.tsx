@@ -144,7 +144,7 @@ export const ChatPage = () => {
       <Show when={channelId()} fallback={<ChatEmpty />}>
         <ChannelHeader
           name={channelInfo()?.name ?? '...'}
-          profile={channelInfo()?.profile}
+          profile={channelInfo()?.profile?.imageUrl}
           members={channelInfo()?.userCount ?? 0}
         />
         <ChatFactoryContext.Provider value={channelFactory}>
