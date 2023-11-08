@@ -16,7 +16,7 @@ pub enum ClientEvent {
     SwitchServer,
 
     /// Kickout reason
-    Kickout(i16),
+    Kickout(i32),
 
     Error(HandlerError),
 }

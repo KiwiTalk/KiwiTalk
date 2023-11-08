@@ -13,7 +13,7 @@ pub(crate) enum ClientEvent {
     SwitchServer,
 
     Kickout {
-        reason: i16,
+        reason: i32,
     },
 }
 
