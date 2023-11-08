@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js';
 import { Outlet, useLocation, useNavigate } from '@solidjs/router';
 
-import { KiwiTalkMainEvent, LogoutReason } from '@/api';
+import { KiwiTalkEvent, LogoutReason } from '@/api';
 import { destroy } from '@/api/client/client';
 
 import { Sidebar } from './_components/sidebar';
@@ -14,7 +14,7 @@ export const MainPage = () => {
   const location = useLocation();
 
   const [isReady, setIsReady] = createSignal(false);
-  const [listeners, setListeners] = createSignal<((event: KiwiTalkMainEvent) => void)[]>([]);
+  const [listeners, setListeners] = createSignal<((event: KiwiTalkEvent) => void)[]>([]);
 
   const sidebar = useSidebar(isReady);
 
@@ -31,7 +31,7 @@ export const MainPage = () => {
       await destroy();
     }
   };
-  const onEvent = (event: KiwiTalkMainEvent) => {
+  const onEvent = (event: KiwiTalkEvent) => {
     listeners().forEach((listener) => listener(event));
   };
 

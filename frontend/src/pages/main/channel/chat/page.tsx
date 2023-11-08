@@ -23,6 +23,7 @@ import { useChannel, useMessageList } from './_hooks';
 import * as styles from './page.css';
 import { ChatFactoryContext } from './_hooks/useChatFactory';
 import { ChatFactory } from './_utils/chat-factory';
+import { sendText } from '@/api/client';
 
 export const ChatPage = () => {
   const isReady = useReady();
@@ -31,7 +32,7 @@ export const ChatPage = () => {
 
   const channelId = () => params.channelId;
   const channel = useChannel(channelId);
-  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channel);
+  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channelId);
   const channelFactory = createMemo(on(
     channel,
     (channel) => channel && new ChatFactory(channel, getOwner()),
@@ -43,7 +44,11 @@ export const ChatPage = () => {
   const [members] = createResource(channel, async (target) => {
     if (!target) return {};
 
-    return Object.fromEntries(await target.getUsers() ?? []);
+    if (target.kind === 'normal') {
+      return Object.fromEntries(target.content.users);
+    }
+
+    return {};
   });
   const [me] = createResource(isReady, async (ready) => {
     if (!ready) return null;
@@ -104,7 +109,10 @@ export const ChatPage = () => {
     }, 16 * 1); // next frame
   };
   const onSubmit = async (text: string) => {
-    const result = await channel()?.sendText(text);
+    const id = channelId();
+    if (typeof id !== 'string') return;
+
+    const result = await sendText(id, text);
 
     if (result) {
       loadMoreMessages([result]);

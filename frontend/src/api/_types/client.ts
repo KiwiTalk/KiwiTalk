@@ -1,4 +1,4 @@
-import { ChannelMeta, Chatlog } from "../client";
+import { ChannelMeta, Chatlog } from '../client';
 
 export type ClientStatus = 'Locked' | 'Unlocked';
 
@@ -12,7 +12,7 @@ type SwitchServer = {
 type Channel = {
   type: 'channel',
   content: {
-    id: string,
+    channel: string,
     event: KiwiTalkChannelEvent,
   }
 }

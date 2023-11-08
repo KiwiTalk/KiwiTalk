@@ -9,7 +9,7 @@ import {
 
 
 import { created, create, createMainEventStream } from '@/api/client/client';
-import { KiwiTalkMainEvent, LogoutReason } from '@/api';
+import { KiwiTalkEvent, LogoutReason } from '@/api';
 
 const ReadyContext = createContext<Accessor<boolean>>(() => false);
 export const useReady = () => useContext(ReadyContext);
@@ -17,7 +17,7 @@ export const useReady = () => useContext(ReadyContext);
 export type ReadyProviderProps = ParentProps<{
   onReady?: () => void;
   onLogout?: (reason: LogoutReason) => void;
-  onEvent?: (event: KiwiTalkMainEvent) => void;
+  onEvent?: (event: KiwiTalkEvent) => void;
 }>;
 export const ReadyProvider = (props: ReadyProviderProps) => {
   const [isReady, setIsReady] = createSignal(false);

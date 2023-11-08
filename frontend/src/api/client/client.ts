@@ -22,10 +22,10 @@ export function getChannelList(): Promise<[string, ChannelListItem][]> {
   return tauri.invoke('plugin:client|channel_list');
 }
 
-export async function* createMainEventStream(): AsyncGenerator<KiwiTalkMainEvent> {
-  let nextEvent: KiwiTalkMainEvent | null;
+export async function* createMainEventStream(): AsyncGenerator<KiwiTalkEvent> {
+  let event: KiwiTalkEvent | null;
 
-  while ((nextEvent = await nextEvent())) {
-    yield nextEvent;
+  while ((event = await nextEvent())) {
+    yield event;
   }
 }
