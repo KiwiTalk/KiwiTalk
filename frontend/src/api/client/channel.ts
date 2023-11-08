@@ -59,6 +59,14 @@ export type Chatlog = {
   referer?: number;
 }
 
+export type ChannelMeta = {
+  type: number,
+  revision: number,
+  authorId: number,
+  updated_at: number,
+  content: string,
+};
+
 export type ChannelUser = {
   nickname: string;
 
