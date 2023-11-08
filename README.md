@@ -5,6 +5,7 @@
 
 ![banner](./img/banner.gif)
 
+
 **카카오톡 재구현 프로젝트 (SolidJS & Tauri & Rust)**
 
 ## 주의사항
@@ -14,6 +15,13 @@ KiwiTalk은 카카오톡이 제공되지 않는 기기 및 OS (예: Ubuntu, Arch
 이 소스코드는 Kakao Corp.이 만들거나 인가하지 않았으며, 언제든지 이용이 제한될 수 있습니다.
 즉, KiwiTalk을 통해 이루어지는 모든 활동에 대한 모든 책임은 전적으로 사용자에게 있습니다.
 ```
+
+## Preview
+
+|Login|Chat|
+|:-:|:-:|
+|![login](https://github.com/KiwiTalk/KiwiTalk/assets/16558115/1dc434af-e911-4288-9397-3a92b6bc3707)|![chat](https://github.com/KiwiTalk/KiwiTalk/assets/16558115/9df2392e-54eb-49d5-a049-1746e09a048e)|
+
 
 ## 개발
 

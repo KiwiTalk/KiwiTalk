@@ -149,6 +149,12 @@ async fn create_system_info(resolver: &PathResolver) -> anyhow::Result<SystemInf
         device_uuid,
     };
 
+    tokio::try_join!(
+        fs::create_dir_all(&data_dir),
+        fs::create_dir_all(&config_dir)
+    )
+    .context("failed to create data directories")?;
+
     Ok(SystemInfo {
         data_dir,
         config_dir,

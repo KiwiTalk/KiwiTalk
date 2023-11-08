@@ -87,6 +87,7 @@ jobs:
         with:
           releaseId: ${{ needs.draft.outputs.release_id }}
           args: "--target ${{ matrix.platform.rust_target }} --config tmp_tauri.conf.json"
+          updaterJsonPreferNsis: true
         env:
           CARGO_TARGET_DIR: ${{ github.workspace }}/target
           GITHUB_TOKEN: ${{ github.token }}

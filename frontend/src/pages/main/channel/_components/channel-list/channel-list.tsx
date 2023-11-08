@@ -1,4 +1,4 @@
-import { For, JSX, splitProps } from 'solid-js';
+import { For, JSX, createMemo, splitProps } from 'solid-js';
 import { useTransContext } from '@jellybrick/solid-i18next';
 
 import { ScrollArea } from '@/ui-common/scroll-area';
@@ -35,6 +35,14 @@ export const ChannelList = (props: ChannelListProps) => {
   const [itemProps] = splitProps(props, ['activeId', 'setActiveId']);
   const [t] = useTransContext();
 
+  const sortedChannels = createMemo(() =>
+    props.channels.toSorted(
+      (a, b) =>
+        (b.lastChat?.timestamp?.getTime() ?? 0) -
+        (a.lastChat?.timestamp?.getTime() ?? 0),
+    ),
+  );
+
   return (
     <div class={styles.container}>
       <header class={styles.header}>
@@ -51,7 +59,7 @@ export const ChannelList = (props: ChannelListProps) => {
         </div>
       </header>
       <ScrollArea component={'ul'} edgeSize={12}>
-        <For each={props.channels}>
+        <For each={sortedChannels()}>
           {(channel) => (
             <ChannelItem
               name={channel.name}

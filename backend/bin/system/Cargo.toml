@@ -11,7 +11,7 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-tokio = { workspace = true, features = ["fs"] }
+tokio = { workspace = true, features = ["fs", "macros"] }
 tauri = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }
