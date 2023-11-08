@@ -26,8 +26,8 @@ type Chat = {
 type ChatRead = {
   type: 'chatRead',
   content: {
-    userId: string,
-    logId: string,
+    user_id: string,
+    log_id: string,
   },
 }
 type ChatDeleted = {

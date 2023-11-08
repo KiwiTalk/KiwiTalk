@@ -17,13 +17,13 @@ import { MessageInput } from './_components/message-input';
 import { ChannelHeader } from '../_components/channel-header';
 
 import { getChannelList, meProfile } from '@/api';
-import { useReady } from '@/pages/main/_hooks';
+import { useChannelEvent, useReady } from '@/pages/main/_hooks';
 import { useChannel, useMessageList } from './_hooks';
 
 import * as styles from './page.css';
 import { ChatFactoryContext } from './_hooks/useChatFactory';
 import { ChatFactory } from './_utils/chat-factory';
-import { sendText } from '@/api/client';
+import { NormalChannelUser, sendText } from '@/api/client';
 
 export const ChatPage = () => {
   const isReady = useReady();
@@ -31,7 +31,10 @@ export const ChatPage = () => {
   const [t] = useTransContext();
 
   const channelId = () => params.channelId;
+
   const channel = useChannel(channelId);
+  const event = useChannelEvent();
+
   const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channelId);
   const channelFactory = createMemo(on(
     channel,
@@ -41,14 +44,30 @@ export const ChatPage = () => {
   const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
 
   /* resources */
-  const [members] = createResource(channel, async (target) => {
-    if (!target) return {};
+  let cachedMembers: Record<string, NormalChannelUser> | null = null;
+  const [members] = createResource(() => [channel(), event()] as const, async ([target, e]) => {
+    let result = cachedMembers;
 
-    if (target.kind === 'normal') {
-      return Object.fromEntries(target.content.users);
+    if (cachedMembers === null && target?.kind === 'normal') {
+      result = Object.fromEntries(target.content.users);
     }
 
-    return {};
+    if (e?.type === 'chatRead') {
+      const { log_id: logId, user_id: userId } = e.content;
+
+      if (target?.kind === 'normal') {
+        const [, user] = target.content.users.find(([id]) => id === userId) ?? [];
+
+        if (user) {
+          result = { ...result };
+
+          if (result[userId]) result[userId].watermark = logId;
+        }
+      }
+    }
+
+    cachedMembers = result;
+    return result;
   });
   const [me] = createResource(isReady, async (ready) => {
     if (!ready) return null;
