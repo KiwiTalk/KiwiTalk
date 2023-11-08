@@ -21,7 +21,7 @@ export const useChannelList = (): Accessor<ChannelListItem[]> => {
       for (const [id, item] of await getChannelList()) {
         result.push({
           id,
-          name: item.name ?? item.displayUsers.map(([, user]) => user.nickname).join(', '),
+          name: item.name ?? item.displayUsers.map((user) => user.nickname).join(', '),
           displayUsers: item.displayUsers,
           lastChat: item.lastChat ? {
             ...item.lastChat,

@@ -49,7 +49,7 @@ export type ListUserProfile = {
 export type ChannelListItem = {
   channelType: string;
 
-  displayUsers: [string, ListUserProfile][],
+  displayUsers: ListUserProfile[],
 
   lastChat?: {
     profile: ListUserProfile,
