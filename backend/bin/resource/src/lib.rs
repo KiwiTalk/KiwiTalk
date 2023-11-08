@@ -1,66 +1,52 @@
 use anyhow::bail;
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use std::{
-    any::{Any, TypeId},
-    sync::{
-        atomic::{AtomicI32, Ordering},
-        Arc,
-    },
+use std::sync::{
+    atomic::{AtomicU32, Ordering},
+    Arc,
 };
-use tauri::{
-    plugin::{Builder, TauriPlugin},
-    Manager, Runtime, State,
-};
-
-pub fn init<R: Runtime>() -> TauriPlugin<R> {
-    Builder::new("resource")
-        .setup(|app| {
-            app.manage(ResourceTable::new());
-
-            Ok(())
-        })
-        .build()
-}
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct ResourceId(i32);
+pub struct ResourceId(u32);
 
-pub type ResourceTableState<'a> = State<'a, ResourceTable>;
-
-#[derive(Debug)]
-pub struct ResourceTable {
-    index: AtomicI32,
-    map: DashMap<(TypeId, ResourceId), Arc<dyn Any + Send + Sync>>,
-}
-
-impl ResourceTable {
-    fn new() -> Self {
-        Self {
-            index: AtomicI32::new(0),
+pub trait Resource {
+    fn new_table() -> ResourceTable<Self>
+    where
+        Self: Sized,
+    {
+        ResourceTable {
+            index: AtomicU32::new(0),
             map: DashMap::new(),
         }
     }
+}
 
-    pub fn insert<T: Send + Sync + 'static>(&self, value: T) -> ResourceId {
+#[derive(Debug)]
+pub struct ResourceTable<T> {
+    index: AtomicU32,
+    map: DashMap<ResourceId, Arc<T>>,
+}
+
+impl<T: Resource> ResourceTable<T> {
+    pub fn insert(&self, value: T) -> ResourceId {
         let id = ResourceId(self.index.fetch_add(1, Ordering::AcqRel));
 
-        self.map.insert((TypeId::of::<T>(), id), Arc::new(value));
+        self.map.insert(id, Arc::new(value));
 
         id
     }
 
-    pub fn get<T: Send + Sync + 'static>(&self, id: ResourceId) -> anyhow::Result<Arc<T>> {
-        if let Some(res) = self.map.get(&(TypeId::of::<T>(), id)) {
-            Ok(res.clone().downcast::<T>().unwrap())
+    pub fn get(&self, rid: ResourceId) -> anyhow::Result<Arc<T>> {
+        if let Some(res) = self.map.get(&rid) {
+            Ok(res.clone())
         } else {
             bail!("bad resource id")
         }
     }
 
-    pub fn remove<T: Send + Sync + 'static>(&self, id: ResourceId) -> anyhow::Result<Arc<T>> {
-        if let Some(res) = self.map.get(&(TypeId::of::<T>(), id)) {
-            Ok(res.clone().downcast::<T>().unwrap())
+    pub fn remove(&self, rid: ResourceId) -> anyhow::Result<Arc<T>> {
+        if let Some((_, res)) = self.map.remove(&rid) {
+            Ok(res)
         } else {
             bail!("bad resource id")
         }

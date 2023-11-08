@@ -2160,7 +2160,6 @@ dependencies = [
  "anyhow",
  "kiwi-talk-api",
  "kiwi-talk-client",
- "kiwi-talk-resource",
  "kiwi-talk-result",
  "kiwi-talk-system",
  "log",
@@ -2183,11 +2182,11 @@ version = "0.4.1"
 dependencies = [
  "anyhow",
  "arrayvec",
- "dashmap",
  "futures",
  "headless-talk",
  "hex",
  "kiwi-talk-api",
+ "kiwi-talk-resource",
  "kiwi-talk-result",
  "kiwi-talk-system",
  "log",
@@ -2209,7 +2208,6 @@ dependencies = [
  "anyhow",
  "dashmap",
  "serde",
- "tauri",
 ]
 
 [[package]]
