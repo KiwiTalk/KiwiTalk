@@ -10,11 +10,17 @@ use talk_loco_client::talk::chat::{Chat, ChatContent, ChatType};
 
 use crate::ClientState;
 
+#[derive(Debug, Serialize)]
+#[serde(tag = "kind", content = "content")]
+pub(crate) enum Channel {
+    Normal {
+        users: Vec<(String, NormalChannelUser)>,
+    },
+    Open,
+}
+
 #[tauri::command(async)]
-pub(crate) async fn load_channel(
-    id: String,
-    client: ClientState<'_>,
-) -> TauriResult<Vec<(String, NormalChannelUser)>> {
+pub(crate) async fn load_channel(id: String, client: ClientState<'_>) -> TauriResult<Channel> {
     let talk = client.talk()?;
 
     let channel = talk
@@ -23,12 +29,14 @@ pub(crate) async fn load_channel(
         .ok_or_else(|| anyhow!("channel not found"))?;
 
     match channel {
-        ClientChannel::Normal(normal) => Ok(normal
-            .users
-            .iter()
-            .cloned()
-            .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
-            .collect()),
+        ClientChannel::Normal(normal) => Ok(Channel::Normal {
+            users: normal
+                .users
+                .iter()
+                .cloned()
+                .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
+                .collect(),
+        }),
 
         _ => Err(anyhow!("unsupported channel types").into()),
     }
