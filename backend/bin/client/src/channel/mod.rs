@@ -134,9 +134,9 @@ pub(crate) struct ChannelMeta {
     #[serde(rename = "type")]
     meta_type: i32,
 
-    revision: i64,
+    revision: String,
 
-    author_id: i64,
+    author_id: String,
 
     updated_at: f64,
 
@@ -147,8 +147,8 @@ impl From<talk_loco_client::talk::channel::ChannelMeta> for ChannelMeta {
     fn from(meta: talk_loco_client::talk::channel::ChannelMeta) -> Self {
         Self {
             meta_type: meta.meta_type,
-            revision: meta.revision,
-            author_id: meta.author_id,
+            revision: meta.revision.to_string(),
+            author_id: meta.author_id.to_string(),
             updated_at: meta.updated_at as f64 * 1000.0,
             content: meta.content,
         }
