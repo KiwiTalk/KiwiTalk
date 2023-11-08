@@ -1,46 +1,5 @@
 import { tauri } from '@tauri-apps/api';
 
-class NormalChannel implements ClientChannel {
-  public id: string;
-
-  #rid: number;
-
-  constructor(rid: number, id: string) {
-    this.#rid = rid;
-    this.id = id;
-  }
-
-  async close() {
-    await tauri.invoke('plugin:client|close_channel', { rid: this.#rid });
-  }
-
-  async sendText(text: string): Promise<Chatlog> {
-    return await tauri.invoke('plugin:client|channel_send_text', { rid: this.#rid, text });
-  }
-
-  async readChat(logId: string) {
-    await tauri.invoke('plugin:client|channel_read_chat', { rid: this.#rid, logId });
-  }
-
-  async loadChat(
-    count: number,
-    fromLogId?: string,
-    exclusive: boolean = false,
-  ): Promise<Chatlog[]> {
-    return await tauri.invoke(
-      'plugin:client|channel_load_chat',
-      { rid: this.#rid, count, exclusive, fromLogId },
-    );
-  }
-
-  async getUsers(): Promise<[string, NormalChannelUser][]> {
-    return await tauri.invoke(
-      'plugin:client|channel_users',
-      { rid: this.#rid },
-    );
-  }
-}
-
 export type Chatlog = {
   /** bigint */
   logId: string;
@@ -86,22 +45,38 @@ export type NormalChannelUser = {
   suspended: boolean;
 } & ChannelUser;
 
-export interface ClientChannel {
-  id: string;
-
-  sendText(text: string): Promise<Chatlog>;
-
-  readChat(logId: string): Promise<void>;
-
-  loadChat(count: number, fromLogId?: string, exclusive?: boolean): Promise<Chatlog[]>;
-
-  getUsers(): Promise<[string, ChannelUser][]>;
-
-  close(): Promise<void>;
+type NormalChannelKind = {
+  kind: 'normal',
+  content: {
+    users: [string, NormalChannelUser][],
+  }
+}
+type OpenChannelKind = {
+  kind: 'open',
 }
 
-export async function openChannel(id: string): Promise<NormalChannel> {
-  const rid = await tauri.invoke<number>('plugin:client|open_channel', { id });
+export type Channel = NormalChannelKind | OpenChannelKind;
 
-  return new NormalChannel(rid, id);
+export async function loadChannel(id: string): Promise<Channel> {
+  return tauri.invoke('plugin:client|load_channel', { id });
+}
+
+export async function sendText(id: string, text: string): Promise<Chatlog> {
+  return await tauri.invoke('plugin:client|channel_send_text', { id, text });
+}
+
+export async function normalChannelReadChat(id: string, logId: string) {
+  await tauri.invoke('plugin:client|normal_channel_read_chat', { id, logId });
+}
+
+export async function loadChat(
+  id: string,
+  count: number,
+  fromLogId?: string,
+  exclusive: boolean = false,
+): Promise<Chatlog[]> {
+  return await tauri.invoke(
+    'plugin:client|channel_load_chat',
+    { id, count, exclusive, fromLogId },
+  );
 }

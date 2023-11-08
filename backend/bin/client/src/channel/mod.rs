@@ -14,6 +14,7 @@ use self::normal::NormalChannel;
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "kind", content = "content")]
+#[serde(rename_all = "camelCase")]
 pub(crate) enum Channel {
     Normal(NormalChannel),
 }
