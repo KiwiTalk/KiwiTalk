@@ -4,13 +4,13 @@ use serde::Serialize;
 
 use kiwi_talk_result::TauriResult;
 
-use super::ClientState;
+use crate::ClientState;
 
 #[tauri::command(async)]
-pub(super) async fn channel_list(
+pub(crate) async fn channel_list(
     client: ClientState<'_>,
 ) -> TauriResult<Vec<(String, ChannelListItem)>> {
-    let talk = client.with(|inner| inner.talk.clone())?;
+    let talk = client.talk()?;
 
     Ok(talk
         .channel_list()
@@ -23,7 +23,7 @@ pub(super) async fn channel_list(
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 
-pub(super) struct DisplayUser {
+pub(crate) struct DisplayUser {
     id: String,
     nickname: String,
     profile_url: Option<String>,
@@ -41,7 +41,7 @@ impl From<headless_talk::user::DisplayUser> for DisplayUser {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct ChannelListItem {
+pub(crate) struct ChannelListItem {
     channel_type: String,
 
     display_users: ArrayVec<DisplayUser, 4>,
@@ -75,7 +75,7 @@ impl From<headless_talk::channel::ChannelListItem> for ChannelListItem {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct PreviewChat {
+pub(crate) struct PreviewChat {
     pub user: Option<DisplayUser>,
 
     pub chat_type: i32,

@@ -1,75 +1,42 @@
-use std::{
-    ops::{Bound, Deref},
-    sync::atomic::{AtomicU32, Ordering},
-};
+pub mod normal;
+
+use std::ops::Bound;
 
 use anyhow::{anyhow, Context};
-use dashmap::DashMap;
 use headless_talk::channel::ClientChannel;
 use kiwi_talk_result::TauriResult;
 use serde::Serialize;
 use talk_loco_client::talk::chat::{Chat, ChatContent, ChatType};
-use tauri::State;
 
 use crate::ClientState;
 
-pub struct ChannelMap {
-    counter: AtomicU32,
-    map: DashMap<u32, ClientChannel>,
-}
-
-impl ChannelMap {
-    pub fn new() -> Self {
-        Self {
-            counter: AtomicU32::new(0),
-            map: DashMap::new(),
-        }
-    }
-
-    pub fn insert(&self, value: ClientChannel) -> u32 {
-        let rid = self.counter.fetch_add(1, Ordering::AcqRel);
-
-        self.map.insert(rid, value);
-
-        rid
-    }
-
-    fn remove(&self, rid: u32) -> Option<ClientChannel> {
-        self.map.remove(&rid).map(|(_, value)| value)
-    }
-
-    fn get(&self, rid: u32) -> anyhow::Result<impl Deref<Target = ClientChannel> + '_> {
-        match self.map.get_mut(&rid) {
-            Some(channel) => Ok(channel),
-
-            None => Err(anyhow!("cannot find channel")),
-        }
-    }
-}
-
 #[tauri::command(async)]
-pub(super) async fn open_channel(
+pub(crate) async fn load_channel(
     id: String,
-    map: State<'_, ChannelMap>,
     client: ClientState<'_>,
-) -> TauriResult<u32> {
-    let talk = match &*client.read() {
-        Some(client) => client.talk.clone(),
+) -> TauriResult<Vec<(String, NormalChannelUser)>> {
+    let talk = client.talk()?;
 
-        _ => return Err(anyhow!("client is not created").into()),
-    };
+    let channel = talk
+        .load_channel(id.parse().context("invalid id")?)
+        .await?
+        .ok_or_else(|| anyhow!("channel not found"))?;
 
-    Ok(map.insert(
-        talk.open_channel(id.parse().context("invalid id")?)
-            .await
-            .context("cannot open channel")?
-            .ok_or_else(|| anyhow!("cannot find channel"))?,
-    ))
+    match channel {
+        ClientChannel::Normal(normal) => Ok(normal
+            .users
+            .iter()
+            .cloned()
+            .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
+            .collect()),
+
+        _ => Err(anyhow!("unsupported channel types").into()),
+    }
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct Chatlog {
+pub(crate) struct Chatlog {
     log_id: String,
     prev_log_id: Option<String>,
 
@@ -102,14 +69,15 @@ impl From<talk_loco_client::talk::chat::Chatlog> for Chatlog {
 }
 
 #[tauri::command(async)]
-pub(super) async fn channel_send_text(
-    rid: u32,
+pub(crate) async fn channel_send_text(
+    id: String,
     text: String,
-    map: State<'_, ChannelMap>,
+    client: ClientState<'_>,
 ) -> TauriResult<Chatlog> {
-    let channel = map.get(rid)?;
+    let talk = client.talk()?;
 
-    let log = channel
+    let log = talk
+        .channel(id.parse().context("invalid channel id")?)
         .send_chat(
             Chat {
                 chat_type: ChatType::TEXT,
@@ -128,16 +96,17 @@ pub(super) async fn channel_send_text(
 }
 
 #[tauri::command(async)]
-pub(super) async fn channel_load_chat(
-    rid: u32,
+pub(crate) async fn channel_load_chat(
+    id: String,
     from_log_id: Option<String>,
     count: i64,
     exclusive: bool,
-    map: State<'_, ChannelMap>,
+    client: ClientState<'_>,
 ) -> TauriResult<Vec<Chatlog>> {
-    let channel = map.get(rid)?;
+    let talk = client.talk()?;
 
-    let chats = channel
+    let chats = talk
+        .channel(id.parse().context("invalid channel id")?)
         .load_chat_from(
             match from_log_id {
                 Some(from_log_id) => {
@@ -160,25 +129,9 @@ pub(super) async fn channel_load_chat(
     Ok(chats.into_iter().map(Into::into).collect::<Vec<_>>())
 }
 
-#[tauri::command(async)]
-pub(super) async fn channel_read_chat(
-    rid: u32,
-    log_id: String,
-    map: State<'_, ChannelMap>,
-) -> TauriResult<()> {
-    let channel = map.get(rid)?;
-
-    channel
-        .read_chat(log_id.parse().context("invalid logId")?)
-        .await
-        .context("cannot read chat")?;
-
-    Ok(())
-}
-
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct NormalChannelUser {
+pub(crate) struct NormalChannelUser {
     nickname: String,
 
     profile_url: String,
@@ -209,31 +162,4 @@ impl From<headless_talk::channel::normal::user::NormalChannelUser> for NormalCha
             watermark: user.watermark.to_string(),
         }
     }
-}
-
-#[tauri::command(async)]
-pub(super) async fn channel_users(
-    rid: u32,
-    map: State<'_, ChannelMap>,
-) -> TauriResult<Vec<(String, NormalChannelUser)>> {
-    let channel = map.get(rid)?;
-
-    match &*channel {
-        ClientChannel::Normal(_, users) => Ok(users
-            .iter()
-            .cloned()
-            .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
-            .collect()),
-
-        _ => Err(anyhow!("unsupported channel types").into()),
-    }
-}
-
-#[tauri::command]
-pub(super) fn close_channel(rid: u32, map: State<'_, ChannelMap>) -> TauriResult<()> {
-    if map.remove(rid).is_none() {
-        return Err(anyhow!("cannot find channel").into());
-    }
-
-    Ok(())
 }

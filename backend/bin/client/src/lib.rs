@@ -10,7 +10,7 @@ use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
-use std::{ops::Deref, sync::Arc, task::Poll};
+use std::sync::Arc;
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
@@ -18,7 +18,6 @@ use tauri::{
 };
 
 use anyhow::{anyhow, Context};
-use futures::{future::poll_fn, ready};
 use headless_talk::{
     init::{config::ClientEnv, Credential, TalkInitializer},
     ClientStatus, HeadlessTalk,
@@ -45,14 +44,11 @@ pub async fn init<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<
             created,
             create,
             destroy,
-            next_main_event,
             channel_list::channel_list,
-            channel::open_channel,
+            channel::load_channel,
             channel::channel_send_text,
-            channel::channel_read_chat,
-            channel::close_channel,
             channel::channel_load_chat,
-            channel::channel_users,
+            channel::normal::normal_channel_read_chat,
         ])
         .build())
 }
@@ -93,16 +89,17 @@ async fn create(
         return Err(anyhow!("not logon").into());
     };
 
-    state.create(
-        status.into(),
-        Credential {
-            access_token: &access_token,
-            device_uuid: &get_system_info().device.device_uuid,
-        },
-        user_id as _,
-    )
-    .await
-    .context("cannot create client")?;
+    state
+        .create(
+            status.into(),
+            Credential {
+                access_token: &access_token,
+                device_uuid: &get_system_info().device.device_uuid,
+            },
+            user_id as _,
+        )
+        .await
+        .context("cannot create client")?;
 
     Ok(0)
 }
@@ -114,27 +111,9 @@ fn destroy(state: ClientState<'_>) -> TauriResult<()> {
     Ok(())
 }
 
-#[tauri::command(async)]
-async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<MainEvent>> {
-    Ok(poll_fn(|cx| {
-        let mut client = client.write();
-
-        let read = match &mut *client {
-            Some(client) => ready!(client.event_rx.poll_recv(cx)),
-            _ => return Poll::Ready(None),
-        };
-
-        Poll::Ready(read)
-    })
-    .await
-    .transpose()?)
-}
-
 #[derive(Debug)]
 struct Inner {
     talk: Arc<HeadlessTalk>,
-    event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
-    
 }
 
 #[derive(Debug)]
@@ -213,7 +192,6 @@ impl Client {
 
         *self.0.write() = Some(Inner {
             talk: Arc::new(talk),
-            event_rx,
         });
 
         Ok(())
@@ -223,16 +201,24 @@ impl Client {
         self.0.read().is_some()
     }
 
-    fn inner(&self) -> anyhow::Result<impl Deref<Target = Inner>> {
-        self.0
+    fn with<T>(&self, f: impl FnOnce(&Inner) -> T) -> anyhow::Result<T> {
+        Ok(f(self
+            .0
             .read()
-            .ok_or_else(|| anyhow!("client is not created"))
+            .as_ref()
+            .ok_or_else(|| anyhow!("client is not created"))?))
+    }
+
+    fn talk(&self) -> anyhow::Result<Arc<HeadlessTalk>> {
+        self.with(|inner| inner.talk.clone())
     }
 
     fn destroy(&self) -> anyhow::Result<()> {
         self.0
             .write()
             .take()
-            .ok_or_else(|| anyhow!("client is not created"))
+            .ok_or_else(|| anyhow!("client is not created"))?;
+
+        Ok(())
     }
 }
