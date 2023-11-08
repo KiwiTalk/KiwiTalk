@@ -2215,6 +2215,7 @@ version = "0.4.2"
 dependencies = [
  "anyhow",
  "base64 0.21.5",
+ "futures",
  "hostname",
  "log",
  "rand 0.8.5",
