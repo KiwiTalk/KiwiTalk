@@ -5,13 +5,12 @@ mod constants;
 mod event;
 mod handler;
 
-use channel::ChannelMap;
 use handler::handle_event;
 use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
-use std::{sync::Arc, task::Poll};
+use std::{ops::Deref, sync::Arc, task::Poll};
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
@@ -35,11 +34,10 @@ use constants::{TALK_APP_VERSION, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS};
 
 use self::{conn::create_secure_stream, event::MainEvent};
 
-pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
+pub async fn init<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
     Ok(Builder::new(name)
         .setup(move |handle| {
-            handle.manage::<RwLock<Option<Client>>>(RwLock::new(None));
-            handle.manage(ChannelMap::new());
+            handle.manage::<Client>(Client::new());
 
             Ok(())
         })
@@ -59,11 +57,11 @@ pub async fn init_plugin<R: Runtime>(name: &'static str) -> anyhow::Result<Tauri
         .build())
 }
 
-type ClientState<'a> = tauri::State<'a, RwLock<Option<Client>>>;
+type ClientState<'a> = tauri::State<'a, Client>;
 
 #[tauri::command]
 fn created(state: ClientState<'_>) -> bool {
-    state.read().is_some()
+    state.created()
 }
 
 #[derive(Clone, Deserialize, Copy)]
@@ -95,7 +93,7 @@ async fn create(
         return Err(anyhow!("not logon").into());
     };
 
-    let client = create_client(
+    state.create(
         status.into(),
         Credential {
             access_token: &access_token,
@@ -106,14 +104,14 @@ async fn create(
     .await
     .context("cannot create client")?;
 
-    *state.write() = Some(client);
-
     Ok(0)
 }
 
 #[tauri::command]
-fn destroy(state: ClientState<'_>) -> bool {
-    state.write().take().is_some()
+fn destroy(state: ClientState<'_>) -> TauriResult<()> {
+    state.destroy()?;
+
+    Ok(())
 }
 
 #[tauri::command(async)]
@@ -133,78 +131,108 @@ async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<MainEven
 }
 
 #[derive(Debug)]
-struct Client {
+struct Inner {
     talk: Arc<HeadlessTalk>,
     event_rx: mpsc::Receiver<anyhow::Result<MainEvent>>,
+    
 }
 
-async fn create_client(
-    status: ClientStatus,
-    credential: Credential<'_>,
-    user_id: i64,
-) -> anyhow::Result<Client> {
-    let info = get_system_info();
+#[derive(Debug)]
+struct Client(RwLock<Option<Inner>>);
 
-    let user_dir = info.data_dir.join("userdata").join({
-        let mut digest = Sha256::new();
+impl Client {
+    const fn new() -> Self {
+        Self(RwLock::new(None))
+    }
 
-        digest.update("user_");
-        digest.update(format!("{user_id}"));
+    async fn create(
+        &self,
+        status: ClientStatus,
+        credential: Credential<'_>,
+        user_id: i64,
+    ) -> anyhow::Result<()> {
+        let info = get_system_info();
 
-        hex::encode(digest.finalize())
-    });
+        let user_dir = info.data_dir.join("userdata").join({
+            let mut digest = Sha256::new();
 
-    tokio::fs::create_dir_all(&user_dir)
-        .await
-        .context("cannot create user directory")?;
+            digest.update("user_");
+            digest.update(format!("{user_id}"));
 
-    let checkin = checkin(user_id).await?;
+            hex::encode(digest.finalize())
+        });
 
-    let client = LocoClient::new(
-        create_secure_stream((checkin.host.as_str(), checkin.port as u16))
+        tokio::fs::create_dir_all(&user_dir)
             .await
-            .context("failed to create secure stream")?,
-    );
+            .context("cannot create user directory")?;
 
-    let initializer = TalkInitializer::new(
-        client,
-        ClientEnv {
-            os: TALK_OS,
-            net_type: TALK_NET_TYPE,
-            app_version: TALK_APP_VERSION,
-            mccmnc: TALK_MCCMNC,
-            language: info.device.language(),
-        },
-        user_dir.join("client.db").to_string_lossy(),
-    )
-    .await
-    .context("failed to login")?;
+        let checkin = checkin(user_id).await?;
 
-    let (event_tx, event_rx) = mpsc::channel(100);
+        let client = LocoClient::new(
+            create_secure_stream((checkin.host.as_str(), checkin.port as u16))
+                .await
+                .context("failed to create secure stream")?,
+        );
 
-    let talk = initializer
-        .login(credential, status, move |res| {
-            let event_tx = event_tx.clone();
+        let initializer = TalkInitializer::new(
+            client,
+            ClientEnv {
+                os: TALK_OS,
+                net_type: TALK_NET_TYPE,
+                app_version: TALK_APP_VERSION,
+                mccmnc: TALK_MCCMNC,
+                language: info.device.language(),
+            },
+            user_dir.join("client.db").to_string_lossy(),
+        )
+        .await
+        .context("failed to login")?;
 
-            async move {
-                match res {
-                    Ok(event) => {
-                        if let Err(err) = handle_event(event, event_tx.clone()).await {
-                            let _ = event_tx.send(Err(err)).await;
+        let (event_tx, event_rx) = mpsc::channel(100);
+
+        let talk = initializer
+            .login(credential, status, move |res| {
+                let event_tx = event_tx.clone();
+
+                async move {
+                    match res {
+                        Ok(event) => {
+                            if let Err(err) = handle_event(event, event_tx.clone()).await {
+                                let _ = event_tx.send(Err(err)).await;
+                            }
+                        }
+
+                        Err(err) => {
+                            let _ = event_tx.send(Err(err.into())).await;
                         }
                     }
-
-                    Err(err) => {
-                        let _ = event_tx.send(Err(err.into())).await;
-                    }
                 }
-            }
-        })
-        .await
-        .context("failed to initialize client")?;
+            })
+            .await
+            .context("failed to initialize client")?;
 
-    Ok(Client {
-        talk: Arc::new(talk),
-        event_rx,
-    })
+        *self.0.write() = Some(Inner {
+            talk: Arc::new(talk),
+            event_rx,
+        });
+
+        Ok(())
+    }
+
+    fn created(&self) -> bool {
+        self.0.read().is_some()
+    }
+
+    fn inner(&self) -> anyhow::Result<impl Deref<Target = Inner>> {
+        self.0
+            .read()
+            .ok_or_else(|| anyhow!("client is not created"))
+    }
+
+    fn destroy(&self) -> anyhow::Result<()> {
+        self.0
+            .write()
+            .take()
+            .ok_or_else(|| anyhow!("client is not created"))
+    }
 }

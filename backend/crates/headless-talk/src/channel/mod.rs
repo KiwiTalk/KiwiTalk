@@ -37,7 +37,7 @@ pub type UserList<T> = Vec<(i64, T)>;
 
 #[derive(Debug, Clone)]
 pub struct ListPreviewChat {
-    pub profile: Option<DisplayUserProfile>,
+    pub user: Option<DisplayUser>,
     pub chatlog: Chatlog,
 }
 
@@ -307,7 +307,7 @@ pub(crate) async fn load_list_item(
                     .map(Into::into);
 
                 let last_chat: Option<ListPreviewChat> = if let Some(chat) = last_chat {
-                    let profile = if let Some((nickname, image_url)) = user_profile::table
+                    let user = if let Some((nickname, image_url)) = user_profile::table
                         .select((user_profile::nickname, user_profile::profile_url))
                         .filter(
                             user_profile::channel_id
@@ -317,16 +317,19 @@ pub(crate) async fn load_list_item(
                         .first::<(String, String)>(conn)
                         .optional()?
                     {
-                        Some(DisplayUserProfile {
-                            nickname,
-                            image_url: Some(image_url),
+                        Some(DisplayUser {
+                            id: chat.author_id,
+                            profile: DisplayUserProfile {
+                                nickname,
+                                image_url: Some(image_url),
+                            },
                         })
                     } else {
                         None
                     };
 
                     Some(ListPreviewChat {
-                        profile,
+                        user,
                         chatlog: chat,
                     })
                 } else {
