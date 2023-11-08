@@ -1,21 +1,40 @@
-use headless_talk::event::{channel::ChannelEvent, ClientEvent};
+use headless_talk::event::{
+    channel::ChannelEvent as TalkChannelEvent, ClientEvent as TalkClientEvent,
+};
 use tauri::api::notification::Notification;
 use tokio::sync::mpsc;
 
-use super::event::MainEvent;
+use crate::event::ChannelEvent;
 
-type EventSender = mpsc::Sender<anyhow::Result<MainEvent>>;
+use super::event::ClientEvent;
 
-pub async fn handle_event(event: ClientEvent, tx: EventSender) -> anyhow::Result<()> {
+type EventSender = mpsc::Sender<anyhow::Result<ClientEvent>>;
+
+pub(crate) async fn handle_event(event: TalkClientEvent, tx: EventSender) -> anyhow::Result<()> {
     match event {
-        ClientEvent::Channel {
-            id,
-            event:
-                ChannelEvent::Chat {
-                    chat,
-                    user_nickname,
-                    ..
-                },
+        TalkClientEvent::Channel { id, event } => {
+            handle_channel_event(id, event, tx).await?;
+        }
+
+        TalkClientEvent::Kickout(reason) => {
+            let _ = tx.send(Ok(ClientEvent::Kickout { reason })).await;
+        }
+
+        _ => {}
+    }
+
+    Ok(())
+}
+
+async fn handle_channel_event(
+    id: i64,
+    event: TalkChannelEvent,
+    tx: EventSender,
+) -> anyhow::Result<()> {
+    match event {
+        TalkChannelEvent::Chat {
+            chat,
+            user_nickname,
             ..
         } => {
             let message = chat
@@ -31,21 +50,60 @@ pub async fn handle_event(event: ClientEvent, tx: EventSender) -> anyhow::Result
                 .show()?;
 
             let _ = tx
-                .send(Ok(MainEvent::Chat {
-                    channel: format!("{id}"),
-                    preview_message: message.to_string(),
-
-                    // TODO:: fix or remove
-                    unread_count: 1,
+                .send(Ok(ClientEvent::Channel {
+                    channel: id.to_string(),
+                    event: ChannelEvent::Chat(chat.into()),
                 }))
                 .await;
         }
 
-        ClientEvent::Kickout(reason) => {
-            let _ = tx.send(Ok(MainEvent::Kickout { reason })).await;
+        TalkChannelEvent::ChatRead { user_id, log_id } => {
+            let _ = tx
+                .send(Ok(ClientEvent::Channel {
+                    channel: id.to_string(),
+                    event: ChannelEvent::ChatRead {
+                        user_id: user_id.to_string(),
+                        log_id: log_id.to_string(),
+                    },
+                }))
+                .await;
         }
 
-        _ => {}
+        TalkChannelEvent::MetaChanged(meta) => {
+            let _ = tx
+                .send(Ok(ClientEvent::Channel {
+                    channel: id.to_string(),
+                    event: ChannelEvent::MetaChanged(meta.into()),
+                }))
+                .await;
+        }
+
+        TalkChannelEvent::ChatDeleted(chatlog) => {
+            let _ = tx
+                .send(Ok(ClientEvent::Channel {
+                    channel: id.to_string(),
+                    event: ChannelEvent::ChatDeleted(chatlog.into()),
+                }))
+                .await;
+        }
+
+        TalkChannelEvent::Added { chatlog } => {
+            let _ = tx
+                .send(Ok(ClientEvent::Channel {
+                    channel: id.to_string(),
+                    event: ChannelEvent::Added(chatlog.map(|log| log.into())),
+                }))
+                .await;
+        }
+
+        TalkChannelEvent::Left => {
+            let _ = tx
+                .send(Ok(ClientEvent::Channel {
+                    channel: id.to_string(),
+                    event: ChannelEvent::Left,
+                }))
+                .await;
+        }
     }
 
     Ok(())

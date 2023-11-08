@@ -151,7 +151,7 @@ impl SessionHandler {
 
         Ok(Some(ClientEvent::Channel {
             id: value.chat_id,
-            event: ChannelEvent::ChangeMeta(value.meta),
+            event: ChannelEvent::MetaChanged(value.meta),
         }))
     }
 

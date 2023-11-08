@@ -10,7 +10,7 @@ use kiwi_talk_api::auth::CredentialState;
 use parking_lot::RwLock;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
-use std::sync::Arc;
+use std::{sync::Arc, task::Poll};
 use tauri::{
     generate_handler,
     plugin::{Builder, TauriPlugin},
@@ -18,6 +18,7 @@ use tauri::{
 };
 
 use anyhow::{anyhow, Context};
+use futures::future::poll_fn;
 use headless_talk::{
     init::{config::ClientEnv, Credential, TalkInitializer},
     ClientStatus, HeadlessTalk,
@@ -31,7 +32,7 @@ use kiwi_talk_system::get_system_info;
 use conn::checkin;
 use constants::{TALK_APP_VERSION, TALK_MCCMNC, TALK_NET_TYPE, TALK_OS};
 
-use self::{conn::create_secure_stream, event::MainEvent};
+use self::{conn::create_secure_stream, event::ClientEvent};
 
 pub async fn init<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<R>> {
     Ok(Builder::new(name)
@@ -44,6 +45,7 @@ pub async fn init<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<
             created,
             create,
             destroy,
+            next_main_event,
             channel_list::channel_list,
             channel::load_channel,
             channel::channel_send_text,
@@ -111,9 +113,23 @@ fn destroy(state: ClientState<'_>) -> TauriResult<()> {
     Ok(())
 }
 
+#[tauri::command(async)]
+async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
+    Ok(poll_fn(|cx| {
+        if let Ok(poll) = client.with_mut(|inner| inner.event_rx.poll_recv(cx)) {
+            poll
+        } else {
+            Poll::Pending
+        }
+    })
+    .await
+    .transpose()?)
+}
+
 #[derive(Debug)]
 struct Inner {
     talk: Arc<HeadlessTalk>,
+    event_rx: mpsc::Receiver<anyhow::Result<ClientEvent>>,
 }
 
 #[derive(Debug)]
@@ -192,6 +208,7 @@ impl Client {
 
         *self.0.write() = Some(Inner {
             talk: Arc::new(talk),
+            event_rx,
         });
 
         Ok(())
@@ -206,6 +223,14 @@ impl Client {
             .0
             .read()
             .as_ref()
+            .ok_or_else(|| anyhow!("client is not created"))?))
+    }
+
+    fn with_mut<T>(&self, f: impl FnOnce(&mut Inner) -> T) -> anyhow::Result<T> {
+        Ok(f(self
+            .0
+            .write()
+            .as_mut()
             .ok_or_else(|| anyhow!("client is not created"))?))
     }
 

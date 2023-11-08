@@ -10,12 +10,12 @@ use talk_loco_client::talk::chat::{Chat, ChatContent, ChatType};
 
 use crate::ClientState;
 
+use self::normal::NormalChannel;
+
 #[derive(Debug, Serialize)]
 #[serde(tag = "kind", content = "content")]
 pub(crate) enum Channel {
-    Normal {
-        users: Vec<(String, NormalChannelUser)>,
-    },
+    Normal(NormalChannel),
 }
 
 #[tauri::command(async)]
@@ -28,14 +28,7 @@ pub(crate) async fn load_channel(id: String, client: ClientState<'_>) -> TauriRe
         .ok_or_else(|| anyhow!("channel not found"))?;
 
     match channel {
-        ClientChannel::Normal(normal) => Ok(Channel::Normal {
-            users: normal
-                .users
-                .iter()
-                .cloned()
-                .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
-                .collect(),
-        }),
+        ClientChannel::Normal(normal) => Ok(Channel::Normal(NormalChannel::from(normal))),
 
         _ => Err(anyhow!("unsupported channel types").into()),
     }
@@ -136,37 +129,28 @@ pub(crate) async fn channel_load_chat(
     Ok(chats.into_iter().map(Into::into).collect::<Vec<_>>())
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct NormalChannelUser {
-    nickname: String,
+#[derive(Debug, Clone, Serialize)]
+pub(crate) struct ChannelMeta {
+    #[serde(rename = "type")]
+    meta_type: i32,
 
-    profile_url: String,
-    full_profile_url: String,
-    original_profile_url: String,
+    revision: i64,
 
-    country_iso: String,
-    status_message: String,
-    account_id: String,
-    linked_services: String,
-    suspended: bool,
+    author_id: i64,
 
-    watermark: String,
+    updated_at: f64,
+
+    content: String,
 }
 
-impl From<headless_talk::channel::normal::user::NormalChannelUser> for NormalChannelUser {
-    fn from(user: headless_talk::channel::normal::user::NormalChannelUser) -> Self {
+impl From<talk_loco_client::talk::channel::ChannelMeta> for ChannelMeta {
+    fn from(meta: talk_loco_client::talk::channel::ChannelMeta) -> Self {
         Self {
-            nickname: user.profile.nickname,
-            profile_url: user.profile.image_url,
-            full_profile_url: user.profile.full_image_url,
-            original_profile_url: user.profile.original_image_url,
-            country_iso: user.country_iso,
-            status_message: user.status_message,
-            account_id: user.account_id.to_string(),
-            linked_services: user.linked_services,
-            suspended: user.suspended,
-            watermark: user.watermark.to_string(),
+            meta_type: meta.meta_type,
+            revision: meta.revision,
+            author_id: meta.author_id,
+            updated_at: meta.updated_at as f64 * 1000.0,
+            content: meta.content,
         }
     }
 }
