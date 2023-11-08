@@ -16,6 +16,10 @@ pub(crate) async fn handle_event(event: TalkClientEvent, tx: EventSender) -> any
             handle_channel_event(id, event, tx).await?;
         }
 
+        TalkClientEvent::SwitchServer => {
+            let _ = tx.send(Ok(ClientEvent::SwitchServer)).await;
+        }
+
         TalkClientEvent::Kickout(reason) => {
             let _ = tx.send(Ok(ClientEvent::Kickout { reason })).await;
         }

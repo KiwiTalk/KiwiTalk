@@ -45,7 +45,7 @@ pub async fn init<R: Runtime>(name: &'static str) -> anyhow::Result<TauriPlugin<
             created,
             create,
             destroy,
-            next_main_event,
+            next_event,
             channel_list::channel_list,
             channel::load_channel,
             channel::channel_send_text,
@@ -114,7 +114,7 @@ fn destroy(state: ClientState<'_>) -> TauriResult<()> {
 }
 
 #[tauri::command(async)]
-async fn next_main_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
+async fn next_event(client: ClientState<'_>) -> TauriResult<Option<ClientEvent>> {
     Ok(poll_fn(|cx| {
         if let Ok(poll) = client.with_mut(|inner| inner.event_rx.poll_recv(cx)) {
             poll

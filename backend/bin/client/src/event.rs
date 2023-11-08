@@ -10,6 +10,8 @@ pub(crate) enum ClientEvent {
         event: ChannelEvent,
     },
 
+    SwitchServer,
+
     Kickout {
         reason: i16,
     },
