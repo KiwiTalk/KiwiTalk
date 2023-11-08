@@ -62,7 +62,7 @@ impl From<headless_talk::channel::ChannelListItem> for ChannelListItem {
             display_users: item
                 .display_users
                 .into_iter()
-                .map(|user| DisplayUser::from(user))
+                .map(DisplayUser::from)
                 .collect::<ArrayVec<_, 4>>(),
             last_chat: item.last_chat.map(PreviewChat::from),
             name: item.profile.name,

@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::channel::{Chatlog, ChannelMeta};
+use crate::channel::{ChannelMeta, Chatlog};
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "type", content = "content", rename_all = "camelCase")]
