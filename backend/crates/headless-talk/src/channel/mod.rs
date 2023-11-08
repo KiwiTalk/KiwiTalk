@@ -1,16 +1,15 @@
 pub mod normal;
 pub mod open;
 
-use std::{ops::Bound, time::SystemTime};
+use std::ops::Bound;
 
 use crate::{
     conn::Conn,
     database::{
         model::{channel::ChannelListRow, chat::ChatRow},
-        schema::{self, channel_list, chat, user_profile},
+        schema::{chat, user_profile},
         DatabasePool, PoolTaskError,
     },
-    updater::channel::ChannelUpdater,
     user::{DisplayUser, DisplayUserProfile},
     ClientResult,
 };
@@ -26,10 +25,7 @@ use talk_loco_client::talk::{
     session::{channel::write, TalkSession},
 };
 
-use self::{
-    normal::{user::NormalChannelUser, NormalChannel},
-    open::OpenChannel,
-};
+use self::{normal::NormalChannel, open::OpenChannel};
 
 pub type ChannelMetaMap = IntMap<i32, ChannelMeta>;
 
@@ -64,31 +60,24 @@ pub struct ChannelListItem {
 
 #[derive(Debug, Clone)]
 pub enum ClientChannel {
-    Normal(NormalChannel, UserList<NormalChannelUser>),
+    Normal(NormalChannel),
     Open(OpenChannel),
 }
 
-impl ClientChannel {
-    pub const fn id(&self) -> i64 {
-        match self {
-            ClientChannel::Normal(normal, _) => normal.id(),
-            ClientChannel::Open(open) => open.id(),
-        }
+#[derive(Debug, Clone, Copy)]
+pub struct ChannelOp<'a> {
+    id: i64,
+    conn: &'a Conn,
+}
+
+impl<'a> ChannelOp<'a> {
+    pub(crate) const fn new(id: i64, conn: &'a Conn) -> Self {
+        Self { id, conn }
     }
 
-    fn conn(&self) -> &Conn {
-        match self {
-            ClientChannel::Normal(normal, _) => &normal.inner.conn,
-            ClientChannel::Open(open) => &open.inner.conn,
-        }
-    }
-
-    pub async fn send_chat(&self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
-        let conn = self.conn();
-        let id = self.id();
-
-        let res = TalkSession(&conn.session)
-            .channel(id)
+    pub async fn send_chat(self, chat: Chat, no_seen: bool) -> ClientResult<Chatlog> {
+        let res = TalkSession(&self.conn.session)
+            .channel(self.id)
             .write_chat(&write::Request {
                 chat_type: chat.chat_type.0,
                 msg_id: chat.message_id,
@@ -100,12 +89,12 @@ impl ClientChannel {
             .await?;
 
         let logged = res.chatlog.unwrap_or(Chatlog {
-            channel_id: id,
+            channel_id: self.id,
 
             log_id: res.log_id,
             prev_log_id: Some(res.prev_id),
 
-            author_id: conn.user_id,
+            author_id: self.conn.user_id,
 
             send_at: res.send_at,
 
@@ -114,12 +103,13 @@ impl ClientChannel {
             referer: None,
         });
 
-        conn.pool
+        self.conn
+            .pool
             .spawn({
                 let logged = logged.clone();
 
                 move |conn| {
-                    diesel::replace_into(schema::chat::table)
+                    diesel::replace_into(chat::table)
                         .values(ChatRow::from_chatlog(logged, None))
                         .execute(conn)?;
 
@@ -131,55 +121,16 @@ impl ClientChannel {
         Ok(logged)
     }
 
-    pub async fn read_chat(&self, watermark: i64) -> ClientResult<()> {
-        let (id, pool) = match self {
-            ClientChannel::Normal(normal, _) => {
-                let id = normal.id();
-                let conn = &normal.inner.conn;
+    pub async fn delete_chat(self, log_id: i64) -> ClientResult<()> {
+        let id = self.id;
 
-                TalkSession(&conn.session)
-                    .normal_channel(id)
-                    .noti_read(watermark)
-                    .await?;
-
-                (id, &conn.pool)
-            }
-            ClientChannel::Open(open) => {
-                let id = open.id();
-                let conn = &open.inner.conn;
-
-                TalkSession(&conn.session)
-                    .open_channel(open.id(), open.link_id())
-                    .noti_read(watermark)
-                    .await?;
-
-                (id, &conn.pool)
-            }
-        };
-
-        pool.spawn(move |conn| {
-            diesel::update(channel_list::table)
-                .filter(channel_list::id.eq(id))
-                .set(channel_list::last_seen_log_id.eq(watermark))
-                .execute(conn)?;
-
-            Ok(())
-        })
-        .await?;
-
-        Ok(())
-    }
-
-    pub async fn delete_chat(&self, log_id: i64) -> ClientResult<()> {
-        let id = self.id();
-        let conn = self.conn();
-
-        TalkSession(&conn.session)
+        TalkSession(&self.conn.session)
             .channel(id)
             .delete_chat(log_id)
             .await?;
 
-        conn.pool
+        self.conn
+            .pool
             .spawn(move |conn| {
                 diesel::update(chat::table)
                     .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
@@ -197,20 +148,18 @@ impl ClientChannel {
         Ok(())
     }
 
-    pub async fn delete_chat_local(&self, log_id: i64) -> Result<bool, PoolTaskError> {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
-
-        let id = self.id();
-
-        self.conn()
+    pub async fn delete_chat_local(
+        self,
+        id: i64,
+        log_id: i64,
+        deleted_time: i64,
+    ) -> Result<bool, PoolTaskError> {
+        self.conn
             .pool
             .spawn(move |conn| {
                 let count = diesel::update(chat::table)
                     .filter(chat::channel_id.eq(id).and(chat::log_id.eq(log_id)))
-                    .set(chat::deleted_time.eq(now))
+                    .set(chat::deleted_time.eq(deleted_time))
                     .execute(conn)?;
 
                 Ok(count > 0)
@@ -219,13 +168,13 @@ impl ClientChannel {
     }
 
     pub async fn load_chat_from(
-        &self,
+        self,
         log_id: Bound<i64>,
         count: i64,
     ) -> Result<Vec<Chatlog>, PoolTaskError> {
-        let id = self.id();
+        let id = self.id;
 
-        self.conn()
+        self.conn
             .pool
             .spawn(move |conn| {
                 let iter = match log_id {
@@ -251,33 +200,6 @@ impl ClientChannel {
                     .collect::<Result<_, _>>()?)
             })
             .await
-    }
-
-    pub async fn leave(&self, block: bool) -> ClientResult<()> {
-        let id = self.id();
-        let conn = self.conn();
-
-        match self {
-            ClientChannel::Normal(_, _) => {
-                TalkSession(&conn.session)
-                    .normal_channel(id)
-                    .leave(block)
-                    .await?;
-            }
-
-            ClientChannel::Open(open) => {
-                TalkSession(&conn.session)
-                    .open_channel(id, open.link_id())
-                    .leave(block)
-                    .await?;
-            }
-        }
-
-        conn.pool
-            .spawn_transaction(move |conn| ChannelUpdater::new(id).remove(conn))
-            .await?;
-
-        Ok(())
     }
 }
 

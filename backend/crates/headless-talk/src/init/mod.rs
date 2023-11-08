@@ -24,7 +24,7 @@ use crate::{
     handler::{error::HandlerError, SessionHandler},
     task::BackgroundTask,
     updater::list::ChannelListUpdater,
-    ClientError, ClientStatus, HeadlessTalk, Inner,
+    ClientError, ClientStatus, HeadlessTalk,
 };
 
 use self::config::ClientEnv;
@@ -223,11 +223,9 @@ impl<'a, S: AsyncRead + AsyncWrite + Unpin> TalkInitializer<'a, S> {
             .await?;
 
         Ok(HeadlessTalk {
-            inner: Arc::new(Inner {
-                conn,
-                _ping_task: ping_task,
-                _stream_task: stream_task,
-            }),
+            conn,
+            _ping_task: ping_task,
+            _stream_task: stream_task,
         })
     }
 }

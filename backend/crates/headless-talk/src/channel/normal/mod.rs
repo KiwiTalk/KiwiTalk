@@ -1,20 +1,22 @@
 pub mod user;
 
-use std::sync::Arc;
-
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl, RunQueryDsl,
     SelectableHelper, SqliteConnection,
 };
 use talk_loco_client::talk::{
     channel::ChannelMetaType,
-    session::channel::{
-        chat_on::{ChatOnChannelUsers, NormalChatOnChannel},
-        normal,
+    session::{
+        channel::{
+            chat_on::{ChatOnChannelUsers, NormalChatOnChannel},
+            normal,
+        },
+        TalkSession,
     },
 };
 
 use crate::{
+    conn::Conn,
     database::{
         model::{
             channel::ChannelListRow,
@@ -23,11 +25,12 @@ use crate::{
                 UserProfileModel, UserProfileRow, UserProfileUpdate,
             },
         },
-        schema::{channel_meta, normal_channel_user, user_profile},
+        schema::{channel_list, channel_meta, normal_channel_user, user_profile},
         DatabasePool, PoolTaskError,
     },
+    updater::channel::ChannelUpdater,
     user::DisplayUser,
-    ClientResult, HeadlessTalk, Inner,
+    ClientResult,
 };
 
 use self::user::NormalChannelUser;
@@ -36,13 +39,61 @@ use super::{ListChannelProfile, UserList};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannel {
-    id: i64,
-    pub(super) inner: Arc<Inner>,
+    pub users: UserList<NormalChannelUser>,
 }
 
-impl NormalChannel {
-    pub const fn id(&self) -> i64 {
+#[derive(Debug, Clone, Copy)]
+pub struct NormalChannelOp<'a> {
+    id: i64,
+    conn: &'a Conn,
+}
+
+impl<'a> NormalChannelOp<'a> {
+    pub(crate) const fn new(id: i64, conn: &'a Conn) -> Self {
+        Self { id, conn }
+    }
+
+    pub const fn id(self) -> i64 {
         self.id
+    }
+
+    pub async fn read_chat(self, watermark: i64) -> ClientResult<()> {
+        let id = self.id;
+
+        TalkSession(&self.conn.session)
+            .normal_channel(id)
+            .noti_read(watermark)
+            .await?;
+
+        self.conn
+            .pool
+            .spawn(move |conn| {
+                diesel::update(channel_list::table)
+                    .filter(channel_list::id.eq(id))
+                    .set(channel_list::last_seen_log_id.eq(watermark))
+                    .execute(conn)?;
+
+                Ok(())
+            })
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn leave(self, block: bool) -> ClientResult<()> {
+        let id = self.id;
+
+        TalkSession(&self.conn.session)
+            .normal_channel(id)
+            .leave(block)
+            .await?;
+        
+        self.conn
+            .pool
+            .spawn_transaction(move |conn| ChannelUpdater::new(id).remove(conn))
+            .await?;
+
+        Ok(())
     }
 }
 
@@ -90,14 +141,12 @@ pub(super) async fn load_list_profile(
     Ok(ListChannelProfile { name, image_url })
 }
 
-pub(crate) async fn open_channel(
+pub(crate) async fn load_channel(
     id: i64,
-    client: &HeadlessTalk,
+    conn: &Conn,
     normal: NormalChatOnChannel,
-) -> ClientResult<(NormalChannel, UserList<NormalChannelUser>)> {
-    let user_list = client
-        .inner
-        .conn
+) -> ClientResult<NormalChannel> {
+    let users = conn
         .pool
         .spawn_transaction(move |conn| {
             let mut user_list: UserList<NormalChannelUser> = UserList::new();
@@ -122,13 +171,7 @@ pub(crate) async fn open_channel(
         })
         .await?;
 
-    Ok((
-        NormalChannel {
-            id,
-            inner: client.inner.clone(),
-        },
-        user_list,
-    ))
+    Ok(NormalChannel { users })
 }
 
 fn get_channel_user(

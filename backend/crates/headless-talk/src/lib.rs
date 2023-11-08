@@ -9,12 +9,14 @@ mod task;
 mod updater;
 pub mod user;
 
-use std::sync::Arc;
-
-use channel::{load_list_item, normal, ChannelListItem, ClientChannel};
+use channel::{
+    load_list_item,
+    normal::{self, NormalChannelOp},
+    open::OpenChannelOp,
+    ChannelListItem, ChannelOp, ClientChannel,
+};
 use conn::Conn;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
-pub use talk_loco_client;
 
 use database::{
     model::channel::ChannelListRow,
@@ -28,19 +30,23 @@ use talk_loco_client::{
 use task::BackgroundTask;
 use thiserror::Error;
 
-#[derive(Debug, Clone)]
+pub use talk_loco_client;
+
+#[derive(Debug)]
 pub struct HeadlessTalk {
-    inner: Arc<Inner>,
+    pub conn: Conn,
+
+    pub _ping_task: BackgroundTask,
+    pub _stream_task: BackgroundTask,
 }
 
 impl HeadlessTalk {
     pub fn user_id(&self) -> i64 {
-        self.inner.conn.user_id
+        self.conn.user_id
     }
 
     pub async fn channel_list(&self) -> Result<Vec<(i64, ChannelListItem)>, PoolTaskError> {
         let rows = self
-            .inner
             .conn
             .pool
             .spawn(|conn| {
@@ -55,7 +61,7 @@ impl HeadlessTalk {
         let mut list = Vec::with_capacity(rows.capacity());
 
         for row in rows {
-            if let Some(list_item) = load_list_item(&self.inner.conn.pool, &row).await? {
+            if let Some(list_item) = load_list_item(&self.conn.pool, &row).await? {
                 list.push((row.id, list_item))
             }
         }
@@ -63,9 +69,8 @@ impl HeadlessTalk {
         Ok(list)
     }
 
-    pub async fn open_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
+    pub async fn load_channel(&self, id: i64) -> ClientResult<Option<ClientChannel>> {
         let last_seen_log_id = self
-            .inner
             .conn
             .pool
             .spawn(move |conn| {
@@ -78,7 +83,7 @@ impl HeadlessTalk {
             })
             .await?;
 
-        let res = TalkSession(&self.inner.conn.session)
+        let res = TalkSession(&self.conn.session)
             .channel(id)
             .chat_on(last_seen_log_id)
             .await?;
@@ -87,8 +92,7 @@ impl HeadlessTalk {
             let active_user_count = active_user_ids.len() as i32;
             let watermark_iter = active_user_ids.into_iter().zip(watermarks.into_iter());
 
-            self.inner
-                .conn
+            self.conn
                 .pool
                 .spawn_transaction(move |conn| {
                     diesel::update(channel_list::table)
@@ -115,31 +119,33 @@ impl HeadlessTalk {
         Ok(match res.channel_type {
             ChatOnChannelType::DirectChat(normal)
             | ChatOnChannelType::MultiChat(normal)
-            | ChatOnChannelType::MemoChat(normal) => {
-                let (channel, user_list) = normal::open_channel(id, self, normal).await?;
-
-                Some(ClientChannel::Normal(channel, user_list))
-            }
+            | ChatOnChannelType::MemoChat(normal) => Some(ClientChannel::Normal(
+                normal::load_channel(id, &self.conn, normal).await?,
+            )),
 
             _ => None,
         })
     }
 
+    pub fn channel(&self, id: i64) -> ChannelOp<'_> {
+        ChannelOp::new(id, &self.conn)
+    }
+
+    pub fn normal_channel(&self, id: i64) -> NormalChannelOp<'_> {
+        NormalChannelOp::new(id, &self.conn)
+    }
+
+    pub fn open_channel(&self, id: i64, link_id: i64) -> OpenChannelOp<'_> {
+        OpenChannelOp::new(id, link_id, &self.conn)
+    }
+
     pub async fn set_status(&self, client_status: ClientStatus) -> ClientResult<()> {
-        TalkSession(&self.inner.conn.session)
+        TalkSession(&self.conn.session)
             .set_status(client_status as _)
             .await?;
 
         Ok(())
     }
-}
-
-#[derive(Debug)]
-struct Inner {
-    pub conn: Conn,
-
-    pub _ping_task: BackgroundTask,
-    pub _stream_task: BackgroundTask,
 }
 
 #[repr(i32)]
