@@ -149,6 +149,8 @@ async fn create_system_info(resolver: &PathResolver) -> anyhow::Result<SystemInf
         device_uuid,
     };
 
+    futures::future::join_all([&data_dir, &config_dir].iter().map(fs::create_dir_all)).await;
+
     Ok(SystemInfo {
         data_dir,
         config_dir,
