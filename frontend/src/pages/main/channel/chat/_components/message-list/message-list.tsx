@@ -1,4 +1,12 @@
-import { JSX, createEffect, createRenderEffect, createSignal, on } from 'solid-js';
+import {
+  JSX,
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  on,
+  untrack,
+} from 'solid-js';
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
@@ -20,6 +28,8 @@ export type MessageListProps = {
 };
 export const MessageList = (props: MessageListProps) => {
   const [isStickBottom, setIsStickBottom] = createSignal(true);
+
+  const members = createMemo(on(() => props.members, (members) => Object.values(members)));
 
   createRenderEffect(on(() => props.channelId, () => {
     setIsStickBottom(true);
@@ -55,19 +65,23 @@ export const MessageList = (props: MessageListProps) => {
       innerClass={styles.virtualList.inner}
       topMargin={32 + 64 + 16}
       bottomMargin={24 + 44 + 16}
-      estimatedItemHeight={75}
+      estimatedItemHeight={75 * 5}
       alignToBottom={isStickBottom()}
       onScroll={onScroll}
     >
-      {(item) => (
-        <MessageGroup
-          profile={props.members[item![0].senderId]?.profileUrl}
-          sender={props.members[item![0].senderId]?.nickname}
-          isMine={item![0].senderId === props.logonId}
-          messages={item!}
-          members={Object.values(props.members)}
-        />
-      )}
+      {(item) => {
+        const senderId = untrack(() => item![0].senderId);
+
+        return (
+          <MessageGroup
+            profile={props.members[senderId]?.profileUrl}
+            sender={props.members[senderId]?.nickname}
+            isMine={senderId === props.logonId}
+            messages={item!}
+            members={members()}
+          />
+        );
+      }}
     </VirtualList>
   );
 };

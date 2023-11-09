@@ -108,6 +108,8 @@ export const VirtualList = <
   const [topPadding, setTopPadding] = createSignal(0);
   const [bottomPadding, setBottomPadding] = createSignal(0);
   const [range, setRange] = createSignal<[number, number]>([0, 30]);
+  const [items, setItems] = createSignal<Item[]>([]);
+
   let frameRef: HTMLElement | undefined;
   let parentRef: HTMLDivElement | undefined;
 
@@ -117,12 +119,6 @@ export const VirtualList = <
       (local.itemHeight ?? local.estimatedItemHeight)
   );
   const itemHeights = new Map<number, number>();
-
-  const items = createMemo(() => {
-    if (local.reverse) return [...local.items].reverse();
-
-    return local.items;
-  });
 
   const getHeight = (index: number) => {
     const defaultValue = typeof local.itemHeight === 'function' ?
@@ -220,6 +216,11 @@ export const VirtualList = <
     tryAlignToBottom();
   });
 
+  createEffect(() => {
+    if (local.reverse) setItems(local.items.toReversed());
+    else setItems(local.items as Item[]);
+  });
+
   createEffect(on(items, () => {
     if (!parentRef || !frameRef) return;
 
@@ -286,7 +287,7 @@ export const VirtualList = <
       range: () => {
         const [start, end] = range();
 
-        if (local.reverse) return [items().length - end - 1, items().length - start - 1];
+        if (local.reverse) return [items().length - end, items().length - start];
         return [start, end];
       },
       topPadding,

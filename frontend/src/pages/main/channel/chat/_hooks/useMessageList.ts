@@ -16,7 +16,7 @@ export const useMessageList = (channelId: Accessor<string | null>): [
   const [isEnd, setIsEnd] = createSignal(false);
 
   const appendMessages = (...messages: Chatlog[]) => {
-    const result = [...messageGroups().map((group) => [...group])];
+    const result = [...messageGroups()];
     const newGroups = messages.reduce<Chatlog[][]>((acc, cur) => {
       const lastGroup = acc.at(-1);
       if (lastGroup?.at(-1)?.senderId === cur.senderId) {
@@ -30,7 +30,7 @@ export const useMessageList = (channelId: Accessor<string | null>): [
 
     const isCombine = result.at(-1)?.at(-1)?.senderId === newGroups.at(0)?.at(0)?.senderId;
     if (isCombine) {
-      result.at(-1)?.push(...newGroups.shift()!);
+      result[result.length - 1] = [...result.at(-1) ?? [], ...newGroups.shift() ?? []];
     }
     result.push(...newGroups);
     lastLogId = newGroups.at(-1)?.at(-1)?.logId;
@@ -39,7 +39,7 @@ export const useMessageList = (channelId: Accessor<string | null>): [
   };
 
   const prependMessages = (...messages: Chatlog[]) => {
-    const result = [...messageGroups().map((group) => [...group])];
+    const result = [...messageGroups()];
     const newGroups = messages.reduce<Chatlog[][]>((acc, cur) => {
       const firstGroup = acc.at(0);
       if (firstGroup?.at(0)?.senderId === cur.senderId) {
@@ -53,7 +53,7 @@ export const useMessageList = (channelId: Accessor<string | null>): [
 
     const isCombine = result.at(0)?.at(0)?.senderId === newGroups.at(-1)?.at(-1)?.senderId;
     if (isCombine) {
-      result.at(0)?.unshift(...newGroups.pop()!);
+      result[0] = [...newGroups.pop() ?? [], ...result.at(-0) ?? []];
     }
     result.unshift(...newGroups);
 

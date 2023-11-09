@@ -16,10 +16,12 @@ export const useChannelList = (): Accessor<ChannelListItem[]> => {
   createEffect(on(event, (e) => {
     if (!e) return;
 
-    const newChannelList = [...channelList().map((item) => ({ ...item }))];
-    const channel = newChannelList.find((item) => item.id === e?.channelId);
+    const newChannelList = [...channelList()];
+    const index = newChannelList.findIndex((item) => item.id === e?.channelId);
 
-    if (!channel) return;
+    if (index < 0) return;
+    const channel = { ...newChannelList[index] };
+    newChannelList[index] = channel;
 
     if (e.type === 'Chat') {
       if (e.content.senderId !== myProfile()?.profile.id) channel.unreadCount += 1;

@@ -69,22 +69,25 @@ export const ChatPage = () => {
     if (messageList.length === 0) isInit = false;
     const [start] = scroller()?.range() ?? [0, 0];
 
-    if (start === 0) {
+    if (start <= 0) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => { // queue this task as last as possible
-          const scrollElement = scroller()?.element;
-          if (!scrollElement) return;
-
-          scrollElement.scrollTo({
-            top: scrollElement.scrollHeight,
-            behavior: 'smooth',
-          });
+          scrollToBottom();
         });
       });
     }
   }));
 
   /* callbacks */
+  const scrollToBottom = () => {
+    const scrollElement = scroller()?.element;
+    if (!scrollElement) return;
+
+    scrollElement.scrollTo({
+      top: scrollElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
   const onLoadMore = () => {
     const messageLength = messageGroups().length;
 
@@ -124,7 +127,7 @@ export const ChatPage = () => {
     }
 
     if (result) {
-      scroller()?.scrollToIndex(0, { behavior: 'smooth' });
+      scrollToBottom();
     }
   };
 
