@@ -49,7 +49,7 @@ export type ListUserProfile = {
 export type ChannelListItem = {
   channelType: string;
 
-  displayUsers: ListUserProfile[],
+  displayUsers: [string, ListUserProfile][],
 
   lastChat?: {
     profile: ListUserProfile,
@@ -60,10 +60,7 @@ export type ChannelListItem = {
   },
 
   name?: string;
-  profile?: {
-    imageUrl: string;
-    fullImageUrl: string;
-  };
+  profile?: string;
 
   unreadCount: number;
 

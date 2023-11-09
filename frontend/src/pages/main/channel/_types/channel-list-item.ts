@@ -7,7 +7,7 @@ export type ChannelListItem = {
   id: string;
   name: string;
 
-  displayUsers: ListProfile[];
+  displayUsers: [string, ListProfile][];
 
   lastChat?: {
     profile?: ListProfile,

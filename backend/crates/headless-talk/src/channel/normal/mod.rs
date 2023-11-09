@@ -104,7 +104,7 @@ pub(super) async fn load_list_profile(
 ) -> Result<ListChannelProfile, PoolTaskError> {
     let id = row.id;
 
-    let (name, image_meta) = pool
+    let (name, image_url) = pool
         .spawn(move |conn| {
             let name: Option<String> = channel_meta::table
                 .filter(
@@ -138,10 +138,7 @@ pub(super) async fn load_list_profile(
             .join(", ")
     });
 
-    Ok(ListChannelProfile {
-        name,
-        image: image_meta.and_then(|meta| serde_json::from_str(&meta).ok()),
-    })
+    Ok(ListChannelProfile { name, image_url })
 }
 
 pub(crate) async fn load_channel(

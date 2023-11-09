@@ -19,7 +19,6 @@ use diesel::{
     QueryDsl, RunQueryDsl,
 };
 use nohash_hasher::IntMap;
-use serde::Deserialize;
 use talk_loco_client::talk::{
     channel::{ChannelMeta, ChannelType},
     chat::{Chat, ChatType, Chatlog},
@@ -41,14 +40,7 @@ pub struct ListPreviewChat {
 #[derive(Debug, Clone)]
 pub struct ListChannelProfile {
     pub name: String,
-    pub image: Option<ListChannelProfileImage>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ListChannelProfileImage {
-    pub image_url: String,
-    pub full_image_url: String,
+    pub image_url: Option<String>,
 }
 
 #[derive(Debug, Clone)]
