@@ -10,6 +10,7 @@ import {
 
 import { created, create, createMainEventStream } from '@/api/client/client';
 import { KiwiTalkEvent, LogoutReason } from '@/api';
+import { createSelfChannelEventStream } from '../_utils';
 
 const ReadyContext = createContext<Accessor<boolean>>(() => false);
 export const useReady = () => useContext(ReadyContext);
@@ -50,6 +51,24 @@ export const ReadyProvider = (props: ReadyProviderProps) => {
       props.onLogout?.({ type: 'Error', err });
     } finally {
       finished = true;
+    }
+  });
+
+  createResource(async () => {
+    const stream = createSelfChannelEventStream();
+
+    try {
+      for await (const event of stream) {
+        props.onEvent?.({
+          type: 'Channel',
+          content: {
+            id: event.id,
+            event,
+          },
+        });
+      }
+    } catch (err) {
+      props.onLogout?.({ type: 'Error', err });
     }
   });
 
