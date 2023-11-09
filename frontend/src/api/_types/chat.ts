@@ -52,7 +52,6 @@ export type ChannelListItem = {
   displayUsers: ListUserProfile[],
 
   lastChat?: {
-    profile: ListUserProfile,
     chatType: number;
     timestamp: number;
     content?: string;
