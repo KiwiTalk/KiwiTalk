@@ -1,4 +1,14 @@
-import { For, Show, Suspense, createResource } from 'solid-js';
+import {
+  For,
+  Match,
+  Suspense,
+  Switch,
+  createEffect,
+  createResource,
+  createSignal,
+  on,
+} from 'solid-js';
+import { Trans } from '@jellybrick/solid-i18next';
 
 import { ChannelUser, Chatlog } from '@/api/client';
 import { Profile } from '@/pages/main/_components/profile';
@@ -31,6 +41,8 @@ export type MessageGroupProps = {
 export const MessageGroup = (props: MessageGroupProps) => {
   const factory = useChatFactory();
 
+  const [isFailed, setIsFailed] = createSignal(false);
+
   const variant = () => props.isMine ? 'mine' : 'other';
   const isShowTime = (index: number) => {
     if (index === 0) return true;
@@ -53,7 +65,6 @@ export const MessageGroup = (props: MessageGroupProps) => {
 
     return true;
   };
-
   const getUnreadCount = (chat: Chatlog) => {
     const count = props.members
       .filter((user) => BigInt(user.watermark) < BigInt(chat.logId))
@@ -61,6 +72,19 @@ export const MessageGroup = (props: MessageGroupProps) => {
 
     return count > 0 ? count : undefined;
   };
+
+  let timeout: number | null = null;
+  createEffect(on(() => props.sender, (sender) => {
+    if (typeof timeout === 'number') clearTimeout(timeout);
+    if (sender) {
+      setIsFailed(false);
+      return;
+    }
+
+    timeout = window.setTimeout(() => {
+      setIsFailed(true);
+    }, 3000);
+  }));
 
   return (
     <div class={styles.container[variant()]}>
@@ -86,9 +110,14 @@ export const MessageGroup = (props: MessageGroupProps) => {
           }}
         </For>
         <div class={styles.sender[variant()]}>
-          <Show when={props.sender} fallback={<Loader />}>
-            {props.sender}
-          </Show>
+          <Switch fallback={<Loader />}>
+            <Match when={isFailed()}>
+              <Trans key={'common.unknown'} />
+            </Match>
+            <Match when={props.sender}>
+              {props.sender}
+            </Match>
+          </Switch>
         </div>
       </div>
     </div>

@@ -4,7 +4,8 @@
     "cancel": "취소",
     "close": "닫기",
     "prev": "이전으로",
-    "next": "다음으로"
+    "next": "다음으로",
+    "unknown": "알 수 없음"
   },
   "login": {
     "title": "카카오 계정으로 로그인",
