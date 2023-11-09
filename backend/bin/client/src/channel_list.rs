@@ -1,5 +1,5 @@
 use arrayvec::ArrayVec;
-use headless_talk::channel::ListPreviewChat;
+use headless_talk::channel::{ListChannelProfileImage, ListPreviewChat};
 use serde::Serialize;
 
 use kiwi_talk_result::TauriResult;
@@ -49,7 +49,7 @@ pub(crate) struct ChannelListItem {
     last_chat: Option<PreviewChat>,
 
     name: String,
-    profile: Option<String>,
+    profile: Option<ProfileImage>,
 
     user_count: i32,
     unread_count: i32,
@@ -66,9 +66,25 @@ impl From<headless_talk::channel::ChannelListItem> for ChannelListItem {
                 .collect::<ArrayVec<_, 4>>(),
             last_chat: item.last_chat.map(PreviewChat::from),
             name: item.profile.name,
-            profile: item.profile.image_url,
+            profile: item.profile.image.map(ProfileImage::from),
             user_count: item.active_user_count,
             unread_count: item.unread_count,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProfileImage {
+    pub image_url: String,
+    pub full_image_url: String,
+}
+
+impl From<ListChannelProfileImage> for ProfileImage {
+    fn from(image: ListChannelProfileImage) -> Self {
+        Self {
+            image_url: image.image_url,
+            full_image_url: image.full_image_url,
         }
     }
 }

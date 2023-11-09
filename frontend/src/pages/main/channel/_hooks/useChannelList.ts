@@ -21,7 +21,7 @@ export const useChannelList = (): Accessor<ChannelListItem[]> => {
       for (const [id, item] of await getChannelList()) {
         result.push({
           id,
-          name: item.name ?? item.displayUsers.map(([, user]) => user.nickname).join(', '),
+          name: item.name ?? item.displayUsers.map((user) => user.nickname).join(', '),
           displayUsers: item.displayUsers,
           lastChat: item.lastChat ? {
             ...item.lastChat,
@@ -29,7 +29,11 @@ export const useChannelList = (): Accessor<ChannelListItem[]> => {
           } : undefined,
           userCount: item.userCount,
           unreadCount: item.unreadCount,
-          profile: item.profile,
+          profile:
+            item.profile?.imageUrl ??
+            (item.displayUsers.length === 1 ?
+              item.displayUsers[0].profileUrl :
+              undefined),
           silent: false, // TODO
         });
       }
