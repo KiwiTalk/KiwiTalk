@@ -17,58 +17,32 @@ import { MessageInput } from './_components/message-input';
 import { ChannelHeader } from '../_components/channel-header';
 
 import { getChannelList, meProfile } from '@/api';
-import { useChannelEvent, useReady } from '@/pages/main/_hooks';
-import { useChannel, useMessageList } from './_hooks';
+import { useReady } from '@/pages/main/_hooks';
+import { useChannel, useChannelMembers, useMessageList } from './_hooks';
 
 import * as styles from './page.css';
 import { ChatFactoryContext } from './_hooks/useChatFactory';
 import { ChatFactory } from './_utils/chat-factory';
-import { NormalChannelUser, sendText } from '@/api/client';
+import { normalChannelReadChat, sendText } from '@/api/client';
+import { dispatchSelfEvent } from '../../_utils';
 
 export const ChatPage = () => {
   const isReady = useReady();
-  const params = useParams();
   const [t] = useTransContext();
-
+  const params = useParams();
   const channelId = () => params.channelId;
-
   const channel = useChannel(channelId);
-  const event = useChannelEvent();
-
+  const members = useChannelMembers(channelId);
   const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channelId);
+
+  const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
+
+  /* defines */
   const channelFactory = createMemo(on(
     channel,
     (channel) => channel && new ChatFactory(channel, getOwner()),
   ));
 
-  const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
-
-  /* resources */
-  let cachedMembers: Record<string, NormalChannelUser> | null = null;
-  const [members] = createResource(() => [channel(), event()] as const, async ([target, e]) => {
-    let result = cachedMembers;
-
-    if (cachedMembers === null && target?.kind === 'normal') {
-      result = Object.fromEntries(target.content.users);
-    }
-
-    if (e?.type === 'ChatRead') {
-      const { logId, userId } = e.content;
-
-      if (target?.kind === 'normal') {
-        const [, user] = target.content.users.find(([id]) => id === userId) ?? [];
-
-        if (user) {
-          result = { ...result };
-
-          if (result[userId]) result[userId].watermark = logId;
-        }
-      }
-    }
-
-    cachedMembers = result;
-    return result;
-  });
   const [me] = createResource(isReady, async (ready) => {
     if (!ready) return null;
 
@@ -129,12 +103,27 @@ export const ChatPage = () => {
   };
   const onSubmit = async (text: string) => {
     const id = channelId();
-    if (typeof id !== 'string') return;
+    const myId = me()?.profile.id;
+    if (typeof id !== 'string' || typeof myId !== 'string') return;
 
     const result = await sendText(id, text);
+    dispatchSelfEvent(id, {
+      type: 'Chat',
+      content: result,
+    });
+
+    if (channel()?.kind === 'normal') {
+      await normalChannelReadChat(id, result.logId);
+      dispatchSelfEvent(id, {
+        type: 'ChatRead',
+        content: {
+          userId: myId,
+          logId: result.logId,
+        },
+      });
+    }
 
     if (result) {
-      loadMoreMessages([result]);
       scroller()?.scrollToIndex(0, { behavior: 'smooth' });
     }
   };
