@@ -13,10 +13,10 @@ export default {
 
 const Template: StoryFn<ChannelListProps> = () => {
   const getUsers = (length: number) => Array.from({ length })
-    .map((_, index) => [`${index}`, {
+    .map((_, index) => ({
       nickname: `User ${index + 1}`,
       profileUrl: `https://picsum.photos/200?s=${Math.random()}`,
-    }] as [string, ListProfile]);
+    }) as ListProfile);
 
   const channelList = () => Array.from({ length: 10 }).map((_, index) => {
     const userLength = 2 + Math.floor(Math.random() * 10);
@@ -24,7 +24,7 @@ const Template: StoryFn<ChannelListProps> = () => {
 
     const lastChat = {
       chatType: 0,
-      nickname: displayUsers[Math.floor(Math.random() * userLength)][1].nickname,
+      nickname: displayUsers[Math.floor(Math.random() * userLength)].nickname,
       content: 'last message',
       timestamp: new Date(),
     };
