@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS channel_list (
     id BIGINT PRIMARY KEY NOT NULL,
     type VARCHAR(16) NOT NULL,
     
-    display_users VARCHAR(255) NOT NULL,
+    display_users TEXT NOT NULL,
 
     active_user_count INTEGER NOT NULL,
     unread_count INTEGER NOT NULL,
