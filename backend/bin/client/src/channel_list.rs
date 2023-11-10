@@ -1,4 +1,3 @@
-use arrayvec::ArrayVec;
 use headless_talk::channel::{ListChannelProfileImage, ListPreviewChat};
 use serde::Serialize;
 
@@ -44,7 +43,7 @@ impl From<headless_talk::user::DisplayUser> for DisplayUser {
 pub(crate) struct ChannelListItem {
     channel_type: String,
 
-    display_users: ArrayVec<DisplayUser, 4>,
+    display_users: Vec<DisplayUser>,
 
     last_chat: Option<PreviewChat>,
 
@@ -63,7 +62,7 @@ impl From<headless_talk::channel::ChannelListItem> for ChannelListItem {
                 .display_users
                 .into_iter()
                 .map(DisplayUser::from)
-                .collect::<ArrayVec<_, 4>>(),
+                .collect::<Vec<_>>(),
             last_chat: item.last_chat.map(PreviewChat::from),
             name: item.profile.name,
             profile: item.profile.image.map(ProfileImage::from),

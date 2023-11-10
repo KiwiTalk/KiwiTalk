@@ -1,4 +1,3 @@
-use arrayvec::ArrayVec;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use futures_loco_protocol::session::LocoSession;
 use nohash_hasher::IntMap;
@@ -94,16 +93,8 @@ impl<'a> ChannelListUpdater<'a> {
                 id: list_data.id,
                 channel_type: channel_type.as_str().to_string(),
 
-                display_users: {
-                    let mut vec = ArrayVec::<_, 4>::new();
-
-                    if let Some(ids) = list_data.icon_user_ids {
-                        vec.extend(ids.into_iter().take(4));
-                    }
-
-                    serde_json::to_string(&vec).unwrap()
-                },
-
+                display_users: serde_json::to_string(&list_data.icon_user_ids.unwrap_or_default())
+                    .unwrap(),
                 unread_count: list_data.unread_count,
                 active_user_count: list_data.active_member_count,
 

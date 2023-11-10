@@ -93,9 +93,6 @@ name = "arrayvec"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
-dependencies = [
- "serde",
-]
 
 [[package]]
 name = "async-broadcast"
@@ -1750,7 +1747,6 @@ checksum = "7dfda62a12f55daeae5015f81b0baea145391cb4520f86c248fc615d72640d12"
 name = "headless-talk"
 version = "0.6.1"
 dependencies = [
- "arrayvec",
  "bson",
  "diesel",
  "diesel_migrations",
@@ -2181,7 +2177,6 @@ name = "kiwi-talk-client"
 version = "0.5.1"
 dependencies = [
  "anyhow",
- "arrayvec",
  "futures",
  "headless-talk",
  "hex",
