@@ -182,7 +182,10 @@ pub(crate) async fn load_channel(
         })
         .await?;
 
-    Ok(NormalChannel { users, meta_map: meta })
+    Ok(NormalChannel {
+        users,
+        meta_map: meta,
+    })
 }
 
 fn get_channel_user(

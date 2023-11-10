@@ -37,14 +37,14 @@ impl From<ChgMeta> for ChannelMetaRow {
     }
 }
 
-impl Into<ChannelMeta> for ChannelMetaRow {
-    fn into(self) -> ChannelMeta {
+impl From<ChannelMetaRow> for ChannelMeta {
+    fn from(val: ChannelMetaRow) -> Self {
         ChannelMeta {
-            meta_type: self.meta_type,
-            revision: self.revision,
-            author_id: self.author_id,
-            updated_at: self.updated_at,
-            content: self.content,
+            meta_type: val.meta_type,
+            revision: val.revision,
+            author_id: val.author_id,
+            updated_at: val.updated_at,
+            content: val.content,
         }
     }
 }
