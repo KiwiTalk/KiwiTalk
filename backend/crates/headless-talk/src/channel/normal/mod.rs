@@ -19,7 +19,7 @@ use crate::{
     conn::Conn,
     database::{
         model::{
-            channel::ChannelListRow,
+            channel::{meta::ChannelMetaRow, ChannelListRow},
             user::{
                 normal::{NormalChannelUserModel, NormalChannelUserRow},
                 UserProfileModel, UserProfileRow, UserProfileUpdate,
@@ -35,11 +35,13 @@ use crate::{
 
 use self::user::NormalChannelUser;
 
-use super::{ListChannelProfile, UserList};
+use super::{ChannelMetaMap, ListChannelProfile, UserList};
 
 #[derive(Debug, Clone)]
 pub struct NormalChannel {
     pub users: UserList<NormalChannelUser>,
+
+    pub meta: ChannelMetaMap,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -149,7 +151,7 @@ pub(crate) async fn load_channel(
     conn: &Conn,
     normal: NormalChatOnChannel,
 ) -> ClientResult<NormalChannel> {
-    let users = conn
+    let (users, meta) = conn
         .pool
         .spawn_transaction(move |conn| {
             let mut user_list: UserList<NormalChannelUser> = UserList::new();
@@ -170,11 +172,17 @@ pub(crate) async fn load_channel(
                 }
             }
 
-            Ok(user_list)
+            let meta = channel_meta::table
+                .filter(channel_meta::channel_id.eq(id))
+                .load_iter::<ChannelMetaRow, _>(conn)?
+                .map(|res| res.map(|row| (row.meta_type, row.into())))
+                .collect::<Result<ChannelMetaMap, _>>()?;
+
+            Ok((user_list, meta))
         })
         .await?;
 
-    Ok(NormalChannel { users })
+    Ok(NormalChannel { users, meta })
 }
 
 fn get_channel_user(
