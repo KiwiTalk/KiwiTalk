@@ -41,7 +41,7 @@ use super::{ChannelMetaMap, ListChannelProfile, UserList};
 pub struct NormalChannel {
     pub users: UserList<NormalChannelUser>,
 
-    pub meta: ChannelMetaMap,
+    pub meta_map: ChannelMetaMap,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -182,7 +182,7 @@ pub(crate) async fn load_channel(
         })
         .await?;
 
-    Ok(NormalChannel { users, meta })
+    Ok(NormalChannel { users, meta_map: meta })
 }
 
 fn get_channel_user(

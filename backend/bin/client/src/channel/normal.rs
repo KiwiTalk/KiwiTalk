@@ -4,10 +4,14 @@ use serde::Serialize;
 
 use crate::ClientState;
 
+use super::ChannelMeta;
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct NormalChannel {
     users: Vec<(String, NormalChannelUser)>,
+
+    metas: Vec<ChannelMeta>,
 }
 
 impl From<headless_talk::channel::normal::NormalChannel> for NormalChannel {
@@ -15,9 +19,14 @@ impl From<headless_talk::channel::normal::NormalChannel> for NormalChannel {
         Self {
             users: normal
                 .users
-                .iter()
-                .cloned()
+                .into_iter()
                 .map(|(id, user)| (id.to_string(), NormalChannelUser::from(user)))
+                .collect(),
+
+            metas: normal
+                .meta_map
+                .into_values()
+                .map(ChannelMeta::from)
                 .collect(),
         }
     }
