@@ -1,4 +1,5 @@
 pub mod channel;
+pub mod create;
 pub mod get_trailer;
 pub mod load_channel_list;
 pub mod login;
@@ -22,6 +23,28 @@ impl<'a> TalkSession<'a> {
 
     pub async fn set_status(self, status: i32) -> RequestResult<()> {
         request!(self.0, "SETST", bson { "st": status }).await
+    }
+
+    pub async fn create_normal_channel(
+        self,
+        req: create::Request<'a>,
+    ) -> RequestResult<create::ResponseVariant> {
+        request!(self.0, "CREATE", &req, {
+            0 => create::ResponseVariant::Done,
+            -310 => create::ResponseVariant::Exists,
+        })
+        .await
+    }
+
+    pub async fn create_memo_channel(self) -> RequestResult<create::ResponseVariant> {
+        request!(self.0, "CREATE", bson {
+            "memberIds": [],
+            "memoChat": true,
+        }, {
+            0 => create::ResponseVariant::Done,
+            -310 => create::ResponseVariant::Exists,
+        })
+        .await
     }
 
     pub async fn login(
