@@ -24,6 +24,5 @@ libsqlite3-sys = { version = "0.26.0", features = ["bundled"] }
 r2d2 = "0.8.10"
 once_cell = "1.18.0"
 extend = "1.2.0"
-arrayvec = { version = "0.7.4", features = ["serde"] }
 serde_json = "1.0.108"
 futures-loco-protocol = "0.4.0"

@@ -13,7 +13,6 @@ use crate::{
     user::{DisplayUser, DisplayUserProfile},
     ClientResult,
 };
-use arrayvec::ArrayVec;
 use diesel::{
     dsl::sql, sql_types::Integer, BoolExpressionMethods, ExpressionMethods, OptionalExtension,
     QueryDsl, RunQueryDsl,
@@ -57,7 +56,7 @@ pub struct ChannelListItem {
 
     pub last_chat: Option<ListPreviewChat>,
 
-    pub display_users: ArrayVec<DisplayUser, 4>,
+    pub display_users: Vec<DisplayUser>,
 
     pub unread_count: i32,
 
@@ -221,7 +220,7 @@ pub(crate) async fn load_list_item(
         .spawn_transaction({
             let channel_id = row.id;
             let display_user_id_list =
-                serde_json::from_str::<ArrayVec<i64, 4>>(&row.display_users).unwrap_or_default();
+                serde_json::from_str::<Vec<i64>>(&row.display_users).unwrap_or_default();
 
             move |conn| {
                 let last_chat: Option<Chatlog> = chat::table
@@ -266,7 +265,7 @@ pub(crate) async fn load_list_item(
                     None
                 };
 
-                let mut display_users = ArrayVec::<DisplayUser, 4>::new();
+                let mut display_users = Vec::<DisplayUser>::new();
 
                 for id in display_user_id_list {
                     if let Some((nickname, profile_url)) = user_profile::table
