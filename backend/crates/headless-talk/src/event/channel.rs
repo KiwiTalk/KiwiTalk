@@ -24,6 +24,8 @@ pub enum ChannelEvent {
     Added {
         chatlog: Option<Chatlog>,
     },
-
     Left,
+
+    UserJoin(Chatlog),
+    UserLeft(Chatlog),
 }
