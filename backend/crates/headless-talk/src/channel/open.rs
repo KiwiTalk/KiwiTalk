@@ -5,8 +5,12 @@ use crate::{
     conn::Conn, database::schema::channel_list, updater::channel::ChannelUpdater, ClientResult,
 };
 
+use super::ChannelMetaMap;
+
 #[derive(Debug, Clone)]
-pub struct OpenChannel {}
+pub struct OpenChannel {
+    pub meta: ChannelMetaMap,
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct OpenChannelOp<'a> {

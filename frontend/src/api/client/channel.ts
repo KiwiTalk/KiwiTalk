@@ -20,8 +20,8 @@ export type Chatlog = {
 
 export type ChannelMeta = {
   type: number,
-  revision: number,
-  authorId: number,
+  revision: string,
+  authorId: string,
   updated_at: number,
   content: string,
 };
