@@ -1,6 +1,7 @@
 import { ResponseType, getClient } from '@tauri-apps/api/http';
 import { JSX, Owner, runWithOwner } from 'solid-js';
-import { Channel, ChannelUser, Chatlog } from '@/api/client';
+
+import { Channel, ChannelUser } from '@/api/client';
 
 import {
   ReplyMessage,
@@ -10,6 +11,8 @@ import {
   AttachmentMessage,
   EmoticonMessage,
 } from '../_components/message';
+
+import { ChatlogBase, PendingChatlog, isChatlog } from '../_types';
 
 
 const EMOTICON_DECODE_ARRAY = new Uint8Array([
@@ -25,7 +28,8 @@ const EMOTICON_DECODE_ARRAY = new Uint8Array([
 
 export class ChatFactory {
   private channel: Channel;
-  private chatMap: Record<string, JSX.Element> = {};
+  private chatMap: Map<string, JSX.Element> = new Map();
+  private pendingChatMap: Map<PendingChatlog, JSX.Element> = new Map();
   private owner: Owner | null = null;
 
   constructor(channel: Channel, owner: Owner | null) {
@@ -33,19 +37,29 @@ export class ChatFactory {
     this.owner = owner;
   }
 
-  async create(chat: Chatlog): Promise<JSX.Element> {
-    if (this.chatMap[chat.logId]) {
-      return this.chatMap[chat.logId];
+  async create(chat: ChatlogBase): Promise<JSX.Element> {
+    let setResult: (value: JSX.Element) => void;
+
+    if (isChatlog(chat)) {
+      if (this.chatMap.has(chat.logId)) {
+        return this.chatMap.get(chat.logId);
+      } else {
+        setResult = (value) => this.chatMap.set(chat.logId, value);
+      }
+    } else {
+      if (this.pendingChatMap.has(chat)) {
+        return this.pendingChatMap.get(chat)!;
+      } else {
+        setResult = (value) => this.pendingChatMap.set(chat, value);
+      }
     }
 
     const element = await this.createElement(chat);
-
-    this.chatMap[chat.logId] = element;
-
+    setResult(element);
     return element;
   }
 
-  private getAttachment(chat: Chatlog): Record<string, unknown> | null {
+  private getAttachment(chat: ChatlogBase): Record<string, unknown> | null {
     try {
       return JSON.parse(chat.attachment ?? '{}');
     } catch {
@@ -53,7 +67,7 @@ export class ChatFactory {
     }
   }
 
-  private async createElement(chat: Chatlog): Promise<JSX.Element> {
+  private async createElement(chat: ChatlogBase): Promise<JSX.Element> {
     switch (chat.chatType) {
     case 1: return this.createTextElement(chat); // Text
     case 2: return this.createSingleImageElement(chat); // Signle Image
@@ -68,7 +82,7 @@ export class ChatFactory {
     }
   }
 
-  private createTextElement(chat: Chatlog): JSX.Element {
+  private createTextElement(chat: ChatlogBase): JSX.Element {
     const isLong = typeof chat.content === 'string' && chat.content.length > 500;
     let content = chat.content ?? '';
     if (isLong) content = `${content.slice(0, 500)}...`;
@@ -86,14 +100,14 @@ export class ChatFactory {
     );
   }
 
-  private createSingleImageElement(chat: Chatlog): JSX.Element {
+  private createSingleImageElement(chat: ChatlogBase): JSX.Element {
     const attachment = this.getAttachment(chat);
     const url = typeof attachment?.url === 'string' ? attachment.url : '';
 
     return <ImageMessage urls={[url]} />;
   }
 
-  private async createEmoticonElement(chat: Chatlog): Promise<JSX.Element> {
+  private async createEmoticonElement(chat: ChatlogBase): Promise<JSX.Element> {
     const baseURL = 'http://item-kr.talk.kakao.co.kr/dw/';
     const attachment = this.getAttachment(chat);
 
@@ -135,7 +149,7 @@ export class ChatFactory {
     ));
   }
 
-  private createAttachmentElement(chat: Chatlog): JSX.Element {
+  private createAttachmentElement(chat: ChatlogBase): JSX.Element {
     const attachment = this.getAttachment(chat);
     const mimeType = typeof attachment?.mime === 'string' ?
       attachment.mime :
@@ -156,7 +170,7 @@ export class ChatFactory {
     );
   }
 
-  private async createReplyElement(chat: Chatlog): Promise<JSX.Element> {
+  private async createReplyElement(chat: ChatlogBase): Promise<JSX.Element> {
     const attachment = this.getAttachment(chat);
     const members: Record<string, ChannelUser> = {};
 
@@ -185,7 +199,7 @@ export class ChatFactory {
     ));
   }
 
-  private createMultipleImageElement(chat: Chatlog): JSX.Element {
+  private createMultipleImageElement(chat: ChatlogBase): JSX.Element {
     const attachment = this.getAttachment(chat);
     const urls: string[] = [];
 
