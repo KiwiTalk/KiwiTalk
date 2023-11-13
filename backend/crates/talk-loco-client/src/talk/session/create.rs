@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -6,10 +6,10 @@ use serde_with::skip_serializing_none;
 pub struct Request<'a> {
     #[serde(rename = "memberIds")]
     pub user_ids: &'a [i64],
-    
+
     #[serde(rename = "nickName")]
     pub nickname: Option<&'a str>,
-    
+
     #[serde(rename = "profileImageUrl")]
     pub profile_image_url: Option<&'a str>,
 }
