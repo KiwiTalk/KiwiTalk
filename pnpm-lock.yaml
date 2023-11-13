@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@jellybrick/solid-i18next':
     specifier: 1.2.2
-    version: 1.2.2(html-parse-string@0.0.9)(i18next@23.7.3)(solid-js@1.8.5)
+    version: 1.2.2(html-parse-string@0.0.9)(i18next@23.7.6)(solid-js@1.8.5)
   '@solidjs/router':
     specifier: ^0.9.0
     version: 0.9.0(solid-js@1.8.5)
@@ -30,8 +30,8 @@ dependencies:
     specifier: 0.0.9
     version: 0.0.9
   i18next:
-    specifier: 23.7.3
-    version: 23.7.3
+    specifier: 23.7.6
+    version: 23.7.6
   solid-js:
     specifier: 1.8.5
     version: 1.8.5
@@ -1947,7 +1947,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /@jellybrick/solid-i18next@1.2.2(html-parse-string@0.0.9)(i18next@23.7.3)(solid-js@1.8.5):
+  /@jellybrick/solid-i18next@1.2.2(html-parse-string@0.0.9)(i18next@23.7.6)(solid-js@1.8.5):
     resolution: {integrity: sha512-eXsm+8dp5djZ1EFdJ5+Kqxd+YmtNUAkiwlVGXUC++LxYfYnEvyKSEpkg+0M/vNi3mBn/twZic0/gKfzeOAUBKQ==}
     peerDependencies:
       html-parse-string: <=1.x
@@ -1958,7 +1958,7 @@ packages:
         optional: true
     dependencies:
       html-parse-string: 0.0.9
-      i18next: 23.7.3
+      i18next: 23.7.6
       solid-js: 1.8.5
     dev: false
 
@@ -5849,8 +5849,8 @@ packages:
     engines: {node: '>=10.17.0'}
     dev: true
 
-  /i18next@23.7.3:
-    resolution: {integrity: sha512-XetHM9UCk5oeeIcE2hu6Os16mq/zPHi8v/janExQjbFtx4ndNg9ye5OyAz+f5aYums8A1WcnXa7QikaEjyELPg==}
+  /i18next@23.7.6:
+    resolution: {integrity: sha512-O66BhXBw0fH4bEJMA0/klQKPEbcwAp5wjXEL803pdAynNbg2f4qhLIYlNHJyE7icrL6XmSZKPYaaXwy11kJ6YQ==}
     dependencies:
       '@babel/runtime': 7.23.2
     dev: false
