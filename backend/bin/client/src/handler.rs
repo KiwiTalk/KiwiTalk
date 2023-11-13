@@ -108,6 +108,8 @@ async fn handle_channel_event(
                 }))
                 .await;
         }
+
+        _ => {}
     }
 
     Ok(())

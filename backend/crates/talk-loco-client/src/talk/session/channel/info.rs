@@ -25,7 +25,7 @@ pub struct ChannelInfo {
     pub last_seen_log_id: i64,
 
     #[serde(rename = "lastChatLog")]
-    pub last_chat_log: Option<Chatlog>,
+    pub last_chatlog: Option<Chatlog>,
 
     #[serde(rename = "pushAlert")]
     pub push_alert: bool,

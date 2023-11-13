@@ -3,17 +3,14 @@ pub mod error;
 use diesel::{dsl::exists, BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
 use futures_loco_protocol::loco_protocol::command::BoxedCommand;
 use talk_loco_client::talk::stream::{
-    command::{ChgMeta, DecunRead, Kickout, Left, Msg, SyncDlMsg, SyncJoin},
+    command::{ChgMeta, DecunRead, DelMem, Kickout, Left, Msg, NewMem, SyncDlMsg, SyncJoin},
     StreamCommand,
 };
 
 use crate::{
     conn::Conn,
     database::{
-        model::{
-            channel::meta::ChannelMetaRow,
-            chat::{ChatRow, ChatUpdate},
-        },
+        model::{channel::meta::ChannelMetaRow, chat::ChatRow},
         schema::{self, channel_list, channel_meta, chat},
     },
     event::{channel::ChannelEvent, ClientEvent},
@@ -44,6 +41,8 @@ impl SessionHandler {
             StreamCommand::SyncChatDeletion(deletion) => self.on_chat_deleted(deletion).await,
             StreamCommand::SyncChannelJoin(sync_join) => self.on_channel_join(sync_join).await,
             StreamCommand::Left(left) => self.on_left(left).await,
+            StreamCommand::NewUser(new_mem) => self.on_new_user(new_mem).await,
+            StreamCommand::DelUser(del_mem) => self.on_del_user(del_mem).await,
 
             _ => Ok(None),
         }
@@ -162,13 +161,8 @@ impl SessionHandler {
                 let chatlog = value.chatlog.clone();
 
                 move |conn| {
-                    diesel::update(chat::table)
-                        .filter(
-                            chat::log_id
-                                .eq(chatlog.log_id)
-                                .and(chat::channel_id.eq(chatlog.channel_id)),
-                        )
-                        .set(ChatUpdate::from(chatlog))
+                    diesel::insert_into(chat::table)
+                        .values(ChatRow::from_chatlog(chatlog, None))
                         .execute(conn)?;
 
                     Ok(())
@@ -206,6 +200,50 @@ impl SessionHandler {
         Ok(Some(ClientEvent::Channel {
             id: channel_id,
             event: ChannelEvent::Left,
+        }))
+    }
+
+    async fn on_new_user(&self, new_mem: NewMem) -> Result<Option<ClientEvent>, HandlerError> {
+        self.conn
+            .pool
+            .spawn({
+                let chatlog = new_mem.chatlog.clone();
+
+                move |conn| {
+                    diesel::insert_into(chat::table)
+                        .values(ChatRow::from_chatlog(chatlog, None))
+                        .execute(conn)?;
+
+                    Ok(())
+                }
+            })
+            .await?;
+
+        Ok(Some(ClientEvent::Channel {
+            id: new_mem.chat_id,
+            event: ChannelEvent::UserJoin(new_mem.chatlog),
+        }))
+    }
+
+    async fn on_del_user(&self, del_mem: DelMem) -> Result<Option<ClientEvent>, HandlerError> {
+        self.conn
+            .pool
+            .spawn({
+                let chatlog = del_mem.chatlog.clone();
+
+                move |conn| {
+                    diesel::insert_into(chat::table)
+                        .values(ChatRow::from_chatlog(chatlog, None))
+                        .execute(conn)?;
+
+                    Ok(())
+                }
+            })
+            .await?;
+
+        Ok(Some(ClientEvent::Channel {
+            id: del_mem.chat_id,
+            event: ChannelEvent::UserLeft(del_mem.chatlog),
         }))
     }
 }
