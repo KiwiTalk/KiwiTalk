@@ -1,30 +1,26 @@
 import { vars } from '@/features/theme';
 import { style } from '@vanilla-extract/css';
 
-export const bubble = style({
+const bubble = style({
   borderRadius: vars.radius.large,
 
   padding: '12px 18px',
 });
 
-export const mine = style({
+export const clientBubble = style([bubble, {
   backgroundColor: vars.color.primary.background,
   color: vars.color.primary.fillPrimary,
+}]);
 
-  selectors: {
-    '&[data-last="true"]': {
-      borderBottomRightRadius: 0,
-    },
-  },
+export const clientLast = style({
+  borderBottomRightRadius: 0,
 });
 
-export const others = style({
+export const userBubble = style([bubble, {
   backgroundColor: vars.color.solidSecondary.background,
   color: vars.color.solidSecondary.fillPrimary,
+}]);
 
-  selectors: {
-    '&[data-last="true"]': {
-      borderBottomLeftRadius: 0,
-    },
-  },
+export const userLast = style({
+  borderBottomLeftRadius: 0,
 });

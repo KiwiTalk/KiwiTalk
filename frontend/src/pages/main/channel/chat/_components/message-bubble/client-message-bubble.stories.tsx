@@ -1,15 +1,15 @@
 import { StoryFn } from 'storybook-solidjs';
 
-import { MessageBubble, MessageBubbleProps } from './message-bubble';
+import { ClientMessageBubble, MessageBubbleProps } from './message-bubble';
 
 export default {
-  title: 'KiwiTalk v2/Channel/Chat/MessageBubble',
-  component: MessageBubble,
+  title: 'KiwiTalk v2/Channel/Chat/ClientMessageBubble',
+  component: ClientMessageBubble,
 };
 
 const Template: StoryFn<MessageBubbleProps> = (props) => {
   return (
-    <MessageBubble
+    <ClientMessageBubble
       {...props}
     />
   );
@@ -18,7 +18,6 @@ const Template: StoryFn<MessageBubbleProps> = (props) => {
 export const Default = Template.bind({});
 Default.args = {
   last: false,
-  owned: true,
 
   children: 'Content',
 };

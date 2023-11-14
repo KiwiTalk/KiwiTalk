@@ -3,19 +3,26 @@ import { ParentProps } from 'solid-js';
 import * as styles from './message-bubble.css';
 
 export type MessageBubbleProps = ParentProps<{
-  owned: boolean,
   last: boolean,
 }>;
 
-export const MessageBubble = (props: MessageBubbleProps) => {
+export const ClientMessageBubble = (props: MessageBubbleProps) => {
   return <div
-    class={styles.bubble}
+    class={styles.clientBubble}
     classList={{
-      [styles.mine]: props.owned,
-      [styles.others]: !props.owned,
+      [styles.clientLast]: props.last,
     }}
+  >
+    {props.children}
+  </div>;
+};
 
-    data-last={props.last}
+export const UserMessageBubble = (props: MessageBubbleProps) => {
+  return <div
+    class={styles.userBubble}
+    classList={{
+      [styles.userLast]: props.last,
+    }}
   >
     {props.children}
   </div>;
