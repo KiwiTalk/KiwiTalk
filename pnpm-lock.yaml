@@ -76,6 +76,12 @@ devDependencies:
   eslint-plugin-storybook:
     specifier: 0.6.15
     version: 0.6.15(eslint@8.54.0)(typescript@5.3.2)
+  prettier:
+    specifier: ^3.1.0
+    version: 3.1.0
+  prettier-plugin-sort-json:
+    specifier: ^3.1.0
+    version: 3.1.0(prettier@3.1.0)
   storybook:
     specifier: 7.5.3
     version: 7.5.3
@@ -7308,9 +7314,24 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
+  /prettier-plugin-sort-json@3.1.0(prettier@3.1.0):
+    resolution: {integrity: sha512-eIDEUjwzekiVd+oKrpd0aoACBTp5zOW71wDTNy+qQ5C9Q8oqt9n9wCm4F+SeRZbXfgblh/WYIguJynImlBXrvQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      prettier: ^3.0.0
+    dependencies:
+      prettier: 3.1.0
+    dev: true
+
   /prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  /prettier@3.1.0:
+    resolution: {integrity: sha512-TQLvXjq5IAibjh8EpBIkNKxO749UEWABoiIZehEPiY4GNpVdhaFKqSTu+QrlU6D2dPAfubRmtJTi4K4YkQ5eXw==}
+    engines: {node: '>=14'}
     hasBin: true
     dev: true
 
