@@ -7,12 +7,12 @@ export type ReplyMessageProps = {
   replyContent?: string;
   replySender?: string;
 
-  onClickReply?: () => void;
+  onReplyClick?: () => void;
 };
 export const ReplyMessage = (props: ReplyMessageProps) => {
   return (
     <div class={styles.container}>
-      <div class={styles.replyContainer} onClick={props.onClickReply}>
+      <div class={styles.replyContainer} onClick={props.onReplyClick}>
         <div class={styles.replyDivider} />
         <div class={styles.replyText.sender}>
           <Show when={props.replySender} fallback={<Loader />}>

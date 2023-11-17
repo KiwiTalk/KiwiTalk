@@ -7,7 +7,7 @@ export type EmoticonMessageProps = {
 };
 export const EmoticonMessage = (props: EmoticonMessageProps) => {
   const playSound = async () => {
-    if (typeof props.sound !== 'string') return;
+    if (props.sound == null) return;
 
     const sound = new Audio(props.sound);
     await sound.play();

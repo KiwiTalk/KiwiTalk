@@ -1,15 +1,15 @@
 import { StoryFn } from 'storybook-solidjs';
 
-import { AttachmentMessage, AttachmentMessageProps } from './attachment-message';
+import { FileMessage, FileMessageProps } from './file-message';
 
 export default {
-  title: 'KiwiTalk v2/Channel/Chat/Message/Attachment Message',
-  component: AttachmentMessage,
+  title: 'KiwiTalk v2/Channel/Chat/Message/File',
+  component: FileMessage,
 };
 
-const Template: StoryFn<AttachmentMessageProps> = (props) => {
+const Template: StoryFn<FileMessageProps> = (props) => {
   return (
-    <AttachmentMessage
+    <FileMessage
       mimeType={props.mimeType}
       fileName={props.fileName}
       fileSize={props.fileSize}

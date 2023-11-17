@@ -3,7 +3,7 @@ import { StoryFn } from 'storybook-solidjs';
 
 import { MessageGroup, type MessageGroupProps } from './message-group';
 import { ChatFactoryContext } from '../../_hooks/useChatFactory';
-import { ChatFactory } from '../../_utils/chat-factory';
+import { ChatContentFactory } from '../../_utils/chat-factory';
 import { Channel, NormalChannelUser } from '@/api/client';
 
 export default {
@@ -35,7 +35,7 @@ const channel: Channel = {
 };
 
 const Template: StoryFn<MessageGroupProps> = (props) => {
-  const chatFactory = new ChatFactory(channel, getOwner());
+  const chatFactory = new ChatContentFactory(channel, getOwner());
 
   return (
     <ChatFactoryContext.Provider value={() => chatFactory}>

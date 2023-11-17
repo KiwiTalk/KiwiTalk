@@ -5,9 +5,9 @@ import { Channel, ChannelUser, Chatlog } from '@/api/client';
 import {
   ReplyMessage,
   ImageMessage,
-  TextMessage,
+  LongTextMessage,
   UnknownMessage,
-  AttachmentMessage,
+  FileMessage,
   EmoticonMessage,
 } from '../_components/message';
 
@@ -69,21 +69,14 @@ export class ChatFactory {
   }
 
   private createTextElement(chat: Chatlog): JSX.Element {
-    const isLong = typeof chat.content === 'string' && chat.content.length > 500;
-    let content = chat.content ?? '';
-    if (isLong) content = `${content.slice(0, 500)}...`;
+    if (!chat.content || chat.content.length < 500) {
+      return chat.content;
+    }
 
-    return (
-      <TextMessage
-        isLong={isLong}
-        content={content}
-        longContent={chat.content}
-
-        onShowMore={() => {
-          // TODO: implement onShowMore
-        }}
-      />
-    );
+    return <LongTextMessage
+      content={`${chat.content.slice(0, 500)}...`}
+      onExpand={() => {}}
+    />;
   }
 
   private createSingleImageElement(chat: Chatlog): JSX.Element {
@@ -147,7 +140,7 @@ export class ChatFactory {
     const expire = Number(attachment?.expire ?? 0);
 
     return (
-      <AttachmentMessage
+      <FileMessage
         mimeType={mimeType}
         fileName={fileName}
         fileSize={fileSize}
@@ -178,7 +171,7 @@ export class ChatFactory {
         content={chat.content}
         replyContent={replyContent}
         replySender={nickname}
-        onClickReply={() => {
+        onReplyClick={() => {
           // TODO: implement move to refered chat
         }}
       />
