@@ -17,4 +17,6 @@ export const Default = Template.bind({});
 Default.args = {
   name: 'Text',
   key: 'a',
+  expectedType: 'string',
+  actualType: 'undefined',
 };

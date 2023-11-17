@@ -11,7 +11,7 @@ export const InvalidMessage = (props: InvalidMessageProps) => {
   return (
     <div class={styles.container}>
       {props.name} 메세지를 읽는 중 오류가 발생했습니다.
-      key: {props.key} expectedType: ${props.expectedType} actualType: ${props.actualType}
+      key: {props.key}, expectedType: {props.expectedType}, actualType: {props.actualType}
     </div>
   );
 };
