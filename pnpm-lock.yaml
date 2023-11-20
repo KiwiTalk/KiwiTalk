@@ -62,8 +62,8 @@ devDependencies:
     specifier: 6.11.0
     version: 6.11.0(eslint@8.54.0)(typescript@5.2.2)
   '@vanilla-extract/vite-plugin':
-    specifier: 3.9.1
-    version: 3.9.1(vite@5.0.0)
+    specifier: 3.9.2
+    version: 3.9.2(vite@5.0.0)
   csstype:
     specifier: 3.1.2
     version: 3.1.2
@@ -4359,8 +4359,8 @@ packages:
       '@vanilla-extract/private': 1.0.3
     dev: false
 
-  /@vanilla-extract/integration@6.2.2:
-    resolution: {integrity: sha512-gV3qPFjFap1+IrPeuFy+tEZOq7l7ifJf1ik/kluDWhPr1ffsFG9puq1/jjJ4rod1BIC79Q5ZWPNvBInHyxfCew==}
+  /@vanilla-extract/integration@6.2.4:
+    resolution: {integrity: sha512-+AfymNMVq9sEUe0OJpdCokmPZg4Zi6CqKaW/PnUOfDwEn53ighHOMOBl5hAgxYR8Kiz9NG43Bn00mkjWlFi+ng==}
     dependencies:
       '@babel/core': 7.23.2
       '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.23.2)
@@ -4389,12 +4389,12 @@ packages:
   /@vanilla-extract/private@1.0.3:
     resolution: {integrity: sha512-17kVyLq3ePTKOkveHxXuIJZtGYs+cSoev7BlP+Lf4916qfDhk/HBjvlYDe8egrea7LNPHKwSZJK/bzZC+Q6AwQ==}
 
-  /@vanilla-extract/vite-plugin@3.9.1(vite@5.0.0):
-    resolution: {integrity: sha512-FI0Tzga+iuqPqFGms9qjeeb+PbdJdIGuG1Yc8gnzHSsRVy61u05wmfSbN9AN+FKzcvV/O1zAvRrusXCXi1oHYA==}
+  /@vanilla-extract/vite-plugin@3.9.2(vite@5.0.0):
+    resolution: {integrity: sha512-WYgWiEs+nw+lNazyW0Ixp0MMgtNgPL+8fFKrol1V5XoNIzRrYPGfuLhRI7PwheSWQVGF7OOer0kUWQcLey1vOQ==}
     peerDependencies:
-      vite: ^2.2.3 || ^3.0.0 || ^4.0.3
+      vite: ^2.2.3 || ^3.0.0 || ^4.0.3 || ^5.0.0
     dependencies:
-      '@vanilla-extract/integration': 6.2.2
+      '@vanilla-extract/integration': 6.2.4
       outdent: 0.8.0
       postcss: 8.4.31
       postcss-load-config: 4.0.1(postcss@8.4.31)

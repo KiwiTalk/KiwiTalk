@@ -28,7 +28,7 @@
     "@tauri-apps/cli": "1.5.6",
     "@typescript-eslint/eslint-plugin": "6.11.0",
     "@typescript-eslint/parser": "6.11.0",
-    "@vanilla-extract/vite-plugin": "3.9.1",
+    "@vanilla-extract/vite-plugin": "3.9.2",
     "csstype": "3.1.2",
     "eslint": "8.54.0",
     "eslint-config-google": "0.14.0",
