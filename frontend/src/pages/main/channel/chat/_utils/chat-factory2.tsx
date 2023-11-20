@@ -28,9 +28,11 @@ export type ChatMessage = {
   attachment: Record<string, unknown>;
 }
 
+export type ContentComponentFn = () => JSXElement;
+
 function factoryMethod(name: string) {
   return function <This, Args extends unknown[]>(
-    originalMethod: (this: This, ...args: Args) => Promise<JSXElement>,
+    originalMethod: (this: This, ...args: Args) => Promise<ContentComponentFn>,
     context: unknown,
   ) {
     context;
@@ -40,16 +42,18 @@ function factoryMethod(name: string) {
         return await originalMethod.call(this, ...args);
       } catch (e) {
         if (e instanceof UnexpectedError) {
+          const { key, expectedType, actualType } = e;
+
           console.error(
             `invalid message while parsing ${name} message.
-            key: ${e.key}, expected: ${e.expectedType} actual: ${e.actualType}`,
+            key: ${key}, expected: ${expectedType} actual: ${actualType}`,
           );
 
-          return <InvalidMessage
+          return () => <InvalidMessage
             name={name}
-            key={e.key}
-            expectedType={e.expectedType}
-            actualType={e.actualType}
+            key={key}
+            expectedType={expectedType}
+            actualType={actualType}
           />;
         }
 
@@ -63,27 +67,31 @@ export class ChatContentFactory {
   constructor(private channel: Channel) { }
 
   @factoryMethod('Text')
-  async createText(chat: ChatMessage, onExpand?: () => void): Promise<JSXElement> {
-    if (!chat.content || chat.content.length < 500) {
-      return chat.content;
-    }
+  async createText(chat: ChatMessage, onExpand?: () => void): Promise<ContentComponentFn> {
+    const content = chat.content;
 
-    return <LongTextMessage
-      content={`${chat.content.slice(0, 500)}...`}
+    return () => {
+      if (!content || content.length < 500) {
+        return content;
+      }
 
-      onExpand={onExpand}
-    />;
+      return <LongTextMessage
+        content={`${content.slice(0, 500)}...`}
+
+        onExpand={onExpand}
+      />;
+    };
   }
 
   @factoryMethod('SingleImage')
-  async createSingleImage(chat: ChatMessage): Promise<JSXElement> {
+  async createSingleImage(chat: ChatMessage): Promise<ContentComponentFn> {
     const url = typeof chat.attachment['url'] === 'string' ? chat.attachment['url'] : '';
 
-    return <ImageMessage urls={[url]} />;
+    return () => <ImageMessage urls={[url]} />;
   }
 
   @factoryMethod('Emoticon')
-  async createEmoticon(chat: ChatMessage, encrypted: boolean): Promise<JSXElement> {
+  async createEmoticon(chat: ChatMessage, encrypted: boolean): Promise<ContentComponentFn> {
     const attachment = chat.attachment;
     const baseURL = 'http://item-kr.talk.kakao.co.kr/dw/';
 
@@ -111,7 +119,7 @@ export class ChatContentFactory {
       url = URL.createObjectURL(decodedBlob);
     }
 
-    return <EmoticonMessage
+    return () => <EmoticonMessage
       src={url}
       sound={soundUrl}
       alt={alt}
@@ -119,7 +127,7 @@ export class ChatContentFactory {
   }
 
   @factoryMethod('File')
-  async createFile(chat: ChatMessage): Promise<JSXElement> {
+  async createFile(chat: ChatMessage): Promise<ContentComponentFn> {
     const attachment = chat.attachment;
 
     const mimeType = expectOr(attachment, 'mime', 'string', 'application/octet-stream');
@@ -129,7 +137,7 @@ export class ChatContentFactory {
     const fileSize = expectOr(attachment, 'size', 'number', undefined);
     const expire = expectOr(attachment, 'expire', 'number', undefined);
 
-    return <FileMessage
+    return () => <FileMessage
       mimeType={mimeType}
       fileName={fileName}
       fileSize={fileSize}
@@ -142,14 +150,14 @@ export class ChatContentFactory {
     chat: ChatMessage,
     nicknameLookupFn: (userId: bigint) => string | undefined,
     onReplyClick?: () => void,
-  ): Promise<JSXElement> {
+  ): Promise<ContentComponentFn> {
     const attachment = chat.attachment;
 
     const replyContent = expect(attachment, 'src_message', 'string');
     const userId = expect(attachment, 'src_userId', 'bigint');
     const nickname = nicknameLookupFn(userId);
 
-    return <ReplyMessage
+    return () => <ReplyMessage
       content={chat.content}
       replyContent={replyContent}
       replySender={nickname}
@@ -158,7 +166,7 @@ export class ChatContentFactory {
   }
 
   @factoryMethod('MultiImage')
-  async createMultiImage(chat: ChatMessage): Promise<JSXElement> {
+  async createMultiImage(chat: ChatMessage): Promise<ContentComponentFn> {
     const attachment = chat.attachment;
     const urls: string[] = [];
 
@@ -167,7 +175,7 @@ export class ChatContentFactory {
       urls.push(...imageUrls.filter((url) => typeof url === 'string'));
     }
 
-    return <ImageMessage urls={urls} />;
+    return () => <ImageMessage urls={urls} />;
   }
 }
 
