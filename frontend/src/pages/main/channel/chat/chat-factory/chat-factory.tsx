@@ -7,10 +7,9 @@ import {
   LongTextMessage,
   FileMessage,
   EmoticonMessage,
-  InvalidMessage,
 } from '../_components/message';
 import { Channel } from '@/api/client';
-
+import { factoryMethod, expectOr, expect, parseObject } from './util';
 
 const EMOTICON_DECODE_ARRAY = new Uint8Array([
   231, 173, 66, 91, 22, 241, 129, 25, 102, 66, 60, 68, 103, 141, 68, 184,
@@ -24,51 +23,18 @@ const EMOTICON_DECODE_ARRAY = new Uint8Array([
 ]);
 
 export type ChatMessage = {
-  content?: string;
-  attachment: Record<string, unknown>;
+  content?: string,
+  attachment?: string,
 }
 
 export type ContentComponentFn = () => JSXElement;
-
-function factoryMethod(name: string) {
-  return function <This, Args extends unknown[]>(
-    originalMethod: (this: This, ...args: Args) => Promise<ContentComponentFn>,
-    context: unknown,
-  ) {
-    context;
-
-    return async function Wrapper(this: This, ...args: Args) {
-      try {
-        return await originalMethod.call(this, ...args);
-      } catch (e) {
-        if (e instanceof UnexpectedError) {
-          const { key, expectedType, actualType } = e;
-
-          console.error(
-            `invalid message while parsing ${name} message.
-            key: ${key}, expected: ${expectedType} actual: ${actualType}`,
-          );
-
-          return () => <InvalidMessage
-            name={name}
-            key={key}
-            expectedType={expectedType}
-            actualType={actualType}
-          />;
-        }
-
-        throw e;
-      }
-    };
-  };
-}
 
 export class ChatContentFactory {
   constructor(private channel: Channel) { }
 
   @factoryMethod('Text')
   async createText(chat: ChatMessage, onExpand?: () => void): Promise<ContentComponentFn> {
-    const content = chat.content;
+    const content = expect(chat, 'content', 'string');
 
     return () => {
       if (!content || content.length < 500) {
@@ -85,14 +51,15 @@ export class ChatContentFactory {
 
   @factoryMethod('SingleImage')
   async createSingleImage(chat: ChatMessage): Promise<ContentComponentFn> {
-    const url = typeof chat.attachment['url'] === 'string' ? chat.attachment['url'] : '';
+    const attachment = parseObject(expect(chat, 'attachment', 'string'));
+    const url = expectOr(attachment, 'url', 'string', '');
 
     return () => <ImageMessage urls={[url]} />;
   }
 
   @factoryMethod('Emoticon')
   async createEmoticon(chat: ChatMessage, encrypted: boolean): Promise<ContentComponentFn> {
-    const attachment = chat.attachment;
+    const attachment = parseObject(expect(chat, 'attachment', 'string'));
     const baseURL = 'http://item-kr.talk.kakao.co.kr/dw/';
 
     const sound = expectOr(attachment, 'sound', 'string', null);
@@ -128,7 +95,7 @@ export class ChatContentFactory {
 
   @factoryMethod('File')
   async createFile(chat: ChatMessage): Promise<ContentComponentFn> {
-    const attachment = chat.attachment;
+    const attachment = parseObject(expect(chat, 'attachment', 'string'));
 
     const mimeType = expectOr(attachment, 'mime', 'string', 'application/octet-stream');
 
@@ -148,14 +115,14 @@ export class ChatContentFactory {
   @factoryMethod('Reply')
   async createReply(
     chat: ChatMessage,
-    nicknameLookupFn: (userId: bigint) => string | undefined,
+    nicknameLookupFn: (userId: string) => string | undefined,
     onReplyClick?: () => void,
   ): Promise<ContentComponentFn> {
-    const attachment = chat.attachment;
+    const attachment = parseObject(expect(chat, 'attachment', 'string'));
 
     const replyContent = expect(attachment, 'src_message', 'string');
-    const userId = expect(attachment, 'src_userId', 'bigint');
-    const nickname = nicknameLookupFn(userId);
+    const userId = expect(attachment, 'src_userId', 'long');
+    const nickname = nicknameLookupFn(userId.toString());
 
     return () => <ReplyMessage
       content={chat.content}
@@ -167,7 +134,7 @@ export class ChatContentFactory {
 
   @factoryMethod('MultiImage')
   async createMultiImage(chat: ChatMessage): Promise<ContentComponentFn> {
-    const attachment = chat.attachment;
+    const attachment = parseObject(expect(chat, 'attachment', 'string'));
     const urls: string[] = [];
 
     const imageUrls = expect(attachment, 'imageUrls', 'object');
@@ -177,51 +144,4 @@ export class ChatContentFactory {
 
     return () => <ImageMessage urls={urls} />;
   }
-}
-
-type TypeTable = {
-  'string': string,
-  'number': number,
-  'bigint': bigint,
-  'object': Record<string, unknown>,
-}
-
-class UnexpectedError extends Error {
-  constructor(
-    public key: string,
-    public actualType: string,
-    public expectedType: string,
-  ) {
-    super();
-  }
-}
-
-function expectOr<T extends keyof TypeTable, V>(
-  obj: Record<string, unknown>,
-  key: string,
-  ty: T,
-  defaultValue: V,
-): TypeTable[T] | V {
-  const val = obj[key];
-
-  if (typeof val === ty) {
-    return val as TypeTable[T];
-  }
-
-  return defaultValue;
-}
-
-function expect<T extends keyof TypeTable>(
-  obj: Record<string, unknown>,
-  key: string,
-  ty: T,
-): TypeTable[T] {
-  const val = obj[key];
-  const actualType = typeof val;
-
-  if (actualType === ty) {
-    return val as TypeTable[T];
-  }
-
-  throw new UnexpectedError(key, actualType, ty);
 }
