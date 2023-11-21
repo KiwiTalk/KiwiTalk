@@ -1,76 +1,103 @@
 {
   "common": {
-    "ok": "확인",
     "cancel": "취소",
     "close": "닫기",
-    "prev": "이전으로",
     "next": "다음으로",
+    "ok": "확인",
+    "prev": "이전으로",
     "unknown": "알 수 없음"
   },
   "login": {
-    "title": "카카오 계정으로 로그인",
-    "register_title": "기기 인증",
+    "add_account": "새로운 계정 추가",
+    "auto_login_on_launch": "실행 시 자동 로그인",
+    "end_caption_subtitle": "시작하기를 눌러 전우주 통신규약의 첫걸음을 내딛으세요",
+    "end_caption_title": "이제 모든 준비가\n끝났습니다",
+    "end_title": "시작",
+    "generic_error": "내부 에러가 발생했습니다.",
+    "id_placeholder": "카카오 계정 (이메일 또는 전화번호)",
     "login": "로그인",
     "login_name": "{{name}} 로그인",
     "logout": "로그아웃",
-    "id_placeholder": "카카오 계정 (이메일 또는 전화번호)",
-    "password_placeholder": "비밀번호",
     "manage_account": "계정 관리",
-    "add_account": "새로운 계정 추가",
-    "save_id": "아이디 저장",
-    "auto_login_on_launch": "실행 시 자동 로그인",
-    "register_type": {
-      "permanent": "내 PC 인증 받기",
-      "temporary": "일회용 인증 받기"
-    },
+    "passcode_placeholder": "인증코드 입력",
+    "passcode_tip": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
+    "password_placeholder": "비밀번호",
     "reason": {
-      "required_id_password": "아이디와 비밀번호를 입력해 주세요.",
       "auto_login_failed": {
         "file_read": "저장된 계정 정보를 읽는 중 오류가 발생했습니다",
         "general": "자동 로그인이 실패했습니다"
       },
-      "kickout": "다른 기기 접속으로 인해 로그아웃되었습니다"
+      "kickout": "다른 기기 접속으로 인해 로그아웃되었습니다",
+      "required_id_password": "아이디와 비밀번호를 입력해 주세요."
     },
-    "passcode_tip": "카카오톡 앱 : 설정 > 개인/보안 > PC연결관리",
-    "passcode_placeholder": "인증코드 입력",
+    "register_title": "기기 인증",
+    "register_type": {
+      "permanent": "내 PC 인증 받기",
+      "temporary": "일회용 인증 받기"
+    },
+    "result": {},
+    "save_id": "아이디 저장",
     "set_forced": "다시 로그인 시 다른 기기의 연결을 해제합니다.",
-    "generic_error": "내부 에러가 발생했습니다.",
-    "unknown_error": "알 수 없는 에러가 발생했습니다. {{detail}}",
+    "start": "시작하기",
     "status": {
+      "device_register": {
+        "-112": "일일 인증 시도 횟수를 초과했습니다."
+      },
       "login": {
-        "500": "내부 오류가 발생했습니다",
-        "30": "계정 정보가 올바르지 않습니다",
-        "32": "계정이 존재하지 않습니다",
-        "-16": "계정 정보가 올바르지 않습니다",
         "-100": "등록되지 않은 기기입니다",
         "-101": "이미 다른 기기에 접속되어 있습니다.",
         "-102": "인증 가능한 기기의 개수를 초과했습니다",
         "-110": "UUID가 Base64 인코딩 되어있지 않습니다",
         "-111": "인증 번호가 올바르지 않습니다",
         "-125": "이미 다른 기기로 가입되어 있습니다",
+        "-16": "계정 정보가 올바르지 않습니다",
         "-500": "API 요청 실패",
         "-910": "올바르지 않은 로그인 토큰입니다",
         "-950": "올바르지 않은 액세스 토큰입니다",
+        "-9797": "서버 점검 중입니다",
         "-997": "차단된 계정입니다",
         "-998": "인증이 필요합니다",
         "-999": "클라이언트 버전이 너무 낮습니다",
-        "-9797": "서버 점검 중입니다"
-      },
-      "device_register": {
-        "-112": "일일 인증 시도 횟수를 초과했습니다."
+        "30": "계정 정보가 올바르지 않습니다",
+        "32": "계정이 존재하지 않습니다",
+        "500": "내부 오류가 발생했습니다"
       },
       "passcode": {
-        "-111": "인증번호가 올바르지 않습니다",
-        "-102": "등록 가능한 기기 갯수를 초과했습니다. 등록 가능한 기기는 최대 5대 입니다."
+        "-102": "등록 가능한 기기 갯수를 초과했습니다. 등록 가능한 기기는 최대 5대 입니다.",
+        "-111": "인증번호가 올바르지 않습니다"
       }
     },
-    "result": {},
-    "end_title": "시작",
-    "end_caption_title": "이제 모든 준비가\n끝났습니다",
-    "end_caption_subtitle": "시작하기를 눌러 전우주 통신규약의 첫걸음을 내딛으세요",
-    "start": "시작하기"
+    "title": "카카오 계정으로 로그인",
+    "unknown_error": "알 수 없는 에러가 발생했습니다. {{detail}}"
   },
   "main": {
+    "chat": {
+      "attachment": {
+        "audio": "음악",
+        "binary": "실행 파일",
+        "document": "문서",
+        "file": "파일",
+        "image": "이미지",
+        "presentation": "프레젠테이션",
+        "spreadsheet": "스프레드 시트",
+        "text": "텍스트",
+        "video": "동영상"
+      },
+      "empty": {
+        "subtitle": "친구와 새로운 대화를 시작해보세요",
+        "title": "키위새는 대화할 친구를 기다리고 있어요"
+      },
+      "first_chat": "채팅창의 첫부분 입니다",
+      "member_count": "{{count}}명",
+      "placeholder": "메시지 보내기...",
+      "show_more": "더보기"
+    },
+    "friend": {
+      "all_friends": "전체 친구",
+      "me": "나",
+      "near_birthday_friends": "생일이 가까운 친구",
+      "pinned_friends": "고정된 친구"
+    },
     "menu": {
       "chat": {
         "name": "채팅",
@@ -78,41 +105,14 @@
         "open_chat": "오픈채팅"
       },
       "friend": {
-        "name": "친구",
-        "channel": "채널"
+        "channel": "채널",
+        "name": "친구"
       }
-    },
-    "chat": {
-      "empty": {
-        "title": "키위새는 대화할 친구를 기다리고 있어요",
-        "subtitle": "친구와 새로운 대화를 시작해보세요"
-      },
-      "member_count": "{{count}}명",
-      "placeholder": "메시지 보내기...",
-      "first_chat": "채팅창의 첫부분 입니다",
-      "show_more": "더보기",
-      "attachment": {
-        "image": "이미지",
-        "video": "동영상",
-        "audio": "음악",
-        "spreadsheet": "스프레드 시트",
-        "presentation": "프레젠테이션",
-        "document": "문서",
-        "text": "텍스트",
-        "binary": "실행 파일",
-        "file": "파일"
-      }
-    },
-    "friend": {
-      "all_friends": "전체 친구",
-      "pinned_friends": "고정된 친구",
-      "near_birthday_friends": "생일이 가까운 친구",
-      "me": "나"
     }
   },
   "window-controls": {
-    "minimize": "최소화",
+    "close": "닫기",
     "maximize": "최대화",
-    "close": "닫기"
+    "minimize": "최소화"
   }
 }
