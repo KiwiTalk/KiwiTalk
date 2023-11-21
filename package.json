@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@jellybrick/solid-i18next": "1.2.2",
-    "@solidjs/router": "^0.9.0",
+    "@solidjs/router": "^0.9.1",
     "@tauri-apps/api": "1.5.1",
     "@vanilla-extract/css": "1.14.0",
     "@vanilla-extract/dynamic": "2.1.0",
@@ -54,6 +54,7 @@
     "filesize": "^10.1.0",
     "html-parse-string": "0.0.9",
     "i18next": "23.7.6",
+    "lossless-json": "^3.0.2",
     "solid-js": "1.8.5",
     "solid-transition-group": "^0.2.3",
     "tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1",

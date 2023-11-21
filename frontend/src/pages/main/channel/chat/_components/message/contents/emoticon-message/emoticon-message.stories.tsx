@@ -3,7 +3,7 @@ import { StoryFn } from 'storybook-solidjs';
 import { EmoticonMessage, EmoticonMessageProps } from './emoticon-message';
 
 export default {
-  title: 'KiwiTalk v2/Channel/Chat/Message/Emoticon Message',
+  title: 'KiwiTalk v2/Channel/Chat/Message/Emoticon',
   component: EmoticonMessage,
 };
 

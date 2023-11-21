@@ -8,17 +8,17 @@ import IconPieChart from '@/pages/main/channel/chat/_assets/icons/pie_chart.svg'
 import IconChart from '@/pages/main/channel/chat/_assets/icons/chart.svg';
 import IconFile from '@/pages/main/channel/chat/_assets/icons/file.svg';
 
-import * as styles from './attachment-message.css';
+import * as styles from './file-message.css';
 import { Show } from 'solid-js';
 import { Loader } from '@/ui-common/loader';
 
-export type AttachmentMessageProps = {
+export type FileMessageProps = {
   mimeType: string;
   fileName?: string;
   fileSize?: number;
   expire?: number;
 };
-export const AttachmentMessage = (props: AttachmentMessageProps) => {
+export const FileMessage = (props: FileMessageProps) => {
   const [t] = useTransContext();
 
   const icon = () => {

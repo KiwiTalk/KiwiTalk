@@ -3,7 +3,7 @@ import { StoryFn } from 'storybook-solidjs';
 import { ImageMessage, ImageMessageProps } from './image-message';
 
 export default {
-  title: 'KiwiTalk v2/Channel/Chat/Message/Image Message',
+  title: 'KiwiTalk v2/Channel/Chat/Message/Image',
   component: ImageMessage,
 };
 

@@ -1,2 +1,2 @@
 export * from './message';
-export * from './typed';
+export * from './contents';
