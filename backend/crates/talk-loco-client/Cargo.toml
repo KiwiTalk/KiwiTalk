@@ -22,7 +22,7 @@ futures-loco-protocol = "0.4.0"
 thiserror = "1.0"
 async-stream = "0.3.5"
 pin-project-lite = "0.2.13"
-futures-lite = "2.0.1"
+futures-lite = "2.1.0"
 structstruck = "0.4.1"
 bitflags = { version = "2.4.1", features = ["serde"] }
 num-bigint-dig = "0.8.4"
