@@ -17,7 +17,7 @@ wasm = ["futures-loco-protocol/wasm"]
 parking_lot = "0.12.1"
 serde = { version = "1.0" }
 serde_with = "3.4.0"
-bson = "2.8.0"
+bson = "2.8.1"
 futures-loco-protocol = "0.4.0"
 thiserror = "1.0"
 async-stream = "0.3.5"
