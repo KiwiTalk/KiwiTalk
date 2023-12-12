@@ -47,7 +47,7 @@
   "dependencies": {
     "@jellybrick/solid-i18next": "1.2.2",
     "@solidjs/router": "^0.9.0",
-    "@tauri-apps/api": "1.5.1",
+    "@tauri-apps/api": "1.5.2",
     "@vanilla-extract/css": "1.14.0",
     "@vanilla-extract/dynamic": "2.1.0",
     "deepmerge-ts": "5.1.0",
