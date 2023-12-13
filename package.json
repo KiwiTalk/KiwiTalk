@@ -26,7 +26,7 @@
   "devDependencies": {
     "@storybook/addon-essentials": "7.6.4",
     "@storybook/types": "7.6.4",
-    "@tauri-apps/cli": "1.5.7",
+    "@tauri-apps/cli": "1.5.8",
     "@typescript-eslint/eslint-plugin": "6.14.0",
     "@typescript-eslint/parser": "6.14.0",
     "@vanilla-extract/vite-plugin": "3.9.3",
