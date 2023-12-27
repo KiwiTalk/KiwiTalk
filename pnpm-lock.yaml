@@ -101,8 +101,8 @@ devDependencies:
     specifier: 2.8.0
     version: 2.8.0(solid-js@1.8.7)(vite@5.0.10)
   vite-plugin-solid-svg:
-    specifier: 0.7.0
-    version: 0.7.0(solid-js@1.8.7)(vite@5.0.10)
+    specifier: 0.8.0
+    version: 0.8.0(solid-js@1.8.7)(vite@5.0.10)
 
 packages:
 
@@ -7931,8 +7931,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /svgo@3.0.2:
-    resolution: {integrity: sha512-Z706C1U2pb1+JGP48fbazf3KxHrWOsLme6Rv7imFBn5EnuanDW1GPaA/P1/dvObE670JDePC3mnj0k0B7P0jjQ==}
+  /svgo@3.1.0:
+    resolution: {integrity: sha512-R5SnNA89w1dYgNv570591F66v34b3eQShpIBcQtZtM5trJwm1VvxbIoMpRYY3ybTAutcKTLEmTsdnaknOHbiQA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
@@ -7940,6 +7940,7 @@ packages:
       commander: 7.2.0
       css-select: 5.1.0
       css-tree: 2.3.1
+      css-what: 6.1.0
       csso: 5.0.5
       picocolors: 1.0.0
     dev: true
@@ -8354,14 +8355,14 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-solid-svg@0.7.0(solid-js@1.8.7)(vite@5.0.10):
-    resolution: {integrity: sha512-skErWSlCdI/NbrnyFQJWQk8RWjtRQGfknm1FjIgW190osiyVIZLWnQyT2ErV92ru9p5FjFgA4L482Y7ZBPcRzA==}
+  /vite-plugin-solid-svg@0.8.0(solid-js@1.8.7)(vite@5.0.10):
+    resolution: {integrity: sha512-m4HQ6nnwjPqiJONnRRZjLkOC86ZbgfBMpE6UnqGI62R2a7SZB2To/v6oeiZ+17LFtYYCNbZ2DPQT66a/YmqM3A==}
     peerDependencies:
       solid-js: ^1
-      vite: ^4
+      vite: '>=4'
     dependencies:
       solid-js: 1.8.7
-      svgo: 3.0.2
+      svgo: 3.1.0
       vite: 5.0.10
     dev: true
 
