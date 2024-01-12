@@ -54,7 +54,7 @@
     "filesize": "^10.1.0",
     "html-parse-string": "0.0.9",
     "i18next": "23.7.16",
-    "solid-js": "1.8.10",
+    "solid-js": "1.8.11",
     "solid-transition-group": "^0.2.3",
     "tauri-plugin-log-api": "github:tauri-apps/tauri-plugin-log#v1",
     "tauri-plugin-window-state-api": "github:tauri-apps/tauri-plugin-window-state#v1"
