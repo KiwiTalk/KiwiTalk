@@ -98,8 +98,8 @@ devDependencies:
     specifier: 5.0.12
     version: 5.0.12
   vite-plugin-solid:
-    specifier: 2.8.3
-    version: 2.8.3(@testing-library/jest-dom@6.2.1)(solid-js@1.8.12)(vite@5.0.12)
+    specifier: 2.9.0
+    version: 2.9.0(@testing-library/jest-dom@6.2.1)(solid-js@1.8.12)(vite@5.0.12)
   vite-plugin-solid-svg:
     specifier: 0.8.0
     version: 0.8.0(solid-js@1.8.12)(vite@5.0.12)
@@ -8405,15 +8405,14 @@ packages:
       vite: 5.0.12
     dev: true
 
-  /vite-plugin-solid@2.8.3(@testing-library/jest-dom@6.2.1)(solid-js@1.8.12)(vite@5.0.12):
-    resolution: {integrity: sha512-BpHrSSrrK8gqZQicOC2UvOX7UwNyNHx9rVyYKKqGhvfR9KGGumbJyCCkwCg/nWaA8uTA/NafIPvhDPL53sfsPg==}
+  /vite-plugin-solid@2.9.0(@testing-library/jest-dom@6.2.1)(solid-js@1.8.12)(vite@5.0.12):
+    resolution: {integrity: sha512-WinqEFB80AwsN7AZdpOxBryyUcXuEkUHerfz/jLS0Iv58BebmK83KYHVnImt+cLkgbt9YWSEZPps8IDeW9Issg==}
     peerDependencies:
       '@testing-library/jest-dom': ^5.16.6 || ^5.17.0 || ^6.*
       solid-js: ^1.7.2
       vite: ^3.0.0 || ^4.0.0 || ^5.0.0
     dependencies:
       '@babel/core': 7.23.5
-      '@babel/preset-typescript': 7.23.3(@babel/core@7.23.5)
       '@testing-library/jest-dom': 6.2.1
       '@types/babel__core': 7.20.5
       babel-preset-solid: 1.8.6(@babel/core@7.23.5)
