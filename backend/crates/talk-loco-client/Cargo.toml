@@ -16,7 +16,7 @@ wasm = ["futures-loco-protocol/wasm"]
 [dependencies]
 parking_lot = "0.12.1"
 serde = { version = "1.0" }
-serde_with = "3.5.0"
+serde_with = "3.5.1"
 bson = "2.8.1"
 futures-loco-protocol = "0.4.0"
 thiserror = "1.0"
