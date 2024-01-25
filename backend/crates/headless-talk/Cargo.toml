@@ -15,7 +15,7 @@ tokio = { version = "1", features = ["rt", "macros", "time"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 futures = "0.3.29"
-bson = "2.8.1"
+bson = "2.9.0"
 log = "0.4.20"
 nohash-hasher = "0.2.0"
 diesel = { version = "2.1.4", features = ["sqlite", "r2d2", "serde_json"] }
