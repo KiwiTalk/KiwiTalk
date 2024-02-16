@@ -8,23 +8,26 @@ import {
   untrack,
 } from 'solid-js';
 
-import { ChannelUser, Chatlog } from '@/api/client';
+import { ChannelUser } from '@/api/client';
 import { VirtualList, VirtualListRef } from '@/ui-common/virtual-list';
 
 import * as styles from './message-list.css';
 import { MessageGroup } from '../message-group';
+import { ChatlogBase, PendingChatlog } from '../../_types';
 
 export type MessageListProps = {
   scroller?: (ref: VirtualListRef) => void;
 
   channelId: string;
-  messageGroups: Chatlog[][];
+  messageGroups: ChatlogBase[][];
   members: Record<string, ChannelUser>;
 
   logonId?: string;
   isEnd?: boolean;
 
   onLoadMore?: () => void;
+  onRetryPending?: (pendingLog: PendingChatlog) => void;
+  onCancelPending?: (pendingLog: PendingChatlog) => void;
 };
 export const MessageList = (props: MessageListProps) => {
   const [isStickBottom, setIsStickBottom] = createSignal(true);
@@ -79,6 +82,8 @@ export const MessageList = (props: MessageListProps) => {
             isMine={senderId === props.logonId}
             messages={item!}
             members={members()}
+            onRetryPending={props.onRetryPending}
+            onCancelPending={props.onCancelPending}
           />
         );
       }}
