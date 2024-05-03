@@ -47,7 +47,7 @@ jobs:
           echo version=$(cargo metadata --format-version 1 --no-deps | \
             jq --raw-output '.packages | .[] | select(.name == "kiwi-talk-app").version') >> "$GITHUB_OUTPUT"
 
-      - uses: peter-evans/create-pull-request@v5
+      - uses: peter-evans/create-pull-request@v6
         with:
           delete-branch: true
           branch: release/next
