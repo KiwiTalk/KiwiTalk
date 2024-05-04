@@ -19,7 +19,7 @@ serde = { version = "1.0.200" }
 serde_with = "3.6.1"
 bson = "2.9.0"
 futures-loco-protocol = "0.4.0"
-thiserror = "1.0"
+thiserror = "1.0.59"
 async-stream = "0.3.5"
 pin-project-lite = "0.2.13"
 futures-lite = "2.2.0"

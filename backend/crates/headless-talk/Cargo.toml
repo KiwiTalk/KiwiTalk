@@ -13,7 +13,7 @@ talk-loco-client = { workspace = true }
 
 tokio = { version = "1", features = ["rt", "macros", "time"] }
 serde = { version = "1.0.200", features = ["derive"] }
-thiserror = "1.0"
+thiserror = "1.0.59"
 futures = "0.3.30"
 bson = "2.9.0"
 log = "0.4.20"
