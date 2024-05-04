@@ -14,7 +14,7 @@ repository.workspace = true
 wasm = ["futures-loco-protocol/wasm"]
 
 [dependencies]
-parking_lot = "0.12.1"
+parking_lot = "0.12.2"
 serde = { version = "1.0.200" }
 serde_with = "3.6.1"
 bson = "2.9.0"
