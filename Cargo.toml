@@ -13,7 +13,7 @@ rust-version = "1.57"
 
 [workspace.dependencies]
 tokio = "1"
-tauri = "1.5.4"
+tauri = "1.6.2"
 log = "0.4.20"
 anyhow = "1.0.82"
 serde = { version = "1.0.200", features = ["derive"] }
