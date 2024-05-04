@@ -60,6 +60,8 @@ jobs:
           node-version: 16
 
       - uses: pnpm/action-setup@v2
+        with:
+            version: 9
 
       - uses: dtolnay/rust-toolchain@stable
         with:
