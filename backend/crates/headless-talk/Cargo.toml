@@ -16,7 +16,7 @@ serde = { version = "1.0.200", features = ["derive"] }
 thiserror = "1.0.59"
 futures = "0.3.30"
 bson = "2.9.0"
-log = "0.4.20"
+log = "0.4.21"
 nohash-hasher = "0.2.0"
 diesel = { version = "2.1.6", features = ["sqlite", "r2d2", "serde_json"] }
 diesel_migrations = "2.1.0"
