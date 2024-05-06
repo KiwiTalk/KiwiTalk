@@ -48,7 +48,7 @@
     "@jellybrick/solid-i18next": "1.2.2",
     "@solidjs/router": "^0.13.0",
     "@tauri-apps/api": "1.5.4",
-    "@vanilla-extract/css": "1.14.1",
+    "@vanilla-extract/css": "1.15.1",
     "@vanilla-extract/dynamic": "2.1.0",
     "deepmerge-ts": "5.1.0",
     "filesize": "^10.1.0",

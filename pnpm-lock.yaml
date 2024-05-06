@@ -18,8 +18,8 @@ importers:
         specifier: 1.5.4
         version: 1.5.4
       '@vanilla-extract/css':
-        specifier: 1.14.1
-        version: 1.14.1
+        specifier: 1.15.1
+        version: 1.15.1
       '@vanilla-extract/dynamic':
         specifier: 2.1.0
         version: 2.1.0
@@ -2179,8 +2179,8 @@ packages:
   '@vanilla-extract/babel-plugin-debug-ids@1.0.5':
     resolution: {integrity: sha512-Rc9A6ylsw7EBErmpgqCMvc/Z/eEZxI5k1xfLQHw7f5HHh3oc5YfzsAsYU/PdmSNjF1dp3sGEViBdDltvwnfVaA==}
 
-  '@vanilla-extract/css@1.14.1':
-    resolution: {integrity: sha512-V4JUuHNjZgl64NGfkDJePqizkNgiSpphODtZEs4cCPuxLAzwOUJYATGpejwimJr1n529kq4DEKWexW22LMBokw==}
+  '@vanilla-extract/css@1.15.1':
+    resolution: {integrity: sha512-puAfTKAUtsMr2+D+grQNjU5umsdw9zdVgQflUlbzS/tGORaAHdgaYz7jfKPmz1c4ZcpJ6uFNOiI50NDOAzzhyg==}
 
   '@vanilla-extract/dynamic@2.1.0':
     resolution: {integrity: sha512-8zl0IgBYRtgD1h+56Zu13wHTiMTJSVEa4F7RWX9vTB/5Xe2KtjoiqApy/szHPVFA56c+ex6A4GpCQjT1bKXbYw==}
@@ -2603,6 +2603,14 @@ packages:
       supports-color: '*'
     peerDependenciesMeta:
       supports-color:
+        optional: true
+
+  dedent@1.5.3:
+    resolution: {integrity: sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==}
+    peerDependencies:
+      babel-plugin-macros: ^3.1.0
+    peerDependenciesMeta:
+      babel-plugin-macros:
         optional: true
 
   deep-is@0.1.4:
@@ -7120,19 +7128,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vanilla-extract/css@1.14.1':
+  '@vanilla-extract/css@1.15.1':
     dependencies:
       '@emotion/hash': 0.9.1
       '@vanilla-extract/private': 1.0.4
-      chalk: 4.1.2
       css-what: 6.1.0
       cssesc: 3.0.0
       csstype: 3.1.3
+      dedent: 1.5.3
       deep-object-diff: 1.1.9
       deepmerge: 4.3.1
       media-query-parser: 2.0.2
       modern-ahocorasick: 1.0.1
-      outdent: 0.8.0
+      picocolors: 1.0.0
+    transitivePeerDependencies:
+      - babel-plugin-macros
 
   '@vanilla-extract/dynamic@2.1.0':
     dependencies:
@@ -7143,7 +7153,7 @@ snapshots:
       '@babel/core': 7.24.5
       '@babel/plugin-syntax-typescript': 7.24.1(@babel/core@7.24.5)
       '@vanilla-extract/babel-plugin-debug-ids': 1.0.5
-      '@vanilla-extract/css': 1.14.1
+      '@vanilla-extract/css': 1.15.1
       esbuild: 0.19.12
       eval: 0.1.8
       find-up: 5.0.0
@@ -7155,6 +7165,7 @@ snapshots:
       vite-node: 1.6.0(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
+      - babel-plugin-macros
       - less
       - lightningcss
       - sass
@@ -7174,6 +7185,7 @@ snapshots:
       vite: 5.2.11(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
+      - babel-plugin-macros
       - less
       - lightningcss
       - sass
@@ -7601,6 +7613,8 @@ snapshots:
   debug@4.3.4:
     dependencies:
       ms: 2.1.2
+
+  dedent@1.5.3: {}
 
   deep-is@0.1.4: {}
 
