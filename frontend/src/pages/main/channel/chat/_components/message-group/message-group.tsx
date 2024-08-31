@@ -17,6 +17,7 @@ import { Message } from '../message/message';
 import * as styles from './message-group.css';
 import { useChatFactory } from '../../_hooks/useChatFactory';
 import { Loader } from '@/ui-common/loader';
+import { ChatlogBase, PendingChatlog, isChatlog, isPendingChatlog } from '../../_types';
 
 const isDateDiff = (a: number, b: number) => {
   const aDate = new Date(a * 1000);
@@ -35,8 +36,11 @@ export type MessageGroupProps = {
   profile?: string;
   sender?: string;
   isMine: boolean;
-  messages: Chatlog[];
+  messages: ChatlogBase[];
   members: ChannelUser[];
+
+  onRetryPending?: (pendingLog: PendingChatlog) => void;
+  onCancelPending?: (pendingLog: PendingChatlog) => void;
 };
 export const MessageGroup = (props: MessageGroupProps) => {
   const factory = useChatFactory();
@@ -51,6 +55,7 @@ export const MessageGroup = (props: MessageGroupProps) => {
     const next = props.messages[index + 1];
 
     if (!current || !next) return false;
+    else if (isPendingChatlog(current) || isPendingChatlog(next)) return false;
 
     return isDateDiff(current.sendAt, next.sendAt);
   };
@@ -99,8 +104,19 @@ export const MessageGroup = (props: MessageGroupProps) => {
                 isMine={props.isMine}
                 isBubble={isBubble(message.chatType)}
                 isConnected={index() !== 0}
-                time={isShowTime(index()) ? message.sendAt : undefined}
-                unread={getUnreadCount(message)}
+                isRejected={isPendingChatlog(message) && message.status === 'rejected'}
+                time={isChatlog(message) && isShowTime(index()) ? message.sendAt : undefined}
+                unread={isChatlog(message) ? getUnreadCount(message) : undefined}
+                onRetryPending={() => {
+                  if (isPendingChatlog(message)) {
+                    props.onRetryPending?.(message);
+                  }
+                }}
+                onCancelPending={() => {
+                  if (isPendingChatlog(message)) {
+                    props.onCancelPending?.(message);
+                  }
+                }}
               >
                 <Suspense fallback={<Loader />}>
                   {renderer()}
