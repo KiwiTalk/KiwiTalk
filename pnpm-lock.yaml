@@ -43,10 +43,10 @@ importers:
         version: 0.2.3(solid-js@1.8.17)
       tauri-plugin-log-api:
         specifier: github:tauri-apps/tauri-plugin-log#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/752531f21f626c9f9f1716a28c4a37054c679657
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/cc86b2d9878d6ec02c9f25bd48292621a4bc2a6f
       tauri-plugin-window-state-api:
         specifier: github:tauri-apps/tauri-plugin-window-state#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/002cf15f6a1e4969a678a4ade680cd60477a8a53
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/aa0b2a9cbf96f87a172e999670be79c4bb5d67dd
     devDependencies:
       '@storybook/addon-essentials':
         specifier: 7.6.19
@@ -76,8 +76,8 @@ importers:
         specifier: 0.14.0
         version: 0.14.0(eslint@8.57.0)
       eslint-plugin-storybook:
-        specifier: 0.6.15
-        version: 0.6.15(eslint@8.57.0)(typescript@5.4.5)
+        specifier: 0.10.1
+        version: 0.10.1(eslint@8.57.0)(typescript@5.4.5)
       prettier:
         specifier: ^3.1.0
         version: 3.2.5
@@ -92,7 +92,7 @@ importers:
         version: 1.0.0-beta.2(babel-preset-solid@1.8.17(@babel/core@7.24.5))(solid-js@1.8.17)
       storybook-solidjs-vite:
         specifier: 1.0.0-beta.2
-        version: 1.0.0-beta.2(prettier@3.2.5)(typescript@5.4.5)(vite@5.2.11(@types/node@20.12.8))
+        version: 1.0.0-beta.2(storybook@7.6.19)(vite@5.2.11(@types/node@20.12.8))
       typescript:
         specifier: 5.4.5
         version: 5.4.5
@@ -1207,6 +1207,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -1214,6 +1215,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -1750,26 +1752,14 @@ packages:
   '@storybook/builder-manager@7.6.19':
     resolution: {integrity: sha512-Dt5OLh97xeWh4h2mk9uG0SbCxBKHPhIiHLHAKEIDzIZBdwUhuyncVNDPHW2NlXM+S7U0/iKs2tw05waqh2lHvg==}
 
-  '@storybook/builder-vite@8.1.0-alpha.8':
-    resolution: {integrity: sha512-DVDp9A1z3DZW0Sblewr2TPFuc5M0jZkEB1ugTDkPfOByWAXik18RZZrV+0Iv6Q3VAR0pq9BR2BGfkV6Odz1Rfw==}
+  '@storybook/builder-vite@8.4.0-alpha.7':
+    resolution: {integrity: sha512-Q8as4xL7vrJtrZrukGopXGmrlPxXukLhmRIKT0INFJTBtEgHy3Gk4OEe5MOGIu50yMcHDBrx2+3ijAOzFsNw0g==}
     peerDependencies:
-      '@preact/preset-vite': '*'
-      typescript: '>= 4.3.x'
+      storybook: ^8.4.0-alpha.7
       vite: ^4.0.0 || ^5.0.0
-      vite-plugin-glimmerx: '*'
-    peerDependenciesMeta:
-      '@preact/preset-vite':
-        optional: true
-      typescript:
-        optional: true
-      vite-plugin-glimmerx:
-        optional: true
 
   '@storybook/channels@7.6.19':
     resolution: {integrity: sha512-2JGh+i95GwjtjqWqhtEh15jM5ifwbRGmXeFqkY7dpdHH50EEWafYHr2mg3opK3heVDwg0rJ/VBptkmshloXuvA==}
-
-  '@storybook/channels@8.1.0-alpha.8':
-    resolution: {integrity: sha512-lLzdgLQ8DqGcnadSE3kMkd76lsKM3xkhdM1w3TbACRUGgJ7EHyD9Db8/jRyQvfkyQrkVO7AWguw0T9/C/IXRyg==}
 
   '@storybook/cli@7.6.19':
     resolution: {integrity: sha512-7OVy7nPgkLfgivv6/dmvoyU6pKl9EzWFk+g9izyQHiM/jS8jOiEyn6akG8Ebj6k5pWslo5lgiXUSW+cEEZUnqQ==}
@@ -1777,9 +1767,6 @@ packages:
 
   '@storybook/client-logger@7.6.19':
     resolution: {integrity: sha512-oGzOxbmLmciSIfd5gsxDzPmX8DttWhoYdPKxjMuCuWLTO2TWpkCWp1FTUMWO72mm/6V/FswT/aqpJJBBvdZ3RQ==}
-
-  '@storybook/client-logger@8.1.0-alpha.8':
-    resolution: {integrity: sha512-SjYg+c/VpXraGQmdOKMWKa2tYdvhhW6FaAw3su1kHBylKNXFum3K7/FaIAfJBRzgNilmYUZxiUxI//r52gyvNg==}
 
   '@storybook/codemod@7.6.19':
     resolution: {integrity: sha512-bmHE0iEEgWZ65dXCmasd+GreChjPiWkXu2FEa0cJmNz/PqY12GsXGls4ke1TkNTj4gdSZnbtJxbclPZZnib2tQ==}
@@ -1793,19 +1780,8 @@ packages:
   '@storybook/core-common@7.6.19':
     resolution: {integrity: sha512-njwpGzFJrfbJr/AFxGP8KMrfPfxN85KOfSlxYnQwRm5Z0H1D/lT33LhEBf5m37gaGawHeG7KryxO6RvaioMt2Q==}
 
-  '@storybook/core-common@8.1.0-alpha.8':
-    resolution: {integrity: sha512-ZqcizoNC5t5MC3l08k+tAtK+ZBzraxXj6DQ69phjULXCPqyTwMwuJy1cOmlnPlMHQTiy1q/JaDyjKXSX24J/rw==}
-    peerDependencies:
-      prettier: ^2 || ^3
-    peerDependenciesMeta:
-      prettier:
-        optional: true
-
   '@storybook/core-events@7.6.19':
     resolution: {integrity: sha512-K/W6Uvum0ocZSgjbi8hiotpe+wDEHDZlvN+KlPqdh9ae9xDK8aBNBq9IelCoqM+uKO1Zj+dDfSQds7CD781DJg==}
-
-  '@storybook/core-events@8.1.0-alpha.8':
-    resolution: {integrity: sha512-419ocJASV3rtxFt12reLSVGT4uq45FP+EeuZnwHzZAeHD1ybS//2iLlCyy3Qj0t1jYLuFCjfJ7xufuUMFO+cgw==}
 
   '@storybook/core-server@7.6.19':
     resolution: {integrity: sha512-7mKL73Wv5R2bEl0kJ6QJ9bOu5YY53Idu24QgvTnUdNsQazp2yUONBNwHIrNDnNEXm8SfCi4Mc9o0mmNRMIoiRA==}
@@ -1813,17 +1789,16 @@ packages:
   '@storybook/csf-plugin@7.6.19':
     resolution: {integrity: sha512-yUP0xfJyR8e6fmCgKoEt4c1EvslF8dZ8wtwVLE5hnC3kfs7xt8RVDiKLB/9NhYjY3mD/oOesX60HqRXDgJQHwA==}
 
-  '@storybook/csf-plugin@8.1.0-alpha.8':
-    resolution: {integrity: sha512-/UKAUFBHlO3dsJI68K8+r5vC/6Uo3ZQJyESDdbvr9+0046R+7px3szwmG3g6eSu+T9OBHSWP+CEyHBu7PgEU3A==}
+  '@storybook/csf-plugin@8.4.0-alpha.7':
+    resolution: {integrity: sha512-CndBjAxBqfjY19ZK22W80HEGDxJlLOTTl2JaIH0me7lTu46jXWfr4ly4NaaEHv2e2Tkzmk7hmK32g89laV/7ig==}
+    peerDependencies:
+      storybook: ^8.4.0-alpha.7
 
   '@storybook/csf-tools@7.6.19':
     resolution: {integrity: sha512-8Vzia3cHhDdGHuS3XKXJReCRxmfRq3vmTm/Te9yKZnPSAsC58CCKcMh8FNEFJ44vxYF9itKTkRutjGs+DprKLQ==}
 
-  '@storybook/csf-tools@8.1.0-alpha.8':
-    resolution: {integrity: sha512-CiQtMMiOYFIRpgGzv0/LuvFYljpUjl6btwij5VZDbFXYqGSKfuDbP3TL/tR0W/xFtV7BfBWY52WuRlCI8SKExw==}
-
-  '@storybook/csf@0.0.1':
-    resolution: {integrity: sha512-USTLkZze5gkel8MYCujSRBVIrUQ3YPBrLOx7GNk/0wttvVtlzWXAq9eLbQ4p/NicGxP+3T7KPEMVV//g+yubpw==}
+  '@storybook/csf@0.1.11':
+    resolution: {integrity: sha512-dHYFQH3mA+EtnCkHXzicbLgsvzYjcDJ1JWsogbItZogkPHgSJM/Wr71uMkcvw8v9mmCyP4NpXJuu6bPoVsOnzg==}
 
   '@storybook/csf@0.1.6':
     resolution: {integrity: sha512-JjWnBptVhBYJ14yq+cHs66BXjykRUWQ5TlD1RhPxMOtavynYyV/Q+QR98/N+XB+mcPtFMm5I2DvNkpj0/Dk8Mw==}
@@ -1849,20 +1824,11 @@ packages:
   '@storybook/node-logger@7.6.19':
     resolution: {integrity: sha512-2g29QC44Zl1jKY37DmQ0/dO7+VSKnGgPI/x0mwVwQffypSapxH3rwLLT5Q5XLHeFyD+fhRu5w9Cj4vTGynJgpA==}
 
-  '@storybook/node-logger@8.1.0-alpha.8':
-    resolution: {integrity: sha512-dnP4MEXbosj/3wyZju5sxmdnQiowjPKVQAbtAM/wKTLq2nDBXOFWiJN6x699M3nb8C5eGGQufNG+g0DGuI5tBQ==}
-
   '@storybook/postinstall@7.6.19':
     resolution: {integrity: sha512-s6p1vpgMfn+QGDfCK2YNdyyWKidUgb3nGicB81FANRyzYqGB//QlJlghEc2LKCIQbGIZQiwP3l8PdZQmczEJRw==}
 
   '@storybook/preview-api@7.6.19':
     resolution: {integrity: sha512-04hdMSQucroJT4dBjQzRd7ZwH2hij8yx2nm5qd4HYGkd1ORkvlH6GOLph4XewNJl5Um3xfzFQzBhvkqvG0WaCQ==}
-
-  '@storybook/preview-api@8.1.0-alpha.8':
-    resolution: {integrity: sha512-x6nviM82RrG6GgcNNrFOxr1kTLwD4/g5BuJCy0XCrzEzf7JVugceAzGJtiXfGV7d/JOmjKd7TY0MpzTwHwN2qg==}
-
-  '@storybook/preview@8.1.0-alpha.8':
-    resolution: {integrity: sha512-/uPhi4qST+bvK0LLPvj39n35ss9S9iIGTy3cqAKfTW8wMXTuTGidvdgwXWRX7PpO2gTO0xeHbZnYL/bC50sn2Q==}
 
   '@storybook/react-dom-shim@7.6.19':
     resolution: {integrity: sha512-tpt2AC1428d1gF4fetMkpkeFZ1WdDr1CLKoLbSInWQZ7i96nbnIMIA9raR/W8ai1bo55KSz9Bq5ytC/1Pac2qQ==}
@@ -1885,15 +1851,12 @@ packages:
   '@storybook/types@7.6.19':
     resolution: {integrity: sha512-DeGYrRPRMGTVfT7o2rEZtRzyLT2yKTI2exgpnxbwPWEFAduZCSfzBrcBXZ/nb5B0pjA9tUNWls1YzGkJGlkhpg==}
 
-  '@storybook/types@8.1.0-alpha.8':
-    resolution: {integrity: sha512-ww019GrfNmNADGzycrt/D0yKiviSbjnlWZvWm7FOLJobEWxoDrE5QW4Wr0dc3ITQ9gZYmiuE6KiaOEDwtbxV/g==}
-
-  '@tauri-apps/api@1.5.3':
-    resolution: {integrity: sha512-zxnDjHHKjOsrIzZm6nO5Xapb/BxqUq1tc7cGkFXsFkGTsSWgCPH1D8mm0XS9weJY2OaR73I3k3S+b7eSzJDfqA==}
-    engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
-
   '@tauri-apps/api@1.5.4':
     resolution: {integrity: sha512-LKYae9URbdEdbHrOXBeXb/lZgVyWTX0E98rSFBuQlmkLr8OeG+akuE41PfLjBVyk1Q+fq7wxo4ieenLSMUAUhA==}
+    engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+
+  '@tauri-apps/api@1.6.0':
+    resolution: {integrity: sha512-rqI++FWClU5I2UBp4HXFvl+sBWkdigBkxnpJDQUWttNyG7IZP4FwQGhTNL5EOw0vI8i6eSAJ5frLqO7n7jbJdg==}
     engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
 
   '@tauri-apps/cli-darwin-arm64@1.5.13':
@@ -2109,13 +2072,13 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/scope-manager@5.62.0':
-    resolution: {integrity: sha512-VXuvVvZeQCQb5Zgf4HAxc04q5j+WrNAtNh9OwCsCgpKqESMTu3tF/jhZ3xG6T4NZwWl65Bg8KuS2uEvhSfLl0w==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-
   '@typescript-eslint/scope-manager@6.21.0':
     resolution: {integrity: sha512-OwLUIWZJry80O99zvqXVEioyniJMa+d2GrqpUTqi5/v5D5rOrppJVBPa0yKCblcigC0/aYAzxxqQ1B+DS2RYsg==}
     engines: {node: ^16.0.0 || >=18.0.0}
+
+  '@typescript-eslint/scope-manager@8.10.0':
+    resolution: {integrity: sha512-AgCaEjhfql9MDKjMUxWvH7HjLeBqMCBfIaBbzzIcBbQPZE7CPh1m6FF+L75NUMJFMLYhCywJXIDEMa3//1A0dw==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/type-utils@6.21.0':
     resolution: {integrity: sha512-rZQI7wHfao8qMX3Rd3xqeYSMCL3SoiSQLBATSiVKARdFGCYSRvmViieZjqc58jKgs8Y8i9YvVVhRbHSTA4VBag==}
@@ -2127,22 +2090,13 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/types@5.62.0':
-    resolution: {integrity: sha512-87NVngcbVXUahrRTqIK27gD2t5Cu1yuCXxbLcFtCzZGlfyVWWh8mLHkoxzjsB6DDNnvdL+fW8MiwPEJyGJQDgQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-
   '@typescript-eslint/types@6.21.0':
     resolution: {integrity: sha512-1kFmZ1rOm5epu9NZEZm1kckCDGj5UJEf7P1kliH4LKu/RkwpsfqqGmY2OOcUs18lSlQBKLDYBOGxRVtrMN5lpg==}
     engines: {node: ^16.0.0 || >=18.0.0}
 
-  '@typescript-eslint/typescript-estree@5.62.0':
-    resolution: {integrity: sha512-CmcQ6uY7b9y694lKdRB8FEel7JbU/40iSAPomu++SjLMntB+2Leay2LO6i8VnJk58MtE9/nQSFIH6jpyRWyYzA==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
+  '@typescript-eslint/types@8.10.0':
+    resolution: {integrity: sha512-k/E48uzsfJCRRbGLapdZgrX52csmWJ2rcowwPvOZ8lwPUv3xW6CcFeJAXgx4uJm+Ge4+a4tFOkdYvSpxhRhg1w==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@typescript-eslint/typescript-estree@6.21.0':
     resolution: {integrity: sha512-6npJTkZcO+y2/kr+z0hc4HwNfrrP4kNYh57ek7yCNlrBjWQ1Y0OS7jiZTkgumrvkX5HkEKXFZkkdFNkaW2wmUQ==}
@@ -2153,11 +2107,14 @@ packages:
       typescript:
         optional: true
 
-  '@typescript-eslint/utils@5.62.0':
-    resolution: {integrity: sha512-n8oxjeb5aIbPFEtmQxQYOLI0i9n5ySBEY/ZEHHZqKQSFnxio1rv6dthascc9dLuwrL0RC5mPCxB7vnAVGAYWAQ==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  '@typescript-eslint/typescript-estree@8.10.0':
+    resolution: {integrity: sha512-3OE0nlcOHaMvQ8Xu5gAfME3/tWVDpb/HxtpUZ1WeOAksZ/h/gwrBzCklaGzwZT97/lBbbxJ16dMA98JMEngW4w==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@typescript-eslint/utils@6.21.0':
     resolution: {integrity: sha512-NfWVaC8HP9T8cbKQxHcsJBY5YE1O33+jpMwN45qzWWaPDZgLIbo12toGMWnmhvCpd3sIxkpDw3Wv1B3dYrbDQQ==}
@@ -2165,13 +2122,19 @@ packages:
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0
 
-  '@typescript-eslint/visitor-keys@5.62.0':
-    resolution: {integrity: sha512-07ny+LHRzQXepkGg6w0mFY41fVUNBrL2Roj/++7V1txKugfjm/Ci/qSND03r2RhlJhJYMcTn9AhhSSqQp0Ysyw==}
-    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+  '@typescript-eslint/utils@8.10.0':
+    resolution: {integrity: sha512-Oq4uZ7JFr9d1ZunE/QKy5egcDRXT/FrS2z/nlxzPua2VHFtmMvFNDvpq1m/hq0ra+T52aUezfcjGRIB7vNJF9w==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0
 
   '@typescript-eslint/visitor-keys@6.21.0':
     resolution: {integrity: sha512-JJtkDduxLi9bivAB+cYOVMtbkqdPOhZ+ZI5LC47MIRrDV4Yn2o+ZnW10Nkmr28xRpSpdJ6Sm42Hjf2+REYXm0A==}
     engines: {node: ^16.0.0 || >=18.0.0}
+
+  '@typescript-eslint/visitor-keys@8.10.0':
+    resolution: {integrity: sha512-k8nekgqwr7FadWk548Lfph6V3r9OVqjzAIVskE7orMZR23cGJjAOVazsZSJW+ElyjfTM4wx/1g88Mi70DDtG9A==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
@@ -2763,9 +2726,6 @@ packages:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
 
-  es-module-lexer@1.5.2:
-    resolution: {integrity: sha512-l60ETUTmLqbVbVHv1J4/qj+M8nq7AwMzEcg3kmJDt9dCNrTk+yHcYFf/Kw75pMDwd9mPcIGCG5LcS20SxYRzFA==}
-
   esbuild-plugin-alias@0.2.1:
     resolution: {integrity: sha512-jyfL/pwPqaFXyKnj8lP8iLk6Z0m099uXR45aSN8Av1XD4vhvQutxxPzgA2bTcAwQpa1zCXDcWOlhFgyP3GKqhQ==}
 
@@ -2810,15 +2770,11 @@ packages:
     peerDependencies:
       eslint: '>=5.16.0'
 
-  eslint-plugin-storybook@0.6.15:
-    resolution: {integrity: sha512-lAGqVAJGob47Griu29KXYowI4G7KwMoJDOkEip8ujikuDLxU+oWJ1l0WL6F2oDO4QiyUFXvtDkEkISMOPzo+7w==}
-    engines: {node: 12.x || 14.x || >= 16}
+  eslint-plugin-storybook@0.10.1:
+    resolution: {integrity: sha512-YpxkdqyiKpMIrRquuvBaCinsqmZJ86JvXRX/gtRa4Qctpk0ipFt2cWqEjkB1HHWWG0DVRXlUBKHjRogC2Ig1fg==}
+    engines: {node: '>= 18'}
     peerDependencies:
       eslint: '>=6'
-
-  eslint-scope@5.1.1:
-    resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
-    engines: {node: '>=8.0.0'}
 
   eslint-scope@7.2.2:
     resolution: {integrity: sha512-dOt21O7lTMhDM+X9mB4GX+DZrZtCUJPL/wlcTqxyrx5IvO0IYtILdtrQGQp+8n5S0gwSVmOf9NQrjMOgfQZlIg==}
@@ -2831,6 +2787,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -2848,10 +2805,6 @@ packages:
 
   esrecurse@4.3.0:
     resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
-    engines: {node: '>=4.0'}
-
-  estraverse@4.3.0:
-    resolution: {integrity: sha512-39nnKffWz8xN1BU/2c79n9nB9HDzo0niYUqx6xyqUnyoAnQyyWpOTdZEeiCch8BBu515t4wp9ZmgVfVhn9EBpw==}
     engines: {node: '>=4.0'}
 
   estraverse@5.3.0:
@@ -3069,6 +3022,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -3180,6 +3134,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -3456,9 +3411,6 @@ packages:
   lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
-
-  magic-string@0.30.10:
-    resolution: {integrity: sha512-iIRwTIf0QKV3UAnYK4PU8uiEc4SRh5jX0mwpIwETPpHdhVM4f53RSwS/vXvN1JhGX+Cs7B8qIq3d6AH49O5fAQ==}
 
   make-dir@2.1.0:
     resolution: {integrity: sha512-LS9X+dc8KLxXCb8dni79fLIIUA5VyZoyjSMCwTluaXA0o27cCK0bhXkpgw+sTXVpPy/lSO57ilRixqk0vDmtRA==}
@@ -4046,10 +3998,6 @@ packages:
   require-like@0.1.2:
     resolution: {integrity: sha512-oyrU88skkMtDdauHDuKVrgR+zuItqr6/c//FXzvmxRGMexSDc6hNvJInGW3LL46n+8b50RykrvwSUIIQH2LQ5A==}
 
-  requireindex@1.2.0:
-    resolution: {integrity: sha512-L9jEkOi3ASd9PYit2cwRfyppc9NoABujTP8/5gFcbERmo5jUoAKovIC3fsF17pkTnGsrByysqX+Kxd2OTNI1ww==}
-    engines: {node: '>=0.10.5'}
-
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
     engines: {node: '>=4'}
@@ -4072,14 +4020,17 @@ packages:
 
   rimraf@2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   rollup@4.17.2:
@@ -4307,12 +4258,12 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
-  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/752531f21f626c9f9f1716a28c4a37054c679657:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/752531f21f626c9f9f1716a28c4a37054c679657}
+  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/cc86b2d9878d6ec02c9f25bd48292621a4bc2a6f:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/cc86b2d9878d6ec02c9f25bd48292621a4bc2a6f}
     version: 0.0.0
 
-  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/002cf15f6a1e4969a678a4ade680cd60477a8a53:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/002cf15f6a1e4969a678a4ade680cd60477a8a53}
+  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/aa0b2a9cbf96f87a172e999670be79c4bb5d67dd:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/aa0b2a9cbf96f87a172e999670be79c4bb5d67dd}
     version: 0.0.0
 
   telejson@7.2.0:
@@ -4379,12 +4330,6 @@ packages:
 
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-
-  tsutils@3.21.0:
-    resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
-    engines: {node: '>= 6'}
-    peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -6366,32 +6311,13 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-vite@8.1.0-alpha.8(prettier@3.2.5)(typescript@5.4.5)(vite@5.2.11(@types/node@20.12.8))':
+  '@storybook/builder-vite@8.4.0-alpha.7(storybook@7.6.19)(vite@5.2.11(@types/node@20.12.8))':
     dependencies:
-      '@storybook/channels': 8.1.0-alpha.8
-      '@storybook/client-logger': 8.1.0-alpha.8
-      '@storybook/core-common': 8.1.0-alpha.8(prettier@3.2.5)
-      '@storybook/core-events': 8.1.0-alpha.8
-      '@storybook/csf-plugin': 8.1.0-alpha.8
-      '@storybook/node-logger': 8.1.0-alpha.8
-      '@storybook/preview': 8.1.0-alpha.8
-      '@storybook/preview-api': 8.1.0-alpha.8
-      '@storybook/types': 8.1.0-alpha.8
-      '@types/find-cache-dir': 3.2.1
+      '@storybook/csf-plugin': 8.4.0-alpha.7(storybook@7.6.19)
       browser-assert: 1.2.1
-      es-module-lexer: 1.5.2
-      express: 4.19.2
-      find-cache-dir: 3.3.2
-      fs-extra: 11.2.0
-      magic-string: 0.30.10
+      storybook: 7.6.19
       ts-dedent: 2.2.0
       vite: 5.2.11(@types/node@20.12.8)
-    optionalDependencies:
-      typescript: 5.4.5
-    transitivePeerDependencies:
-      - encoding
-      - prettier
-      - supports-color
 
   '@storybook/channels@7.6.19':
     dependencies:
@@ -6399,14 +6325,6 @@ snapshots:
       '@storybook/core-events': 7.6.19
       '@storybook/global': 5.0.0
       qs: 6.12.1
-      telejson: 7.2.0
-      tiny-invariant: 1.3.3
-
-  '@storybook/channels@8.1.0-alpha.8':
-    dependencies:
-      '@storybook/client-logger': 8.1.0-alpha.8
-      '@storybook/core-events': 8.1.0-alpha.8
-      '@storybook/global': 5.0.0
       telejson: 7.2.0
       tiny-invariant: 1.3.3
 
@@ -6459,10 +6377,6 @@ snapshots:
       - utf-8-validate
 
   '@storybook/client-logger@7.6.19':
-    dependencies:
-      '@storybook/global': 5.0.0
-
-  '@storybook/client-logger@8.1.0-alpha.8':
     dependencies:
       '@storybook/global': 5.0.0
 
@@ -6532,50 +6446,8 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/core-common@8.1.0-alpha.8(prettier@3.2.5)':
-    dependencies:
-      '@storybook/core-events': 8.1.0-alpha.8
-      '@storybook/csf-tools': 8.1.0-alpha.8
-      '@storybook/node-logger': 8.1.0-alpha.8
-      '@storybook/types': 8.1.0-alpha.8
-      '@yarnpkg/fslib': 2.10.3
-      '@yarnpkg/libzip': 2.3.0
-      chalk: 4.1.2
-      cross-spawn: 7.0.3
-      esbuild: 0.20.2
-      esbuild-register: 3.5.0(esbuild@0.20.2)
-      execa: 5.1.1
-      file-system-cache: 2.3.0
-      find-cache-dir: 3.3.2
-      find-up: 5.0.0
-      fs-extra: 11.2.0
-      glob: 10.3.12
-      handlebars: 4.7.8
-      lazy-universal-dotenv: 4.0.0
-      node-fetch: 2.7.0
-      picomatch: 2.3.1
-      pkg-dir: 5.0.0
-      prettier-fallback: prettier@3.2.5
-      pretty-hrtime: 1.0.3
-      resolve-from: 5.0.0
-      semver: 7.6.0
-      tempy: 1.0.1
-      tiny-invariant: 1.3.3
-      ts-dedent: 2.2.0
-      util: 0.12.5
-    optionalDependencies:
-      prettier: 3.2.5
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
   '@storybook/core-events@7.6.19':
     dependencies:
-      ts-dedent: 2.2.0
-
-  '@storybook/core-events@8.1.0-alpha.8':
-    dependencies:
-      '@storybook/csf': 0.1.6
       ts-dedent: 2.2.0
 
   '@storybook/core-server@7.6.19':
@@ -6634,12 +6506,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@storybook/csf-plugin@8.1.0-alpha.8':
+  '@storybook/csf-plugin@8.4.0-alpha.7(storybook@7.6.19)':
     dependencies:
-      '@storybook/csf-tools': 8.1.0-alpha.8
+      storybook: 7.6.19
       unplugin: 1.10.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@storybook/csf-tools@7.6.19':
     dependencies:
@@ -6655,23 +6525,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@storybook/csf-tools@8.1.0-alpha.8':
+  '@storybook/csf@0.1.11':
     dependencies:
-      '@babel/generator': 7.24.5
-      '@babel/parser': 7.24.5
-      '@babel/traverse': 7.24.5
-      '@babel/types': 7.24.5
-      '@storybook/csf': 0.1.6
-      '@storybook/types': 8.1.0-alpha.8
-      fs-extra: 11.2.0
-      recast: 0.23.6
-      ts-dedent: 2.2.0
-    transitivePeerDependencies:
-      - supports-color
-
-  '@storybook/csf@0.0.1':
-    dependencies:
-      lodash: 4.17.21
+      type-fest: 2.19.0
 
   '@storybook/csf@0.1.6':
     dependencies:
@@ -6720,8 +6576,6 @@ snapshots:
 
   '@storybook/node-logger@7.6.19': {}
 
-  '@storybook/node-logger@8.1.0-alpha.8': {}
-
   '@storybook/postinstall@7.6.19': {}
 
   '@storybook/preview-api@7.6.19':
@@ -6740,25 +6594,6 @@ snapshots:
       synchronous-promise: 2.0.17
       ts-dedent: 2.2.0
       util-deprecate: 1.0.2
-
-  '@storybook/preview-api@8.1.0-alpha.8':
-    dependencies:
-      '@storybook/channels': 8.1.0-alpha.8
-      '@storybook/client-logger': 8.1.0-alpha.8
-      '@storybook/core-events': 8.1.0-alpha.8
-      '@storybook/csf': 0.1.6
-      '@storybook/global': 5.0.0
-      '@storybook/types': 8.1.0-alpha.8
-      '@types/qs': 6.9.15
-      dequal: 2.0.3
-      lodash: 4.17.21
-      memoizerific: 1.11.3
-      qs: 6.12.1
-      tiny-invariant: 1.3.3
-      ts-dedent: 2.2.0
-      util-deprecate: 1.0.2
-
-  '@storybook/preview@8.1.0-alpha.8': {}
 
   '@storybook/react-dom-shim@7.6.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -6801,15 +6636,9 @@ snapshots:
       '@types/express': 4.17.21
       file-system-cache: 2.3.0
 
-  '@storybook/types@8.1.0-alpha.8':
-    dependencies:
-      '@storybook/channels': 8.1.0-alpha.8
-      '@types/express': 4.17.21
-      file-system-cache: 2.3.0
-
-  '@tauri-apps/api@1.5.3': {}
-
   '@tauri-apps/api@1.5.4': {}
+
+  '@tauri-apps/api@1.6.0': {}
 
   '@tauri-apps/cli-darwin-arm64@1.5.13':
     optional: true
@@ -7026,15 +6855,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/scope-manager@5.62.0':
-    dependencies:
-      '@typescript-eslint/types': 5.62.0
-      '@typescript-eslint/visitor-keys': 5.62.0
-
   '@typescript-eslint/scope-manager@6.21.0':
     dependencies:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/visitor-keys': 6.21.0
+
+  '@typescript-eslint/scope-manager@8.10.0':
+    dependencies:
+      '@typescript-eslint/types': 8.10.0
+      '@typescript-eslint/visitor-keys': 8.10.0
 
   '@typescript-eslint/type-utils@6.21.0(eslint@8.57.0)(typescript@5.4.5)':
     dependencies:
@@ -7048,23 +6877,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/types@5.62.0': {}
-
   '@typescript-eslint/types@6.21.0': {}
 
-  '@typescript-eslint/typescript-estree@5.62.0(typescript@5.4.5)':
-    dependencies:
-      '@typescript-eslint/types': 5.62.0
-      '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.4
-      globby: 11.1.0
-      is-glob: 4.0.3
-      semver: 7.6.0
-      tsutils: 3.21.0(typescript@5.4.5)
-    optionalDependencies:
-      typescript: 5.4.5
-    transitivePeerDependencies:
-      - supports-color
+  '@typescript-eslint/types@8.10.0': {}
 
   '@typescript-eslint/typescript-estree@6.21.0(typescript@5.4.5)':
     dependencies:
@@ -7081,20 +6896,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@5.62.0(eslint@8.57.0)(typescript@5.4.5)':
+  '@typescript-eslint/typescript-estree@8.10.0(typescript@5.4.5)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
-      '@types/json-schema': 7.0.15
-      '@types/semver': 7.5.8
-      '@typescript-eslint/scope-manager': 5.62.0
-      '@typescript-eslint/types': 5.62.0
-      '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.4.5)
-      eslint: 8.57.0
-      eslint-scope: 5.1.1
+      '@typescript-eslint/types': 8.10.0
+      '@typescript-eslint/visitor-keys': 8.10.0
+      debug: 4.3.4
+      fast-glob: 3.3.2
+      is-glob: 4.0.3
+      minimatch: 9.0.4
       semver: 7.6.0
+      ts-api-utils: 1.3.0(typescript@5.4.5)
+    optionalDependencies:
+      typescript: 5.4.5
     transitivePeerDependencies:
       - supports-color
-      - typescript
 
   '@typescript-eslint/utils@6.21.0(eslint@8.57.0)(typescript@5.4.5)':
     dependencies:
@@ -7110,14 +6925,25 @@ snapshots:
       - supports-color
       - typescript
 
-  '@typescript-eslint/visitor-keys@5.62.0':
+  '@typescript-eslint/utils@8.10.0(eslint@8.57.0)(typescript@5.4.5)':
     dependencies:
-      '@typescript-eslint/types': 5.62.0
-      eslint-visitor-keys: 3.4.3
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.57.0)
+      '@typescript-eslint/scope-manager': 8.10.0
+      '@typescript-eslint/types': 8.10.0
+      '@typescript-eslint/typescript-estree': 8.10.0(typescript@5.4.5)
+      eslint: 8.57.0
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   '@typescript-eslint/visitor-keys@6.21.0':
     dependencies:
       '@typescript-eslint/types': 6.21.0
+      eslint-visitor-keys: 3.4.3
+
+  '@typescript-eslint/visitor-keys@8.10.0':
+    dependencies:
+      '@typescript-eslint/types': 8.10.0
       eslint-visitor-keys: 3.4.3
 
   '@ungap/structured-clone@1.2.0': {}
@@ -7754,21 +7580,12 @@ snapshots:
 
   es-errors@1.3.0: {}
 
-  es-module-lexer@1.5.2: {}
-
   esbuild-plugin-alias@0.2.1: {}
 
   esbuild-register@3.5.0(esbuild@0.18.20):
     dependencies:
       debug: 4.3.4
       esbuild: 0.18.20
-    transitivePeerDependencies:
-      - supports-color
-
-  esbuild-register@3.5.0(esbuild@0.20.2):
-    dependencies:
-      debug: 4.3.4
-      esbuild: 0.20.2
     transitivePeerDependencies:
       - supports-color
 
@@ -7861,21 +7678,15 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-storybook@0.6.15(eslint@8.57.0)(typescript@5.4.5):
+  eslint-plugin-storybook@0.10.1(eslint@8.57.0)(typescript@5.4.5):
     dependencies:
-      '@storybook/csf': 0.0.1
-      '@typescript-eslint/utils': 5.62.0(eslint@8.57.0)(typescript@5.4.5)
+      '@storybook/csf': 0.1.11
+      '@typescript-eslint/utils': 8.10.0(eslint@8.57.0)(typescript@5.4.5)
       eslint: 8.57.0
-      requireindex: 1.2.0
       ts-dedent: 2.2.0
     transitivePeerDependencies:
       - supports-color
       - typescript
-
-  eslint-scope@5.1.1:
-    dependencies:
-      esrecurse: 4.3.0
-      estraverse: 4.3.0
 
   eslint-scope@7.2.2:
     dependencies:
@@ -7942,8 +7753,6 @@ snapshots:
   esrecurse@4.3.0:
     dependencies:
       estraverse: 5.3.0
-
-  estraverse@4.3.0: {}
 
   estraverse@5.3.0: {}
 
@@ -8608,10 +8417,6 @@ snapshots:
     dependencies:
       yallist: 4.0.0
 
-  magic-string@0.30.10:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
-
   make-dir@2.1.0:
     dependencies:
       pify: 4.0.1
@@ -9180,8 +8985,6 @@ snapshots:
 
   require-like@0.1.2: {}
 
-  requireindex@1.2.0: {}
-
   resolve-from@4.0.0: {}
 
   resolve-from@5.0.0: {}
@@ -9374,17 +9177,12 @@ snapshots:
 
   store2@2.14.3: {}
 
-  storybook-solidjs-vite@1.0.0-beta.2(prettier@3.2.5)(typescript@5.4.5)(vite@5.2.11(@types/node@20.12.8)):
+  storybook-solidjs-vite@1.0.0-beta.2(storybook@7.6.19)(vite@5.2.11(@types/node@20.12.8)):
     dependencies:
-      '@storybook/builder-vite': 8.1.0-alpha.8(prettier@3.2.5)(typescript@5.4.5)(vite@5.2.11(@types/node@20.12.8))
+      '@storybook/builder-vite': 8.4.0-alpha.7(storybook@7.6.19)(vite@5.2.11(@types/node@20.12.8))
     transitivePeerDependencies:
-      - '@preact/preset-vite'
-      - encoding
-      - prettier
-      - supports-color
-      - typescript
+      - storybook
       - vite
-      - vite-plugin-glimmerx
 
   storybook-solidjs@1.0.0-beta.2(babel-preset-solid@1.8.17(@babel/core@7.24.5))(solid-js@1.8.17):
     dependencies:
@@ -9486,13 +9284,13 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/752531f21f626c9f9f1716a28c4a37054c679657:
+  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/cc86b2d9878d6ec02c9f25bd48292621a4bc2a6f:
     dependencies:
-      '@tauri-apps/api': 1.5.3
+      '@tauri-apps/api': 1.6.0
 
-  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/002cf15f6a1e4969a678a4ade680cd60477a8a53:
+  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/aa0b2a9cbf96f87a172e999670be79c4bb5d67dd:
     dependencies:
-      '@tauri-apps/api': 1.5.3
+      '@tauri-apps/api': 1.6.0
 
   telejson@7.2.0:
     dependencies:
@@ -9550,11 +9348,6 @@ snapshots:
   tslib@1.14.1: {}
 
   tslib@2.6.2: {}
-
-  tsutils@3.21.0(typescript@5.4.5):
-    dependencies:
-      tslib: 1.14.1
-      typescript: 5.4.5
 
   type-check@0.4.0:
     dependencies:
