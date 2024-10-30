@@ -49,7 +49,7 @@
     "@solidjs/router": "^0.13.0",
     "@tauri-apps/api": "1.5.4",
     "@vanilla-extract/css": "1.15.1",
-    "@vanilla-extract/dynamic": "2.1.0",
+    "@vanilla-extract/dynamic": "2.1.2",
     "deepmerge-ts": "5.1.0",
     "filesize": "^10.1.0",
     "html-parse-string": "0.0.9",
