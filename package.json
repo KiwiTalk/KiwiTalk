@@ -38,7 +38,7 @@
     "prettier-plugin-sort-json": "^3.1.0",
     "storybook": "7.6.20",
     "storybook-solidjs": "1.0.0-beta.6",
-    "storybook-solidjs-vite": "1.0.0-beta.2",
+    "storybook-solidjs-vite": "1.0.0-beta.6",
     "typescript": "5.4.5",
     "vite": "5.4.12",
     "vite-plugin-solid": "2.10.2",
