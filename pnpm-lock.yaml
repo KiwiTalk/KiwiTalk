@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@jellybrick/solid-i18next':
         specifier: 1.2.2
-        version: 1.2.2(html-parse-string@0.0.9)(i18next@23.11.3)(solid-js@1.8.17)
+        version: 1.2.2(html-parse-string@0.0.9)(i18next@23.11.3)(solid-js@1.9.4)
       '@solidjs/router':
         specifier: ^0.13.0
-        version: 0.13.3(solid-js@1.8.17)
+        version: 0.13.3(solid-js@1.9.4)
       '@tauri-apps/api':
         specifier: 1.5.4
         version: 1.5.4
@@ -36,17 +36,17 @@ importers:
         specifier: 23.11.3
         version: 23.11.3
       solid-js:
-        specifier: 1.8.17
-        version: 1.8.17
+        specifier: 1.9.4
+        version: 1.9.4
       solid-transition-group:
         specifier: ^0.2.3
-        version: 0.2.3(solid-js@1.8.17)
+        version: 0.2.3(solid-js@1.9.4)
       tauri-plugin-log-api:
         specifier: github:tauri-apps/tauri-plugin-log#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/959954c37d97d8329aec0b74803b6716b2455659
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40
       tauri-plugin-window-state-api:
         specifier: github:tauri-apps/tauri-plugin-window-state#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/9c6594079a10b79cc3405cb57f1424a4b8f75ab2
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652
     devDependencies:
       '@storybook/addon-essentials':
         specifier: 7.6.20
@@ -89,10 +89,10 @@ importers:
         version: 7.6.20
       storybook-solidjs:
         specifier: 1.0.0-beta.6
-        version: 1.0.0-beta.6(solid-js@1.8.17)
+        version: 1.0.0-beta.6(solid-js@1.9.4)
       storybook-solidjs-vite:
         specifier: 1.0.0-beta.6
-        version: 1.0.0-beta.6(solid-js@1.8.17)(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3)
+        version: 1.0.0-beta.6(solid-js@1.9.4)(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3)
       typescript:
         specifier: 5.4.5
         version: 5.4.5
@@ -101,10 +101,10 @@ importers:
         version: 5.4.14(@types/node@20.12.8)
       vite-plugin-solid:
         specifier: 2.10.2
-        version: 2.10.2(solid-js@1.8.17)(vite@5.4.14(@types/node@20.12.8))
+        version: 2.10.2(solid-js@1.9.4)(vite@5.4.14(@types/node@20.12.8))
       vite-plugin-solid-svg:
         specifier: 0.8.1
-        version: 0.8.1(solid-js@1.8.17)(vite@5.4.14(@types/node@20.12.8))
+        version: 0.8.1(solid-js@1.9.4)(vite@5.4.14(@types/node@20.12.8))
 
 packages:
 
@@ -1774,10 +1774,10 @@ packages:
   '@storybook/builder-manager@7.6.20':
     resolution: {integrity: sha512-e2GzpjLaw6CM/XSmc4qJRzBF8GOoOyotyu3JrSPTYOt4RD8kjUsK4QlismQM1DQRu8i39aIexxmRbiJyD74xzQ==}
 
-  '@storybook/builder-vite@8.6.0-alpha.3':
-    resolution: {integrity: sha512-NfLTdOSm1oGaxJJ62esQlNXkHxWNuawWPwg0TBeyuNxE7YA9YmMa+07dtTz6WVr7LuDxWl6qq0NBz3s05JpYAA==}
+  '@storybook/builder-vite@9.0.0-alpha.0':
+    resolution: {integrity: sha512-YlztKWdrlLOYbeuEIbLu3dicwaxsne+cbWBlO1KEnnhHJSVDnodtWGcbfertPKeBvP4+RQ5ph0muIsSy7VWjrQ==}
     peerDependencies:
-      storybook: ^8.6.0-alpha.3
+      storybook: ^9.0.0-alpha.0
       vite: ^4.0.0 || ^5.0.0 || ^6.0.0
 
   '@storybook/channels@7.6.20':
@@ -1811,10 +1811,10 @@ packages:
   '@storybook/csf-plugin@7.6.20':
     resolution: {integrity: sha512-dzBzq0dN+8WLDp6NxYS4G7BCe8+vDeDRBRjHmM0xb0uJ6xgQViL8SDplYVSGnk3bXE/1WmtvyRzQyTffBnaj9Q==}
 
-  '@storybook/csf-plugin@8.6.0-alpha.3':
-    resolution: {integrity: sha512-uAyRJyec4ydCWrUyzPXyjnJLUI1jbYfSklRW1sEjTIEfRxkPNKNg2XIajGOxeF4GEyvKqArz/4KJU3sFt66w/w==}
+  '@storybook/csf-plugin@9.0.0-alpha.0':
+    resolution: {integrity: sha512-KG733ndqAREFJ3zWyf7qe4F6XbWT/aodBNcSEVOR6xyUlec5hhgzUNYUYRJYfMOKqr3KkncLmJ9yGOumY56MEg==}
     peerDependencies:
-      storybook: ^8.6.0-alpha.3
+      storybook: ^9.0.0-alpha.0
 
   '@storybook/csf-tools@7.6.20':
     resolution: {integrity: sha512-rwcwzCsAYh/m/WYcxBiEtLpIW5OH1ingxNdF/rK9mtGWhJxXRDV8acPkFrF8rtFWIVKoOCXu5USJYmc3f2gdYQ==}
@@ -4108,14 +4108,14 @@ packages:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
     engines: {node: '>= 0.8.0'}
 
-  seroval-plugins@1.0.5:
-    resolution: {integrity: sha512-8+pDC1vOedPXjKG7oz8o+iiHrtF2WswaMQJ7CKFpccvSYfrzmvKY9zOJWCg+881722wIHfwkdnRmiiDm9ym+zQ==}
+  seroval-plugins@1.2.1:
+    resolution: {integrity: sha512-H5vs53+39+x4Udwp4J5rNZfgFuA+Lt+uU+09w1gYBVWomtAl98B+E9w7yC05Xc81/HgLvJdlyqJbU0fJCKCmdw==}
     engines: {node: '>=10'}
     peerDependencies:
       seroval: ^1.0
 
-  seroval@1.0.5:
-    resolution: {integrity: sha512-TM+Z11tHHvQVQKeNlOUonOWnsNM+2IBwZ4vwoi4j3zKzIpc5IDw8WPwCfcc8F17wy6cBcJGbZbFOR0UCuTZHQA==}
+  seroval@1.2.1:
+    resolution: {integrity: sha512-yBxFFs3zmkvKNmR0pFSU//rIsYjuX418TnlDmc2weaq5XFDqDIV/NOMPBoLrbxjLH42p4UzRuXHryXh9dYcKcw==}
     engines: {node: '>=10'}
 
   serve-static@1.15.0:
@@ -4159,8 +4159,8 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  solid-js@1.8.17:
-    resolution: {integrity: sha512-E0FkUgv9sG/gEBWkHr/2XkBluHb1fkrHywUgA6o6XolPDCJ4g1HaLmQufcBBhiF36ee40q+HpG/vCZu7fLpI3Q==}
+  solid-js@1.9.4:
+    resolution: {integrity: sha512-ipQl8FJ31bFUoBNScDQTG3BjN6+9Rg+Q+f10bUbnO6EOTTf5NGerJeHc7wyu5I4RMHEl/WwZwUmy/PTRgxxZ8g==}
 
   solid-refresh@0.6.3:
     resolution: {integrity: sha512-F3aPsX6hVw9ttm5LYlth8Q15x6MlI/J3Dn+o3EQyRTtTxidepSTwAYdozt01/YA+7ObcciagGEyXIopGZzQtbA==}
@@ -4299,12 +4299,12 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
-  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/959954c37d97d8329aec0b74803b6716b2455659:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/959954c37d97d8329aec0b74803b6716b2455659}
+  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40}
     version: 0.0.0
 
-  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/9c6594079a10b79cc3405cb57f1424a4b8f75ab2:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/9c6594079a10b79cc3405cb57f1424a4b8f75ab2}
+  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652}
     version: 0.0.0
 
   telejson@7.2.0:
@@ -5764,10 +5764,10 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@jellybrick/solid-i18next@1.2.2(html-parse-string@0.0.9)(i18next@23.11.3)(solid-js@1.8.17)':
+  '@jellybrick/solid-i18next@1.2.2(html-parse-string@0.0.9)(i18next@23.11.3)(solid-js@1.9.4)':
     dependencies:
       i18next: 23.11.3
-      solid-js: 1.8.17
+      solid-js: 1.9.4
     optionalDependencies:
       html-parse-string: 0.0.9
 
@@ -6206,22 +6206,22 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@solid-primitives/refs@1.0.8(solid-js@1.8.17)':
+  '@solid-primitives/refs@1.0.8(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.17)
-      solid-js: 1.8.17
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/transition-group@1.0.5(solid-js@1.8.17)':
+  '@solid-primitives/transition-group@1.0.5(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.17
+      solid-js: 1.9.4
 
-  '@solid-primitives/utils@6.2.3(solid-js@1.8.17)':
+  '@solid-primitives/utils@6.2.3(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.17
+      solid-js: 1.9.4
 
-  '@solidjs/router@0.13.3(solid-js@1.8.17)':
+  '@solidjs/router@0.13.3(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.17
+      solid-js: 1.9.4
 
   '@storybook/addon-actions@7.6.20':
     dependencies:
@@ -6381,9 +6381,9 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-vite@8.6.0-alpha.3(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3)':
+  '@storybook/builder-vite@9.0.0-alpha.0(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3)':
     dependencies:
-      '@storybook/csf-plugin': 8.6.0-alpha.3(storybook@7.6.20)(webpack-sources@3.2.3)
+      '@storybook/csf-plugin': 9.0.0-alpha.0(storybook@7.6.20)(webpack-sources@3.2.3)
       browser-assert: 1.2.1
       storybook: 7.6.20
       ts-dedent: 2.2.0
@@ -6578,7 +6578,7 @@ snapshots:
       - supports-color
       - webpack-sources
 
-  '@storybook/csf-plugin@8.6.0-alpha.3(storybook@7.6.20)(webpack-sources@3.2.3)':
+  '@storybook/csf-plugin@9.0.0-alpha.0(storybook@7.6.20)(webpack-sources@3.2.3)':
     dependencies:
       storybook: 7.6.20
       unplugin: 1.15.0(webpack-sources@3.2.3)
@@ -9162,11 +9162,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  seroval-plugins@1.0.5(seroval@1.0.5):
+  seroval-plugins@1.2.1(seroval@1.2.1):
     dependencies:
-      seroval: 1.0.5
+      seroval: 1.2.1
 
-  seroval@1.0.5: {}
+  seroval@1.2.1: {}
 
   serve-static@1.15.0:
     dependencies:
@@ -9213,24 +9213,24 @@ snapshots:
 
   slash@3.0.0: {}
 
-  solid-js@1.8.17:
+  solid-js@1.9.4:
     dependencies:
       csstype: 3.1.3
-      seroval: 1.0.5
-      seroval-plugins: 1.0.5(seroval@1.0.5)
+      seroval: 1.2.1
+      seroval-plugins: 1.2.1(seroval@1.2.1)
 
-  solid-refresh@0.6.3(solid-js@1.8.17):
+  solid-refresh@0.6.3(solid-js@1.9.4):
     dependencies:
       '@babel/generator': 7.24.5
       '@babel/helper-module-imports': 7.24.3
       '@babel/types': 7.24.5
-      solid-js: 1.8.17
+      solid-js: 1.9.4
 
-  solid-transition-group@0.2.3(solid-js@1.8.17):
+  solid-transition-group@0.2.3(solid-js@1.9.4):
     dependencies:
-      '@solid-primitives/refs': 1.0.8(solid-js@1.8.17)
-      '@solid-primitives/transition-group': 1.0.5(solid-js@1.8.17)
-      solid-js: 1.8.17
+      '@solid-primitives/refs': 1.0.8(solid-js@1.9.4)
+      '@solid-primitives/transition-group': 1.0.5(solid-js@1.9.4)
+      solid-js: 1.9.4
 
   source-map-js@1.2.0: {}
 
@@ -9265,11 +9265,11 @@ snapshots:
 
   store2@2.14.3: {}
 
-  storybook-solidjs-vite@1.0.0-beta.6(solid-js@1.8.17)(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3):
+  storybook-solidjs-vite@1.0.0-beta.6(solid-js@1.9.4)(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3):
     dependencies:
-      '@storybook/builder-vite': 8.6.0-alpha.3(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3)
+      '@storybook/builder-vite': 9.0.0-alpha.0(storybook@7.6.20)(vite@5.4.14(@types/node@20.12.8))(webpack-sources@3.2.3)
       magic-string: 0.30.17
-      vite-plugin-solid: 2.10.2(solid-js@1.8.17)(vite@5.4.14(@types/node@20.12.8))
+      vite-plugin-solid: 2.10.2(solid-js@1.9.4)(vite@5.4.14(@types/node@20.12.8))
     transitivePeerDependencies:
       - '@testing-library/jest-dom'
       - solid-js
@@ -9278,10 +9278,10 @@ snapshots:
       - vite
       - webpack-sources
 
-  storybook-solidjs@1.0.0-beta.6(solid-js@1.8.17):
+  storybook-solidjs@1.0.0-beta.6(solid-js@1.9.4):
     dependencies:
       '@babel/standalone': 7.26.7
-      solid-js: 1.8.17
+      solid-js: 1.9.4
 
   storybook@7.6.20:
     dependencies:
@@ -9378,11 +9378,11 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/959954c37d97d8329aec0b74803b6716b2455659:
+  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40:
     dependencies:
       '@tauri-apps/api': 1.6.0
 
-  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/9c6594079a10b79cc3405cb57f1424a4b8f75ab2:
+  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652:
     dependencies:
       '@tauri-apps/api': 1.6.0
 
@@ -9591,20 +9591,20 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-solid-svg@0.8.1(solid-js@1.8.17)(vite@5.4.14(@types/node@20.12.8)):
+  vite-plugin-solid-svg@0.8.1(solid-js@1.9.4)(vite@5.4.14(@types/node@20.12.8)):
     dependencies:
-      solid-js: 1.8.17
+      solid-js: 1.9.4
       svgo: 3.2.0
       vite: 5.4.14(@types/node@20.12.8)
 
-  vite-plugin-solid@2.10.2(solid-js@1.8.17)(vite@5.4.14(@types/node@20.12.8)):
+  vite-plugin-solid@2.10.2(solid-js@1.9.4)(vite@5.4.14(@types/node@20.12.8)):
     dependencies:
       '@babel/core': 7.24.5
       '@types/babel__core': 7.20.5
       babel-preset-solid: 1.8.17(@babel/core@7.24.5)
       merge-anything: 5.1.7
-      solid-js: 1.8.17
-      solid-refresh: 0.6.3(solid-js@1.8.17)
+      solid-js: 1.9.4
+      solid-refresh: 0.6.3(solid-js@1.9.4)
       vite: 5.4.14(@types/node@20.12.8)
       vitefu: 0.2.5(vite@5.4.14(@types/node@20.12.8))
     transitivePeerDependencies:
