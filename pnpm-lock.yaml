@@ -91,8 +91,8 @@ importers:
         specifier: 1.0.0-beta.7
         version: 1.0.0-beta.7(solid-js@1.9.4)(storybook@7.6.20)
       storybook-solidjs-vite:
-        specifier: 1.0.0-beta.6
-        version: 1.0.0-beta.6(solid-js@1.9.4)(storybook@7.6.20)(vite@5.4.17(@types/node@20.12.8))(webpack-sources@3.2.3)
+        specifier: 1.0.0-beta.7
+        version: 1.0.0-beta.7(solid-js@1.9.4)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.4)(vite@5.4.17(@types/node@20.12.8)))(vite@5.4.17(@types/node@20.12.8))(webpack-sources@3.2.3)
       typescript:
         specifier: 5.4.5
         version: 5.4.5
@@ -1266,9 +1266,6 @@ packages:
   '@jridgewell/set-array@1.2.1':
     resolution: {integrity: sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A==}
     engines: {node: '>=6.0.0'}
-
-  '@jridgewell/sourcemap-codec@1.4.15':
-    resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
 
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
@@ -4231,9 +4228,14 @@ packages:
   store2@2.14.3:
     resolution: {integrity: sha512-4QcZ+yx7nzEFiV4BMLnr/pRa5HYzNITX2ri0Zh6sT9EyQHbBHacC6YigllUPU9X3D0f/22QCgfokpKs52YRrUg==}
 
-  storybook-solidjs-vite@1.0.0-beta.6:
-    resolution: {integrity: sha512-+gggXbzmM+p1dA5EdvlfzMPzIB6Nar1WAzDND63wJeDfqHfpL+yYZqewEJm5woLhMLCqhBIMjfei/TXgjVDJXg==}
+  storybook-solidjs-vite@1.0.0-beta.7:
+    resolution: {integrity: sha512-YOTsycsXi1KXOa/nNHbKNvKMELiygDfLQEL1D7yBIW6IhScRgXEIQGttJ8eeYqe43Mofi53U544AOIIF9btEzw==}
     engines: {node: '>=18'}
+    peerDependencies:
+      solid-js: ~1.9.0
+      storybook: '*'
+      vite: ^4.0.0 || ^5.0.0 || ^6.0.0
+      vite-plugin-solid: ^2.10.0
 
   storybook-solidjs@1.0.0-beta.7:
     resolution: {integrity: sha512-PgquZC4FiNPCDOIXuXYOco01vMHCXBBAr3Y/a9ylF4+0vOTcL2RAqieUmTbZhBxVWZIm+nPIyOlz8UqhwcgLtQ==}
@@ -5830,21 +5832,19 @@ snapshots:
   '@jridgewell/gen-mapping@0.3.5':
     dependencies:
       '@jridgewell/set-array': 1.2.1
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
       '@jridgewell/trace-mapping': 0.3.25
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
   '@jridgewell/set-array@1.2.1': {}
 
-  '@jridgewell/sourcemap-codec@1.4.15': {}
-
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
   '@jridgewell/trace-mapping@0.3.25':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   '@juggle/resize-observer@3.4.0': {}
 
@@ -9303,17 +9303,18 @@ snapshots:
 
   store2@2.14.3: {}
 
-  storybook-solidjs-vite@1.0.0-beta.6(solid-js@1.9.4)(storybook@7.6.20)(vite@5.4.17(@types/node@20.12.8))(webpack-sources@3.2.3):
+  storybook-solidjs-vite@1.0.0-beta.7(solid-js@1.9.4)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.4)(vite@5.4.17(@types/node@20.12.8)))(vite@5.4.17(@types/node@20.12.8))(webpack-sources@3.2.3):
     dependencies:
       '@storybook/builder-vite': 9.1.0-alpha.0(storybook@7.6.20)(vite@5.4.17(@types/node@20.12.8))(webpack-sources@3.2.3)
+      '@storybook/types': 9.0.0-alpha.1(storybook@7.6.20)
       magic-string: 0.30.17
+      solid-js: 1.9.4
+      storybook: 7.6.20
+      storybook-solidjs: 1.0.0-beta.7(solid-js@1.9.4)(storybook@7.6.20)
+      vite: 5.4.17(@types/node@20.12.8)
       vite-plugin-solid: 2.10.2(solid-js@1.9.4)(vite@5.4.17(@types/node@20.12.8))
     transitivePeerDependencies:
-      - '@testing-library/jest-dom'
-      - solid-js
-      - storybook
-      - supports-color
-      - vite
+      - '@storybook/test'
       - webpack-sources
 
   storybook-solidjs@1.0.0-beta.7(solid-js@1.9.4)(storybook@7.6.20):
