@@ -43,10 +43,10 @@ importers:
         version: 0.2.3(solid-js@1.9.7)
       tauri-plugin-log-api:
         specifier: github:tauri-apps/tauri-plugin-log#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/f76f6c56a5f63e9192c5e05fafbd114b9c455ee6
       tauri-plugin-window-state-api:
         specifier: github:tauri-apps/tauri-plugin-window-state#v1
-        version: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652
+        version: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/dd4c37f73ffd4b497da32c5c58333b5e896d35bc
     devDependencies:
       '@storybook/addon-essentials':
         specifier: 7.6.20
@@ -65,7 +65,7 @@ importers:
         version: 6.21.0(eslint@8.57.1)(typescript@5.4.5)
       '@vanilla-extract/vite-plugin':
         specifier: 3.9.5
-        version: 3.9.5(@types/node@20.12.8)(vite@5.4.19(@types/node@20.12.8))
+        version: 3.9.5(@types/node@20.12.8)(vite@5.4.20(@types/node@20.12.8))
       csstype:
         specifier: 3.1.3
         version: 3.1.3
@@ -92,19 +92,19 @@ importers:
         version: 1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20)
       storybook-solidjs-vite:
         specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8)))(vite@5.4.19(@types/node@20.12.8))(webpack-sources@3.2.3)
+        version: 1.0.0-beta.7(esbuild@0.18.20)(rollup@4.31.0)(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)))(vite@5.4.20(@types/node@20.12.8))
       typescript:
         specifier: 5.4.5
         version: 5.4.5
       vite:
-        specifier: 5.4.19
-        version: 5.4.19(@types/node@20.12.8)
+        specifier: 5.4.20
+        version: 5.4.20(@types/node@20.12.8)
       vite-plugin-solid:
         specifier: 2.10.2
-        version: 2.10.2(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8))
+        version: 2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8))
       vite-plugin-solid-svg:
         specifier: 0.8.1
-        version: 0.8.1(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8))
+        version: 0.8.1(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8))
 
 packages:
 
@@ -1259,6 +1259,9 @@ packages:
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
     engines: {node: '>=6.0.0'}
 
+  '@jridgewell/remapping@2.3.5':
+    resolution: {integrity: sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==}
+
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
     engines: {node: '>=6.0.0'}
@@ -1771,11 +1774,11 @@ packages:
   '@storybook/builder-manager@7.6.20':
     resolution: {integrity: sha512-e2GzpjLaw6CM/XSmc4qJRzBF8GOoOyotyu3JrSPTYOt4RD8kjUsK4QlismQM1DQRu8i39aIexxmRbiJyD74xzQ==}
 
-  '@storybook/builder-vite@9.1.0-alpha.0':
-    resolution: {integrity: sha512-xyE9Wyz/gc+TEsGSc9BIM0V5Y1RQgEUBEsUdBmC/7rV2JGwzjG31H7JaWgC/3q3rG2kUr24vjLAEsRDEIMeGhA==}
+  '@storybook/builder-vite@10.0.0-beta.2':
+    resolution: {integrity: sha512-H4U+LXXrxXFezTzPc0pfvZA/qjyg9XmgPCGSXa0Q41LH+8UrW9uP42TDVarQkD77jS4Trd7QIFCN64xe34XAoQ==}
     peerDependencies:
-      storybook: ^9.1.0-alpha.0
-      vite: ^5.0.0 || ^6.0.0
+      storybook: ^10.0.0-beta.2
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@storybook/channels@7.6.20':
     resolution: {integrity: sha512-4hkgPSH6bJclB2OvLnkZOGZW1WptJs09mhQ6j6qLjgBZzL/ZdD6priWSd7iXrmPiN5TzUobkG4P4Dp7FjkiO7A==}
@@ -1805,13 +1808,26 @@ packages:
   '@storybook/core-server@7.6.20':
     resolution: {integrity: sha512-qC5BdbqqwMLTdCwMKZ1Hbc3+3AaxHYWLiJaXL9e8s8nJw89xV8c8l30QpbJOGvcDmsgY6UTtXYaJ96OsTr7MrA==}
 
+  '@storybook/csf-plugin@10.0.0-beta.2':
+    resolution: {integrity: sha512-OBjwaEdG3OrgsvUncu0AptCOH9u9BDQeIlMChj/QxnlNCy4yTUdPYNJ140mYzl51a20IKi6OTRverLopP7RNUg==}
+    peerDependencies:
+      esbuild: '*'
+      rollup: '*'
+      storybook: ^10.0.0-beta.2
+      vite: '*'
+      webpack: '*'
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+      rollup:
+        optional: true
+      vite:
+        optional: true
+      webpack:
+        optional: true
+
   '@storybook/csf-plugin@7.6.20':
     resolution: {integrity: sha512-dzBzq0dN+8WLDp6NxYS4G7BCe8+vDeDRBRjHmM0xb0uJ6xgQViL8SDplYVSGnk3bXE/1WmtvyRzQyTffBnaj9Q==}
-
-  '@storybook/csf-plugin@9.1.0-alpha.0':
-    resolution: {integrity: sha512-8WDOzqago5Dt41cNjzyISYUAqzA22HPXc0SU8kb9JS1oYyOADbX2dvwngxybdcGRPxK0EMcgnZub96qKD4f+/g==}
-    peerDependencies:
-      storybook: ^9.1.0-alpha.0
 
   '@storybook/csf-tools@7.6.20':
     resolution: {integrity: sha512-rwcwzCsAYh/m/WYcxBiEtLpIW5OH1ingxNdF/rK9mtGWhJxXRDV8acPkFrF8rtFWIVKoOCXu5USJYmc3f2gdYQ==}
@@ -2226,6 +2242,11 @@ packages:
 
   acorn@8.14.0:
     resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.15.0:
+    resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -3817,6 +3838,10 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
+  picomatch@4.0.3:
+    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
+    engines: {node: '>=12'}
+
   pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
@@ -4240,6 +4265,7 @@ packages:
   storybook-solidjs@1.0.0-beta.7:
     resolution: {integrity: sha512-PgquZC4FiNPCDOIXuXYOco01vMHCXBBAr3Y/a9ylF4+0vOTcL2RAqieUmTbZhBxVWZIm+nPIyOlz8UqhwcgLtQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: 'This package is deprecated. Use storybook-solidjs-vite instead: https://www.npmjs.com/package/storybook-solidjs-vite'
     peerDependencies:
       '@storybook/test': '*'
       solid-js: ~1.9.0
@@ -4324,12 +4350,12 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
-  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40}
+  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/f76f6c56a5f63e9192c5e05fafbd114b9c455ee6:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/f76f6c56a5f63e9192c5e05fafbd114b9c455ee6}
     version: 0.0.0
 
-  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652:
-    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652}
+  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/dd4c37f73ffd4b497da32c5c58333b5e896d35bc:
+    resolution: {tarball: https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/dd4c37f73ffd4b497da32c5c58333b5e896d35bc}
     version: 0.0.0
 
   telejson@7.2.0:
@@ -4496,6 +4522,10 @@ packages:
       webpack-sources:
         optional: true
 
+  unplugin@2.3.10:
+    resolution: {integrity: sha512-6NCPkv1ClwH+/BGE9QeoTIl09nuiAt0gS28nn1PvYXsGKRwM2TCbFA2QiilmehPDTXIe684k4rZI1yl3A1PCUw==}
+    engines: {node: '>=18.12.0'}
+
   untildify@4.0.0:
     resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}
     engines: {node: '>=8'}
@@ -4580,8 +4610,8 @@ packages:
       '@testing-library/jest-dom':
         optional: true
 
-  vite@5.4.19:
-    resolution: {integrity: sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==}
+  vite@5.4.20:
+    resolution: {integrity: sha512-j3lYzGC3P+B5Yfy/pfKNgVEg4+UtcIJcVRt2cDjIOmhLourAqPqf8P7acgxeiSgUB7E3p2P8/3gNIgDLpwzs4g==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -5835,6 +5865,11 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
       '@jridgewell/trace-mapping': 0.3.25
 
+  '@jridgewell/remapping@2.3.5':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.5
+      '@jridgewell/trace-mapping': 0.3.25
+
   '@jridgewell/resolve-uri@3.1.2': {}
 
   '@jridgewell/set-array@1.2.1': {}
@@ -6404,14 +6439,16 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-vite@9.1.0-alpha.0(storybook@7.6.20)(vite@5.4.19(@types/node@20.12.8))(webpack-sources@3.2.3)':
+  '@storybook/builder-vite@10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))':
     dependencies:
-      '@storybook/csf-plugin': 9.1.0-alpha.0(storybook@7.6.20)(webpack-sources@3.2.3)
+      '@storybook/csf-plugin': 10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))
       storybook: 7.6.20
       ts-dedent: 2.2.0
-      vite: 5.4.19(@types/node@20.12.8)
+      vite: 5.4.20(@types/node@20.12.8)
     transitivePeerDependencies:
-      - webpack-sources
+      - esbuild
+      - rollup
+      - webpack
 
   '@storybook/channels@7.6.20':
     dependencies:
@@ -6592,19 +6629,21 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  '@storybook/csf-plugin@10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))':
+    dependencies:
+      storybook: 7.6.20
+      unplugin: 2.3.10
+    optionalDependencies:
+      esbuild: 0.18.20
+      rollup: 4.31.0
+      vite: 5.4.20(@types/node@20.12.8)
+
   '@storybook/csf-plugin@7.6.20(webpack-sources@3.2.3)':
     dependencies:
       '@storybook/csf-tools': 7.6.20
       unplugin: 1.15.0(webpack-sources@3.2.3)
     transitivePeerDependencies:
       - supports-color
-      - webpack-sources
-
-  '@storybook/csf-plugin@9.1.0-alpha.0(storybook@7.6.20)(webpack-sources@3.2.3)':
-    dependencies:
-      storybook: 7.6.20
-      unplugin: 1.15.0(webpack-sources@3.2.3)
-    transitivePeerDependencies:
       - webpack-sources
 
   '@storybook/csf-tools@7.6.20':
@@ -7098,7 +7137,7 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.7.0
       outdent: 0.8.0
-      vite: 5.4.19(@types/node@20.12.8)
+      vite: 5.4.20(@types/node@20.12.8)
       vite-node: 1.6.0(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
@@ -7116,13 +7155,13 @@ snapshots:
 
   '@vanilla-extract/private@1.0.7': {}
 
-  '@vanilla-extract/vite-plugin@3.9.5(@types/node@20.12.8)(vite@5.4.19(@types/node@20.12.8))':
+  '@vanilla-extract/vite-plugin@3.9.5(@types/node@20.12.8)(vite@5.4.20(@types/node@20.12.8))':
     dependencies:
       '@vanilla-extract/integration': 6.5.0(@types/node@20.12.8)
       outdent: 0.8.0
       postcss: 8.4.38
       postcss-load-config: 4.0.2(postcss@8.4.38)
-      vite: 5.4.19(@types/node@20.12.8)
+      vite: 5.4.20(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -7163,6 +7202,8 @@ snapshots:
   acorn@8.11.3: {}
 
   acorn@8.14.0: {}
+
+  acorn@8.15.0: {}
 
   address@1.2.2: {}
 
@@ -8850,6 +8891,8 @@ snapshots:
 
   picomatch@2.3.1: {}
 
+  picomatch@4.0.3: {}
+
   pify@4.0.1: {}
 
   pirates@4.0.6: {}
@@ -9303,19 +9346,21 @@ snapshots:
 
   store2@2.14.3: {}
 
-  storybook-solidjs-vite@1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8)))(vite@5.4.19(@types/node@20.12.8))(webpack-sources@3.2.3):
+  storybook-solidjs-vite@1.0.0-beta.7(esbuild@0.18.20)(rollup@4.31.0)(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)))(vite@5.4.20(@types/node@20.12.8)):
     dependencies:
-      '@storybook/builder-vite': 9.1.0-alpha.0(storybook@7.6.20)(vite@5.4.19(@types/node@20.12.8))(webpack-sources@3.2.3)
+      '@storybook/builder-vite': 10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))
       '@storybook/types': 9.0.0-alpha.1(storybook@7.6.20)
       magic-string: 0.30.17
       solid-js: 1.9.7
       storybook: 7.6.20
       storybook-solidjs: 1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20)
-      vite: 5.4.19(@types/node@20.12.8)
-      vite-plugin-solid: 2.10.2(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8))
+      vite: 5.4.20(@types/node@20.12.8)
+      vite-plugin-solid: 2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8))
     transitivePeerDependencies:
       - '@storybook/test'
-      - webpack-sources
+      - esbuild
+      - rollup
+      - webpack
 
   storybook-solidjs@1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20):
     dependencies:
@@ -9424,11 +9469,11 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/d33f0f4f8dbb02e705a83a471cdbbb9cb7b73a40:
+  tauri-plugin-log-api@https://codeload.github.com/tauri-apps/tauri-plugin-log/tar.gz/f76f6c56a5f63e9192c5e05fafbd114b9c455ee6:
     dependencies:
       '@tauri-apps/api': 1.6.0
 
-  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/12ac7a31bf71ab5c3e87add90d44b47cbfe95652:
+  tauri-plugin-window-state-api@https://codeload.github.com/tauri-apps/tauri-plugin-window-state/tar.gz/dd4c37f73ffd4b497da32c5c58333b5e896d35bc:
     dependencies:
       '@tauri-apps/api': 1.6.0
 
@@ -9563,6 +9608,13 @@ snapshots:
     optionalDependencies:
       webpack-sources: 3.2.3
 
+  unplugin@2.3.10:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      acorn: 8.15.0
+      picomatch: 4.0.3
+      webpack-virtual-modules: 0.6.2
+
   untildify@4.0.0: {}
 
   update-browserslist-db@1.0.15(browserslist@4.23.0):
@@ -9625,7 +9677,7 @@ snapshots:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.4.19(@types/node@20.12.8)
+      vite: 5.4.20(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -9637,13 +9689,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-solid-svg@0.8.1(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8)):
+  vite-plugin-solid-svg@0.8.1(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)):
     dependencies:
       solid-js: 1.9.7
       svgo: 3.2.0
-      vite: 5.4.19(@types/node@20.12.8)
+      vite: 5.4.20(@types/node@20.12.8)
 
-  vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.19(@types/node@20.12.8)):
+  vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)):
     dependencies:
       '@babel/core': 7.24.5
       '@types/babel__core': 7.20.5
@@ -9651,12 +9703,12 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.7
       solid-refresh: 0.6.3(solid-js@1.9.7)
-      vite: 5.4.19(@types/node@20.12.8)
-      vitefu: 0.2.5(vite@5.4.19(@types/node@20.12.8))
+      vite: 5.4.20(@types/node@20.12.8)
+      vitefu: 0.2.5(vite@5.4.20(@types/node@20.12.8))
     transitivePeerDependencies:
       - supports-color
 
-  vite@5.4.19(@types/node@20.12.8):
+  vite@5.4.20(@types/node@20.12.8):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.1
@@ -9665,9 +9717,9 @@ snapshots:
       '@types/node': 20.12.8
       fsevents: 2.3.3
 
-  vitefu@0.2.5(vite@5.4.19(@types/node@20.12.8)):
+  vitefu@0.2.5(vite@5.4.20(@types/node@20.12.8)):
     optionalDependencies:
-      vite: 5.4.19(@types/node@20.12.8)
+      vite: 5.4.20(@types/node@20.12.8)
 
   walker@1.0.8:
     dependencies:
