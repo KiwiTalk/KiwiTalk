@@ -65,7 +65,7 @@ importers:
         version: 6.21.0(eslint@8.57.1)(typescript@5.4.5)
       '@vanilla-extract/vite-plugin':
         specifier: 3.9.5
-        version: 3.9.5(@types/node@20.12.8)(vite@5.4.20(@types/node@20.12.8))
+        version: 3.9.5(@types/node@20.12.8)(vite@5.4.21(@types/node@20.12.8))
       csstype:
         specifier: 3.1.3
         version: 3.1.3
@@ -92,19 +92,19 @@ importers:
         version: 1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20)
       storybook-solidjs-vite:
         specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(esbuild@0.18.20)(rollup@4.31.0)(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)))(vite@5.4.20(@types/node@20.12.8))
+        version: 1.0.0-beta.7(esbuild@0.18.20)(rollup@4.31.0)(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8)))(vite@5.4.21(@types/node@20.12.8))
       typescript:
         specifier: 5.4.5
         version: 5.4.5
       vite:
-        specifier: 5.4.20
-        version: 5.4.20(@types/node@20.12.8)
+        specifier: 5.4.21
+        version: 5.4.21(@types/node@20.12.8)
       vite-plugin-solid:
         specifier: 2.10.2
-        version: 2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8))
+        version: 2.10.2(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8))
       vite-plugin-solid-svg:
         specifier: 0.8.1
-        version: 0.8.1(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8))
+        version: 0.8.1(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8))
 
 packages:
 
@@ -1774,10 +1774,10 @@ packages:
   '@storybook/builder-manager@7.6.20':
     resolution: {integrity: sha512-e2GzpjLaw6CM/XSmc4qJRzBF8GOoOyotyu3JrSPTYOt4RD8kjUsK4QlismQM1DQRu8i39aIexxmRbiJyD74xzQ==}
 
-  '@storybook/builder-vite@10.0.0-beta.2':
-    resolution: {integrity: sha512-H4U+LXXrxXFezTzPc0pfvZA/qjyg9XmgPCGSXa0Q41LH+8UrW9uP42TDVarQkD77jS4Trd7QIFCN64xe34XAoQ==}
+  '@storybook/builder-vite@10.0.0-beta.13':
+    resolution: {integrity: sha512-ZPxqgoofi2yfJRQkkEBINSzPjkhrgfh4HsPs4fsbPt3jfVyfP4Wic7vHep4UlR1os2iL2MTRLcapkkiajoztWQ==}
     peerDependencies:
-      storybook: ^10.0.0-beta.2
+      storybook: ^10.0.0-beta.13
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0
 
   '@storybook/channels@7.6.20':
@@ -1808,12 +1808,12 @@ packages:
   '@storybook/core-server@7.6.20':
     resolution: {integrity: sha512-qC5BdbqqwMLTdCwMKZ1Hbc3+3AaxHYWLiJaXL9e8s8nJw89xV8c8l30QpbJOGvcDmsgY6UTtXYaJ96OsTr7MrA==}
 
-  '@storybook/csf-plugin@10.0.0-beta.2':
-    resolution: {integrity: sha512-OBjwaEdG3OrgsvUncu0AptCOH9u9BDQeIlMChj/QxnlNCy4yTUdPYNJ140mYzl51a20IKi6OTRverLopP7RNUg==}
+  '@storybook/csf-plugin@10.0.0-beta.13':
+    resolution: {integrity: sha512-mjdDsl5MAn6bLZHHInut+TQjYUJDdErpXnYlXPLvZRoaCxqxLN2O2sf5LmxAP9SRjEdKnsLFvBwMCJxVcav/lQ==}
     peerDependencies:
       esbuild: '*'
       rollup: '*'
-      storybook: ^10.0.0-beta.2
+      storybook: ^10.0.0-beta.13
       vite: '*'
       webpack: '*'
     peerDependenciesMeta:
@@ -4610,8 +4610,8 @@ packages:
       '@testing-library/jest-dom':
         optional: true
 
-  vite@5.4.20:
-    resolution: {integrity: sha512-j3lYzGC3P+B5Yfy/pfKNgVEg4+UtcIJcVRt2cDjIOmhLourAqPqf8P7acgxeiSgUB7E3p2P8/3gNIgDLpwzs4g==}
+  vite@5.4.21:
+    resolution: {integrity: sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -6439,12 +6439,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-vite@10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))':
+  '@storybook/builder-vite@10.0.0-beta.13(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.21(@types/node@20.12.8))':
     dependencies:
-      '@storybook/csf-plugin': 10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))
+      '@storybook/csf-plugin': 10.0.0-beta.13(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.21(@types/node@20.12.8))
       storybook: 7.6.20
       ts-dedent: 2.2.0
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
     transitivePeerDependencies:
       - esbuild
       - rollup
@@ -6629,14 +6629,14 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@storybook/csf-plugin@10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))':
+  '@storybook/csf-plugin@10.0.0-beta.13(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.21(@types/node@20.12.8))':
     dependencies:
       storybook: 7.6.20
       unplugin: 2.3.10
     optionalDependencies:
       esbuild: 0.18.20
       rollup: 4.31.0
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
 
   '@storybook/csf-plugin@7.6.20(webpack-sources@3.2.3)':
     dependencies:
@@ -7137,7 +7137,7 @@ snapshots:
       lodash: 4.17.21
       mlly: 1.7.0
       outdent: 0.8.0
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
       vite-node: 1.6.0(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
@@ -7155,13 +7155,13 @@ snapshots:
 
   '@vanilla-extract/private@1.0.7': {}
 
-  '@vanilla-extract/vite-plugin@3.9.5(@types/node@20.12.8)(vite@5.4.20(@types/node@20.12.8))':
+  '@vanilla-extract/vite-plugin@3.9.5(@types/node@20.12.8)(vite@5.4.21(@types/node@20.12.8))':
     dependencies:
       '@vanilla-extract/integration': 6.5.0(@types/node@20.12.8)
       outdent: 0.8.0
       postcss: 8.4.38
       postcss-load-config: 4.0.2(postcss@8.4.38)
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -9346,16 +9346,16 @@ snapshots:
 
   store2@2.14.3: {}
 
-  storybook-solidjs-vite@1.0.0-beta.7(esbuild@0.18.20)(rollup@4.31.0)(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)))(vite@5.4.20(@types/node@20.12.8)):
+  storybook-solidjs-vite@1.0.0-beta.7(esbuild@0.18.20)(rollup@4.31.0)(solid-js@1.9.7)(storybook@7.6.20)(vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8)))(vite@5.4.21(@types/node@20.12.8)):
     dependencies:
-      '@storybook/builder-vite': 10.0.0-beta.2(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.20(@types/node@20.12.8))
+      '@storybook/builder-vite': 10.0.0-beta.13(esbuild@0.18.20)(rollup@4.31.0)(storybook@7.6.20)(vite@5.4.21(@types/node@20.12.8))
       '@storybook/types': 9.0.0-alpha.1(storybook@7.6.20)
       magic-string: 0.30.17
       solid-js: 1.9.7
       storybook: 7.6.20
       storybook-solidjs: 1.0.0-beta.7(solid-js@1.9.7)(storybook@7.6.20)
-      vite: 5.4.20(@types/node@20.12.8)
-      vite-plugin-solid: 2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8))
+      vite: 5.4.21(@types/node@20.12.8)
+      vite-plugin-solid: 2.10.2(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8))
     transitivePeerDependencies:
       - '@storybook/test'
       - esbuild
@@ -9677,7 +9677,7 @@ snapshots:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -9689,13 +9689,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-solid-svg@0.8.1(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)):
+  vite-plugin-solid-svg@0.8.1(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8)):
     dependencies:
       solid-js: 1.9.7
       svgo: 3.2.0
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
 
-  vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.20(@types/node@20.12.8)):
+  vite-plugin-solid@2.10.2(solid-js@1.9.7)(vite@5.4.21(@types/node@20.12.8)):
     dependencies:
       '@babel/core': 7.24.5
       '@types/babel__core': 7.20.5
@@ -9703,12 +9703,12 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.7
       solid-refresh: 0.6.3(solid-js@1.9.7)
-      vite: 5.4.20(@types/node@20.12.8)
-      vitefu: 0.2.5(vite@5.4.20(@types/node@20.12.8))
+      vite: 5.4.21(@types/node@20.12.8)
+      vitefu: 0.2.5(vite@5.4.21(@types/node@20.12.8))
     transitivePeerDependencies:
       - supports-color
 
-  vite@5.4.20(@types/node@20.12.8):
+  vite@5.4.21(@types/node@20.12.8):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.1
@@ -9717,9 +9717,9 @@ snapshots:
       '@types/node': 20.12.8
       fsevents: 2.3.3
 
-  vitefu@0.2.5(vite@5.4.20(@types/node@20.12.8)):
+  vitefu@0.2.5(vite@5.4.21(@types/node@20.12.8)):
     optionalDependencies:
-      vite: 5.4.20(@types/node@20.12.8)
+      vite: 5.4.21(@types/node@20.12.8)
 
   walker@1.0.8:
     dependencies:
