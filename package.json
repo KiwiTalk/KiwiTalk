@@ -36,7 +36,7 @@
     "eslint-plugin-storybook": "0.6.15",
     "prettier": "^3.1.0",
     "prettier-plugin-sort-json": "^3.1.0",
-    "storybook": "7.6.20",
+    "storybook": "7.6.21",
     "storybook-solidjs": "1.0.0-beta.7",
     "storybook-solidjs-vite": "1.0.0-beta.7",
     "typescript": "5.4.5",
