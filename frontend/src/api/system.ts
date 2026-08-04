@@ -1,4 +1,4 @@
-import { tauri } from '@tauri-apps/api';
+import { core } from '@tauri-apps/api';
 
 export function getDeviceLocale(): Promise<string> {
   return tauri.invoke<string>('plugin:system|get_device_locale');

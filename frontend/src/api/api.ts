@@ -1,4 +1,4 @@
-import { tauri } from '@tauri-apps/api';
+import { core } from '@tauri-apps/api';
 
 import {
   FriendsUpdateResult,

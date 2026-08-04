@@ -4,7 +4,7 @@ description = "A Tauri App"
 default-run = "kiwi-talk-app"
 publish = false
 
-version.workspace = true
+version = "0.0.0"
 license.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -12,7 +12,7 @@ repository.workspace = true
 rust-version.workspace = true
 
 [build-dependencies]
-tauri-build = { version = "1.5.1", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
 talk-loco-client = { workspace = true }
@@ -23,17 +23,18 @@ kiwi-talk-api = { path = "../api" }
 kiwi-talk-client = { path = "../client" }
 
 tokio = { workspace = true, features = ["full"] }
-tauri = { workspace = true, features = ["updater", "api-all", "system-tray", "macos-private-api"] }
+tauri = { workspace = true, features = ["macos-private-api"] }
 anyhow = { workspace = true, features = ["backtrace"] }
 log = { workspace = true }
 serde = { workspace = true }
 
 serde_json = "1.0.116"
 window-shadows = "0.2.2"
-tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
-tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-window-state = { version = "2" }
+tauri-plugin-log = { version = "2" }
 window-vibrancy = "0.5.0"
-tauri-plugin-single-instance = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-single-instance = { version = "2" }
+tauri-plugin-clipboard-manager = "2"
 
 [features]
 default = []

@@ -13,7 +13,7 @@ rust-version.workspace = true
 [dependencies]
 talk-loco-client = { workspace = true }
 headless-talk = { workspace = true }
-
+tauri-plugin-notification = { workspace = true }
 kiwi-talk-api = { path = "../api" }
 kiwi-talk-system = { path = "../system" }
 kiwi-talk-result = { path = "../result" }

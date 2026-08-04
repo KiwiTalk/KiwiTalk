@@ -1,4 +1,4 @@
-import { ResponseType, getClient } from '@tauri-apps/api/http';
+import { ResponseType, getClient } from '@tauri-apps/plugin-http';
 import { JSX, Owner, runWithOwner } from 'solid-js';
 import { Channel, ChannelUser, Chatlog } from '@/api/client';
 

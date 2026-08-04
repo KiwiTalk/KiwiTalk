@@ -3,68 +3,63 @@
   "build": {
     "beforeBuildCommand": "pnpm run frontend:build",
     "beforeDevCommand": "pnpm run frontend:dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "../../../frontend/dist"
+    "frontendDist": "../../../frontend/dist",
+    "devUrl": "http://localhost:5173"
   },
-  "package": {
-    "productName": "KiwiTalk"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": true,
-      "http": {
-        "all": true,
-        "request": true,
-        "scope": ["https://*", "http://*"]
-      }
+  "bundle": {
+    "active": true,
+    "category": "SocialNetworking",
+    "copyright": "",
+    "targets": "all",
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/256x256.png",
+      "icons/512x512.png",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
     },
-    "bundle": {
-      "active": true,
-      "category": "SocialNetworking",
-      "copyright": "",
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": [],
+    "shortDescription": "",
+    "linux": {
       "deb": {
         "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/256x256.png",
-        "icons/512x512.png",
-        "icons/icon.ico"
-      ],
-      "identifier": "org.kiwitalk.kiwitalk",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
       }
+    },
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "productName": "KiwiTalk",
+  "mainBinaryName": "KiwiTalk",
+  "identifier": "org.kiwitalk.kiwitalk",
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRBQjhBOEZDMTc2Mzk3OTcKUldTWGwyTVgvS2k0U3BxK0cyVHcyemlCcWszWVlOQjNUTU9jOHhaRExaSUsvYnFPZDBBd2g4c3oK",
+      "endpoints": [
+        "https://github.com/KiwiTalk/KiwiTalk/releases/latest/download/latest.json"
+      ]
+    }
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "trayIcon": {
+      "iconPath": "icons/512x512.png",
+      "iconAsTemplate": true
     },
     "security": {
       "csp": null
-    },
-    "updater": {
-      "active": true,
-      "endpoints": [
-        "https://github.com/KiwiTalk/KiwiTalk/releases/latest/download/latest.json"
-      ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRBQjhBOEZDMTc2Mzk3OTcKUldTWGwyTVgvS2k0U3BxK0cyVHcyemlCcWszWVlOQjNUTU9jOHhaRExaSUsvYnFPZDBBd2g4c3oK"
-    },
-    "macOSPrivateApi": true,
-    "systemTray": {
-      "iconPath": "icons/512x512.png",
-      "iconAsTemplate": true
     }
   }
 }
