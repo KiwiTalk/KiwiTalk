@@ -11,7 +11,7 @@ import { WindowControls } from './_components/window-controls';
 
 import * as styles from './layout.css';
 import { saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state';
-const appWindow = getCurrentWebviewWindow()
+const appWindow = getCurrentWebviewWindow();
 
 export const Provider = (props: ParentProps) => (
   <I18nProvider>
