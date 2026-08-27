@@ -19,6 +19,7 @@ import { ChannelHeader } from '../_components/channel-header';
 import { getChannelList, meProfile } from '@/api';
 import { useReady } from '@/pages/main/_hooks';
 import { useChannel, useChannelMembers, useMessageList } from './_hooks';
+import { PendingChatlog } from './_types';
 
 import * as styles from './page.css';
 import { ChatFactoryContext } from './_hooks/useChatFactory';
@@ -33,7 +34,16 @@ export const ChatPage = () => {
   const channelId = () => params.channelId;
   const channel = useChannel(channelId);
   const members = useChannelMembers(channelId);
-  const [messageGroups, loadMoreMessages, isLoadEnd] = useMessageList(channelId);
+  const [
+    messageGroups,
+    {
+      load: loadMoreMessages,
+      trySend,
+      retryPending,
+      cancelPending,
+    },
+    isLoadEnd,
+  ] = useMessageList(channelId);
 
   const [scroller, setScroller] = createSignal<VirtualListRef | null>(null);
 
@@ -104,31 +114,63 @@ export const ChatPage = () => {
       );
     }, 16 * 1); // next frame
   };
-  const onSubmit = async (text: string) => {
+  const onSubmit = (text: string) => {
+    const senderId = me()?.profile.id;
+    if (typeof senderId !== 'string') return;
+
+    dispatchChatlog({
+      senderId,
+      status: 'pending',
+      chatType: 1,
+      content: text,
+    });
+  };
+
+  const dispatchChatlog = async (log: PendingChatlog) => {
     const id = channelId();
     const myId = me()?.profile.id;
     if (typeof id !== 'string' || typeof myId !== 'string') return;
 
-    const result = await sendText(id, text);
+    const { resolve, reject } = trySend(log);
+    const result = await (() => {
+      switch (log.chatType) {
+      case 1:
+        return sendText(id, log.content!);
+      }
+    })()?.catch((e) => {
+      reject();
+      return Promise.reject(e);
+    });
+    if (!result) return;
+
+    resolve(result);
     dispatchSelfEvent(id, {
       type: 'Chat',
       content: result,
     });
 
     if (channel()?.kind === 'normal') {
-      await normalChannelReadChat(id, result.logId);
-      dispatchSelfEvent(id, {
-        type: 'ChatRead',
-        content: {
-          userId: myId,
-          logId: result.logId,
-        },
+      normalChannelReadChat(id, result.logId).then(() => {
+        dispatchSelfEvent(id, {
+          type: 'ChatRead',
+          content: {
+            userId: myId,
+            logId: result.logId,
+          },
+        });
       });
     }
 
-    if (result) {
-      scrollToBottom();
-    }
+    scrollToBottom();
+  };
+
+  const onRetryPending = (log: PendingChatlog) => {
+    const id = channelId();
+    const myId = me()?.profile.id;
+    if (typeof id !== 'string' || typeof myId !== 'string') return;
+
+    retryPending(log);
+    dispatchChatlog(log);
   };
 
   return (
@@ -151,6 +193,8 @@ export const ChatPage = () => {
             members={members() ?? {}}
             isEnd={isLoadEnd()}
             onLoadMore={onLoadMore}
+            onRetryPending={onRetryPending}
+            onCancelPending={cancelPending}
           />
         </ChatFactoryContext.Provider>
         <MessageInput

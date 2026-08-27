@@ -90,3 +90,25 @@ export const unread = style([classes.typography.number1, {
 export const time = style([classes.typography.number1, {
   color: vars.color.glassSecondary.fillSecondary,
 }]);
+
+export const failActionContainer = style({
+  display: 'flex',
+  justifyContent: 'flex-start',
+  gap: '2px',
+
+  margin: '2px 4px',
+});
+
+export const failAction = style({
+  width: '18px',
+  height: '18px',
+  padding: '2px',
+  borderRadius: '50%',
+
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+
+  backgroundColor: vars.color.solidSecondary.background,
+  color: vars.color.solidSecondary.fillPrimary,
+});
