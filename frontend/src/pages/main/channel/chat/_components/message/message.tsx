@@ -1,5 +1,8 @@
 import { mergeProps, JSX, Show } from 'solid-js';
 
+import IconRefresh from '@/assets/icons/refresh.svg';
+import IconClose from '@/assets/icons/close.svg';
+
 import * as styles from './message.css';
 
 export type MessageProps = {
@@ -8,14 +11,19 @@ export type MessageProps = {
   isMine?: boolean;
   isBubble?: boolean;
   isConnected?: boolean;
+  isRejected?: boolean;
 
   children?: JSX.Element;
+
+  onRetryPending?: () => void;
+  onCancelPending?: () => void;
 };
 export const Message = (props: MessageProps) => {
   const merged = mergeProps({
     isBubble: true,
     isMine: false,
     isConnected: false,
+    isRejected: false,
   }, props);
 
   const variant = () => merged.isMine ? 'mine' : 'other';
@@ -38,10 +46,27 @@ export const Message = (props: MessageProps) => {
           </div>
         </Show>
       </div>
-      <div class={styles.infoContainer[variant()]}>
-        <span class={styles.unread}>{merged.unread}</span>
-        <span class={styles.time}>{time()}</span>
-      </div>
+      <Show when={merged.isRejected} fallback={
+        <div class={styles.infoContainer[variant()]}>
+          <span class={styles.unread}>{merged.unread}</span>
+          <span class={styles.time}>{time()}</span>
+        </div>
+      }>
+        <div class={styles.failActionContainer}>
+          <button
+            class={styles.failAction}
+            onClick={merged.onRetryPending}
+          >
+            <IconRefresh />
+          </button>
+          <button
+            class={styles.failAction}
+            onClick={merged.onCancelPending}
+          >
+            <IconClose />
+          </button>
+        </div>
+      </Show>
     </li>
   );
 };
